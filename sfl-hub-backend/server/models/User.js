@@ -1,24 +1,28 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/dbConnection');
+const createSequelizeInstance = require('../config/dbConnection');
 
-const User = sequelize.define('User', {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true,
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-    validate: {
-      isEmail: true,
+createSequelizeInstance().then(sequelize => {
+  const User = sequelize.define('User', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-  },
-});
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true,
+      },
+    },
+  });
 
-module.exports = User;
+  module.exports = User;
+}).catch((error) => {
+  console.error("Error while creating Sequelize instance:", error);
+});
