@@ -1,4 +1,5 @@
 const { User } = require('../models/User');
+const { getUserById } = require('../services/userService'); 
 
 const createUser = async (req, res) => {
   try {
@@ -10,4 +11,14 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser };
+const fetchUserById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await getUserById(userId);
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching user by ID' });
+  }
+};
+
+module.exports = { createUser, fetchUserById };
