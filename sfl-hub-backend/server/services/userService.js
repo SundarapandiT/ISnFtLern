@@ -45,29 +45,62 @@ const UserRegisteration = async (Userdata) => {
     throw error;
   }
 };
+
+// For Email generate OTP to Store in db
 const EmailVerifyOtp = async (Userdata) => {
   try {
     const sequelize = await createSequelizeInstance();  
     if (Userdata) {
-      let OTP = Math.floor(100000 + Math.random() * 900000);
-      var otpquery = "CALL spInsertOTP('"+Userdata.email+"','"+OTP+"');"
-      const result = await sequelize.query(otpquery, {
-        replacements: { Userdata }, 
-        type: Sequelize.QueryTypes.RAW,  
+      const otpQuery = `CALL spInsertOTP(:email, :otp_code, :message);`;
+      const result = await sequelize.query(otpQuery, {
+        replacements: { email: Userdata.email, otp_code: null, message: null },
+        type: Sequelize.QueryTypes.RAW,
+        plain: true
       });
-  
-      return result;
-    }else{
-
-      var message = "Something went wrong"
-      return message
-
+      const otp_code = result[0]?.[0]?.otp_code; 
+      const message = result[0]?.[0]?.message;  
+      if (otp_code && message) {
+        return {
+          message: message || "OTP sent successfully",
+          otp_code: otp_code
+        };
+      } else {
+        console.error("Error: OTP or message is missing.");
+        return { message: "Something went wrong, OTP could not be generated" };
+      }
+    } else {
+      return { message: "User data is missing" };
     }
-      
   } catch (error) {
-    console.error('Error calling stored procedure:', error);
+    console.error('Error generating OTP:', error);
     throw error;
   }
 };
 
-module.exports = { getUserById,UserRegisteration,EmailVerifyOtp };
+// For Verify OTP and change status to Verified or Expired 
+const VerifyOtp = async (email, otp_code) => {
+  try {
+    const sequelize = await createSequelizeInstance(); 
+    const query = `CALL spVerifyOtp(:email_input, :otp_code_input, :status_message, :status_code);`;
+    const result = await sequelize.query(query, {
+      replacements: {
+        email_input: email,
+        otp_code_input: otp_code,
+        status_message: null, 
+        status_code: null
+      },
+      type: sequelize.QueryTypes.RAW,
+      plain: true
+    });
+    const results = result[0];
+    // console.log(results)
+    const message = results[0]?.status_message;  
+    const status = results[0]?.status_code;   
+    return { "message": message, "status": status};
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    throw error;
+  }
+};
+
+module.exports = { getUserById,UserRegisteration,EmailVerifyOtp,VerifyOtp};

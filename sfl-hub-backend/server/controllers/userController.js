@@ -2,6 +2,7 @@ const { User } = require('../models/User');
 const { getUserById } = require('../services/userService');
 const { UserRegisteration } = require('../services/userService'); 
 const { EmailVerifyOtp } = require('../services/userService'); 
+const { VerifyOtp } = require('../services/userService');
 
 const createUser = async (req, res) => {
   try {
@@ -44,4 +45,18 @@ const SaveOtpVerify = async (req, res) => {
   }
 };
 
-module.exports = { createUser, fetchUserById,SaveUserRegisteration,SaveOtpVerify };
+const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp_code } = req.body;  
+    if (!email || !otp_code) {
+      return res.status(400).send({ message: "Email and OTP code are required" });
+    }
+    const result = await VerifyOtp(email, otp_code);
+    return res.status(200).send(result);
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    return res.status(500).send({ message: "An error occurred while verifying OTP" });
+  }
+};
+
+module.exports = { createUser, fetchUserById,SaveUserRegisteration,SaveOtpVerify,verifyOtp };
