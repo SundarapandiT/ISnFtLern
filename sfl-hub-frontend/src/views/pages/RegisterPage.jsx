@@ -1,57 +1,24 @@
 import {React, useState} from "react";
-// import cogoToast from "cogo-toast";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { api } from "../../utils/api";
 
-// import api from "../../utils/apiClient";
-// import SimpleBackdrop from "../../utils/general";
-import moment from "moment";
-import { CommonConfig } from "../../utils/constant";
+import { isEmpty} from "../../utils/constant";
 
-// Material UI components
-import { Box, Paper, TextField, Button, Typography, Link, InputAdornment, Grid, Popover,useMediaQuery } from "@mui/material";
-// import { makeStyles } from "@mui/styles";
-// import InputAdornment from "@mui/material/InputAdornment";
-// import Icon from "@mui/material/Icon";
-// import ListItemText from "@mui/material/ListItemText";
-import { NavLink } from "react-router-dom";
+import { Box, Paper, TextField, Button, Typography, Link, InputAdornment, Grid, Popover,useMediaQuery,IconButton } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-// Material UI Icons
-import { FaUser, FaLock, FaPhone, FaEnvelope } from "react-icons/fa";
+
+import { PersonOutline as FaUser, LockOutlined as FaLock } from "@mui/icons-material";
+
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import { CheckCircle, Cancel } from "@mui/icons-material";
-import { red, green } from "@mui/material/colors";
-// import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-// import LockIcon from "@mui/icons-material/Lock";
-import PhoneIcon from "@mui/icons-material/Phone";
-// import EmailIcon from "@mui/icons-material/Email";
+import  MailOutlineIcon  from "@mui/icons-material/MailOutline";
 
-// import { green, red } from "@mui/material/colors";
-// import CloseIcon from "@mui/icons-material/Close";
-// import DoneIcon from "@mui/icons-material/Done";
-// import FormControl from "@mui/material/FormControl";
-// import TextField from "@mui/material/TextField";
-// import Typography from "@mui/material/Typography";
+import { PhoneOutlined as PhoneIcon } from "@mui/icons-material";
 
-// Core Components
-// import GridContainer from "../../components/Grid/GridContainer";
-// import GridItem from "../../components/Grid/GridItem";
-// import Button from "../../components/CustomButtons/Button.js";.
-// import CustomInput from "../../components/CustomInput/CustomInput";
-// import Card from "../../components/Card/Card";
-// import CardBody from "../../components/Card/CardBody";
-
-
-// Styles
-// import styles from "../../assets/jss/material-dashboard-pro-react/views/registerPageStyle";
-
-
-// Image
-// import image from "assets/img/left-SIGNUP-image.png";
-
-
-// const useStyles = makeStyles(styles);
 import { useRegister } from "../RegisterContext";
 import CryptoJS from "crypto-js";
 
@@ -60,8 +27,9 @@ const RegisterPage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeField, setActiveField] = useState(""); 
   const isMobile = useMediaQuery("(max-width:600px)");
-  const navigate=useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   const {emailVerify,setEmailVerify, registerDetails, setRegisterDetails}=useRegister();
+  const navigate=useNavigate();
   const [state, setState] = useState({
     fullnameErr: false,
     usernameErr: false,
@@ -114,37 +82,37 @@ const RegisterPage = () => {
       [name]: value,
   });
   }
-  // console.log(registerDetails);
+
   const validate = () => {
     let isFormValid = true;
     let errors = {};
 
-    if (CommonConfig.isEmpty(registerDetails.fullname)) {
+    if (isEmpty(registerDetails.fullname)) {
       isFormValid = false;
       errors.fullnameErr = true;
       errors.fullnameHelperText = "Please enter Full name";
     }
-    if (CommonConfig.isEmpty(registerDetails.username)) {
+    if (isEmpty(registerDetails.username)) {
       isFormValid = false;
       errors.usernameErr = true;
       errors.usernameHelperText = "Please enter username";
     }
-    if (CommonConfig.isEmpty(registerDetails.mobile)) {
+    if (isEmpty(registerDetails.mobile)) {
       isFormValid = false;
       errors.mobileErr = true;
       errors.mobileHelperText = "Please enter mobile number";
     }
-    if (CommonConfig.isEmpty(registerDetails.password)) {
+    if (isEmpty(registerDetails.password)) {
       isFormValid = false;
       errors.passwordErr = true;
       errors.passwordHelperText = "Please enter password";
     }
-    if (CommonConfig.isEmpty(registerDetails.confirmpassword)) {
+    if (isEmpty(registerDetails.confirmpassword)) {
       isFormValid = false;
       errors.confirmpasswordErr = true;
       errors.confirmpasswordHelperText = "Please enter confirm password";
     }
-    if (CommonConfig.isEmpty(registerDetails.email)) {
+    if (isEmpty(registerDetails.email)) {
       isFormValid = false;
       errors.emailErr = true;
       errors.emailHelperText = "Please enter email";
@@ -161,7 +129,7 @@ const RegisterPage = () => {
     switch (type) {
       case "fullname":
         errors.checkFullName = true;
-        if (CommonConfig.isEmpty(value)) {
+        if (isEmpty(value)) {
           errors.fullnameErr = true;
           errors.fullnameHelperText = "Please enter Full Name";
         } else if (value.trim() !== value) {
@@ -175,7 +143,7 @@ const RegisterPage = () => {
         break;
       case "username":
         errors.checkUserName = true;
-        if (CommonConfig.isEmpty(value)) {
+        if (isEmpty(value)) {
           errors.usernameErr = true;
           errors.usernameHelperText = "Please enter User Name";
         } else if (value.trim() !== value) {
@@ -192,7 +160,7 @@ const RegisterPage = () => {
       case "email":
         errors.checkEmail = true;
         const emailRegExp = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9-]+\.[A-Z]{2,6}$/gi;
-        if (CommonConfig.isEmpty(value)) {
+        if (isEmpty(value)) {
           errors.emailErr = true;
           errors.emailHelperText = "Please enter Email";
         } else if (value.trim() !== value || !value.match(emailRegExp)) {
@@ -207,7 +175,7 @@ const RegisterPage = () => {
       case "mobile":
         errors.checkMobile = true;
         const mobileRegExp = /^[0-9]{10,15}$/;
-        if (CommonConfig.isEmpty(value)) {
+        if (isEmpty(value)) {
           errors.mobileErr = true;
           errors.mobileHelperText = "Please enter Mobile Number";
         } else if (value.trim() !== value || !value.match(mobileRegExp)) {
@@ -222,7 +190,7 @@ const RegisterPage = () => {
         break;
       case "password":
         errors.checkPassword = true;
-        if (CommonConfig.isEmpty(value)) {
+        if (isEmpty(value)) {
           errors.passwordErr = true;
           errors.passwordHelperText = "Please enter Password";
         } 
@@ -245,7 +213,7 @@ const RegisterPage = () => {
         break;
       case "confirmpassword":
         errors.checkConfirmPassword = true;
-        if (CommonConfig.isEmpty(value)) {
+        if (isEmpty(value)) {
           errors.confirmpasswordErr = true;
           errors.confirmpasswordHelperText = "Please enter Confirm Password";
         } else if (value !== state.password) {
@@ -263,6 +231,46 @@ const RegisterPage = () => {
 
     setState((prevState) => ({ ...prevState, ...errors }));
   };
+  const sendMail = async() => {
+    const loadingToast = toast.loading("Sending OTP...");
+  
+    try {
+        const response = await axios.post(`${api.BackendURL}/users/EmailVerifyOtp`, {
+            email: registerDetails.email,
+        });
+  
+        if (response.status === 200) {
+            toast.dismiss(loadingToast);
+            const userMessage = response.data?.user?.message;
+  
+            if (userMessage === "Email is already verified, no need to generate OTP.") {
+                toast.info("Email is already registered and verified.", {
+                    position: "top-right",
+                    autoClose: 3000,
+                });
+            } else if (userMessage === "OTP sent successfully") {
+                navigate('/emailverification');
+                toast.success("OTP sent successfully!", {
+                    position: "top-right",
+                    autoClose: 3000,
+                });
+            } else {
+                throw new Error("Failed to send OTP");
+            }
+        } else {
+            throw new Error("Unexpected response from server");
+        }
+    } catch (error) {
+        console.error("Error sending OTP:", error);
+        toast.dismiss(loadingToast);
+  
+        toast.error("Failed to send OTP. Try again.", {
+            position: "top-right",
+            autoClose: 3000,
+        });
+    }
+  }
+     
   const signUp = async (event) => {
     event.preventDefault();
     if (validate()) {
@@ -279,55 +287,24 @@ const RegisterPage = () => {
           Email: CryptoJS.AES.encrypt(registerDetails.email, SECRET_KEY).toString(),
         };
   
-        console.log((encryptedData));
 
-        // const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
-        // const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
-
-        // console.log(JSON.parse(decryptedString));
         // Send encrypted data to backend
-        // const res = await axios.post("http://localhost:5000/api/submit", {
-        //   data: encryptedData,
-        // });
+
+        const res = await axios.post(`${api.BackendURL}/signup`, {
+          data: encryptedData,
+        });
   
-        // if (res.data.success) {
-        //   toast.success("Registration successful!");
-        // } else {
-        //   toast.error(res.data.message || "Registration failed");
-        // }
+        if (res.data.success) {
+          toast.success("Registration successful!");
+        } else {
+          toast.error(res.data.message || "Registration failed");
+        }
       } catch (error) {
         console.error("Sign-up error:", error);
         toast.error(error.message || "Something went wrong");
       }
     }
   }
-
-  const login = async (data) => {
-    try {
-      const res = await api.post("authentication/userLoginAuthenticate", data);
-      if (res.success) {
-        setState((prevState) => ({ ...prevState, Loading: true, isloggedIn: true }));
-
-        let timeZone = moment.tz.guess();
-        const time = moment.tz(res.Data.LastLoginTimestamp);
-        const date = time.clone().tz(timeZone);
-        let formatDate = moment(date).format("YYYY-MM-DD HH:mm:ss");
-        formatDate = moment(formatDate).add(30, "minutes");
-        res.Data.LastLoginTimestamp = moment(formatDate).format("YYYY-MM-DD HH:mm:ss");
-
-        localStorage.setItem("loggedInUserData", JSON.stringify(res.Data));
-        
-        setTimeout(() => {
-          window.location.href = "/admin/Scheduleshipment";
-        }, 4000);
-      } else {
-        setState((prevState) => ({ ...prevState, Loading: false }));
-        toast.error(res.message);
-      }
-    } catch (error) {
-      toast.error("Something went wrong");
-    }
-  };
 
   return (
     
@@ -446,11 +423,6 @@ const RegisterPage = () => {
             &nbsp; Must be letters a - z
           </Typography>
 
-          {/* <Typography color={state.username.trim() === state.username ? "green" : "red"} sx={{ display: "flex", alignItems: "center" }}>
-            {state.username.trim() === state.username ? <CheckCircle color="success" /> : <Cancel color="error" />}
-            &nbsp; No leading or trailing spaces
-          </Typography> */}
-
           <Typography color={state.username.length >= 8 && state.username.length <= 32 ? "green" : "red"} sx={{ display: "flex", alignItems: "center" , fontSize: "0.855rem"}}>
             {state.username.length >= 8 && state.username.length <= 32 ? <CheckCircle color="success" /> : <Cancel color="error" />}
             &nbsp; Must be 8-32 characters long
@@ -475,7 +447,7 @@ const RegisterPage = () => {
   <Grid item xs={12} sm={6}>
     <TextField
       fullWidth
-      type="password"
+      type={showPassword ? "text" : "password"}
       name="password"
       label="Password"
       // placeholder="Password"
@@ -503,6 +475,13 @@ const RegisterPage = () => {
         startAdornment: (
           <InputAdornment position="start">
             <FaLock color="gray" />
+          </InputAdornment>
+        ),
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton onClick={() => setShowPassword((prev) => !prev)} sx={{ padding:"5px" }}>
+              {showPassword ? <VisibilityOff sx={{ fontSize: 18 }} /> : <Visibility sx={{ fontSize: 18 }}/>}
+            </IconButton>
           </InputAdornment>
         ),
       }}
@@ -558,7 +537,7 @@ const RegisterPage = () => {
   <Grid item xs={12} sm={6}>
     <TextField
       fullWidth
-      type="password"
+      type={showPassword ? "text" : "password"}
       name="confirmpassword"
       label="Confirm Password"
       // placeholder="Confirm Password"
@@ -584,6 +563,13 @@ const RegisterPage = () => {
         startAdornment: (
           <InputAdornment position="start">
             <FaLock color="gray" />
+          </InputAdornment>
+        ),
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton onClick={() => setShowPassword((prev) => !prev)} sx={{ padding: "5px" }}>
+              {showPassword ? <VisibilityOff  sx={{ fontSize: 18 }}/> : <Visibility sx={{ fontSize: 18 }} />}
+            </IconButton>
           </InputAdornment>
         ),
       }}
@@ -650,13 +636,13 @@ const RegisterPage = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <FaEnvelope color="gray" />
+                  <MailOutlineIcon color="gray" />
                 </InputAdornment>
               ),
               endAdornment: state.email.includes("@") ? (
                 <Button  
                 variant="contained" 
-                sx={{ backgroundColor: "Green" }} onClick={()=>{navigate('/emailverification')}}>Verify</Button>
+                sx={{ backgroundColor: "Green" }} onClick={sendMail}>Verify</Button>
               ) : null,
             }}
           />
@@ -671,369 +657,12 @@ const RegisterPage = () => {
             SIGN UP
           </Button>
         </form>
-
-        <Typography align="center" mt={2} color="textSecondary">
-          Already have an account?{" "}
-          <Link component={NavLink} to="/login" color="primary">
-            Login
-          </Link>
-        </Typography>
+        <Box display="flex" justifyContent="center" mt={2}>
+        <Typography variant="body2"  color="primary"  component="a" href="/auth/login-page"  sx={{ color: "darkblue",textDecoration: "none", fontWeight:400 }} >
+        Already have an account?
+            </Typography></Box>
       </Paper>
     </Box>
-    
-   
-    
-    // <div className="signup-page-outer">
-    //     {state.Loading === true ? (
-    //       <div className="loading">
-    //         <SimpleBackdrop />
-    //       </div>
-    //     ) : null}
-    //     <GridContainer justify="center">
-    //       <GridItem className="signup-page-outer2">
-    //         <Card className="Signup-main-outer">
-    //           <CardBody className="Signup-main-inner">
-    //             <GridContainer>
-    //               <GridItem
-    //                 xs={12}
-    //                 sm={12}
-    //                 md={6}
-    //                 className="signup-left-section"
-    //               >
-    //                 <div className="signup-left-outer">
-    //                   <div className="signup-left-inner">
-    //                     <div className="signup-left-text">
-    //                       <h2>Introducing Ship Smart with SFL Worldwide</h2>
-    //                       <p>
-    //                         One Stop Hub for all Domestic & International
-    //                         Shipping and Moving Services
-    //                       </p>
-    //                       <img src={image} alt="SFL Worldwide" />
-    //                     </div>
-    //                   </div>
-    //                 </div>
-    //               </GridItem>
-    //               <GridItem xs={12} sm={12} md={6}>
-    //                 <div className="login-logo"></div>
-    //                 <form className="signup-form-outer">
-    //                   <CustomInput
-    //                     labelText={<span>Full Name</span>}
-    //                     id="fullname"
-    //                     name="fullname"
-    //                     variant="outlined"
-    //                     error={state.fullnameErr}
-    //                     helperText={state.fullnameHelperText}
-    //                     formControlProps={{ fullWidth: true }}
-    //                     inputProps={{
-    //                       onBlur: (event) => handleBlur(event, "fullname"),
-    //                       onFocus: () =>
-    //                         setState({
-    //                           fullnameErr: false,
-    //                           fullnameHelperText: "",
-    //                           checkFullName: false,
-    //                         }),
-    //                       endAdornment:
-    //                         checkFullName !== true ? (
-    //                           <Icon>person</Icon>
-    //                         ) : fullnameErr ? (
-    //                           <InputAdornment position="end">
-    //                             <CloseIcon
-    //                               style={{ color: red[500] }}
-    //                               className={useStyles.danger}
-    //                             />
-    //                           </InputAdornment>
-    //                         ) : (
-    //                           <InputAdornment position="end">
-    //                             {" "}
-    //                             <DoneIcon
-    //                               style={{ color: green[500] }}
-    //                               className={useStyles.success}
-    //                             />
-    //                           </InputAdornment>
-    //                         ),
-    //                     }}
-    //                   />
-
-    //                   <CustomInput
-    //                     labelText="User Name"
-    //                     id="username"
-    //                     error={state.usernameErr}
-    //                     helperText={state.usernameHelperText}
-    //                     formControlProps={{ fullWidth: true }}
-    //                     inputProps={{
-    //                       onBlur: (event) => handleBlur(event, "username"),
-    //                       onFocus: () =>
-    //                         setState({
-    //                           usernameErr: false,
-    //                           usernameHelperText: "",
-    //                           checkUserName: false,
-    //                         }),
-    //                       endAdornment:
-    //                         checkUserName !== true ? (
-    //                           <Icon>person</Icon>
-    //                         ) : usernameErr ? (
-    //                           <InputAdornment position="end">
-    //                             <CloseIcon
-    //                               style={{ color: red[500] }}
-    //                               className={useStyles.danger}
-    //                             />
-    //                           </InputAdornment>
-    //                         ) : (
-    //                           <InputAdornment position="end">
-    //                             {" "}
-    //                             <DoneIcon
-    //                               style={{ color: green[500] }}
-    //                               className={useStyles.success}
-    //                             />
-    //                           </InputAdornment>
-    //                         ),
-    //                     }}
-    //                   />
-
-    //                   <GridContainer>
-    //                     <GridItem xs={12} sm={6} md={6} className="pln">
-    //                       <MDBContainer>
-    //                         <MDBPopover
-    //                           className="ps-popover-outer"
-    //                           placement="bottom"
-    //                           popover
-    //                           id="popper1"
-    //                         >
-    //                           <FormControl fullWidth className="pass-input">
-    //                             <TextField
-    //                               label="Password"
-    //                               id="password"
-    //                               type="password"
-    //                               error={state.passwordErr}
-    //                               value={state.password}
-    //                               formControlProps={{ fullWidth: true }}
-    //                               aria-describedby="simple-popover"
-    //                               helperText={state.passwordHelperText}
-    //                               inputProps={{
-    //                                 onChange: (event) =>
-    //                                   handleBlur(event, "password"),
-    //                                 onBlur: (event) =>
-    //                                   handleBlur(event, "password"),
-    //                                 onFocus: () =>
-    //                                   setState({
-    //                                     passwordErr: false,
-    //                                     passwordHelperText: "",
-    //                                     checkPassword: true,
-    //                                   }),
-    //                               }}
-    //                             />
-    //                           </FormControl>
-    //                           <div className="ps-popover-inner">
-    //                             <MDBPopoverHeader>
-    //                               Your password must have:
-    //                             </MDBPopoverHeader>
-    //                             <MDBPopoverBody>
-    //                               <React.Fragment>
-    //                                 {checkUpperCase ? (
-    //                                   <Typography style={{ color: "#2E7D32" }}>
-    //                                     <i class="far fa-check-circle"></i>One
-    //                                     uppercase letter
-    //                                   </Typography>
-    //                                 ) : (
-    //                                   <Typography color="error">
-    //                                     <i class="far fa-check-circle"></i>One
-    //                                     uppercase letter
-    //                                   </Typography>
-    //                                 )}
-    //                                 {checkLowerCase ? (
-    //                                   <Typography style={{ color: "#2E7D32" }}>
-    //                                     <i class="far fa-check-circle"></i>One
-    //                                     lowercase letter
-    //                                   </Typography>
-    //                                 ) : (
-    //                                   <Typography color="error">
-    //                                     <i class="far fa-check-circle"></i>One
-    //                                     lowercase letter
-    //                                   </Typography>
-    //                                 )}
-    //                                 {checkSpecialCharacter ? (
-    //                                   <Typography style={{ color: "#2E7D32" }}>
-    //                                     <i class="far fa-check-circle"></i>One
-    //                                     special character
-    //                                   </Typography>
-    //                                 ) : (
-    //                                   <Typography color="error">
-    //                                     <i class="far fa-check-circle"></i>One
-    //                                     special character
-    //                                   </Typography>
-    //                                 )}
-    //                                 {checkNumber ? (
-    //                                   <Typography style={{ color: "#2E7D32" }}>
-    //                                     <i class="far fa-check-circle"></i>One
-    //                                     number
-    //                                   </Typography>
-    //                                 ) : (
-    //                                   <Typography color="error">
-    //                                     <i class="far fa-check-circle"></i>One
-    //                                     number
-    //                                   </Typography>
-    //                                 )}
-    //                                 {checkLetter ? (
-    //                                   <Typography style={{ color: "#2E7D32" }}>
-    //                                     <i class="far fa-check-circle"></i>
-    //                                     Minimum 8 characters
-    //                                   </Typography>
-    //                                 ) : (
-    //                                   <Typography color="error">
-    //                                     <i class="far fa-check-circle"></i>
-    //                                     Minimum 8 characters
-    //                                   </Typography>
-    //                                 )}
-    //                               </React.Fragment>
-    //                             </MDBPopoverBody>
-    //                           </div>
-    //                         </MDBPopover>
-    //                       </MDBContainer>
-    //                     </GridItem>
-
-    //                     <GridItem xs={12} sm={6} md={6} className="prn">
-    //                       <CustomInput
-    //                         labelText="Confirm Password"
-    //                         error={
-    //                           state.confirmpasswordErr}
-    //                         helperText={
-    //                           state.confirmpasswordHelperText}
-    //                         formControlProps={{ fullWidth: true }}
-    //                         inputProps={{
-    //                           onBlur: (event) =>
-                                
-    //                             handleBlur(event, "confirmpassword"),
-    //                           onFocus: () =>
-                                
-    //                             setState({
-    //                               confirmpasswordErr: false,
-    //                               confirmpasswordHelperText: "",
-    //                               checkConfirmPassword: false,
-    //                             }),
-    //                           endAdornment:
-    //                             checkConfirmPassword !== true ? (
-    //                               <Icon>lock_outline</Icon>
-    //                             ) : confirmpasswordErr ? (
-    //                               <InputAdornment position="end">
-    //                                 <CloseIcon
-    //                                   style={{ color: red[500] }}
-    //                                   className={useStyles.danger}
-    //                                 />
-    //                               </InputAdornment>
-    //                             ) : (
-    //                               <InputAdornment position="end">
-    //                                 {" "}
-    //                                 <DoneIcon
-    //                                   style={{ color: green[500] }}
-    //                                   className={useStyles.success}
-    //                                 />
-    //                               </InputAdornment>
-    //                             ),
-    //                           type: "password",
-    //                           autoComplete: "off",
-    //                         }}
-    //                       />
-    //                     </GridItem>
-    //                   </GridContainer>
-
-    //                   <CustomInput
-    //                     labelText="Contact Number"
-    //                     id="contactnumber"
-    //                     error={state.mobileErr}
-    //                     helperText={state.mobileHelperText}
-    //                     formControlProps={{ fullWidth: true }}
-    //                     inputProps={{
-    //                       onFocus: () =>
-    //                         setState({
-    //                           mobileErr: false,
-    //                           mobileHelperText: "",
-    //                           checkMobile: false,
-    //                         }),
-    //                       onBlur: (event) => handleBlur(event, "mobile"),
-    //                       endAdornment:
-    //                         checkMobile !== true ? (
-    //                           <Icon>phone</Icon>
-    //                         ) : mobileErr ? (
-    //                           <InputAdornment position="end">
-    //                             <CloseIcon
-    //                               style={{ color: red[500] }}
-    //                               className={useStyles.danger}
-    //                             />
-    //                           </InputAdornment>
-    //                         ) : (
-    //                           <InputAdornment position="end">
-    //                             {" "}
-    //                             <DoneIcon
-    //                               style={{ color: green[500] }}
-    //                               className={useStyles.success}
-    //                             />{" "}
-    //                           </InputAdornment>
-    //                         ),
-    //                     }}
-    //                   />
-
-    //                   <CustomInput
-    //                     labelText="Email Address *"
-    //                     error={state.emailErr}
-    //                     formControlProps={{ fullWidth: true }}
-    //                     helperText={state.emailHelperText}
-    //                     inputProps={{
-    //                       onBlur: (event) => handleBlur(event, "email"),
-    //                       onFocus: () =>
-    //                         setState({
-    //                           emailErr: false,
-    //                           emailHelperText: "",
-    //                           checkEmail: false,
-    //                         }),
-    //                       endAdornment:
-    //                         state.checkEmail !== true ? (
-    //                           <Icon>email</Icon>
-    //                         ) : emailErr ? (
-    //                           <InputAdornment position="end">
-    //                             <CloseIcon
-    //                               style={{ color: red[500] }}
-    //                               className={useStyles.danger}
-    //                             />
-    //                           </InputAdornment>
-    //                         ) : (
-    //                           <InputAdornment position="end">
-    //                             {" "}
-    //                             <DoneIcon
-    //                               style={{ color: green[500] }}
-    //                               className={useStyles.success}
-    //                             />{" "}
-    //                           </InputAdornment>
-    //                         ),
-    //                       type: "email",
-    //                     }}
-    //                   />
-
-    //                   <div className="align-center">
-    //                     <Button
-    //                       className="signup-btn"
-    //                       onClick={(event) => signUP(event)}
-    //                     >
-    //                       Signup
-    //                     </Button>
-    //                     <ListItemText className="loginpage-link-outer">
-    //                       {" "}
-    //                       Back to
-    //                       <NavLink
-    //                         className="registerpage-login-link"
-    //                         to={"/auth/loginpage"}
-    //                       >
-    //                         Login
-    //                       </NavLink>
-    //                     </ListItemText>
-    //                   </div>
-    //                 </form>
-    //               </GridItem>
-    //             </GridContainer>
-    //           </CardBody>
-    //         </Card>
-    //       </GridItem>
-    //     </GridContainer>
-    //   </div>
 
   );
 
