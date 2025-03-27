@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast"; 
 import { useRegister } from "../RegisterContext";
 import axios from "axios";
+import { api} from "../../utils/api";
 
 
 const EmailVerification = () => {
@@ -18,62 +19,7 @@ const EmailVerification = () => {
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [filled, setFilled] = useState(new Array(6).fill(false));
   const [open, setOpen] = useState(true);
-  const [generatedOtp, setGeneratedOtp] = useState("");
   const inputRefs = useRef([]);
-  const otpGenerated = useRef(false);
-
-  async function generateOTP()
-  {
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      setGeneratedOtp(newOtp);
-      console.log("Generated OTP:", newOtp);
-      toast.success("OTP sent to Your Mail", {
-        position: "top-right", 
-        duration: 3000,        
-      });
-  }
-
-  // async function generateOTP() {
-  //   const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-  //   setGeneratedOtp(newOtp); 
-  
-  //   console.log("Generated OTP:", newOtp);
-  
-  //   try {
-  //     const response = await axios.post("http://localhost:5000/send-email", {
-  //       email: registerDetails.email, 
-  //       otp: newOtp,                   
-  //     });
-  
-  //     if (response.status === 200 && response.data.message) {
-  //       toast.success(response.data.message, {
-  //         position: "top-right",
-  //         autoClose: 3000,
-  //       });
-     
-  //     } else {
-  //       throw new Error("Email sending failed");
-  //     }
-  
-  //   } catch (error) {
-  //     console.error("Error sending OTP:", error);
-  
-  //     toast.error("Failed to send OTP. Try again.", {
-  //       position: "top-right",
-  //       autoClose: 3000,
-  //     });
-  //   }
-  // }
-  
-
-
-  useEffect(() => {
-    if (!otpGenerated.current) {
-    generateOTP();
-      otpGenerated.current = true;  
-    }
-  }, []);
-  
 
   const handleChange = (e, index) => {
     let value = e.target.value;
@@ -89,11 +35,6 @@ const EmailVerification = () => {
       if (value !== "" && index < 5) {
         inputRefs.current[index + 1].focus();
       }
-
-      // Validate OTP when last digit is entered
-      // if (index === 5 && value !== "") {
-      //   validateOtp(newOtp.join(""));
-      // }
     }
   };
 
@@ -104,19 +45,78 @@ const EmailVerification = () => {
     }
   };
 
-  // Validate OTP (Replace with actual validation logic)
-  const validateOtp = (enteredOtp) => {
-    if (enteredOtp === generatedOtp) {
-      // alert("✅ OTP Verified Successfully!");
-      toast.success(" OTP Verified Successfully!");
-      setEmailVerify(true);
-      navigate('/auth/register-page');
-    } else {
-      // alert("❌ Invalid OTP. Please try again.");
-      toast.error("Invalid OTP. Please try again.");
-
+  const validateOtp = async (enteredOtp) => {
+    const loadingToast = toast.loading("Verifying OTP...");
+    try {
+      const response = await axios.post(`${api.BackendURL}/users/verifyOtp`, {
+        email: registerDetails.email, 
+        otp_code: enteredOtp, 
+      });
+  
+      if (response.status === 200 && response.data.status === "verified") {
+        toast.dismiss(loadingToast);
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 3000,
+        });
+  
+        setEmailVerify(true); 
+        navigate('/auth/register-page'); 
+      } else {
+        throw new Error("OTP verification failed");
+      }
+  
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      toast.dismiss(loadingToast);
+      toast.error("Invalid OTP. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
+  const sendMail = async() => {
+    const loadingToast = toast.loading("Sending OTP...");
+  
+    try {
+        const response = await axios.post(`${api.BackendURL}/users/EmailVerifyOtp`, {
+            email: registerDetails.email,
+        });
+  
+        if (response.status === 200) {
+            toast.dismiss(loadingToast);
+            const message = response.data?.message;
+            const userMessage = response.data?.user?.message;
+  
+  
+            if (message === "Email is already verified, no need to generate OTP") {
+                toast.info("Email is already registered and verified.", {
+                    position: "top-right",
+                    autoClose: 3000,
+                });
+            } else if (userMessage === "OTP sent successfully") {
+                navigate('/emailverification');
+                toast.success("OTP sent successfully!", {
+                    position: "top-right",
+                    autoClose: 3000,
+                });
+            } else {
+                throw new Error("Failed to send OTP");
+            }
+        } else {
+            throw new Error("Unexpected response from server");
+        }
+    } catch (error) {
+        console.error("Error sending OTP:", error);
+        toast.dismiss(loadingToast);
+  
+        toast.error("Failed to send OTP. Try again.", {
+            position: "top-right",
+            autoClose: 3000,
+        });
+    }
+  }
+  
 
   useEffect(() => {
     if (!open) {
@@ -180,7 +180,7 @@ const EmailVerification = () => {
         >
           Verify Email
         </Button>
-        <Typography variant="body2" mt={2} color="primary" sx={{ cursor: "pointer" }} onClick={generateOTP}>
+        <Typography variant="body2" mt={2} color="primary" sx={{ cursor: "pointer" }} onClick={sendMail}>
           Resend Code
         </Typography>
       </Paper>
