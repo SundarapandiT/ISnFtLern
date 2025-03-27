@@ -241,11 +241,9 @@ const RegisterPage = () => {
   
         if (response.status === 200) {
             toast.dismiss(loadingToast);
-            const message = response.data?.message;
             const userMessage = response.data?.user?.message;
   
-  
-            if (message === "Email is already verified, no need to generate OTP") {
+            if (userMessage === "Email is already verified, no need to generate OTP.") {
                 toast.info("Email is already registered and verified.", {
                     position: "top-right",
                     autoClose: 3000,
