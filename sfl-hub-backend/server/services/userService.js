@@ -1,7 +1,14 @@
 const { Sequelize } = require('sequelize');
 const createSequelizeInstance = require('../config/dbConnection'); 
 const SECRET_KEY = process.env.VITE_SECRET_KEY;
-
+var nodemailer = require("nodemailer");
+const mg = require("nodemailer-mailgun-transport");
+const auth = {
+  auth: {
+    api_key: process.env.MailGunapi_key,
+    domain: process.env.MailGundomain,
+  },
+};
 
 const getUserById = async (userId) => {
   try {
@@ -47,22 +54,81 @@ const UserRegisteration = async (Userdata) => {
 };
 
 // For Email generate OTP to Store in db
+
 const EmailVerifyOtp = async (Userdata) => {
   try {
-    const sequelize = await createSequelizeInstance();  
+    const sequelize = await createSequelizeInstance();
     if (Userdata) {
-      const otpQuery = `CALL spInsertOTP(:email, :otp_code, :message);`;
+      const otpQuery = `CALL spInsertOTP(:email, :otp_code, :message);`; 
       const result = await sequelize.query(otpQuery, {
         replacements: { email: Userdata.email, otp_code: null, message: null },
         type: Sequelize.QueryTypes.RAW,
         plain: true
       });
-      const otp_code = result[0]?.[0]?.otp_code; 
-      const message = result[0]?.[0]?.message;  
+      // console.log("result:", result);
+      const results = result[0];
+      const otp_code = results[0]?.otp_code || '';
+      const message = results[0]?.message || ''; 
+      
       if (otp_code && message) {
+        const transporter = nodemailer.createTransport(mg(auth));
+        var text = 
+		`<html lang="en">
+			<head>
+				<meta charset="utf-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
+				
+				<title>SFL Worldwide</title>
+				<style type="text/css">
+					table ,tr , td { margin: 0; padding: 0;border: 1px solid; }
+					body { font-size: 14px; font-family: 'Open Sans', sans-serif; color: #000; }
+					table { width:400px; }
+					span { margin: 0px 2px 0px 2px;font-weight: bold;}
+				</style>
+			</head>
+			<body>
+				<div>
+		
+					<p>Hello,</p>
+					<p>Use OTP ${result[0]?.[0]?.otp_code} to verify your email to register in SFL Worldwide </p>
+					
+					<p>Thanks</p>
+					<p>SFl Team</p>
+					
+				</div>
+				
+			</body>
+		</html>
+			`;
+        var mailOptions = {
+          
+          from: "contact@sflworldwide.com",
+          to: Userdata.email,
+          cc: "anshul@sflworldwide.com",
+          bcc: "",
+          subject: "Email verification OTP",
+          html: text,
+          attachments: [],
+          replyTo: "contact@sflworldwide.com",
+        };
+        transporter.sendMail(mailOptions, (sendMailerror, info) => {
+          console.log(sendMailerror, info);
+          if (sendMailerror) {
+            console.log("email......err", sendMailerror);
+            
+          } else {
+            console.log("email......res", info);
+           
+          }
+        });
         return {
           message: message || "OTP sent successfully",
           otp_code: otp_code
+        };
+      } else if (message === 'Email is already verified, no need to generate OTP.') {
+        return {
+          message: message,
+          otp_code: '' 
         };
       } else {
         console.error("Error: OTP or message is missing.");
@@ -76,6 +142,7 @@ const EmailVerifyOtp = async (Userdata) => {
     throw error;
   }
 };
+
 
 // For Verify OTP and change status to Verified or Expired 
 const VerifyOtp = async (email, otp_code) => {
