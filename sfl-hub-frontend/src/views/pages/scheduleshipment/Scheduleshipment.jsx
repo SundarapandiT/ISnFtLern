@@ -6,8 +6,6 @@ import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
 import AppBar from "@mui/material/AppBar";
 import Menu from "@mui/material/Menu";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -21,6 +19,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 
 import Sidebar from "./Sidebar";
+import SectionTabs from "./SectionTabs";
 import PickupForm from "./PickupForm";
 import Sender from "./Sender";
 import Recipient from "./Recipient";
@@ -432,54 +431,7 @@ useEffect(() => {
 </Box>Schedule Shipment</Typography>
              {/* Tabs (only shown when activeModule is "Schedule Shipment") */}
         {activeModule === "Schedule Shipment" && (
-       <Tabs
-       orientation={isMobile ? "vertical" : "horizontal"} 
-       value={activeTab}
-       onChange={(e, newValue) => setActiveTab(newValue)}
-       variant="fullWidth"
-       indicatorColor="undefined"
-       sx={{
-        position: "relative",
-       }}
-     >
-       <Box
-        sx={{
-          position: "absolute",
-          bottom: isMobile ? "auto" : 0,
-          left: isMobile ? "auto" : `${["schedule-pickup", "sender", "recipient", "package", "payment"].indexOf(activeTab) * 20}%`, 
-          top: isMobile ? `${["schedule-pickup", "sender", "recipient", "package", "payment"].indexOf(activeTab) * 20}%` : "auto",
-          width: isMobile ? "100%" : "20%", 
-          height: isMobile ? "20%" : "100%",
-          backgroundColor: "#eb0c40",
-          borderRadius: "5px",
-          boxShadow: "0px 5px 10px rgba(0, 0, 0, 0.3)",
-          transition: isMobile ? "top 0.3s ease-in-out" : "left 0.3s ease-in-out",
-        }}
-/>
-       {["Schedule Pickup", "Sender", "Recipient", "Package", "Payment"].map((label, index) => (
-         <Tab
-           key={label}
-           label={label}
-           value={label.toLowerCase().replace(" ", "-")}
-           sx={{
-            //  flex: { xs: "50%", sm: "20%" }, 
-             textAlign: "center",
-             fontSize: { xs: "12px", sm: "16px" }, 
-             backgroundColor: activeTab === label.toLowerCase().replace(" ", "-") ? "" : "transparent",
-             borderRadius: "9px",
-             transition: "background-color 0.3s ease-in-out, color 0.3s ease-in-out",
-             "&.Mui-selected": {
-               boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-               color:"white"
-             },
-           }}
-         />
-       ))}
-     </Tabs>
-     
-      
-       
-        
+      <SectionTabs activeTab={activeTab} setActiveTab={setActiveTab} isMobile={isMobile} />      
         
         )}
 
