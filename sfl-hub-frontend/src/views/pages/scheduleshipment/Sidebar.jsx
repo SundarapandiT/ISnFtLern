@@ -105,7 +105,7 @@ const Sidebar = ({
           bgcolor: "#1a202c",
           color: "white",
           p: 1,
-          display: { xs: "none", sm: "block" },
+          display: { xs: "none", sm: "block", overflowY:"hidden" },
           transition: "width 0.3s ease-in-out",
         }}
       >
