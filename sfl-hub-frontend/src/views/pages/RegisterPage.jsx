@@ -244,6 +244,7 @@ const RegisterPage = () => {
             const userMessage = response.data?.user?.message;
   
             if (userMessage === "Email is already verified, no need to generate OTP.") {
+              navigate('/auth/login-page')
                 toast.info("Email is already registered and verified.", {
                     position: "top-right",
                     autoClose: 3000,
