@@ -240,39 +240,35 @@ const RegisterPage = () => {
             email: registerDetails.email,
         });
 
-        toast.dismiss(loadingToast);
+        const userMessage = response.data?.user?.message;
 
-        if (response.status === 200) {
-          const userMessage = response.data?.user?.message;
-
-            if (userMessage === 'Email is already verified, no need to generate OTP.') {
-                navigate('/auth/login-page');
-                toast.info("Email is already registered and verified.", {
-                    position: "top-right",
-                    autoClose: 3000,
-                });
-            } else if (userMessage === "OTP sent successfully") {
-                navigate('/emailverification');
-                toast.success("OTP sent successfully!", {
-                    position: "top-right",
-                    autoClose: 3000,
-                });
-            } else {
-                throw new Error(userMessage || "Failed to send OTP");
-            }
+        if (userMessage === 'Email is already verified, no need to generate OTP.') {
+            navigate('/auth/login-page');
+            toast.info("Email is already registered and verified.", {
+                position: "top-right",
+                autoClose: 3000,
+            });
+        } else if (userMessage === "OTP sent successfully") {
+            navigate('/emailverification');
+            toast.success("OTP sent successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+            });
         } else {
-            throw new Error("Unexpected response from server");
+            throw new Error(userMessage || "Failed to send OTP");
         }
     } catch (error) {
         console.error("Error sending OTP:", error);
-        toast.dismiss(loadingToast);
 
-        toast.error(error.response?.data?.message || "Failed to send OTP. Try again.", {
+        toast.error(error?.response?.data?.message || "Failed to send OTP. Try again.", {
             position: "top-right",
             autoClose: 3000,
         });
+    } finally {
+        toast.dismiss(loadingToast);
     }
 };
+
 
      
   const signUp = async (event) => {

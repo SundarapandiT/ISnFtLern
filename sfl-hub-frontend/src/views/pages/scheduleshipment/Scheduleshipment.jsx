@@ -539,7 +539,7 @@ useEffect(() => {
              handleRemoveInvoiceRow={handleRemoveInvoiceRow}
              calculateTotalValue={calculateTotalValue}
              handlepackagePrevious={handlepackagePrevious}
-           />
+          />
           )}
 
         {activeModule === "Schedule Shipment" && activeTab === "payment" && (
