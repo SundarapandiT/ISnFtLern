@@ -231,19 +231,22 @@ const RegisterPage = () => {
 
     setState((prevState) => ({ ...prevState, ...errors }));
   };
-  const sendMail = async() => {
-    const loadingToast = toast.loading("Sending OTP...");
   
+  const sendMail = async () => {
+    const loadingToast = toast.loading("Sending OTP...");
+
     try {
         const response = await axios.post(`${api.BackendURL}/users/EmailVerifyOtp`, {
             email: registerDetails.email,
         });
-  
+
+        toast.dismiss(loadingToast);
+
         if (response.status === 200) {
-            toast.dismiss(loadingToast);
-            const userMessage = response.data?.user?.message;
-  
-            if (userMessage === "Email is already verified, no need to generate OTP.") {
+          const userMessage = response.data?.user?.message;
+
+            if (userMessage === 'Email is already verified, no need to generate OTP.') {
+                navigate('/auth/login-page');
                 toast.info("Email is already registered and verified.", {
                     position: "top-right",
                     autoClose: 3000,
@@ -255,7 +258,7 @@ const RegisterPage = () => {
                     autoClose: 3000,
                 });
             } else {
-                throw new Error("Failed to send OTP");
+                throw new Error(userMessage || "Failed to send OTP");
             }
         } else {
             throw new Error("Unexpected response from server");
@@ -263,13 +266,14 @@ const RegisterPage = () => {
     } catch (error) {
         console.error("Error sending OTP:", error);
         toast.dismiss(loadingToast);
-  
-        toast.error("Failed to send OTP. Try again.", {
+
+        toast.error(error.response?.data?.message || "Failed to send OTP. Try again.", {
             position: "top-right",
             autoClose: 3000,
         });
     }
-  }
+};
+
      
   const signUp = async (event) => {
     event.preventDefault();
