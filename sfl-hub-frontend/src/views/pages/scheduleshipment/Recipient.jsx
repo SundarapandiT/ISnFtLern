@@ -43,6 +43,10 @@ const Recipient = ({
   setRecipientPhone2,
   recipientEmail,
   setRecipientEmail,
+  recipientLocationType,
+  setRecipientLocationType,
+  recipientNeedsPickup,
+  setRecipientNeedsPickup,
   recipientErrors,
   usStates,
   handleRecipientSubmit,
@@ -55,24 +59,121 @@ const Recipient = ({
         <Typography variant="h5">Recipient</Typography>
       </Box>
       <form onSubmit={handleRecipientSubmit}>
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2 }}>
-          <TextField label="Country" value={recipientCountry} onChange={(e) => setRecipientCountry(e.target.value)} fullWidth InputProps={{ startAdornment: <PublicIcon sx={{ color: "action.active", mr: 1 }} /> }} />
-          <TextField label="Company Name" value={recipientCompanyName} onChange={(e) => setRecipientCompanyName(e.target.value)} fullWidth InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }} />
-          <TextField label="Contact Name" value={recipientContactName} onChange={(e) => setRecipientContactName(e.target.value)} fullWidth required error={!!recipientErrors.contactName} helperText={recipientErrors.contactName} InputProps={{ startAdornment: <PersonIcon sx={{ color: "action.active", mr: 1 }} /> }} />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            mb: 2,
+          }}
+        >
+          <TextField
+            label="Country"
+            value={recipientCountry}
+            onChange={(e) => setRecipientCountry(e.target.value)}
+            fullWidth
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <PublicIcon sx={{ color: "action.active", mr: 1 }} /> }}
+          />
+          <TextField
+            label="Company Name"
+            value={recipientCompanyName}
+            onChange={(e) => setRecipientCompanyName(e.target.value)}
+            fullWidth
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
+          />
+          <TextField
+            label="Contact Name"
+            value={recipientContactName}
+            onChange={(e) => setRecipientContactName(e.target.value)}
+            fullWidth
+            required
+            error={!!recipientErrors.contactName}
+            helperText={recipientErrors.contactName}
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <PersonIcon sx={{ color: "action.active", mr: 1 }} /> }}
+          />
         </Box>
 
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2 }}>
-          <TextField label="Address Line 1" value={recipientAddressLine1} onChange={(e) => setRecipientAddressLine1(e.target.value)} fullWidth required error={!!recipientErrors.addressLine1} helperText={recipientErrors.addressLine1} InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "red", mr: 1 }} /> }} />
-          <TextField label="Address Line 2" value={recipientAddressLine2} onChange={(e) => setRecipientAddressLine2(e.target.value)} fullWidth InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }} />
-          <TextField label="Address Line 3" value={recipientAddressLine3} onChange={(e) => setRecipientAddressLine3(e.target.value)} fullWidth InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }} />
+        {/* Row 2: Address Line 1, Address Line 2, Address Line 3 */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            mb: 2,
+          }}
+        >
+          <TextField
+            label="Address Line 1"
+            value={recipientAddressLine1}
+            onChange={(e) => setRecipientAddressLine1(e.target.value)}
+            fullWidth
+            required
+            error={!!recipientErrors.addressLine1}
+            helperText={recipientErrors.addressLine1}
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "red", mr: 1 }} /> }}
+          />
+          <TextField
+            label="Address Line 2"
+            value={recipientAddressLine2}
+            onChange={(e) => setRecipientAddressLine2(e.target.value)}
+            fullWidth
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }}
+          />
+          <TextField
+            label="Address Line 3"
+            value={recipientAddressLine3}
+            onChange={(e) => setRecipientAddressLine3(e.target.value)}
+            fullWidth
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }}
+          />
         </Box>
 
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2 }}>
-          <TextField label="Zip Code" value={recipientZipCode} onChange={(e) => setRecipientZipCode(e.target.value)} fullWidth required error={!!recipientErrors.zipCode} helperText={recipientErrors.zipCode} InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }} />
-          <TextField label="City" value={recipientCity} onChange={(e) => setRecipientCity(e.target.value)} fullWidth required error={!!recipientErrors.city} helperText={recipientErrors.city} InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }} />
-          <FormControl fullWidth>
+        {/* Row 3: Zip Code, City, State */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            mb: 2,
+          }}
+        >
+          <TextField
+            label="Zip Code"
+            value={recipientZipCode}
+            onChange={(e) => setRecipientZipCode(e.target.value)}
+            fullWidth
+            required
+            error={!!recipientErrors.zipCode}
+            helperText={recipientErrors.zipCode}
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
+          />
+          <TextField
+            label="City"
+            value={recipientCity}
+            onChange={(e) => setRecipientCity(e.target.value)}
+            fullWidth
+            required
+            error={!!recipientErrors.city}
+            helperText={recipientErrors.city}
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
+          />
+          <FormControl fullWidth sx={{ flex: 1 }}>
             <InputLabel>State</InputLabel>
-            <Select value={recipientState} onChange={(e) => setRecipientState(e.target.value)} label="State" required error={!!recipientErrors.state}>
+            <Select
+              value={recipientState}
+              onChange={(e) => setRecipientState(e.target.value)}
+              label="State"
+              required
+              error={!!recipientErrors.state}
+            >
               <MenuItem value="">Select State</MenuItem>
               {usStates.map((state) => (
                 <MenuItem key={state.value} value={state.value}>
@@ -80,19 +181,105 @@ const Recipient = ({
                 </MenuItem>
               ))}
             </Select>
-            {recipientErrors.state && <Typography color="error" variant="caption">{recipientErrors.state}</Typography>}
+            {recipientErrors.state && (
+              <Typography color="error" variant="caption">
+                {recipientErrors.state}
+              </Typography>
+            )}
           </FormControl>
         </Box>
 
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2 }}>
-          <TextField label="Phone 1" value={recipientPhone1} onChange={(e) => setRecipientPhone1(e.target.value)} fullWidth required error={!!recipientErrors.phone1} helperText={recipientErrors.phone1} InputProps={{ startAdornment: <PhoneIcon sx={{ color: "red", mr: 1 }} /> }} />
-          <TextField label="Phone 2" value={recipientPhone2} onChange={(e) => setRecipientPhone2(e.target.value)} fullWidth InputProps={{ startAdornment: <PhoneIcon sx={{ color: "action.active", mr: 1 }} /> }} />
-          <TextField label="Email Address" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} fullWidth required error={!!recipientErrors.email} helperText={recipientErrors.email} InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }} />
+        {/* Row 4: Phone 1, Phone 2, Email Address */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            mb: 2,
+          }}
+        >
+          <TextField
+            label="Phone 1"
+            value={recipientPhone1}
+            onChange={(e) => setRecipientPhone1(e.target.value)}
+            fullWidth
+            required
+            error={!!recipientErrors.phone1}
+            helperText={recipientErrors.phone1}
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <PhoneIcon sx={{ color: "red", mr: 1 }} /> }}
+          />
+          <TextField
+            label="Phone 2"
+            value={recipientPhone2}
+            onChange={(e) => setRecipientPhone2(e.target.value)}
+            fullWidth
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <PhoneIcon sx={{ color: "action.active", mr: 1 }} /> }}
+          />
+          <TextField
+            label="Email Address"
+            value={recipientEmail}
+            onChange={(e) => setRecipientEmail(e.target.value)}
+            fullWidth
+            required
+            error={!!recipientErrors.email}
+            helperText={recipientErrors.email}
+            sx={{ flex: 1 }} 
+            InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
+          />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            mb: 2,
+          }}
+        >
+          <FormControl fullWidth sx={{ flex: 1 }}>
+            <InputLabel>Select Location Type</InputLabel>
+            <Select
+              value={recipientLocationType}
+              onChange={(e) => setRecipientLocationType(e.target.value)}
+              label="Select Location Type"
+            >
+              <MenuItem value="Residential">Residential</MenuItem>
+              <MenuItem value="Commercial">Commercial</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth sx={{ flex: 1 }}>
+            <InputLabel>Do You Need Pickup?</InputLabel>
+            <Select
+              value={recipientNeedsPickup}
+              onChange={(e) => setRecipientNeedsPickup(e.target.value)}
+              label="Do You Need Pickup?"
+            >
+              <MenuItem value="Yes - I Need Pickup Service">Yes - I Need Pickup Service</MenuItem>
+              <MenuItem value="No - I Will Drop Off My Package">No - I Will Drop Off My Package</MenuItem>
+            </Select>
+          </FormControl>
+          <Box sx={{ flex: 1, display: { xs: "none", sm: "block" } }} />
         </Box>
 
+        
         <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between" }}>
-          <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={handleRecipientPrevious} sx={{ width: { xs: "100%", sm: "auto" }, mb: { xs: 1, sm: 0 } }}>Previous</Button>
-          <Button type="submit" variant="contained" sx={{ bgcolor: "#eb0c40", "&:hover": { bgcolor: "#ed64a6" }, width: { xs: "100%", sm: "auto" } }} endIcon={<ArrowForwardIcon />}>Next</Button>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={handleRecipientPrevious}
+            sx={{ width: { xs: "100%", sm: "auto" }, mb: { xs: 1, sm: 0 } }}
+          >
+            Previous
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ bgcolor: "#eb0c40", "&:hover": { bgcolor: "#ed64a6" }, width: { xs: "100%", sm: "auto" } }}
+            endIcon={<ArrowForwardIcon />}
+          >
+            Next
+          </Button>
         </Box>
       </form>
     </Box>

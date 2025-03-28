@@ -83,6 +83,8 @@ const [recipientState, setRecipientState] = useState("");
 const [recipientPhone1, setRecipientPhone1] = useState("");
 const [recipientPhone2, setRecipientPhone2] = useState("");
 const [recipientEmail, setRecipientEmail] = useState("");
+const [recipientLocationType, setRecipientLocationType] = useState("Residential"); 
+const [recipientNeedsPickup, setRecipientNeedsPickup] = useState("No - I Will Drop Off My Package"); 
 const [recipientErrors, setRecipientErrors] = useState({});
 
 
@@ -484,9 +486,42 @@ useEffect(() => {
       />
         )}
          {activeModule === "Schedule Shipment" && activeTab === "recipient" && (
-           <Recipient
-           {...{ recipientCountry, setRecipientCountry, recipientCompanyName, setRecipientCompanyName, recipientContactName, setRecipientContactName, recipientAddressLine1, setRecipientAddressLine1, recipientAddressLine2, setRecipientAddressLine2, recipientAddressLine3, setRecipientAddressLine3, recipientZipCode, setRecipientZipCode, recipientCity, setRecipientCity, recipientState, setRecipientState, recipientPhone1, setRecipientPhone1, recipientPhone2, setRecipientPhone2, recipientEmail, setRecipientEmail, recipientErrors, usStates, handleRecipientSubmit, handleRecipientPrevious }}
-         />
+          <Recipient
+          {...{
+            recipientCountry,
+            setRecipientCountry,
+            recipientCompanyName,
+            setRecipientCompanyName,
+            recipientContactName,
+            setRecipientContactName,
+            recipientAddressLine1,
+            setRecipientAddressLine1,
+            recipientAddressLine2,
+            setRecipientAddressLine2,
+            recipientAddressLine3,
+            setRecipientAddressLine3,
+            recipientZipCode,
+            setRecipientZipCode,
+            recipientCity,
+            setRecipientCity,
+            recipientState,
+            setRecipientState,
+            recipientPhone1,
+            setRecipientPhone1,
+            recipientPhone2,
+            setRecipientPhone2,
+            recipientEmail,
+            setRecipientEmail,
+            recipientLocationType,      
+            setRecipientLocationType,  
+            recipientNeedsPickup,      
+            setRecipientNeedsPickup,
+            recipientErrors,
+            usStates,
+            handleRecipientSubmit,
+            handleRecipientPrevious,
+          }}
+        />
          
          )}
 
