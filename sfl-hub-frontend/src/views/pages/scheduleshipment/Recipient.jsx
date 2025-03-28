@@ -17,6 +17,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 const Recipient = ({
   recipientCountry,
@@ -47,11 +48,16 @@ const Recipient = ({
   setRecipientLocationType,
   recipientNeedsPickup,
   setRecipientNeedsPickup,
+  recipientPickupDate,
+  setRecipientPickupDate,
   recipientErrors,
   usStates,
   handleRecipientSubmit,
   handleRecipientPrevious,
 }) => {
+  // Get today's date in YYYY-MM-DD format for the min attribute
+  const today = new Date().toISOString().split("T")[0];
+
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
@@ -72,7 +78,7 @@ const Recipient = ({
             value={recipientCountry}
             onChange={(e) => setRecipientCountry(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <PublicIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
           <TextField
@@ -80,7 +86,7 @@ const Recipient = ({
             value={recipientCompanyName}
             onChange={(e) => setRecipientCompanyName(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
           <TextField
@@ -91,7 +97,7 @@ const Recipient = ({
             required
             error={!!recipientErrors.contactName}
             helperText={recipientErrors.contactName}
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <PersonIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
         </Box>
@@ -113,7 +119,7 @@ const Recipient = ({
             required
             error={!!recipientErrors.addressLine1}
             helperText={recipientErrors.addressLine1}
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "red", mr: 1 }} /> }}
           />
           <TextField
@@ -121,7 +127,7 @@ const Recipient = ({
             value={recipientAddressLine2}
             onChange={(e) => setRecipientAddressLine2(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
           <TextField
@@ -129,7 +135,7 @@ const Recipient = ({
             value={recipientAddressLine3}
             onChange={(e) => setRecipientAddressLine3(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
         </Box>
@@ -151,7 +157,7 @@ const Recipient = ({
             required
             error={!!recipientErrors.zipCode}
             helperText={recipientErrors.zipCode}
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
           />
           <TextField
@@ -162,7 +168,7 @@ const Recipient = ({
             required
             error={!!recipientErrors.city}
             helperText={recipientErrors.city}
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
           <FormControl fullWidth sx={{ flex: 1 }}>
@@ -206,7 +212,7 @@ const Recipient = ({
             required
             error={!!recipientErrors.phone1}
             helperText={recipientErrors.phone1}
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <PhoneIcon sx={{ color: "red", mr: 1 }} /> }}
           />
           <TextField
@@ -214,7 +220,7 @@ const Recipient = ({
             value={recipientPhone2}
             onChange={(e) => setRecipientPhone2(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <PhoneIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
           <TextField
@@ -225,10 +231,12 @@ const Recipient = ({
             required
             error={!!recipientErrors.email}
             helperText={recipientErrors.email}
-            sx={{ flex: 1 }} 
+            sx={{ flex: 1 }}
             InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
           />
         </Box>
+
+        {/* Row 5: Location Type, Do You Need Pickup?, and Conditional Pickup Date */}
         <Box
           sx={{
             display: "flex",
@@ -259,10 +267,30 @@ const Recipient = ({
               <MenuItem value="No - I Will Drop Off My Package">No - I Will Drop Off My Package</MenuItem>
             </Select>
           </FormControl>
-          <Box sx={{ flex: 1, display: { xs: "none", sm: "block" } }} />
+          {recipientNeedsPickup === "Yes - I Need Pickup Service" ? (
+            <TextField
+              label="Pickup Date"
+              type="date"
+              value={recipientPickupDate || ""}
+              onChange={(e) => setRecipientPickupDate(e.target.value)}
+              fullWidth
+              required
+              error={!!recipientErrors.pickupDate}
+              helperText={recipientErrors.pickupDate}
+              sx={{ flex: 1 }}
+              InputLabelProps={{ shrink: true }}
+              InputProps={{
+                startAdornment: <CalendarTodayIcon sx={{ color: "red", mr: 1 }} />,
+              }}
+              inputProps={{
+                min: today, // Restrict past dates
+              }}
+            />
+          ) : (
+            <Box sx={{ flex: 1, display: { xs: "none", sm: "block" } }} />
+          )}
         </Box>
 
-        
         <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between" }}>
           <Button
             variant="outlined"

@@ -43,7 +43,7 @@ const PickupForm = ({
           >
             <MenuItem value="">Please select shipment type</MenuItem>
             <MenuItem value="air">Air</MenuItem>
-            <MenuItem value="sea">Sea</MenuItem>
+            <MenuItem value="sea">Ocean</MenuItem>
             <MenuItem value="ground">Ground</MenuItem>
           </Select>
           {pickupErrors.shipmentType && (
