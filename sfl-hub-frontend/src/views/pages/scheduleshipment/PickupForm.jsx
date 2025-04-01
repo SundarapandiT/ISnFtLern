@@ -2,10 +2,8 @@ import React from "react";
 import {
   Box,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography,
+  TextField,
+  Autocomplete,
   Button,
 } from "@mui/material";
 
@@ -33,80 +31,72 @@ const PickupForm = ({
       }}
     >
       <form onSubmit={handlePickupSubmit}>
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Select Shipment Type</InputLabel>
-          <Select
-            value={shipmentType}
-            onChange={(e) => setShipmentType(e.target.value)}
-            label="Select Shipment Type"
-            error={!!pickupErrors.shipmentType}
-          >
-            <MenuItem value="">Please select shipment type</MenuItem>
-            <MenuItem value="air">Air</MenuItem>
-            <MenuItem value="sea">Ocean</MenuItem>
-            <MenuItem value="ground">Ground</MenuItem>
-          </Select>
-          {pickupErrors.shipmentType && (
-            <Typography color="error" variant="caption">
-              {pickupErrors.shipmentType}
-            </Typography>
-          )}
-        </FormControl>
+  <FormControl fullWidth sx={{ mb: 2 }}>
+    <Autocomplete
+      options={[
+        { label: "Air", value: "air" },
+        { label: "Ocean", value: "sea" },
+        { label: "Ground", value: "ground" },
+      ]}
+      getOptionLabel={(option) => option.label}
+      value={shipmentType ? { label: shipmentType, value: shipmentType } : null}
+      onChange={(event, newValue) => setShipmentType(newValue?.value || "")}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Select Shipment Type"
+          error={!!pickupErrors.shipmentType}
+          helperText={pickupErrors.shipmentType}
+        />
+      )}
+      disablePortal // Ensures options appear below the field
+    />
+  </FormControl>
 
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>From Country</InputLabel>
-          <Select
-            value={fromCountry}
-            onChange={(e) => setFromCountry(e.target.value)}
-            label="From Country"
-            error={!!pickupErrors.fromCountry}
-          >
-            <MenuItem value="">Please select from country</MenuItem>
-            {countries.map((country) => (
-              <MenuItem key={country.value} value={country.value}>
-                {country.label}
-              </MenuItem>
-            ))}
-          </Select>
-          {pickupErrors.fromCountry && (
-            <Typography color="error" variant="caption">
-              {pickupErrors.fromCountry}
-            </Typography>
-          )}
-        </FormControl>
+  <FormControl fullWidth sx={{ mb: 2 }}>
+    <Autocomplete
+      options={countries}
+      getOptionLabel={(option) => option.label}
+      value={fromCountry ? countries.find((c) => c.value === fromCountry) : null}
+      onChange={(event, newValue) => setFromCountry(newValue?.value || "")}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="From Country"
+          error={!!pickupErrors.fromCountry}
+          helperText={pickupErrors.fromCountry}
+        />
+      )}
+    />
+  </FormControl>
 
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>To Country</InputLabel>
-          <Select
-            value={toCountry}
-            onChange={(e) => setToCountry(e.target.value)}
-            label="To Country"
-            error={!!pickupErrors.toCountry}
-          >
-            <MenuItem value="">Please select to country</MenuItem>
-            {countries.map((country) => (
-              <MenuItem key={country.value} value={country.value}>
-                {country.label}
-              </MenuItem>
-            ))}
-          </Select>
-          {pickupErrors.toCountry && (
-            <Typography color="error" variant="caption">
-              {pickupErrors.toCountry}
-            </Typography>
-          )}
-        </FormControl>
+  <FormControl fullWidth sx={{ mb: 2 }}>
+    <Autocomplete
+      options={countries}
+      getOptionLabel={(option) => option.label}
+      value={toCountry ? countries.find((c) => c.value === toCountry) : null}
+      onChange={(event, newValue) => setToCountry(newValue?.value || "")}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="To Country"
+          error={!!pickupErrors.toCountry}
+          helperText={pickupErrors.toCountry}
+        />
+      )}
+    />
+  </FormControl>
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ bgcolor: "#eb0c40", "&:hover": { bgcolor: "#ed64a6" } }}
-          >
-            Next
-          </Button>
-        </Box>
-      </form>
+  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+    <Button
+      type="submit"
+      variant="contained"
+      sx={{ bgcolor: "#eb0c40", "&:hover": { bgcolor: "#ed64a6" } }}
+    >
+      Next
+    </Button>
+  </Box>
+</form>
     </Box>
   );
 };

@@ -56,7 +56,7 @@ const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmen
               },
               "&.Mui-disabled": {
                 color: "rgba(0, 0, 0, 0.26)",
-                opacity: 0.5,
+                opacity: 1,
               },
             }}
           />

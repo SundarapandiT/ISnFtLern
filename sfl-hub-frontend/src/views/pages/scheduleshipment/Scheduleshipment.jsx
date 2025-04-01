@@ -528,9 +528,9 @@ const Schedule = () => {
       />
 
       {/* Main Content */}
-      <Box sx={{ flexGrow: 1, backgroundColor: "#e9f7f7" }}>
+      <Box sx={{ flexGrow: 1, backgroundColor: "#fcf6f0" }}>
         {/* Header */}
-        <AppBar position="static" color="default" elevation={1}>
+        <AppBar position="static" color="default" elevation={1} sx={{boxShadow:"none",}}>
           <Box sx={{ display: "flex", justifyContent: "space-between", p: 1 }}>
             <IconButton
               edge="start"
@@ -555,7 +555,7 @@ const Schedule = () => {
           
             <Button
               startIcon={<AccountCircleIcon />}
-              sx={{ textTransform: "none", display: { xs: "none", sm: "flex" } }}
+              sx={{ textTransform: "none", color:"grey", display: { xs: "none", sm: "flex" } }}
               onClick={handleMenuOpen}
             >
               Username

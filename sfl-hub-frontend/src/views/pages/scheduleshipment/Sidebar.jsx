@@ -37,12 +37,14 @@ const Sidebar = ({
         onClose={toggleDrawer(false)}
         sx={{ display: { xs: "block", sm: "none" } }}
       >
-        <Box sx={{ width: 250, bgcolor: "#1a202c", height: "100%", p: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
-            <LocalShippingIcon sx={{ color: "white", mr: 1 }} />
-            <Typography variant="h6" sx={{ color: "white" }}>
-              SFL Worldwide
-            </Typography>
+        <Box sx={{ width: 250, bgcolor: "#1a202c", height: "100%", p: 2}}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 4,borderBottom:"1px solid grey" }}>
+          <img
+            src={drawerWidth==250?"/sfllogo2--.png":"/logo-icon.png"}
+            alt="Logo"
+            width={120}
+            style={{ marginBottom: 10, justifySelf: "center", alignSelf: "center" }}
+          />
           </Box>
 
           <Box sx={{ display: { xs: "block", sm: "none" } }}>
@@ -109,15 +111,14 @@ const Sidebar = ({
           transition: "width 0.3s ease-in-out",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 4,borderBottom:"1px solid grey" }}>
           <img
-            src="/SFL_logo.png"
+            src={drawerWidth==250?"/sfllogo2--.png":"/logo-icon.png"}
             alt="Logo"
-            width={150}
-            style={{ marginBottom: 20, justifySelf: "center", alignSelf: "center" }}
+            width={200}
+            style={{ marginBottom: 10, justifySelf: "center", alignSelf: "center" }}
           />
         </Box>
-
         <List>
           {["Schedule Shipment", "My Shipment", "Billing", "File a Claim"].map(
             (module) => (
