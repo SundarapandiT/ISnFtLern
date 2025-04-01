@@ -20,6 +20,7 @@ const EmailVerification = () => {
   const [filled, setFilled] = useState(new Array(6).fill(false));
   const [open, setOpen] = useState(true);
   const inputRefs = useRef([]);
+  const [disable,setdisable]=useState(false);
 
   const handleChange = (e, index) => {
     let value = e.target.value;
@@ -61,6 +62,7 @@ const EmailVerification = () => {
         });
   
         setEmailVerify(true); 
+      setdisable(true);
         navigate('/auth/register-page'); 
       } else {
         throw new Error("OTP verification failed");
@@ -95,7 +97,6 @@ const EmailVerification = () => {
                     autoClose: 3000,
                 });
             } else if (userMessage === "OTP sent successfully") {
-                navigate('/emailverification');
                 toast.success("OTP sent successfully!", {
                     position: "top-right",
                     autoClose: 3000,
@@ -177,6 +178,7 @@ const EmailVerification = () => {
           fullWidth
           onClick={() => validateOtp(otp.join(""))}
           sx={{ mt: 3, borderRadius: 3, padding: 1.5, backgroundColor: "red" }}
+          disabled={disable}
         >
           Verify Email
         </Button>
