@@ -25,7 +25,6 @@ import Recipient from "./Recipient";
 import Package from "./Package";
 
 import { countries } from "../../../data/Countries";
-import { usStates } from "../../../data/USstates";
 
 const Schedule = () => {
   // Profile
@@ -51,6 +50,7 @@ const Schedule = () => {
 
   // State for Sender tab
   const [country, setCountry] = useState(""); 
+  const [countrycode, setcountrycode] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
@@ -66,6 +66,7 @@ const Schedule = () => {
 
   // Recipient tab
   const [recipientCountry, setRecipientCountry] = useState("");
+  const [recipientcountrycode, setrecipientcountrycode] = useState("");
   const [recipientCompanyName, setRecipientCompanyName] = useState("");
   const [recipientContactName, setRecipientContactName] = useState("");
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
@@ -228,20 +229,33 @@ const Schedule = () => {
 
   // Validation for Sender tab
   const validateSenderForm = () => {
-    const newErrors = {};
-    if (!country) newErrors.country = "Country name is required";
-    if (!contactName) newErrors.contactName = "Contact name is required";
-    if (!addressLine1) newErrors.addressLine1 = "Address Line 1 is required";
-    if (!zipCode) newErrors.zipCode = "Zip Code is required";
-    if (!fromCity) newErrors.fromCity = "City is required";
-    if (!state) newErrors.state = "State is required";
-    if (!phone1) newErrors.phone1 = "Phone 1 is required";
-    if (!email) newErrors.email = "Email address is required";
-    else if (!/\S+@\S+\.\S+/.test(email))
-      newErrors.email = "Please enter a valid email address";
-    setSenderErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+      const newErrors = {};
+    
+      if (!country) newErrors.country = "Country name is required";
+      if (!contactName) newErrors.contactName = "Contact name is required";
+      if (!addressLine1) newErrors.addressLine1 = "Address Line 1 is required";
+      if (!zipCode) newErrors.zipCode = "Zip Code is required";
+      if (!fromCity) newErrors.fromCity = "City is required";
+      if (!state) newErrors.state = "State is required";
+    
+      // Fixed Phone Validation
+      if (!phone1) {
+        newErrors.phone1 = "Phone 1 is required";
+      } else if (!/^\+?[1-9]\d{8,14}$/.test(phone1)) {
+        newErrors.phone1 = "Please enter a valid phone number";
+      }
+    
+      // Email Validation
+      if (!email) {
+        newErrors.email = "Email address is required";
+      } else if (!/\S+@\S+\.\S+/.test(email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+    
+      setSenderErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    };
+    
 
   // Validation for Recipient tab
   const validateRecipientForm = () => {
@@ -510,7 +524,9 @@ const Schedule = () => {
     const fromCountryObj = countries.find((c) => c.value === fromCountry);
     const toCountryObj = countries.find((c) => c.value === toCountry);
     setCountry(fromCountryObj ? fromCountryObj.label : "");
+    setcountrycode(fromCountryObj ? fromCountryObj.value : "");
     setRecipientCountry(toCountryObj ? toCountryObj.label : "");
+    setrecipientcountrycode(toCountryObj ? toCountryObj.value : "");
   }, [fromCountry, toCountry]);
 
   return (
@@ -528,7 +544,7 @@ const Schedule = () => {
       />
 
       {/* Main Content */}
-      <Box sx={{ flexGrow: 1, backgroundColor: "#fcf6f0" }}>
+      <Box sx={{ flexGrow: 1, backgroundColor: "#eeebf7" }}>
         {/* Header */}
         <AppBar position="static" color="default" elevation={1} sx={{boxShadow:"none",}}>
           <Box sx={{ display: "flex", justifyContent: "space-between", p: 1 }}>
@@ -644,6 +660,7 @@ const Schedule = () => {
           {activeModule === "Schedule Shipment" && activeTab === "sender" && (
             <Sender
               country={country}
+              countrycode={countrycode}
               setCountry={setCountry}
               companyName={companyName}
               setCompanyName={setCompanyName}
@@ -668,7 +685,6 @@ const Schedule = () => {
               email={email}
               setEmail={setEmail}
               senderErrors={senderErrors}
-              usStates={usStates}
               handleSenderSubmit={handleSenderSubmit}
               handlePrevious={handlePrevious}
             />
@@ -707,7 +723,6 @@ const Schedule = () => {
                 recipientPickupDate,
                 setRecipientPickupDate,
                 recipientErrors,
-                usStates,
                 handleRecipientSubmit,
                 handleRecipientPrevious,
               }}

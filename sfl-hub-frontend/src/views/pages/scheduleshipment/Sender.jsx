@@ -1,4 +1,4 @@
-import React from "react";
+import {React} from "react";
 import { Box, TextField, Typography, Button, InputLabel, FormControl, Select, MenuItem } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import PublicIcon from "@mui/icons-material/Public";
@@ -8,6 +8,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import StateDropdown from "./Statedropdown";
 
 const Sender = ({
   country,
@@ -35,10 +36,10 @@ const Sender = ({
   email,
   setEmail,
   senderErrors,
-  usStates,
   handleSenderSubmit,
   handlePrevious
 }) => {
+
   return (
              <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
              <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
@@ -158,28 +159,13 @@ const Sender = ({
                      startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} />,
                    }}
                  />
-                 <FormControl fullWidth>
-                   <InputLabel>State</InputLabel>
-                   <Select
-                     value={state}
-                     onChange={(e) => setState(e.target.value)}
-                     label="State"
-                     required
-                     error={!!senderErrors.state}
-                   >
-                     <MenuItem value="">Select State</MenuItem>
-                     {usStates.map((state) => (
-                       <MenuItem key={state.value} value={state.value}>
-                         {state.label}
-                       </MenuItem>
-                     ))}
-                   </Select>
-                   {senderErrors.state && (
-                     <Typography color="error" variant="caption">
-                       {senderErrors.state}
-                     </Typography>
-                   )}
-                 </FormControl>
+                 {country && (
+          <StateDropdown
+            country={country}
+            state={state}
+            setState={setState}
+            senderErrors={senderErrors}
+          />)}
                </Box>
            
                <Box

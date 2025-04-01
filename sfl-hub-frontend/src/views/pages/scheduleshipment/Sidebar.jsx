@@ -40,7 +40,7 @@ const Sidebar = ({
         <Box sx={{ width: 250, bgcolor: "#1a202c", height: "100%", p: 2}}>
           <Box sx={{ display: "flex", alignItems: "center", mb: 4,borderBottom:"1px solid grey" }}>
           <img
-            src={drawerWidth==250?"/sfllogo2--.png":"/logo-icon.png"}
+            src="/sfllogo2--.png"
             alt="Logo"
             width={120}
             style={{ marginBottom: 10, justifySelf: "center", alignSelf: "center" }}
