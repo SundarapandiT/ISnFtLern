@@ -37,7 +37,7 @@ const Sidebar = ({
         onClose={toggleDrawer(false)}
         sx={{ display: { xs: "block", sm: "none" } }}
       >
-        <Box sx={{ width: 250, bgcolor: "#1a202c", height: "100%", p: 2}}>
+        <Box sx={{ width: 250, bgcolor: "#292929", height: "100%", p: 2}}>
           <Box sx={{ display: "flex", alignItems: "center", mb: 4,borderBottom:"1px solid grey" }}>
           <img
             src="/sfllogo2--.png"
@@ -78,11 +78,11 @@ const Sidebar = ({
                   selected={activeModule === module}
                   onClick={() => handleModuleClick(module)}
                   sx={{
-                    backgroundColor: activeModule === module ? "#04c5cc" : "transparent",
+                    backgroundColor: activeModule === module ? "#00ACC1" : "transparent",
                     color: activeModule === module ? "white" : "inherit",
                     borderRadius: 1,
-                    "&.Mui-selected": { backgroundColor: "#04c5cc", color: "white", borderRadius: 1 },
-                    "&:hover": { backgroundColor: "#04c5cc", color: "white", borderRadius: 1 },
+                    "&.Mui-selected": { backgroundColor: "#00ACC1", color: "white", borderRadius: 1 },
+                    "&:hover": { backgroundColor: "#00ACC1", color: "white", borderRadius: 1 },
                     transition: "background-color 0.3s ease-in-out",
                   }}
                 >
@@ -128,11 +128,11 @@ const Sidebar = ({
                 selected={activeModule === module}
                 onClick={() => handleModuleClick(module)}
                 sx={{
-                  backgroundColor: activeModule === module ? "#04c5cc" : "transparent",
+                  backgroundColor: activeModule === module ? "#00ACC1" : "transparent",
                   color: activeModule === module ? "white" : "inherit",
                   borderRadius: 1, cursor: "pointer",
-                  "&.Mui-selected": { backgroundColor: "#04c5cc", color: "white", borderRadius: 1 },
-                  "&:hover": { backgroundColor: "#04c5cc", color: "white", borderRadius: 1 },
+                  "&.Mui-selected": { backgroundColor: "#00ACC1", color: "white", borderRadius: 1 },
+                  "&:hover": { backgroundColor: "#00ACC1", color: "white", borderRadius: 1 },
                   transition: "background-color 0.3s ease-in-out",
                 }}
               >

@@ -303,7 +303,7 @@ const Recipient = ({
           <Button
             type="submit"
             variant="contained"
-            sx={{ bgcolor: "#eb0c40", "&:hover": { bgcolor: "#ed64a6" }, width: { xs: "100%", sm: "auto" } }}
+            sx={{ bgcolor: "#E91E63", "&:hover": { bgcolor: "#ed64a6" }, width: { xs: "100%", sm: "auto" } }}
             endIcon={<ArrowForwardIcon />}
           >
             Next

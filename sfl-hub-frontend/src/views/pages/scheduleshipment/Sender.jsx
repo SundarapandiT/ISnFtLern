@@ -219,10 +219,10 @@ const Sender = ({
                  }}
                >
                  <Button
-                   variant="outlined"
+                   variant="contained"
                    startIcon={<ArrowBackIcon />}
                    onClick={handlePrevious}
-                   sx={{ width: { xs: "100%", sm: "auto" }, mb: { xs: 1, sm: 0 } }}
+                   sx={{ width: { xs: "100%", sm: "auto" }, mb: { xs: 1, sm: 0 }, bgcolor:"#999999", "&:hover": { bgcolor: "#666666" } , color:"white"}}
                  >
                    Previous
                  </Button>
@@ -230,7 +230,7 @@ const Sender = ({
                    type="submit"
                    variant="contained"
                    sx={{
-                     bgcolor: "#eb0c40",
+                     bgcolor: "#E91E63",
                      "&:hover": { bgcolor: "#ed64a6" },
                      width: { xs: "100%", sm: "auto" },
                    }}

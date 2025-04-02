@@ -530,7 +530,7 @@ const Schedule = () => {
   }, [fromCountry, toCountry]);
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh"}}>
       <Sidebar
         drawerOpen={drawerOpen}
         toggleDrawer={toggleDrawer}
@@ -544,7 +544,7 @@ const Schedule = () => {
       />
 
       {/* Main Content */}
-      <Box sx={{ flexGrow: 1, backgroundColor: "#eeebf7" }}>
+      <Box sx={{ flexGrow: 1, backgroundColor: "#EEEEEE" }}>
         {/* Header */}
         <AppBar position="static" color="default" elevation={1} sx={{boxShadow:"none",}}>
           <Box sx={{ display: "flex", justifyContent: "space-between", p: 1 }}>

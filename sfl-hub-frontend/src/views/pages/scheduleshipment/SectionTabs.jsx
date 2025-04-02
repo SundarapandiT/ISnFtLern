@@ -20,7 +20,7 @@ const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmen
       onChange={(e, newValue) => setActiveTab(newValue)}
       variant="fullWidth"
       indicatorColor="undefined"
-      sx={{ position: "relative" }}
+      sx={{ position: "relative",backgroundColor:"#EEEEEE" }}
     >
       <Box
         sx={{
@@ -30,7 +30,7 @@ const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmen
           top: isMobile ? `${(tabValues.indexOf(activeTab) * 100) / tabValues.length}%` : "auto",
           width: isMobile ? "100%" : `${100 / tabValues.length}%`,
           height: isMobile ? `${100 / tabValues.length}%` : "100%",
-          backgroundColor: "#eb0c40",
+          backgroundColor: "#E91E63",
           borderRadius: "5px",
           boxShadow: "0px 5px 10px rgba(0, 0, 0, 0.3)",
           transition: isMobile ? "top 0.3s ease-in-out" : "left 0.3s ease-in-out",
