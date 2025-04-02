@@ -1,12 +1,12 @@
-import {React, useState} from "react";
+import { React, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { api } from "../../utils/api";
 
-import { isEmpty} from "../../utils/constant";
+import { isEmpty } from "../../utils/constant";
 
-import { Box, Paper, TextField, Button, Typography, Link, InputAdornment, Grid, Popover,useMediaQuery,IconButton } from "@mui/material";
+import { Box, Paper, TextField, Button, Typography, Link, InputAdornment, Grid, Popover, useMediaQuery, IconButton } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 
@@ -15,7 +15,7 @@ import { PersonOutline as FaUser, LockOutlined as FaLock } from "@mui/icons-mate
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import { CheckCircle, Cancel } from "@mui/icons-material";
-import  MailOutlineIcon  from "@mui/icons-material/MailOutline";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
 import { PhoneOutlined as PhoneIcon } from "@mui/icons-material";
 
@@ -25,11 +25,11 @@ import CryptoJS from "crypto-js";
 
 const RegisterPage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [activeField, setActiveField] = useState(""); 
+  const [activeField, setActiveField] = useState("");
   const isMobile = useMediaQuery("(max-width:600px)");
   const [showPassword, setShowPassword] = useState(false);
-  const {emailVerify,setEmailVerify, registerDetails, setRegisterDetails}=useRegister();
-  const navigate=useNavigate();
+  const { emailVerify, setEmailVerify, registerDetails, setRegisterDetails } = useRegister();
+  const navigate = useNavigate();
   const [state, setState] = useState({
     fullnameErr: false,
     usernameErr: false,
@@ -74,13 +74,12 @@ const RegisterPage = () => {
       [name]: value,
     }));
   };
-  const handleRegister = (e)=>
-  {
+  const handleRegister = (e) => {
     const { name, value } = e.target;
     setRegisterDetails({
       ...registerDetails,
       [name]: value,
-  });
+    });
   }
 
   const validate = () => {
@@ -149,7 +148,7 @@ const RegisterPage = () => {
         } else if (value.trim() !== value) {
           errors.usernameErr = true;
           errors.usernameHelperText = "Please enter valid User Name";
-        } 
+        }
         else {
           errors.username = value;
           errors.usernameErr = false;
@@ -181,7 +180,7 @@ const RegisterPage = () => {
         } else if (value.trim() !== value || !value.match(mobileRegExp)) {
           errors.mobileErr = true;
           errors.mobileHelperText = "Please enter valid Mobile Number";
-        } 
+        }
         else {
           errors.mobile = value;
           errors.mobileErr = false;
@@ -193,21 +192,21 @@ const RegisterPage = () => {
         if (isEmpty(value)) {
           errors.passwordErr = true;
           errors.passwordHelperText = "Please enter Password";
-        } 
+        }
         else {
           // Update state properly using a single setState
           setState((prevState) => ({
-              ...prevState,
-              password: value,
-              checkUpperCase: /[A-Z]/.test(value), 
-              checkLowerCase: /[a-z]/.test(value),  
-              checkNumber: /[0-9]/.test(value),    
-              checkSpecialCharacter: /[@\-_.]/.test(value), 
-              checkMinLength: value.length >= 8,  
-              passwordErr: false,
-              passwordHelperText: "",
+            ...prevState,
+            password: value,
+            checkUpperCase: /[A-Z]/.test(value),
+            checkLowerCase: /[a-z]/.test(value),
+            checkNumber: /[0-9]/.test(value),
+            checkSpecialCharacter: /[@\-_.]/.test(value),
+            checkMinLength: value.length >= 8,
+            passwordErr: false,
+            passwordHelperText: "",
           }));
-      }
+        }
         setTimeout(() => setAnchorEl(null), 100);
 
         break;
@@ -231,45 +230,45 @@ const RegisterPage = () => {
 
     setState((prevState) => ({ ...prevState, ...errors }));
   };
-  
+
   const sendMail = async () => {
     const loadingToast = toast.loading("Sending OTP...");
 
     try {
-        const response = await axios.post(`${api.BackendURL}/users/EmailVerifyOtp`, {
-            email: registerDetails.email,
+      const response = await axios.post(`${api.BackendURL}/users/EmailVerifyOtp`, {
+        email: registerDetails.email,
+      });
+
+      const userMessage = response.data?.user?.message;
+
+      if (userMessage === 'Email is already verified, no need to generate OTP.') {
+        navigate('/auth/login-page');
+        toast.error("Email is already registered and verified.", {
+          position: "top-right",
+          autoClose: 3000,
         });
-
-        const userMessage = response.data?.user?.message;
-
-        if (userMessage === 'Email is already verified, no need to generate OTP.') {
-            navigate('/auth/login-page');
-            toast.error("Email is already registered and verified.", {
-                position: "top-right",
-                autoClose: 3000,
-            });
-        } else if (userMessage === "OTP sent successfully") {
-            navigate('/emailverification');
-            toast.success("OTP sent successfully!", {
-                position: "top-right",
-                autoClose: 3000,
-            });
-        } else {
-            throw new Error(userMessage || "Failed to send OTP");
-        }
+      } else if (userMessage === "OTP sent successfully") {
+        navigate('/emailverification');
+        toast.success("OTP sent successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      } else {
+        throw new Error(userMessage || "Failed to send OTP");
+      }
     } catch (error) {
-        console.error("Error sending OTP:", error);
+      console.error("Error sending OTP:", error);
 
-        toast.error(error?.response?.data?.message || "Failed to send OTP. Try again.", {
-            position: "top-right",
-            autoClose: 3000,
-        });
+      toast.error(error?.response?.data?.message || "Failed to send OTP. Try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     } finally {
-        toast.dismiss(loadingToast);
+      toast.dismiss(loadingToast);
     }
-};
+  };
 
-     
+
   const signUp = async (event) => {
     event.preventDefault();
     if (validate()) {
@@ -286,14 +285,14 @@ const RegisterPage = () => {
           Phone: CryptoJS.AES.encrypt(registerDetails.mobile, SECRET_KEY).toString(),
           Email: CryptoJS.AES.encrypt(registerDetails.email, SECRET_KEY).toString(),
         };
-       console.log(encryptedData)
+        console.log(encryptedData)
 
         // Send encrypted data to backend
 
         const res = await axios.post(`${api.BackendURL}/signup`, {
           data: encryptedData,
         });
-  
+
         if (res.data.success) {
           toast.success("Registration successful!");
         } else {
@@ -307,276 +306,277 @@ const RegisterPage = () => {
   }
 
   return (
-    
-    <Box 
-      display="flex" 
-      justifyContent="center" 
-      alignItems="center" 
-      minHeight="100vh" 
-      bgcolor="gray.100" 
+
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      bgcolor="gray.100"
       position="relative"
       px={isMobile ? 2 : 0}
     >
       {/* Background Image */}
-      <Box 
-        position="absolute" 
-        top={0} left={0} right={0} bottom={0} 
+      <Box
+        position="absolute"
+        top={0} left={0} right={0} bottom={0}
         sx={{ backgroundImage: "url('/login-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}
       />
 
-      <Paper sx={{  p: isMobile ? 3 : 4, borderRadius: 2, boxShadow: 3, zIndex: 10, maxWidth: 400, width: "100%",borderTop: "5px solid #d9040c" }}>
+      <Paper sx={{ p: isMobile ? 3 : 4, borderRadius: 2, boxShadow: 3, zIndex: 10, maxWidth: 400, width: "100%", borderTop: "5px solid #d9040c" }}>
         <Box display="flex" justifyContent="center" mb={2}>
           <img src="/SFL_logo.png" alt="SFL Worldwide" style={{ height: "3rem" }} />
         </Box>
 
         <form onSubmit={signUp}>
           <TextField
-  fullWidth
-  name="fullname"
-  label="Full Name"
-  // placeholder="Full Name"
-  variant="outlined"
-  margin="normal"
-  value={registerDetails.fullname}
-  onChange={(e) => {
-    handleChange(e);
-    handleRegister(e);
-}}
-  onBlur={(e) => handleBlur(e, "fullname")}
-  onFocus={() =>
-    setState((prevState) => ({
-      ...prevState,
-      fullnameErr: false,
-      fullnameHelperText: "",
-      checkFullName: false,
-    }))
-  }
-  error={state.fullnameErr}
-  helperText={state.fullnameHelperText}
-  InputProps={{
-    startAdornment: <FaUser style={{ color: "gray", marginRight: 8 }} />,
-    endAdornment: state.checkFullName ? (
-      state.fullnameErr ? (
-        <CloseIcon style={{ color: "red" }} />
-      ) : (
-        <DoneIcon style={{ color: "green" }} />
-      )
-    ) : null,
-  }}
-/>
-
-<Box sx={{ position: "relative", width: "100%" }}>
-          <TextField
             fullWidth
-            name="username"
-            label="Username"
-            // placeholder="Username"
+            name="fullname"
+            label="Full Name"
+            // placeholder="Full Name"
             variant="outlined"
             margin="normal"
-            value={registerDetails.username}
+            value={registerDetails.fullname}
             onChange={(e) => {
               handleChange(e);
               handleRegister(e);
-          }}
-            onBlur={(e) =>{handleBlur(e, "username")}}
-            onFocus={(e) =>{
-              setAnchorEl(e.currentTarget);
-              setActiveField("username");
+            }}
+            onBlur={(e) => handleBlur(e, "fullname")}
+            onFocus={() =>
               setState((prevState) => ({
                 ...prevState,
-                usernameErr: false,
-                usernameHelperText: "",
-                checkUserName: false,
-              }))}
+                fullnameErr: false,
+                fullnameHelperText: "",
+                checkFullName: false,
+              }))
             }
-            error={state.usernameErr}
-            helperText={state.usernameHelperText}
+            error={state.fullnameErr}
+            helperText={state.fullnameHelperText}
             InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FaUser color="gray" />
-                </InputAdornment>
-              ),
+              startAdornment: <FaUser style={{ color: "gray", marginRight: 8 }} />,
+              endAdornment: state.checkFullName ? (
+                state.fullnameErr ? (
+                  <CloseIcon style={{ color: "red" }} />
+                ) : (
+                  <DoneIcon style={{ color: "green" }} />
+                )
+              ) : null,
             }}
           />
-          {activeField==="username" && (
-            <>
-            <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={() => setAnchorEl(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        disableAutoFocus // Prevents focus lock on popover
-        disableEnforceFocus
-        disableRestoreFocus
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
-        sx={{ mt: 1 }}
-      >
-        <Box sx={{ p: 2, maxWidth: 300 }}>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Username must have:
-          </Typography>
 
-          {/* Validation Conditions */}
-          <Typography color={/[a-z]/.test(state.username) ? "green" : "red"} sx={{ display: "flex", alignItems: "center" , fontSize: "0.855rem"}}>
-            {/[a-zA-Z]/.test(state.username) ? <CheckCircle color="success" /> : <Cancel color="error" />}
-            &nbsp; Must be letters a - z
-          </Typography>
+          <Box sx={{ position: "relative", width: "100%" }}>
+            <TextField
+              fullWidth
+              name="username"
+              label="Username"
+              // placeholder="Username"
+              variant="outlined"
+              margin="normal"
+              value={registerDetails.username}
+              onChange={(e) => {
+                handleChange(e);
+                handleRegister(e);
+              }}
+              onBlur={(e) => { handleBlur(e, "username") }}
+              onFocus={(e) => {
+                setAnchorEl(e.currentTarget);
+                setActiveField("username");
+                setState((prevState) => ({
+                  ...prevState,
+                  usernameErr: false,
+                  usernameHelperText: "",
+                  checkUserName: false,
+                }))
+              }
+              }
+              error={state.usernameErr}
+              helperText={state.usernameHelperText}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaUser color="gray" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            {activeField === "username" && (
+              <>
+                <Popover
+                  open={Boolean(anchorEl)}
+                  anchorEl={anchorEl}
+                  onClose={() => setAnchorEl(null)}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                  disableAutoFocus // Prevents focus lock on popover
+                  disableEnforceFocus
+                  disableRestoreFocus
+                  transformOrigin={{ vertical: "top", horizontal: "center" }}
+                  sx={{ mt: 1 }}
+                >
+                  <Box sx={{ p: 2, maxWidth: 300 }}>
+                    <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                      Username must have:
+                    </Typography>
 
-          <Typography color={state.username.length >= 8 && state.username.length <= 32 ? "green" : "red"} sx={{ display: "flex", alignItems: "center" , fontSize: "0.855rem"}}>
-            {state.username.length >= 8 && state.username.length <= 32 ? <CheckCircle color="success" /> : <Cancel color="error" />}
-            &nbsp; Must be 8-32 characters long
-          </Typography>
+                    {/* Validation Conditions */}
+                    <Typography color={/[a-z]/.test(state.username) ? "green" : "red"} sx={{ display: "flex", alignItems: "center", fontSize: "0.855rem" }}>
+                      {/[a-zA-Z]/.test(state.username) ? <CheckCircle color="success" /> : <Cancel color="error" />}
+                      &nbsp; Must be letters a - z
+                    </Typography>
 
-          <Typography color={/\d/.test(state.username) ? "green" : "red"} sx={{ display: "flex", alignItems: "center", fontSize: "0.855rem" }}>
-            {/\d/.test(state.username)? <CheckCircle color="success" /> : <Cancel color="error" />}
-            &nbsp; Can contain numbers (0-9)
-          </Typography>
+                    <Typography color={state.username.length >= 8 && state.username.length <= 32 ? "green" : "red"} sx={{ display: "flex", alignItems: "center", fontSize: "0.855rem" }}>
+                      {state.username.length >= 8 && state.username.length <= 32 ? <CheckCircle color="success" /> : <Cancel color="error" />}
+                      &nbsp; Must be 8-32 characters long
+                    </Typography>
 
-          <Typography color={/[@\-_]/.test(state.username) ? "green" : "red"} sx={{ display: "flex", alignItems: "center", fontSize: "0.855rem" }}>
-            {/[@\-_]/.test(state.username)? <CheckCircle color="success" /> : <Cancel color="error" />}
-            &nbsp; Can contain special characters (@, -, _)
-          </Typography>
-        </Box>
-      </Popover>
-            </>
-          )}
-          
-      </Box>
-<Grid container spacing={isMobile ? 1 : 2}>
-  <Grid item xs={12} sm={6}>
-    <TextField
-      fullWidth
-      type={showPassword ? "text" : "password"}
-      name="password"
-      label="Password"
-      // placeholder="Password"
-      variant="outlined"
-      margin="normal"
-      value={registerDetails.password}
-      onChange={(e) => {
-        handleChange(e);
-        handleRegister(e);
-    }}
-      onBlur={(e) => handleBlur(e, "password")}
-      onFocus={(e) =>{
-        setAnchorEl(e.currentTarget);
-        setActiveField("password");
-        setState((prevState) => ({
-          ...prevState,
-          passwordErr: false,
-          passwordHelperText: "",
-          checkPassword: false,
-        }))
-      }}
-      error={state.passwordErr}
-      helperText={state.passwordHelperText}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <FaLock color="gray" />
-          </InputAdornment>
-        ),
-        endAdornment: (
-          <InputAdornment position="end">
-            <IconButton onClick={() => setShowPassword((prev) => !prev)} sx={{ padding:"5px" }}>
-              {showPassword ? <VisibilityOff sx={{ fontSize: 18 }} /> : <Visibility sx={{ fontSize: 18 }}/>}
-            </IconButton>
-          </InputAdornment>
-        ),
-      }}
-    />{activeField==="password" && (
-      <>
-      <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={() => setAnchorEl(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: isMobile? "left":"center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
-        disableAutoFocus
-        disableEnforceFocus
-        disableRestoreFocus
-        sx={{ mt: 2,ml:3 }}
-      >
-        <Box sx={{ p: 1.5, maxWidth: 280 }}>
-          <Typography variant="body2" sx={{ fontWeight: "bold", fontSize: "0.875rem" }}>
-            Password must have:
-          </Typography>
+                    <Typography color={/\d/.test(state.username) ? "green" : "red"} sx={{ display: "flex", alignItems: "center", fontSize: "0.855rem" }}>
+                      {/\d/.test(state.username) ? <CheckCircle color="success" /> : <Cancel color="error" />}
+                      &nbsp; Can contain numbers (0-9)
+                    </Typography>
 
-          {/* Validation Conditions */}
-          <Typography color={/[A-Z]/.test(state.password) ? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
-            {/[A-Z]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-            &nbsp; At least one uppercase letter (A-Z)
-          </Typography>
+                    <Typography color={/[@\-_]/.test(state.username) ? "green" : "red"} sx={{ display: "flex", alignItems: "center", fontSize: "0.855rem" }}>
+                      {/[@\-_]/.test(state.username) ? <CheckCircle color="success" /> : <Cancel color="error" />}
+                      &nbsp; Can contain special characters (@, -, _)
+                    </Typography>
+                  </Box>
+                </Popover>
+              </>
+            )}
 
-          <Typography color={/[a-z]/.test(state.password) ? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
-            {/[a-z]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-            &nbsp; At least one lowercase letter (a-z)
-          </Typography>
+          </Box>
+          <Grid container spacing={isMobile ? 1 : 2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                type={showPassword ? "text" : "password"}
+                name="password"
+                label="Password"
+                // placeholder="Password"
+                variant="outlined"
+                margin="normal"
+                value={registerDetails.password}
+                onChange={(e) => {
+                  handleChange(e);
+                  handleRegister(e);
+                }}
+                onBlur={(e) => handleBlur(e, "password")}
+                onFocus={(e) => {
+                  setAnchorEl(e.currentTarget);
+                  setActiveField("password");
+                  setState((prevState) => ({
+                    ...prevState,
+                    passwordErr: false,
+                    passwordHelperText: "",
+                    checkPassword: false,
+                  }))
+                }}
+                error={state.passwordErr}
+                helperText={state.passwordHelperText}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaLock color="gray" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword((prev) => !prev)} sx={{ padding: "5px" }}>
+                        {showPassword ? <VisibilityOff sx={{ fontSize: 18 }} /> : <Visibility sx={{ fontSize: 18 }} />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />{activeField === "password" && (
+                <>
+                  <Popover
+                    open={Boolean(anchorEl)}
+                    anchorEl={anchorEl}
+                    onClose={() => setAnchorEl(null)}
+                    anchorOrigin={{ vertical: "bottom", horizontal: isMobile ? "left" : "center" }}
+                    transformOrigin={{ vertical: "top", horizontal: "center" }}
+                    disableAutoFocus
+                    disableEnforceFocus
+                    disableRestoreFocus
+                    sx={{ mt: 2, ml: 3 }}
+                  >
+                    <Box sx={{ p: 1.5, maxWidth: 280 }}>
+                      <Typography variant="body2" sx={{ fontWeight: "bold", fontSize: "0.875rem" }}>
+                        Password must have:
+                      </Typography>
 
-          <Typography color={/[0-9]/.test(state.password) ? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
-            {/[0-9]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-            &nbsp; At least one number (0-9)
-          </Typography>
+                      {/* Validation Conditions */}
+                      <Typography color={/[A-Z]/.test(state.password) ? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
+                        {/[A-Z]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
+                        &nbsp; At least one uppercase letter (A-Z)
+                      </Typography>
 
-          <Typography color={/[@\-_.]/.test(state.password)? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
-            {/[@\-_.]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-            &nbsp; At least one special character (@, #, $, etc.)
-          </Typography>
+                      <Typography color={/[a-z]/.test(state.password) ? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
+                        {/[a-z]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
+                        &nbsp; At least one lowercase letter (a-z)
+                      </Typography>
 
-          <Typography color={state.password.length >= 8 ? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
-            {state.password.length >= 8 ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-            &nbsp; Minimum 8 characters
-          </Typography>
-        </Box>
-      </Popover></>
-    )}
-    
-  </Grid>
-  
-  <Grid item xs={12} sm={6}>
-    <TextField
-      fullWidth
-      type={showPassword ? "text" : "password"}
-      name="confirmpassword"
-      label="Confirm Password"
-      // placeholder="Confirm Password"
-      variant="outlined"
-      margin="normal"
-      value={registerDetails.confirmpassword}
-      onChange={(e) => {
-        handleChange(e);
-        handleRegister(e);
-    }}
-      onBlur={(e) => handleBlur(e, "confirmpassword")}
-      onFocus={() =>
-        setState((prevState) => ({
-          ...prevState,
-          confirmpasswordErr: false,
-          confirmpasswordHelperText: "",
-          checkConfirmPassword: false,
-        }))
-      }
-      error={state.confirmpasswordErr}
-      helperText={state.confirmpasswordHelperText}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <FaLock color="gray" />
-          </InputAdornment>
-        ),
-        endAdornment: (
-          <InputAdornment position="end">
-            <IconButton onClick={() => setShowPassword((prev) => !prev)} sx={{ padding: "5px" }}>
-              {showPassword ? <VisibilityOff  sx={{ fontSize: 18 }}/> : <Visibility sx={{ fontSize: 18 }} />}
-            </IconButton>
-          </InputAdornment>
-        ),
-      }}
-    />
-  </Grid>
-</Grid>
-<TextField
+                      <Typography color={/[0-9]/.test(state.password) ? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
+                        {/[0-9]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
+                        &nbsp; At least one number (0-9)
+                      </Typography>
+
+                      <Typography color={/[@\-_.]/.test(state.password) ? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
+                        {/[@\-_.]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
+                        &nbsp; At least one special character (@, #, $, etc.)
+                      </Typography>
+
+                      <Typography color={state.password.length >= 8 ? "green" : "red"} sx={{ fontSize: "0.8rem", display: "flex", alignItems: "center" }}>
+                        {state.password.length >= 8 ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
+                        &nbsp; Minimum 8 characters
+                      </Typography>
+                    </Box>
+                  </Popover></>
+              )}
+
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                type={showPassword ? "text" : "password"}
+                name="confirmpassword"
+                label="Confirm Password"
+                // placeholder="Confirm Password"
+                variant="outlined"
+                margin="normal"
+                value={registerDetails.confirmpassword}
+                onChange={(e) => {
+                  handleChange(e);
+                  handleRegister(e);
+                }}
+                onBlur={(e) => handleBlur(e, "confirmpassword")}
+                onFocus={() =>
+                  setState((prevState) => ({
+                    ...prevState,
+                    confirmpasswordErr: false,
+                    confirmpasswordHelperText: "",
+                    checkConfirmPassword: false,
+                  }))
+                }
+                error={state.confirmpasswordErr}
+                helperText={state.confirmpasswordHelperText}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FaLock color="gray" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword((prev) => !prev)} sx={{ padding: "5px" }}>
+                        {showPassword ? <VisibilityOff sx={{ fontSize: 18 }} /> : <Visibility sx={{ fontSize: 18 }} />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+          </Grid>
+          <TextField
             fullWidth
             name="mobile"
             label="Contact Number"
@@ -587,7 +587,7 @@ const RegisterPage = () => {
             onChange={(e) => {
               handleChange(e);
               handleRegister(e);
-          }}
+            }}
             onBlur={(e) => handleBlur(e, "mobile")}
             onFocus={() =>
               setState((prevState) => ({
@@ -602,8 +602,8 @@ const RegisterPage = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                <PhoneIcon color="action" />
-              </InputAdornment>
+                  <PhoneIcon color="action" />
+                </InputAdornment>
               ),
             }}
           />
@@ -621,7 +621,7 @@ const RegisterPage = () => {
             onChange={(e) => {
               handleChange(e);
               handleRegister(e);
-          }}
+            }}
             onBlur={(e) => handleBlur(e, "email")}
             onFocus={() =>
               setState((prevState) => ({
@@ -640,27 +640,27 @@ const RegisterPage = () => {
                 </InputAdornment>
               ),
               endAdornment: state.email.includes("@") ? (
-                <Button  
-                variant="contained" 
-                sx={{ backgroundColor: "Green" }} onClick={sendMail}>Verify</Button>
+                <Button
+                  variant="contained"
+                  sx={{ backgroundColor: "Green" }} onClick={sendMail}>Verify</Button>
               ) : null,
             }}
           />
 
-          <Button 
-            type="submit" 
-            fullWidth 
-            variant="contained" 
-            sx={{ mt: 2, backgroundColor: "red" ,boxShadow:"1px 1px 3px red"}} 
-            disabled={emailVerify?false:true}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 2, backgroundColor: "red", boxShadow: "1px 1px 3px red" }}
+            disabled={emailVerify ? false : true}
           >
             SIGN UP
           </Button>
         </form>
         <Box display="flex" justifyContent="center" mt={2}>
-        <Typography variant="body2"  color="primary"  component="a" href="/auth/login-page"  sx={{ color: "darkblue",textDecoration: "none", fontWeight:400 }} >
-        Already have an account?
-            </Typography></Box>
+          <Typography variant="body2" color="primary" component="a" href="/auth/login-page" sx={{ color: "darkblue", textDecoration: "none", fontWeight: 400 }} >
+            Already have an account?
+          </Typography></Box>
       </Paper>
     </Box>
 

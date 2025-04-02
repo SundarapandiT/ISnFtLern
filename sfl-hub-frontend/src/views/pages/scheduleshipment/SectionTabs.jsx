@@ -20,7 +20,7 @@ const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmen
       onChange={(e, newValue) => setActiveTab(newValue)}
       variant={"fullWidth"}
       indicatorColor="undefined"
-      sx={{ position: "relative",backgroundColor:"#EEEEEE" }}
+      sx={{ position: "relative", backgroundColor: "#EEEEEE" }}
     >
       <Box
         sx={{

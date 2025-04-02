@@ -142,46 +142,46 @@ const Recipient = ({
         </Box>
 
         <Box
-  sx={{
-    display: "flex",
-    flexDirection: { xs: "column", sm: "row" },
-    gap: 2,
-    mb: 2,
-  }}
->
-  <TextField
-    label="Zip Code"
-    value={recipientZipCode}
-    onChange={(e) => setRecipientZipCode(e.target.value)}
-    fullWidth
-    required
-    error={!!recipientErrors.zipCode}
-    helperText={recipientErrors.zipCode}
-    sx={{ flex: 1 }} // Ensure equal width
-    InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
-  />
-  <TextField
-    label="City"
-    value={recipientCity}
-    onChange={(e) => setRecipientCity(e.target.value)}
-    fullWidth
-    required
-    error={!!recipientErrors.city}
-    helperText={recipientErrors.city}
-    sx={{ flex: 1 }} // Ensure equal width
-    InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
-  />
-  {recipientCountry && (
-    <Box sx={{ flex: 1 }}> {/* Wrap in a Box to apply flex */}
-      <StateDropdown
-        country={recipientCountry}
-        state={recipientState}
-        setState={setRecipientState}
-        senderErrors={recipientErrors}
-      />
-    </Box>
-  )}
-</Box>
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            mb: 2,
+          }}
+        >
+          <TextField
+            label="Zip Code"
+            value={recipientZipCode}
+            onChange={(e) => setRecipientZipCode(e.target.value)}
+            fullWidth
+            required
+            error={!!recipientErrors.zipCode}
+            helperText={recipientErrors.zipCode}
+            sx={{ flex: 1 }} // Ensure equal width
+            InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
+          />
+          <TextField
+            label="City"
+            value={recipientCity}
+            onChange={(e) => setRecipientCity(e.target.value)}
+            fullWidth
+            required
+            error={!!recipientErrors.city}
+            helperText={recipientErrors.city}
+            sx={{ flex: 1 }} // Ensure equal width
+            InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
+          />
+          {recipientCountry && (
+            <Box sx={{ flex: 1 }}> {/* Wrap in a Box to apply flex */}
+              <StateDropdown
+                country={recipientCountry}
+                state={recipientState}
+                setState={setRecipientState}
+                senderErrors={recipientErrors}
+              />
+            </Box>
+          )}
+        </Box>
 
 
         {/* Row 4: Phone 1, Phone 2, Email Address */}

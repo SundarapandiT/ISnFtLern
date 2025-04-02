@@ -51,7 +51,7 @@ const Schedule = () => {
   const [pickupErrors, setPickupErrors] = useState({});
 
   // State for Sender tab
-  const [country, setCountry] = useState(""); 
+  const [country, setCountry] = useState("");
   const [countrycode, setcountrycode] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
@@ -231,33 +231,33 @@ const Schedule = () => {
 
   // Validation for Sender tab
   const validateSenderForm = () => {
-      const newErrors = {};
-    
-      if (!country) newErrors.country = "Country name is required";
-      if (!contactName) newErrors.contactName = "Contact name is required";
-      if (!addressLine1) newErrors.addressLine1 = "Address Line 1 is required";
-      if (!zipCode) newErrors.zipCode = "Zip Code is required";
-      if (!fromCity) newErrors.fromCity = "City is required";
-      if (!state) newErrors.state = "State is required";
-    
-      // Fixed Phone Validation
-      if (!phone1) {
-        newErrors.phone1 = "Phone 1 is required";
-      } else if (!/^\+?[1-9]\d{8,14}$/.test(phone1)) {
-        newErrors.phone1 = "Please enter a valid phone number";
-      }
-    
-      // Email Validation
-      if (!email) {
-        newErrors.email = "Email address is required";
-      } else if (!/\S+@\S+\.\S+/.test(email)) {
-        newErrors.email = "Please enter a valid email address";
-      }
-    
-      setSenderErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    };
-    
+    const newErrors = {};
+
+    if (!country) newErrors.country = "Country name is required";
+    if (!contactName) newErrors.contactName = "Contact name is required";
+    if (!addressLine1) newErrors.addressLine1 = "Address Line 1 is required";
+    if (!zipCode) newErrors.zipCode = "Zip Code is required";
+    if (!fromCity) newErrors.fromCity = "City is required";
+    if (!state) newErrors.state = "State is required";
+
+    // Fixed Phone Validation
+    if (!phone1) {
+      newErrors.phone1 = "Phone 1 is required";
+    } else if (!/^\+?[1-9]\d{8,14}$/.test(phone1)) {
+      newErrors.phone1 = "Please enter a valid phone number";
+    }
+
+    // Email Validation
+    if (!email) {
+      newErrors.email = "Email address is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    setSenderErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
 
   // Validation for Recipient tab
   const validateRecipientForm = () => {
@@ -495,7 +495,7 @@ const Schedule = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  
+
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
@@ -532,7 +532,7 @@ const Schedule = () => {
   }, [fromCountry, toCountry]);
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh"}}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar
         drawerOpen={drawerOpen}
         toggleDrawer={toggleDrawer}
@@ -548,7 +548,7 @@ const Schedule = () => {
       {/* Main Content */}
       <Box sx={{ flexGrow: 1, backgroundColor: "#EEEEEE" }}>
         {/* Header */}
-        <AppBar position="static" color="default" elevation={1} sx={{boxShadow:"none",}}>
+        <AppBar position="static" color="default" elevation={1} sx={{ boxShadow: "none", }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", p: 1 }}>
             <IconButton
               edge="start"
@@ -558,7 +558,7 @@ const Schedule = () => {
             >
               <MoreVertIcon />
             </IconButton>
-           
+
             <IconButton
               edge="start"
               color="inherit"
@@ -570,16 +570,16 @@ const Schedule = () => {
 
             <Box sx={{ flexGrow: 1 }} />
 
-          
+
             <Button
               startIcon={<AccountCircleIcon />}
-              sx={{ textTransform: "none", color:"grey", display: { xs: "none", sm: "flex" } }}
+              sx={{ textTransform: "none", color: "grey", display: { xs: "none", sm: "flex" } }}
               onClick={handleMenuOpen}
             >
               Username
             </Button>
 
-            
+
             <Menu
               anchorEl={anchorEl}
               open={open}
@@ -632,7 +632,7 @@ const Schedule = () => {
             </Box>
             Schedule Shipment
           </Typography>
-          
+
           {activeModule === "Schedule Shipment" && (
             <SectionTabs
               activeTab={activeTab}

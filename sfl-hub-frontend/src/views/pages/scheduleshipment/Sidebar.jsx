@@ -36,14 +36,14 @@ const Sidebar = ({
         onClose={toggleDrawer(false)}
         sx={{ display: { xs: "block", sm: "none" } }}
       >
-        <Box sx={{ width: 300, bgcolor: "#292929", height: "100%", p: 2}}>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 4,borderBottom:"1px solid grey" }}>
-          <img
-            src="/sfllogo2--.png"
-            alt="Logo"
-            width={120}
-            style={{ marginBottom: 10, justifySelf: "center", alignSelf: "center" }}
-          />
+        <Box sx={{ width: 300, bgcolor: "#292929", height: "100%", p: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 4, borderBottom: "1px solid grey" }}>
+            <img
+              src="/sfllogo2--.png"
+              alt="Logo"
+              width={120}
+              style={{ marginBottom: 10, justifySelf: "center", alignSelf: "center" }}
+            />
           </Box>
 
           <Box sx={{ display: { xs: "block", sm: "none" } }}>
@@ -88,9 +88,9 @@ const Sidebar = ({
                   <ListItemIcon sx={{ color: "white" }}>
                     {module === "Schedule Shipment" ? <LocalShippingIcon /> :
                       module === "My Shipment" ? <DirectionsBoatIcon /> : ""
-                        // module === "Billing" ? <ReceiptIcon /> :
-                        //   <NoteAddIcon />
-                        }
+                      // module === "Billing" ? <ReceiptIcon /> :
+                      //   <NoteAddIcon />
+                    }
                   </ListItemIcon>
                   <ListItemText primary={module} sx={{ color: "white" }} />
                 </ListItem>
@@ -107,13 +107,13 @@ const Sidebar = ({
           bgcolor: "#1a202c",
           color: "white",
           p: 1,
-          display: { xs: "none", sm: "block", overflowY:"hidden" },
+          display: { xs: "none", sm: "block", overflowY: "hidden" },
           transition: "width 0.3s ease-in-out",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", mb: 4,borderBottom:"1px solid grey" }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 4, borderBottom: "1px solid grey" }}>
           <img
-            src={drawerWidth==250?"/sfllogo2--.png":"/logo-icon.png"}
+            src={drawerWidth == 250 ? "/sfllogo2--.png" : "/logo-icon.png"}
             alt="Logo"
             width={200}
             style={{ marginBottom: 10, justifySelf: "center", alignSelf: "center" }}
@@ -138,10 +138,10 @@ const Sidebar = ({
               >
                 <ListItemIcon sx={{ color: "white" }}>
                   {module === "Schedule Shipment" ? <LocalShippingIcon /> :
-                    module === "My Shipment" ? <DirectionsBoatIcon /> :""
-                      // module === "Billing" ? <ReceiptIcon /> :
-                      //   <NoteAddIcon />
-                        }
+                    module === "My Shipment" ? <DirectionsBoatIcon /> : ""
+                    // module === "Billing" ? <ReceiptIcon /> :
+                    //   <NoteAddIcon />
+                  }
                 </ListItemIcon>
                 <ListItemText primary={module} sx={{ color: "white" }} />
               </ListItem>

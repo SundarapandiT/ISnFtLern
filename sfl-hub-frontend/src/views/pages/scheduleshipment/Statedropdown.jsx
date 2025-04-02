@@ -8,16 +8,16 @@ const StateDropdown = ({ country, setState, senderErrors }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!country) return; 
+    if (!country) return;
     setLoading(true);
 
     if (Allstates[country]) {
-      setStates(Allstates[country]); 
+      setStates(Allstates[country]);
     } else {
-      setStates([]); 
+      setStates([]);
     }
 
-    setLoading(false); 
+    setLoading(false);
   }, [country]);
 
   return (
@@ -25,10 +25,10 @@ const StateDropdown = ({ country, setState, senderErrors }) => {
       <Autocomplete
         disablePortal
         id="state-autocomplete"
-        options={states} 
-        loading={loading} 
+        options={states}
+        loading={loading}
         getOptionLabel={(option) => option}
-        onChange={(event, newValue) => setState(newValue)} 
+        onChange={(event, newValue) => setState(newValue)}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -37,7 +37,7 @@ const StateDropdown = ({ country, setState, senderErrors }) => {
             helperText={senderErrors.state}
           />
         )}
-        value={states.find((state) => state === state)} 
+        value={states.find((state) => state === state)}
         required
       />
       {senderErrors.state && (
