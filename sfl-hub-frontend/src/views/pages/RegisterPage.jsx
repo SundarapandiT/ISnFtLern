@@ -269,13 +269,13 @@ const RegisterPage = () => {
     }
 };
 
-
      
   const signUp = async (event) => {
     event.preventDefault();
     if (validate()) {
       try {
         const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+
         if (!SECRET_KEY) {
           throw new Error("Encryption key is missing!");
         }
@@ -286,7 +286,7 @@ const RegisterPage = () => {
           Phone: CryptoJS.AES.encrypt(registerDetails.mobile, SECRET_KEY).toString(),
           Email: CryptoJS.AES.encrypt(registerDetails.email, SECRET_KEY).toString(),
         };
-  
+       console.log(encryptedData)
 
         // Send encrypted data to backend
 

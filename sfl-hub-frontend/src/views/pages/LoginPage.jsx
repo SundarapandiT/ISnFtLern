@@ -2,9 +2,13 @@ import { useState } from "react";
 import { TextField, Button, IconButton, InputAdornment, Box, Typography, Paper } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import logo from "/SFL_logo.png";
+import { toast } from "react-hot-toast";
+import axios from "axios";
+import { api } from "../../utils/api";
+
 import { PersonOutline as FaUser, LockOutlined as FaLock } from "@mui/icons-material";
 
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 
 
@@ -13,6 +17,7 @@ import CryptoJS from "crypto-js";
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 //   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [error, setError] = useState({
     usernameErr: false,
     usernameHelperText: "",
@@ -55,6 +60,7 @@ import CryptoJS from "crypto-js";
   
       if (res.status === 200 && res.data.success) {
         toast.success("Login successful!", { position: "top-right", autoClose: 3000 });
+        navigate("/admin/Scheduleshipment", { replace: true });
       } else {
         throw new Error(res.data.message || "Invalid credentials");
       }
