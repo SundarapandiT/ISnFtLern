@@ -2,7 +2,6 @@ import React from "react";
 import {
   Drawer,
   Box,
-  Typography,
   Button,
   Menu,
   MenuItem,
@@ -37,7 +36,7 @@ const Sidebar = ({
         onClose={toggleDrawer(false)}
         sx={{ display: { xs: "block", sm: "none" } }}
       >
-        <Box sx={{ width: 250, bgcolor: "#292929", height: "100%", p: 2}}>
+        <Box sx={{ width: 300, bgcolor: "#292929", height: "100%", p: 2}}>
           <Box sx={{ display: "flex", alignItems: "center", mb: 4,borderBottom:"1px solid grey" }}>
           <img
             src="/sfllogo2--.png"
@@ -70,7 +69,7 @@ const Sidebar = ({
           </Box>
 
           <List>
-            {["Schedule Shipment", "My Shipment", "Billing", "File a Claim"].map(
+            {["Schedule Shipment", "My Shipment"].map(
               (module) => (
                 <ListItem
                   key={module}
@@ -88,9 +87,10 @@ const Sidebar = ({
                 >
                   <ListItemIcon sx={{ color: "white" }}>
                     {module === "Schedule Shipment" ? <LocalShippingIcon /> :
-                      module === "My Shipment" ? <DirectionsBoatIcon /> :
-                        module === "Billing" ? <ReceiptIcon /> :
-                          <NoteAddIcon />}
+                      module === "My Shipment" ? <DirectionsBoatIcon /> : ""
+                        // module === "Billing" ? <ReceiptIcon /> :
+                        //   <NoteAddIcon />
+                        }
                   </ListItemIcon>
                   <ListItemText primary={module} sx={{ color: "white" }} />
                 </ListItem>
@@ -120,7 +120,7 @@ const Sidebar = ({
           />
         </Box>
         <List>
-          {["Schedule Shipment", "My Shipment", "Billing", "File a Claim"].map(
+          {["Schedule Shipment", "My Shipment"].map(
             (module) => (
               <ListItem
                 key={module}
@@ -138,9 +138,10 @@ const Sidebar = ({
               >
                 <ListItemIcon sx={{ color: "white" }}>
                   {module === "Schedule Shipment" ? <LocalShippingIcon /> :
-                    module === "My Shipment" ? <DirectionsBoatIcon /> :
-                      module === "Billing" ? <ReceiptIcon /> :
-                        <NoteAddIcon />}
+                    module === "My Shipment" ? <DirectionsBoatIcon /> :""
+                      // module === "Billing" ? <ReceiptIcon /> :
+                      //   <NoteAddIcon />
+                        }
                 </ListItemIcon>
                 <ListItemText primary={module} sx={{ color: "white" }} />
               </ListItem>

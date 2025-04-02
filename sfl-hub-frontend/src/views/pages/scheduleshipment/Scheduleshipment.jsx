@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // MUI Components
 import Box from "@mui/material/Box";
@@ -27,6 +28,7 @@ import Package from "./Package";
 import { countries } from "../../../data/Countries";
 
 const Schedule = () => {
+  const navigate = useNavigate();
   // Profile
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -414,7 +416,7 @@ const Schedule = () => {
         return updatedTabs;
       });
       const nextTab = shipmentType === "sea" ? "payment" : "package";
-      console.log("Navigating to:", nextTab);
+      // console.log("Navigating to:", nextTab);
       setActiveTab(nextTab);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -753,34 +755,31 @@ const Schedule = () => {
             />
           )}
 
-          {activeModule === "Schedule Shipment" && activeTab === "payment" && (
+          {/* {activeModule === "Schedule Shipment" && activeTab === "payment" && (
             <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
               <Typography variant="h5">Payment Form</Typography>
               <Typography>Form for payment details will go here.</Typography>
             </Box>
-          )}
+          )} */}
         </Box>
 
         {/* Placeholder for other modules */}
         {activeModule === "My Shipment" && activeTab === "my-shipment" && (
-          <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
-            <Typography variant="h5">My Shipment</Typography>
-            <Typography>Content for My Shipment will go here.</Typography>
-          </Box>
+          navigate("/admin/Myshipment")
         )}
 
-        {activeModule === "Billing" && (
+        {/* {activeModule === "Billing" && (
           <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
             <Typography variant="h5">Billing</Typography>
             <Typography>Content for Billing will go here.</Typography>
           </Box>
-        )}
-        {activeModule === "File a Claim" && (
+        )} */}
+        {/* {activeModule === "File a Claim" && (
           <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
             <Typography variant="h5">File a Claim</Typography>
             <Typography>Content for File a Claim will go here.</Typography>
           </Box>
-        )}
+        )} */}
       </Box>
     </Box>
   );

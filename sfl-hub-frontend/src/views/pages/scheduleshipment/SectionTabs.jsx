@@ -5,8 +5,8 @@ const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmen
   // Define tabs dynamically based on shipmentType
   const tabLabels =
     shipmentType === "sea"
-      ? ["Schedule Pickup", "Sender", "Recipient", "Payment"]
-      : ["Schedule Pickup", "Sender", "Recipient", "Package", "Payment"];
+      ? ["Schedule Pickup", "Sender", "Recipient"]
+      : ["Schedule Pickup", "Sender", "Recipient", "Package"];
   const tabValues = tabLabels.map((label) => label.toLowerCase().replace(" ", "-"));
 
   // Determine the current tab index and disable future tabs
@@ -18,7 +18,7 @@ const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmen
       orientation={isMobile ? "vertical" : "horizontal"}
       value={activeTab}
       onChange={(e, newValue) => setActiveTab(newValue)}
-      variant="fullWidth"
+      variant={"fullWidth"}
       indicatorColor="undefined"
       sx={{ position: "relative",backgroundColor:"#EEEEEE" }}
     >

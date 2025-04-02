@@ -7,6 +7,7 @@ import "./index.css";
 import LoginPage from "./views/pages/LoginPage";
 import ForgotPassword from "./views/pages/ForgetPage";
 import ScheduleShipment from "./views/pages/scheduleshipment/Scheduleshipment";
+import Myshipment from "./views/pages/myshipment/Myshipment";
 
 
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/emailverification" element={<EmailVerification/>}/>
         <Route path="/auth/forgotpassword-page" element={<ForgotPassword/>}/>
         <Route path="/admin/Scheduleshipment" element={<ScheduleShipment/>}/>
+        <Route path="/admin/Myshipment" element={<Myshipment/>}/>
       </Routes>
     </Router>
   );

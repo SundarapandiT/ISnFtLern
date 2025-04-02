@@ -1,4 +1,6 @@
 import React from "react";
+import StateDropdown from "./Statedropdown";
+
 import {
   Box,
   TextField,
@@ -51,7 +53,6 @@ const Recipient = ({
   recipientPickupDate,
   setRecipientPickupDate,
   recipientErrors,
-  usStates,
   handleRecipientSubmit,
   handleRecipientPrevious,
 }) => {
@@ -140,60 +141,48 @@ const Recipient = ({
           />
         </Box>
 
-        {/* Row 3: Zip Code, City, State */}
         <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            mb: 2,
-          }}
-        >
-          <TextField
-            label="Zip Code"
-            value={recipientZipCode}
-            onChange={(e) => setRecipientZipCode(e.target.value)}
-            fullWidth
-            required
-            error={!!recipientErrors.zipCode}
-            helperText={recipientErrors.zipCode}
-            sx={{ flex: 1 }}
-            InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
-          />
-          <TextField
-            label="City"
-            value={recipientCity}
-            onChange={(e) => setRecipientCity(e.target.value)}
-            fullWidth
-            required
-            error={!!recipientErrors.city}
-            helperText={recipientErrors.city}
-            sx={{ flex: 1 }}
-            InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
-          />
-          <FormControl fullWidth sx={{ flex: 1 }}>
-            <InputLabel>State</InputLabel>
-            <Select
-              value={recipientState}
-              onChange={(e) => setRecipientState(e.target.value)}
-              label="State"
-              required
-              error={!!recipientErrors.state}
-            >
-              <MenuItem value="">Select State</MenuItem>
-              {usStates.map((state) => (
-                <MenuItem key={state.value} value={state.value}>
-                  {state.label}
-                </MenuItem>
-              ))}
-            </Select>
-            {recipientErrors.state && (
-              <Typography color="error" variant="caption">
-                {recipientErrors.state}
-              </Typography>
-            )}
-          </FormControl>
-        </Box>
+  sx={{
+    display: "flex",
+    flexDirection: { xs: "column", sm: "row" },
+    gap: 2,
+    mb: 2,
+  }}
+>
+  <TextField
+    label="Zip Code"
+    value={recipientZipCode}
+    onChange={(e) => setRecipientZipCode(e.target.value)}
+    fullWidth
+    required
+    error={!!recipientErrors.zipCode}
+    helperText={recipientErrors.zipCode}
+    sx={{ flex: 1 }} // Ensure equal width
+    InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
+  />
+  <TextField
+    label="City"
+    value={recipientCity}
+    onChange={(e) => setRecipientCity(e.target.value)}
+    fullWidth
+    required
+    error={!!recipientErrors.city}
+    helperText={recipientErrors.city}
+    sx={{ flex: 1 }} // Ensure equal width
+    InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
+  />
+  {recipientCountry && (
+    <Box sx={{ flex: 1 }}> {/* Wrap in a Box to apply flex */}
+      <StateDropdown
+        country={recipientCountry}
+        state={recipientState}
+        setState={setRecipientState}
+        senderErrors={recipientErrors}
+      />
+    </Box>
+  )}
+</Box>
+
 
         {/* Row 4: Phone 1, Phone 2, Email Address */}
         <Box
