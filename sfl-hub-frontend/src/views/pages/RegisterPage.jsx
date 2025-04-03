@@ -286,16 +286,16 @@ const RegisterPage = () => {
           Phone: CryptoJS.AES.encrypt(registerDetails.mobile, SECRET_KEY).toString(),
           Email: CryptoJS.AES.encrypt(registerDetails.email, SECRET_KEY).toString(),
         };
-        console.log(encryptedData)
 
         // Send encrypted data to backend
 
-        const res = await axios.post(`${api.BackendURL}/signup`, {
+        const res = await axios.post(`${api.BackendURL}/users/UserRegisteration`, {
           data: encryptedData,
         });
 
-        if (res.data.success) {
-          toast.success("Registration successful!");
+        if (res.data.message === "User Registration Successfully") {
+          toast.success("Register successfully..!");
+          navigate('/auth/login-page')
         } else {
           toast.error(res.data.message || "Registration failed");
         }
@@ -578,13 +578,13 @@ const RegisterPage = () => {
             </Grid>
           </Grid>
           <MobileInput
-  registerDetails={registerDetails}
-  handleChange={handleChange}
-  handleRegister={handleRegister}  
-  handleBlur={handleBlur}
-  setState={setState}
-  state={state}
-/>
+            registerDetails={registerDetails}
+            handleChange={handleChange}
+            handleRegister={handleRegister}
+            handleBlur={handleBlur}
+            setState={setState}
+            state={state}
+          />
 
 
 
