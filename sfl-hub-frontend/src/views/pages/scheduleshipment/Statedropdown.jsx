@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Autocomplete, TextField, FormControl, InputLabel, Typography } from "@mui/material";
+import { Autocomplete, TextField, FormControl, Typography } from "@mui/material";
 
 import Allstates from '../../../data/Allstates.json';
 

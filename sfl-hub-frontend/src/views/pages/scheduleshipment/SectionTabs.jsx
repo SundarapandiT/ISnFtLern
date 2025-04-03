@@ -18,7 +18,7 @@ const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmen
       orientation={isMobile ? "vertical" : "horizontal"}
       value={activeTab}
       onChange={(e, newValue) => setActiveTab(newValue)}
-      variant={"fullWidth"}
+      variant="fullWidth"
       indicatorColor="undefined"
       sx={{ position: "relative", backgroundColor: "#EEEEEE" }}
     >

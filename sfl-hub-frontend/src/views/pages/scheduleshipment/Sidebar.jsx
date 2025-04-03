@@ -12,8 +12,8 @@ import {
 } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
-import ReceiptIcon from "@mui/icons-material/Receipt";
-import NoteAddIcon from "@mui/icons-material/NoteAdd";
+// import ReceiptIcon from "@mui/icons-material/Receipt";
+// import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const Sidebar = ({
@@ -26,6 +26,7 @@ const Sidebar = ({
   activeModule,
   handleModuleClick,
   drawerWidth,
+  setDrawerWidth,
 }) => {
   return (
     <>
@@ -107,9 +108,10 @@ const Sidebar = ({
           bgcolor: "#1a202c",
           color: "white",
           p: 1,
-          display: { xs: "none", sm: "block", overflowY: "hidden" },
+          display: { xs: "none", sm: "block", overflow: "hidden" },
           transition: "width 0.3s ease-in-out",
         }}
+        onMouseEnter={() => setDrawerWidth(250)}
       >
         <Box sx={{ display: "flex", alignItems: "center", mb: 4, borderBottom: "1px solid grey" }}>
           <img

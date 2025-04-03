@@ -9,6 +9,7 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import AppBar from "@mui/material/AppBar";
 import Menu from "@mui/material/Menu";
+import ListIcon from '@mui/icons-material/List';
 import useMediaQuery from "@mui/material/useMediaQuery";
 import useTheme from "@mui/material/styles/useTheme";
 
@@ -43,6 +44,14 @@ const Schedule = () => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [Loginname,setLoginname]=useState("Unknown")
+
+  useEffect(() => {
+    const storedName = JSON.parse(localStorage.getItem("user"));
+    if (storedName) {
+      setLoginname(storedName.name);
+    }
+  }, []);
 
   // State for Schedule Pickup tab
   const [shipmentType, setShipmentType] = useState("");
@@ -52,7 +61,7 @@ const Schedule = () => {
 
   // State for Sender tab
   const [country, setCountry] = useState("");
-  const [countrycode, setcountrycode] = useState("");
+  // const [countrycode, setcountrycode] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
@@ -68,7 +77,7 @@ const Schedule = () => {
 
   // Recipient tab
   const [recipientCountry, setRecipientCountry] = useState("");
-  const [recipientcountrycode, setrecipientcountrycode] = useState("");
+  // const [recipientcountrycode, setrecipientcountrycode] = useState("");
   const [recipientCompanyName, setRecipientCompanyName] = useState("");
   const [recipientContactName, setRecipientContactName] = useState("");
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
@@ -526,9 +535,9 @@ const Schedule = () => {
     const fromCountryObj = countries.find((c) => c.value === fromCountry);
     const toCountryObj = countries.find((c) => c.value === toCountry);
     setCountry(fromCountryObj ? fromCountryObj.label : "");
-    setcountrycode(fromCountryObj ? fromCountryObj.value : "");
+    // setcountrycode(fromCountryObj ? fromCountryObj.value : "");
     setRecipientCountry(toCountryObj ? toCountryObj.label : "");
-    setrecipientcountrycode(toCountryObj ? toCountryObj.value : "");
+    // setrecipientcountrycode(toCountryObj ? toCountryObj.value : "");
   }, [fromCountry, toCountry]);
 
   return (
@@ -543,6 +552,7 @@ const Schedule = () => {
         activeModule={activeModule}
         handleModuleClick={handleModuleClick}
         drawerWidth={drawerwidth}
+        setDrawerWidth={setDrawerWidth}
       />
 
       {/* Main Content */}
@@ -556,7 +566,7 @@ const Schedule = () => {
               onClick={halfopen}
               sx={{ display: { xs: "none", sm: "block" }, ml: 2 }}
             >
-              <MoreVertIcon />
+              {drawerwidth===70?<ListIcon/>:<MoreVertIcon />}
             </IconButton>
 
             <IconButton
@@ -576,7 +586,7 @@ const Schedule = () => {
               sx={{ textTransform: "none", color: "grey", display: { xs: "none", sm: "flex" } }}
               onClick={handleMenuOpen}
             >
-              Username
+              {Loginname}
             </Button>
 
 
@@ -662,7 +672,7 @@ const Schedule = () => {
           {activeModule === "Schedule Shipment" && activeTab === "sender" && (
             <Sender
               country={country}
-              countrycode={countrycode}
+              // countrycode={countrycode}
               setCountry={setCountry}
               companyName={companyName}
               setCompanyName={setCompanyName}
