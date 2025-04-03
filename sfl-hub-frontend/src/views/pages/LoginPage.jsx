@@ -27,7 +27,7 @@ const LoginPage = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
-
+  
     if (!username.trim() || !password.trim()) {
       setError({
         usernameErr: !username.trim(),
@@ -37,133 +37,146 @@ const LoginPage = () => {
       });
       return;
     }
-
+  
     setError({ usernameErr: false, usernameHelperText: "", passwordErr: false, passwordHelperText: "" });
-
+  
     // Show loading toast
     const loadingToastId = toast.loading("Logging in...");
-
+  
     try {
       const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
       if (!SECRET_KEY) {
         throw new Error("Encryption key is missing!");
       }
-
+  
+      // Encrypt the login credentials before sending them to the backend
       const encryptedData = {
         UserName: CryptoJS.AES.encrypt(username, SECRET_KEY).toString(),
         Password: CryptoJS.AES.encrypt(password, SECRET_KEY).toString(),
       };
-
-      const res = await axios.post(`${api.BackendURL}/login`, { data: encryptedData });
-
+  
+      // Send the encrypted data to the backend without wrapping it in "data"
+      const res = await axios.post(`${api.BackendURL}/users/UserLogin`, encryptedData);
+  
       toast.dismiss(loadingToastId);
-
-      if (res.status === 200 && res.data.success) {
+  
+      // Check if the login was successful
+      if (res.status === 200 && res.data?.user?.data) {
+        const decryptedName = CryptoJS.AES.decrypt(res.data.user.data.p_name, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+        const decryptedEmail = CryptoJS.AES.decrypt(res.data.user.data.p_email, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+        const decryptedPhone = CryptoJS.AES.decrypt(res.data.user.data.p_phonenum, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+        const decryptedUsername = CryptoJS.AES.decrypt(res.data.user.data.p_username, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+  
+        localStorage.setItem("user", JSON.stringify({
+          name: decryptedName,
+          email: decryptedEmail,
+          phone: decryptedPhone,
+          username: decryptedUsername,
+        }));
+  
         toast.success("Login successful!", { position: "top-right", autoClose: 3000 });
         navigate("/admin/Scheduleshipment", { replace: true });
       } else {
-        throw new Error(res.data.message || "Invalid credentials");
+        throw new Error(res.data?.message || "Invalid credentials");
       }
-
+  
     } catch (error) {
       console.error("Login error:", error);
-
+  
       toast.dismiss(loadingToastId);
-
+  
       toast.error(error.response?.data?.message || error.message || "Something went wrong", {
         position: "top-right",
         autoClose: 3000,
       });
     }
+  };  
+
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          backgroundImage: "url('/login-bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+
+
+        }}
+      >
+        <Paper elevation={3} sx={{ padding: 4, maxWidth: 400, textAlign: "center", position: "relative", borderRadius: 2, boxShadow: 3, borderTop: "5px solid #d9040c" }}>
+          <img src={logo} alt="Logo" width={150} style={{ marginBottom: 20, justifySelf: "center" }} />
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+
+          </Typography>
+          <form onSubmit={handleLogin}>
+            <TextField
+              label="Username"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              error={error.usernameErr}
+              helperText={error.usernameHelperText}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaUser style={{ color: "gray", marginRight: 8 }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              label="Password"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={error.passwordErr}
+              helperText={error.passwordHelperText}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FaLock color="gray" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword((prev) => !prev)}>
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="error"
+              fullWidth
+              sx={{ mt: 2, backgroundColor: "#d9040c", boxShadow: "1px 1px 3px red" }}
+
+            >
+              {/* {loading ? <CircularProgress size={24} /> : "LOG IN"} */}
+              LOG IN
+            </Button>
+            <Box display="flex" justifyContent="space-between" mt={2}>
+              <Typography variant="body2" component="a" href="/auth/forgotpassword-page" color="primary" sx={{ color: "darkblue", textDecoration: "none" }}>
+                Forgot Password?
+              </Typography>
+              <Typography variant="body2" color="primary" component="a" href="/auth/register-page" sx={{ color: "darkblue", textDecoration: "none" }} >
+                Don't have an account?
+              </Typography>
+            </Box>
+          </form>
+        </Paper>
+      </Box>
+    );
   };
 
-
-
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        backgroundImage: "url('/login-bg.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-
-
-      }}
-    >
-      <Paper elevation={3} sx={{ padding: 4, maxWidth: 400, textAlign: "center", position: "relative", borderRadius: 2, boxShadow: 3, borderTop: "5px solid #d9040c" }}>
-        <img src={logo} alt="Logo" width={150} style={{ marginBottom: 20, justifySelf: "center" }} />
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-
-        </Typography>
-        <form onSubmit={handleLogin}>
-          <TextField
-            label="Username"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            error={error.usernameErr}
-            helperText={error.usernameHelperText}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FaUser style={{ color: "gray", marginRight: 8 }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Password"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={error.passwordErr}
-            helperText={error.passwordHelperText}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FaLock color="gray" />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setShowPassword((prev) => !prev)}>
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            color="error"
-            fullWidth
-            sx={{ mt: 2, backgroundColor: "#d9040c", boxShadow: "1px 1px 3px red" }}
-
-          >
-            {/* {loading ? <CircularProgress size={24} /> : "LOG IN"} */}
-            LOG IN
-          </Button>
-          <Box display="flex" justifyContent="space-between" mt={2}>
-            <Typography variant="body2" component="a" href="/auth/forgotpassword-page" color="primary" sx={{ color: "darkblue", textDecoration: "none" }}>
-              Forgot Password?
-            </Typography>
-            <Typography variant="body2" color="primary" component="a" href="/auth/register-page" sx={{ color: "darkblue", textDecoration: "none" }} >
-              Don't have an account?
-            </Typography>
-          </Box>
-        </form>
-      </Paper>
-    </Box>
-  );
-};
-
-export default LoginPage;
+  export default LoginPage;

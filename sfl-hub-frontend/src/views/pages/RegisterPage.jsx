@@ -293,15 +293,16 @@ const RegisterPage = () => {
           data: encryptedData,
         });
 
-        if (res.data.message === "User Registration Successfully") {
-          toast.success("Register successfully..!");
-          navigate('/auth/login-page')
+
+        if (res.data.user?.message === "User Registration Successfully") {
+          toast.success("Register successfully!");
+          navigate("/auth/login-page");
         } else {
-          toast.error(res.data.message || "Registration failed");
+          toast.error(res.data.user?.message || "Registration failed");
         }
       } catch (error) {
-        console.error("Sign-up error:", error);
-        toast.error(error.message || "Something went wrong");
+        console.error("Error:", error);
+        toast.error("Something went wrong!");
       }
     }
   }
