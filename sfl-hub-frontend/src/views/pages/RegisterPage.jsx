@@ -17,7 +17,8 @@ import DoneIcon from "@mui/icons-material/Done";
 import { CheckCircle, Cancel } from "@mui/icons-material";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
-import { PhoneOutlined as PhoneIcon } from "@mui/icons-material";
+// import { PhoneOutlined as PhoneIcon } from "@mui/icons-material";
+import MobileInput from "../MobileInput";
 
 import { useRegister } from "../RegisterContext";
 import CryptoJS from "crypto-js";
@@ -576,37 +577,13 @@ const RegisterPage = () => {
               />
             </Grid>
           </Grid>
-          <TextField
-            fullWidth
-            name="mobile"
-            label="Contact Number"
-            // placeholder="Contact Number"
-            variant="outlined"
-            margin="normal"
-            value={registerDetails.mobile}
-            onChange={(e) => {
-              handleChange(e);
-              handleRegister(e);
-            }}
-            onBlur={(e) => handleBlur(e, "mobile")}
-            onFocus={() =>
-              setState((prevState) => ({
-                ...prevState,
-                mobileErr: false,
-                mobileHelperText: "",
-                checkMobile: false,
-              }))
-            }
-            error={state.mobileErr}
-            helperText={state.mobileHelperText}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <PhoneIcon color="action" />
-                </InputAdornment>
-              ),
-            }}
-          />
+          <MobileInput
+        registerDetails={registerDetails}
+        handleChange={handleChange}
+        handleBlur={handleBlur}
+        setState={setState}
+        state={state}
+      />
 
 
           <TextField
