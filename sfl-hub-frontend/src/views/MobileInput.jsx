@@ -1,17 +1,19 @@
 import React from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-// import { TextField, InputAdornment } from "@mui/material";
-// import PhoneIcon from "@mui/icons-material/Phone";
+import { TextField, InputAdornment } from "@mui/material";
+import PhoneIcon from "@mui/icons-material/Phone";
 
-const MobileInput = ({ registerDetails, handleChange, handleBlur, setState, state }) => {
+const MobileInput = ({ registerDetails, handleChange, handleRegister, handleBlur, setState, state }) => {
+  console.log(registerDetails.mobile)
   return (
     <PhoneInput
       country={"in"} 
       value={registerDetails.mobile}
-      onChange={(value) =>
-        handleChange({ target: { name: "mobile", value } })
-      }
+      onChange={(value) => {
+        handleChange({ target: { name: "mobile", value } });
+        handleRegister({ target: { name: "mobile", value } });
+      }}
       onBlur={(e) => handleBlur(e, "mobile")}
       onFocus={() =>
         setState((prevState) => ({
@@ -24,13 +26,14 @@ const MobileInput = ({ registerDetails, handleChange, handleBlur, setState, stat
       inputStyle={{
         width: "100%",
         height: "56px",
-        paddingLeft: "48px", // To align with the icon
+        paddingLeft: "48px",
       }}
       containerStyle={{ width: "100%" }}
       inputProps={{
         name: "mobile",
         required: true,
       }}
+      isValid={() => !state.mobileErr} // Show error if invalid
     />
   );
 };

@@ -578,12 +578,14 @@ const RegisterPage = () => {
             </Grid>
           </Grid>
           <MobileInput
-        registerDetails={registerDetails}
-        handleChange={handleChange}
-        handleBlur={handleBlur}
-        setState={setState}
-        state={state}
-      />
+  registerDetails={registerDetails}
+  handleChange={handleChange}
+  handleRegister={handleRegister}  
+  handleBlur={handleBlur}
+  setState={setState}
+  state={state}
+/>
+
 
 
           <TextField
