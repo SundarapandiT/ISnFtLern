@@ -42,6 +42,12 @@ const Schedule = () => {
     setAnchorEl(null);
   };
 
+  const handleLogout = () => {  
+    navigate("/auth/login-page");
+    localStorage.removeItem("user");
+    handleMenuClose();
+  }
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [Loginname,setLoginname]=useState("Unknown")
@@ -604,7 +610,7 @@ const Schedule = () => {
               }}
             >
               <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
           </Box>
         </AppBar>

@@ -29,7 +29,7 @@ const RegisterPage = () => {
   const [activeField, setActiveField] = useState("");
   const isMobile = useMediaQuery("(max-width:600px)");
   const [showPassword, setShowPassword] = useState(false);
-  const { emailVerify, setEmailVerify, registerDetails, setRegisterDetails } = useRegister();
+  const { registerDetails, setRegisterDetails } = useRegister();
   const navigate = useNavigate();
   const [state, setState] = useState({
     fullnameErr: false,
@@ -174,7 +174,7 @@ const RegisterPage = () => {
         break;
       case "mobile":
         errors.checkMobile = true;
-        const mobileRegExp = /^[0-9]{10,15}$/;
+        const mobileRegExp = /^\+?[1-9]\d{8,14}$/;
         if (isEmpty(value)) {
           errors.mobileErr = true;
           errors.mobileHelperText = "Please enter Mobile Number";
@@ -234,51 +234,57 @@ const RegisterPage = () => {
 
   const sendMail = async () => {
     const loadingToast = toast.loading("Sending OTP...");
-
+  
     try {
       const response = await axios.post(`${api.BackendURL}/users/EmailVerifyOtp`, {
         email: registerDetails.email,
       });
-
+  
       const userMessage = response.data?.user?.message;
-
+  
       if (userMessage === 'Email is already verified, no need to generate OTP.') {
-        navigate('/auth/login-page');
         toast.error("Email is already registered and verified.", {
           position: "top-right",
           autoClose: 3000,
         });
+        return { success: false, verified: true };
       } else if (userMessage === "OTP sent successfully") {
-        navigate('/emailverification');
         toast.success("OTP sent successfully!", {
           position: "top-right",
           autoClose: 3000,
         });
+        return { success: true, verified: false }; 
       } else {
         throw new Error(userMessage || "Failed to send OTP");
       }
     } catch (error) {
       console.error("Error sending OTP:", error);
-
       toast.error(error?.response?.data?.message || "Failed to send OTP. Try again.", {
         position: "top-right",
         autoClose: 3000,
       });
+      return { success: false, verified: false };
     } finally {
       toast.dismiss(loadingToast);
     }
   };
 
-
   const signUp = async (event) => {
     event.preventDefault();
-    if (validate()) {
+    if (!validate()) return;
+  
+    const otpResult = await sendMail();
+  
+    if (otpResult.success && !otpResult.verified) {
+      navigate("/emailverification");
+      return; 
+    }
+  
+    if (otpResult.verified) {
       try {
         const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
-
-        if (!SECRET_KEY) {
-          throw new Error("Encryption key is missing!");
-        }
+        if (!SECRET_KEY) throw new Error("Encryption key is missing!");
+  
         const encryptedData = {
           Name: CryptoJS.AES.encrypt(registerDetails.fullname, SECRET_KEY).toString(),
           UserName: CryptoJS.AES.encrypt(registerDetails.username, SECRET_KEY).toString(),
@@ -286,16 +292,13 @@ const RegisterPage = () => {
           Phone: CryptoJS.AES.encrypt(registerDetails.mobile, SECRET_KEY).toString(),
           Email: CryptoJS.AES.encrypt(registerDetails.email, SECRET_KEY).toString(),
         };
-
-        // Send encrypted data to backend
-
+  
         const res = await axios.post(`${api.BackendURL}/users/UserRegisteration`, {
           data: encryptedData,
         });
-
-
+  
         if (res.data.user?.message === "User Registration Successfully") {
-          toast.success("Register successfully!");
+          toast.success("Registered successfully!");
           navigate("/auth/login-page");
         } else {
           toast.error(res.data.user?.message || "Registration failed");
@@ -305,8 +308,8 @@ const RegisterPage = () => {
         toast.error("Something went wrong!");
       }
     }
-  }
-
+  };
+    
   return (
 
     <Box
@@ -619,20 +622,22 @@ const RegisterPage = () => {
                   <MailOutlineIcon color="gray" />
                 </InputAdornment>
               ),
-              endAdornment: state.email.includes("@") ? (
-                <Button
-                  variant="contained"
-                  sx={{ backgroundColor: "Green" }} onClick={sendMail}>Verify</Button>
-              ) : null,
+              // endAdornment: state.email.includes("@") ? (
+              //   <Button
+              //     variant="contained"
+              //     sx={{ backgroundColor: "Green" }} onClick={sendMail}>Verify</Button>
+              // ) : null,
             }}
           />
 
           <Button
-            type="submit"
+            // type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 2, backgroundColor: "red", boxShadow: "1px 1px 3px red" }}
-            disabled={emailVerify ? false : true}
+            // disabled={emailVerify ? false : true}
+            onClick={signUp}
+
           >
             SIGN UP
           </Button>

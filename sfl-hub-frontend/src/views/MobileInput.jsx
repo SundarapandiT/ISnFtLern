@@ -8,6 +8,7 @@ const MobileInput = ({ registerDetails, handleChange, handleRegister, handleBlur
   return (
     <PhoneInput
       country={"in"} 
+      enableSearch={true}
       value={registerDetails.mobile}
       onChange={(value, countryData) => {
         const formattedValue = `+${countryData.dialCode}${value.slice(countryData.dialCode.length)}`;

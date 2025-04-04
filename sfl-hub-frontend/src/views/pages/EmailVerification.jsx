@@ -10,7 +10,7 @@ import { api } from "../../utils/api";
 
 
 const EmailVerification = () => {
-  const { emailVerify, setEmailVerify, registerDetails } = useRegister();
+  const {  registerDetails } = useRegister();
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -61,9 +61,9 @@ const EmailVerification = () => {
           autoClose: 3000,
         });
 
-        setEmailVerify(true);
+        // setEmailVerify(true);
         setdisable(true);
-        navigate('/auth/register-page');
+        navigate('/auth/login-page');
       } else {
         throw new Error("OTP verification failed");
       }
