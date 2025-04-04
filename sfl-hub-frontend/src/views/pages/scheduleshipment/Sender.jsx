@@ -1,5 +1,6 @@
-import { React } from "react";
-import { Box, TextField, Typography, Button, InputLabel, FormControl, Select, MenuItem } from "@mui/material";
+import { React,useEffect } from "react";
+import axios from "axios";
+import { Box, TextField, Typography, Button } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import PublicIcon from "@mui/icons-material/Public";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -12,6 +13,7 @@ import StateDropdown from "./Statedropdown";
 
 const Sender = ({
   country,
+  countrycode,
   setCountry,
   companyName,
   setCompanyName,
@@ -36,9 +38,50 @@ const Sender = ({
   email,
   setEmail,
   senderErrors,
+  setSenderErrors,
   handleSenderSubmit,
   handlePrevious
 }) => {
+  useEffect(() => {
+    const fetchCity = async () => {
+      console.log("Fetching city for zip code:", zipCode, countrycode);
+      if (zipCode.length < 4) return;
+  
+      try {
+        if (countrycode === "in") {
+          const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
+          const data = res.data[0];
+  
+          if (data.Status === "Success" && data.PostOffice && data.PostOffice.length > 0) {
+            const place = data.PostOffice[0];
+            console.log("Fetched place data (India):", place);
+            setFromCity(place.District);
+            setState(place.State);
+            setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
+          } else {
+            throw new Error("No records found");
+          }
+        } else {
+          const res = await axios.get(`https://api.zippopotam.us/${countrycode}/${zipCode}`);
+          const place = res.data.places[0];
+          console.log("Fetched place data (Intl):", place);
+          setFromCity(place["place name"]);
+          setState(place["state"]);
+          setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
+        }
+      } catch (err) {
+        console.error("Error fetching location:", err.message);
+        setFromCity("");
+        setSenderErrors((prev) => ({
+          ...prev,
+          zipCode: "Invalid or unsupported zip code.",
+        }));
+      }
+    };
+  
+    fetchCity();
+  }, [zipCode]);
+  
 
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>

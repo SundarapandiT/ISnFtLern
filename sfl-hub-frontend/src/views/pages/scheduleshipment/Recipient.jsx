@@ -1,4 +1,5 @@
-import React from "react";
+import {React,useEffect} from "react";
+import axios from "axios";
 import StateDropdown from "./Statedropdown";
 
 import {
@@ -23,6 +24,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 const Recipient = ({
   recipientCountry,
+  recipientcountrycode,
   setRecipientCountry,
   recipientCompanyName,
   setRecipientCompanyName,
@@ -53,11 +55,50 @@ const Recipient = ({
   recipientPickupDate,
   setRecipientPickupDate,
   recipientErrors,
+  setRecipientErrors,
   handleRecipientSubmit,
   handleRecipientPrevious,
 }) => {
   // Get today's date in YYYY-MM-DD format for the min attribute
   const today = new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    const fetchCity = async () => {
+      if (recipientZipCode.length < 4) return;
+
+      try {
+        if (recipientcountrycode === "in") {
+          const res = await axios.get(`https://api.postalpincode.in/pincode/${recipientZipCode}`);
+          const data = res.data[0];
+
+          if (data.Status === "Success" && data.PostOffice && data.PostOffice.length > 0) {
+            const place = data.PostOffice[0];
+            setRecipientCity(place.District);
+            setRecipientState(place.State);
+            recipientErrors.recipientZipCode = "";
+          } else {
+            throw new Error("No records found");
+          }
+        } else {
+          const res = await axios.get(`https://api.zippopotam.us/${recipientcountrycode}/${recipientZipCode}`);
+          const place = res.data.places[0];
+          setRecipientCity(place["place name"]);
+          setRecipientState(place["state"]);
+          recipientErrors.recipientZipCode = "";
+        }
+      } catch (err) {
+        console.error("Error fetching location:", err.message);
+        setRecipientCity("");
+        setRecipientErrors((prev) => ({
+          ...prev,
+          recipientZipCode: "Invalid or unsupported zip code.",
+        }));
+      }
+    };
+
+    fetchCity();
+  }, [recipientZipCode]);
+
 
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>

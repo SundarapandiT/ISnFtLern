@@ -67,7 +67,7 @@ const Schedule = () => {
 
   // State for Sender tab
   const [country, setCountry] = useState("");
-  // const [countrycode, setcountrycode] = useState("");
+  const [countrycode, setcountrycode] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
@@ -83,7 +83,7 @@ const Schedule = () => {
 
   // Recipient tab
   const [recipientCountry, setRecipientCountry] = useState("");
-  // const [recipientcountrycode, setrecipientcountrycode] = useState("");
+  const [recipientcountrycode, setrecipientcountrycode] = useState("");
   const [recipientCompanyName, setRecipientCompanyName] = useState("");
   const [recipientContactName, setRecipientContactName] = useState("");
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
@@ -541,9 +541,9 @@ const Schedule = () => {
     const fromCountryObj = countries.find((c) => c.value === fromCountry);
     const toCountryObj = countries.find((c) => c.value === toCountry);
     setCountry(fromCountryObj ? fromCountryObj.label : "");
-    // setcountrycode(fromCountryObj ? fromCountryObj.value : "");
+    setcountrycode(fromCountryObj ? fromCountryObj.value.toLowerCase() : "");
     setRecipientCountry(toCountryObj ? toCountryObj.label : "");
-    // setrecipientcountrycode(toCountryObj ? toCountryObj.value : "");
+    setrecipientcountrycode(toCountryObj ? toCountryObj.value.toLowerCase() : "");
   }, [fromCountry, toCountry]);
 
   return (
@@ -678,7 +678,7 @@ const Schedule = () => {
           {activeModule === "Schedule Shipment" && activeTab === "sender" && (
             <Sender
               country={country}
-              // countrycode={countrycode}
+              countrycode={countrycode}
               setCountry={setCountry}
               companyName={companyName}
               setCompanyName={setCompanyName}
@@ -703,6 +703,7 @@ const Schedule = () => {
               email={email}
               setEmail={setEmail}
               senderErrors={senderErrors}
+              setSenderErrors={setSenderErrors}
               handleSenderSubmit={handleSenderSubmit}
               handlePrevious={handlePrevious}
             />
@@ -711,6 +712,7 @@ const Schedule = () => {
             <Recipient
               {...{
                 recipientCountry,
+                recipientcountrycode,
                 setRecipientCountry,
                 recipientCompanyName,
                 setRecipientCompanyName,
@@ -741,6 +743,7 @@ const Schedule = () => {
                 recipientPickupDate,
                 setRecipientPickupDate,
                 recipientErrors,
+                setRecipientErrors,
                 handleRecipientSubmit,
                 handleRecipientPrevious,
               }}

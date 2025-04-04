@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Autocomplete, TextField, FormControl, Typography } from "@mui/material";
-
 import Allstates from '../../../data/Allstates.json';
 
-const StateDropdown = ({ country, setState, senderErrors }) => {
+const StateDropdown = ({ country, setState, senderErrors, state: selectedState }) => {
   const [states, setStates] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -35,10 +34,10 @@ const StateDropdown = ({ country, setState, senderErrors }) => {
             label="Select State"
             error={!!senderErrors.state}
             helperText={senderErrors.state}
+            required
           />
         )}
-        value={states.find((state) => state === state)}
-        required
+        value={states.find((s) => s === selectedState) || null}
       />
       {senderErrors.state && (
         <Typography color="error" variant="caption">
