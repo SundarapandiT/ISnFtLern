@@ -1,11 +1,9 @@
-import {React,useEffect} from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import StateDropdown from "./Statedropdown";
-
 import {
   Box,
   TextField,
-  Typography,
   Button,
   FormControl,
   InputLabel,
@@ -20,7 +18,6 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 const Recipient = ({
   recipientCountry,
@@ -50,18 +47,11 @@ const Recipient = ({
   setRecipientEmail,
   recipientLocationType,
   setRecipientLocationType,
-  recipientNeedsPickup,
-  setRecipientNeedsPickup,
-  recipientPickupDate,
-  setRecipientPickupDate,
   recipientErrors,
   setRecipientErrors,
   handleRecipientSubmit,
   handleRecipientPrevious,
 }) => {
-  // Get today's date in YYYY-MM-DD format for the min attribute
-  const today = new Date().toISOString().split("T")[0];
-
   useEffect(() => {
     const fetchCity = async () => {
       if (recipientZipCode.length < 4) return;
@@ -75,7 +65,7 @@ const Recipient = ({
             const place = data.PostOffice[0];
             setRecipientCity(place.District);
             setRecipientState(place.State);
-            recipientErrors.recipientZipCode = "";
+            setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
           } else {
             throw new Error("No records found");
           }
@@ -84,7 +74,7 @@ const Recipient = ({
           const place = res.data.places[0];
           setRecipientCity(place["place name"]);
           setRecipientState(place["state"]);
-          recipientErrors.recipientZipCode = "";
+          setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
         }
       } catch (err) {
         console.error("Error fetching location:", err.message);
@@ -97,30 +87,34 @@ const Recipient = ({
     };
 
     fetchCity();
-  }, [recipientZipCode]);
+  }, [recipientZipCode, recipientcountrycode, setRecipientCity, setRecipientState, setRecipientErrors]);
 
+  // Common styles for all rows
+  const rowStyle = {
+    display: "flex",
+    flexDirection: { xs: "column", sm: "row" },
+    gap: 2,
+    mb: 2,
+    alignItems: "stretch",
+  };
+
+  const fieldStyle = {
+    flex: 1,
+    minWidth: 0,
+  };
 
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-        <PersonIcon sx={{ mr: 1, fontSize: 30 }} />
-        <Typography variant="h5">Recipient</Typography>
-      </Box>
+
       <form onSubmit={handleRecipientSubmit}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            mb: 2,
-          }}
-        >
+        {/* Row 1: Country, Company Name, Contact Name */}
+        <Box sx={rowStyle}>
           <TextField
             label="Country"
             value={recipientCountry}
             onChange={(e) => setRecipientCountry(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <PublicIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
           <TextField
@@ -128,7 +122,7 @@ const Recipient = ({
             value={recipientCompanyName}
             onChange={(e) => setRecipientCompanyName(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
           <TextField
@@ -139,20 +133,13 @@ const Recipient = ({
             required
             error={!!recipientErrors.contactName}
             helperText={recipientErrors.contactName}
-            sx={{ flex: 1 }}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <PersonIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
         </Box>
 
         {/* Row 2: Address Line 1, Address Line 2, Address Line 3 */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            mb: 2,
-          }}
-        >
+        <Box sx={rowStyle}>
           <TextField
             label="Address Line 1"
             value={recipientAddressLine1}
@@ -161,7 +148,7 @@ const Recipient = ({
             required
             error={!!recipientErrors.addressLine1}
             helperText={recipientErrors.addressLine1}
-            sx={{ flex: 1 }}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "red", mr: 1 }} /> }}
           />
           <TextField
@@ -169,7 +156,7 @@ const Recipient = ({
             value={recipientAddressLine2}
             onChange={(e) => setRecipientAddressLine2(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
           <TextField
@@ -177,28 +164,22 @@ const Recipient = ({
             value={recipientAddressLine3}
             onChange={(e) => setRecipientAddressLine3(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
         </Box>
 
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            mb: 2,
-          }}
-        >
+        {/* Row 3: Zip Code, City, State */}
+        <Box sx={rowStyle}>
           <TextField
             label="Zip Code"
             value={recipientZipCode}
             onChange={(e) => setRecipientZipCode(e.target.value)}
             fullWidth
             required
-            error={!!recipientErrors.zipCode}
-            helperText={recipientErrors.zipCode}
-            sx={{ flex: 1 }} // Ensure equal width
+            error={!!recipientErrors.recipientZipCode}
+            helperText={recipientErrors.recipientZipCode}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
           />
           <TextField
@@ -207,33 +188,27 @@ const Recipient = ({
             onChange={(e) => setRecipientCity(e.target.value)}
             fullWidth
             required
-            error={!!recipientErrors.city}
-            helperText={recipientErrors.city}
-            sx={{ flex: 1 }} // Ensure equal width
+            error={!!recipientErrors.recipientCity}
+            helperText={recipientErrors.recipientCity}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
-          {recipientCountry && (
-            <Box sx={{ flex: 1 }}> {/* Wrap in a Box to apply flex */}
+          {recipientCountry ? (
+            <Box sx={fieldStyle}>
               <StateDropdown
                 country={recipientCountry}
                 state={recipientState}
                 setState={setRecipientState}
-                senderErrors={recipientErrors}
+                senderErrors={recipientErrors} // Should be recipientErrors, but keeping as per your code
               />
             </Box>
+          ) : (
+            <Box sx={fieldStyle} />
           )}
         </Box>
 
-
         {/* Row 4: Phone 1, Phone 2, Email Address */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            mb: 2,
-          }}
-        >
+        <Box sx={rowStyle}>
           <TextField
             label="Phone 1"
             value={recipientPhone1}
@@ -242,7 +217,7 @@ const Recipient = ({
             required
             error={!!recipientErrors.phone1}
             helperText={recipientErrors.phone1}
-            sx={{ flex: 1 }}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <PhoneIcon sx={{ color: "red", mr: 1 }} /> }}
           />
           <TextField
@@ -250,7 +225,7 @@ const Recipient = ({
             value={recipientPhone2}
             onChange={(e) => setRecipientPhone2(e.target.value)}
             fullWidth
-            sx={{ flex: 1 }}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <PhoneIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
           <TextField
@@ -261,24 +236,17 @@ const Recipient = ({
             required
             error={!!recipientErrors.email}
             helperText={recipientErrors.email}
-            sx={{ flex: 1 }}
+            sx={fieldStyle}
             InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
           />
         </Box>
 
-        {/* Row 5: Location Type, Do You Need Pickup?, and Conditional Pickup Date */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            mb: 2,
-          }}
-        >
-          <FormControl fullWidth sx={{ flex: 1 }}>
+        {/* Row 5: Location Type */}
+        <Box sx={rowStyle}>
+          <FormControl fullWidth sx={fieldStyle}>
             <InputLabel>Select Location Type</InputLabel>
             <Select
-              value={recipientLocationType}
+              value={recipientLocationType || ""}
               onChange={(e) => setRecipientLocationType(e.target.value)}
               label="Select Location Type"
             >
@@ -286,42 +254,19 @@ const Recipient = ({
               <MenuItem value="Commercial">Commercial</MenuItem>
             </Select>
           </FormControl>
-          <FormControl fullWidth sx={{ flex: 1 }}>
-            <InputLabel>Do You Need Pickup?</InputLabel>
-            <Select
-              value={recipientNeedsPickup}
-              onChange={(e) => setRecipientNeedsPickup(e.target.value)}
-              label="Do You Need Pickup?"
-            >
-              <MenuItem value="Yes - I Need Pickup Service">Yes - I Need Pickup Service</MenuItem>
-              <MenuItem value="No - I Will Drop Off My Package">No - I Will Drop Off My Package</MenuItem>
-            </Select>
-          </FormControl>
-          {recipientNeedsPickup === "Yes - I Need Pickup Service" ? (
-            <TextField
-              label="Pickup Date"
-              type="date"
-              value={recipientPickupDate || ""}
-              onChange={(e) => setRecipientPickupDate(e.target.value)}
-              fullWidth
-              required
-              error={!!recipientErrors.pickupDate}
-              helperText={recipientErrors.pickupDate}
-              sx={{ flex: 1 }}
-              InputLabelProps={{ shrink: true }}
-              InputProps={{
-                startAdornment: <CalendarTodayIcon sx={{ color: "red", mr: 1 }} />,
-              }}
-              inputProps={{
-                min: today, // Restrict past dates
-              }}
-            />
-          ) : (
-            <Box sx={{ flex: 1, display: { xs: "none", sm: "block" } }} />
-          )}
+          <Box sx={fieldStyle} /> {/* Placeholder */}
+          <Box sx={fieldStyle} /> {/* Placeholder */}
         </Box>
 
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between" }}>
+        {/* Buttons */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            gap: 2,
+          }}
+        >
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
@@ -333,7 +278,11 @@ const Recipient = ({
           <Button
             type="submit"
             variant="contained"
-            sx={{ bgcolor: "#E91E63", "&:hover": { bgcolor: "#ed64a6" }, width: { xs: "100%", sm: "auto" } }}
+            sx={{
+              bgcolor: "#E91E63",
+              "&:hover": { bgcolor: "#ed64a6" },
+              width: { xs: "100%", sm: "auto" },
+            }}
             endIcon={<ArrowForwardIcon />}
           >
             Next

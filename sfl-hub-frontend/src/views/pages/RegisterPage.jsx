@@ -243,7 +243,7 @@ const RegisterPage = () => {
       const userMessage = response.data?.user?.message;
   
       if (userMessage === 'Email is already verified, no need to generate OTP.') {
-        toast.error("Email is already registered and verified.", {
+        toast.error("Already registered with this email. Please login..", {
           position: "top-right",
           autoClose: 3000,
         });
@@ -279,8 +279,13 @@ const RegisterPage = () => {
       navigate("/emailverification");
       return; 
     }
+    if (!otpResult.success && otpResult.verified) {
+      // toast.error("Already registered with this email. Please login.");
+      // navigate("/auth/login-page");
+      return; 
+    }
   
-    if (otpResult.verified) {
+    if (otpResult.success) {
       try {
         const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
         if (!SECRET_KEY) throw new Error("Encryption key is missing!");

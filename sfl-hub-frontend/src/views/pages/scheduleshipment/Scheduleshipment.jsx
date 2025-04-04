@@ -79,6 +79,8 @@ const Schedule = () => {
   const [phone1, setPhone1] = useState("");
   const [phone2, setPhone2] = useState("");
   const [email, setEmail] = useState("");
+  const [needsPickup, setNeedsPickup] = useState("No - I Will Drop Off My Package");
+  const [pickupDate, setPickupDate] = useState("");
   const [senderErrors, setSenderErrors] = useState({});
 
   // Recipient tab
@@ -96,8 +98,6 @@ const Schedule = () => {
   const [recipientPhone2, setRecipientPhone2] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [recipientLocationType, setRecipientLocationType] = useState("Residential");
-  const [recipientNeedsPickup, setRecipientNeedsPickup] = useState("No - I Will Drop Off My Package");
-  const [recipientPickupDate, setRecipientPickupDate] = useState("");
   const [recipientErrors, setRecipientErrors] = useState({});
 
   // Package tab
@@ -268,6 +268,9 @@ const Schedule = () => {
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = "Please enter a valid email address";
     }
+    if (needsPickup === "Yes - I Need Pickup Service" && !pickupDate) {
+      newErrors.pickupDate = "Pickup Date is required";
+    }
 
     setSenderErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -275,35 +278,37 @@ const Schedule = () => {
 
 
   // Validation for Recipient tab
-  const validateRecipientForm = () => {
-    const newErrors = {};
-    if (!recipientContactName.trim()) {
-      newErrors.contactName = "Contact Name is required";
-    }
-    if (!recipientAddressLine1.trim()) {
-      newErrors.addressLine1 = "Address Line 1 is required";
-    }
-    if (!recipientZipCode.trim()) {
-      newErrors.zipCode = "Zip Code is required";
-    }
-    if (!recipientCity.trim()) {
-      newErrors.city = "City is required";
-    }
-    if (!recipientState.trim()) {
-      newErrors.state = "State is required";
-    }
-    if (!recipientPhone1.trim()) {
-      newErrors.phone1 = "At least one phone number is required";
-    }
-    if (!recipientEmail.trim()) {
-      newErrors.email = "Email is required";
-    }
-    if (recipientNeedsPickup === "Yes - I Need Pickup Service" && !recipientPickupDate) {
-      newErrors.pickupDate = "Pickup Date is required";
-    }
-    setRecipientErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+const validateRecipientForm = () => {
+  const newErrors = {};
+  if (!recipientContactName.trim()) {
+    newErrors.contactName = "Contact Name is required";
+  }
+  if (!recipientAddressLine1.trim()) {
+    newErrors.addressLine1 = "Address Line 1 is required";
+  }
+  if (!recipientZipCode.trim()) {
+    newErrors.recipientZipCode = "Zip Code is required"; // Updated key to match Recipient.jsx
+  }
+  if (!recipientCity.trim()) {
+    newErrors.recipientCity = "City is required"; // Updated key to match Recipient.jsx
+  }
+  if (!recipientState.trim()) {
+    newErrors.state = "State is required";
+  }
+  if (!recipientPhone1.trim()) {
+    newErrors.phone1 = "Phone 1 is required";
+  } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1)) {
+    newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
+  }
+  if (!recipientEmail.trim()) {
+    newErrors.email = "Email is required";
+  } else if (!/\S+@\S+\.\S+/.test(recipientEmail)) {
+    newErrors.email = "Please enter a valid email address";
+  }
+
+  setRecipientErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   // Validation for Package tab
   const validatePackageForm = () => {
@@ -397,6 +402,8 @@ const Schedule = () => {
         phone1,
         phone2,
         email,
+        needsPickup,
+        pickupDate,
       });
       setCompletedTabs((prev) => ({ ...prev, sender: true }));
       setActiveTab("recipient");
@@ -422,8 +429,6 @@ const Schedule = () => {
         recipientPhone2,
         recipientEmail,
         recipientLocationType,
-        recipientNeedsPickup,
-        recipientPickupDate,
       });
       setCompletedTabs((prev) => {
         const updatedTabs = { ...prev, recipient: true };
@@ -702,6 +707,10 @@ const Schedule = () => {
               setPhone2={setPhone2}
               email={email}
               setEmail={setEmail}
+              needsPickup={needsPickup}
+              setNeedsPickup={setNeedsPickup}
+              pickupDate={pickupDate}
+              setPickupDate={setPickupDate}
               senderErrors={senderErrors}
               setSenderErrors={setSenderErrors}
               handleSenderSubmit={handleSenderSubmit}
@@ -738,10 +747,6 @@ const Schedule = () => {
                 setRecipientEmail,
                 recipientLocationType,
                 setRecipientLocationType,
-                recipientNeedsPickup,
-                setRecipientNeedsPickup,
-                recipientPickupDate,
-                setRecipientPickupDate,
                 recipientErrors,
                 setRecipientErrors,
                 handleRecipientSubmit,
