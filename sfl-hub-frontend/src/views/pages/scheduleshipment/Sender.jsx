@@ -6,7 +6,9 @@ import PublicIcon from "@mui/icons-material/Public";
 import BusinessIcon from "@mui/icons-material/Business";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
-import PhoneIcon from "@mui/icons-material/Phone";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/material.css";
+
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping"; // For "Needs Pickup"
@@ -68,13 +70,30 @@ const Sender = ({
             throw new Error("No records found");
           }
         } else {
-          const res = await axios.get(`https://api.zippopotam.us/${countrycode}/${zipCode}`);
-          const place = res.data.places[0];
-          console.log("Fetched place data (Intl):", place);
-          setFromCity(place["place name"]);
-          setState(place["state"]);
+          const res = await axios.get(
+            `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countrycode}|postal_code:${zipCode}`
+          );
+
+          const components = res.data.results?.[0]?.address_components || [];
+
+          let city = '';
+          let state = '';
+
+          components.forEach(component => {
+            if (component.types.includes('locality')) {
+              city = component.long_name;
+            }
+            if (component.types.includes('administrative_area_level_1')) {
+              state = component.long_name;
+            }
+          });
+
+
+          setFromCity(city);
+          setState(state);
           setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
         }
+
       } catch (err) {
         console.error("Error fetching location:", err.message);
         setFromCity("");
@@ -106,7 +125,7 @@ const Sender = ({
 
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
-    
+
       <form onSubmit={handleSenderSubmit}>
         {/* Row 1: Country, Company Name, Contact Name */}
         <Box sx={rowStyle}>
@@ -226,31 +245,54 @@ const Sender = ({
 
         {/* Row 4: Phone 1, Phone 2, Email */}
         <Box sx={rowStyle}>
+          {/* Phone 1 */}
+          <Box sx={{ ...fieldStyle, width: '100%', mr: 2 }}>
+            <PhoneInput
+              country={countrycode}
+              value={phone1}
+              onChange={(phone) => setPhone1(phone)}
+              inputStyle={{
+                width: '100%',
+                height: '56px',
+                fontSize: '16px',
+                borderRadius: '4px',
+                borderColor: senderErrors.phone1 ? 'red' : '#c4c4c4',
+                paddingLeft: '48px' // To mimic the icon spacing
+              }}
+              containerStyle={{ width: '100%' }}
+              enableSearch
+              specialLabel=""
+            />
+            {senderErrors.phone1 && (
+              <Typography variant="caption" color="error">
+                {senderErrors.phone1}
+              </Typography>
+            )}
+          </Box>
+
+          {/* Phone 2 */}
+          <Box sx={{ ...fieldStyle, width: '100%', mr: 2 }}>
+            <PhoneInput
+              country={countrycode}
+              value={phone2}
+              onChange={(phone) => setPhone2(phone)}
+              inputStyle={{
+                width: '100%',
+                height: '56px',
+                fontSize: '16px',
+                borderRadius: '4px',
+                borderColor: '#c4c4c4',
+                paddingLeft: '48px'
+              }}
+              containerStyle={{ width: '100%' }}
+              enableSearch
+              specialLabel=""
+            />
+          </Box>
+
+          {/* Email Address */}
           <TextField
-            label="Phone 1"
-            value={phone1}
-            onChange={(e) => setPhone1(e.target.value)}
-            fullWidth
-            required
-            error={!!senderErrors.phone1}
-            helperText={senderErrors.phone1}
-            sx={fieldStyle}
-            InputProps={{
-              startAdornment: <PhoneIcon sx={{ color: "red", mr: 1 }} />,
-            }}
-          />
-          <TextField
-            label="Phone 2"
-            value={phone2}
-            onChange={(e) => setPhone2(e.target.value)}
-            fullWidth
-            sx={fieldStyle}
-            InputProps={{
-              startAdornment: <PhoneIcon sx={{ color: "action.active", mr: 1 }} />,
-            }}
-          />
-          <TextField
-            label="Email Address"
+            placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth

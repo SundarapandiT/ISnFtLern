@@ -15,7 +15,8 @@ import PublicIcon from "@mui/icons-material/Public";
 import BusinessIcon from "@mui/icons-material/Business";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
-import PhoneIcon from "@mui/icons-material/Phone";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/material.css";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
@@ -70,10 +71,25 @@ const Recipient = ({
             throw new Error("No records found");
           }
         } else {
-          const res = await axios.get(`https://api.zippopotam.us/${recipientcountrycode}/${recipientZipCode}`);
-          const place = res.data.places[0];
-          setRecipientCity(place["place name"]);
-          setRecipientState(place["state"]);
+          const res = await axios.get(
+            `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
+          );
+
+          const components = res.data.results?.[0]?.address_components || [];
+
+          let city = '';
+          let state = '';
+
+          components.forEach(component => {
+            if (component.types.includes('locality')) {
+              city = component.long_name;
+            }
+            if (component.types.includes('administrative_area_level_1')) {
+              state = component.long_name;
+            }
+          });
+          setRecipientCity(city);
+          setRecipientState(state);
           setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
         }
       } catch (err) {
@@ -209,27 +225,56 @@ const Recipient = ({
 
         {/* Row 4: Phone 1, Phone 2, Email Address */}
         <Box sx={rowStyle}>
+          {/* Phone 1 */}
+          <Box sx={{ ...fieldStyle, width: '100%', mr: 2 }}>
+            <PhoneInput
+              country={'in'}
+              value={recipientPhone1}
+              onChange={(phone) => setRecipientPhone1(phone)}
+              inputStyle={{
+                width: '100%',
+                height: '56px',
+                fontSize: '16px',
+                borderRadius: '4px',
+                borderColor: recipientErrors.phone1 ? 'red' : '#c4c4c4',
+                paddingLeft: '48px'
+              }}
+              containerStyle={{ width: '100%' }}
+              enableSearch
+              specialLabel=""
+              placeholder="Phone 1"
+            />
+            {recipientErrors.phone1 && (
+              <Typography variant="caption" color="error">
+                {recipientErrors.phone1}
+              </Typography>
+            )}
+          </Box>
+
+          {/* Phone 2 */}
+          <Box sx={{ ...fieldStyle, width: '100%', mr: 2 }}>
+            <PhoneInput
+              country={'in'}
+              value={recipientPhone2}
+              onChange={(phone) => setRecipientPhone2(phone)}
+              inputStyle={{
+                width: '100%',
+                height: '56px',
+                fontSize: '16px',
+                borderRadius: '4px',
+                borderColor: '#c4c4c4',
+                paddingLeft: '48px'
+              }}
+              containerStyle={{ width: '100%' }}
+              enableSearch
+              specialLabel=""
+              placeholder="Phone 2"
+            />
+          </Box>
+
+          {/* Email Address */}
           <TextField
-            label="Phone 1"
-            value={recipientPhone1}
-            onChange={(e) => setRecipientPhone1(e.target.value)}
-            fullWidth
-            required
-            error={!!recipientErrors.phone1}
-            helperText={recipientErrors.phone1}
-            sx={fieldStyle}
-            InputProps={{ startAdornment: <PhoneIcon sx={{ color: "red", mr: 1 }} /> }}
-          />
-          <TextField
-            label="Phone 2"
-            value={recipientPhone2}
-            onChange={(e) => setRecipientPhone2(e.target.value)}
-            fullWidth
-            sx={fieldStyle}
-            InputProps={{ startAdornment: <PhoneIcon sx={{ color: "action.active", mr: 1 }} /> }}
-          />
-          <TextField
-            label="Email Address"
+            placeholder="Email Address"
             value={recipientEmail}
             onChange={(e) => setRecipientEmail(e.target.value)}
             fullWidth
@@ -237,7 +282,9 @@ const Recipient = ({
             error={!!recipientErrors.email}
             helperText={recipientErrors.email}
             sx={fieldStyle}
-            InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
+            InputProps={{
+              startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />,
+            }}
           />
         </Box>
 
