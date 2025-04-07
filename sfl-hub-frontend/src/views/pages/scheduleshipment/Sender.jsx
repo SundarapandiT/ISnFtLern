@@ -11,9 +11,12 @@ import "react-phone-input-2/lib/material.css";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping"; // For "Needs Pickup"
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday"; // For "Pickup Date"
+import LocalShippingIcon from "@mui/icons-material/LocalShipping"; 
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday"; 
 import StateDropdown from "./Statedropdown";
+import { api } from "../../../utils/api";
+
+
 
 const Sender = ({
   country,
@@ -42,10 +45,10 @@ const Sender = ({
   setPhone2,
   email,
   setEmail,
-  needsPickup, // Renamed for consistency
-  setNeedsPickup, // Renamed for consistency
-  pickupDate, // Renamed for consistency
-  setPickupDate, // Renamed for consistency
+  needsPickup, 
+  setNeedsPickup, 
+  pickupDate, 
+  setPickupDate, 
   senderErrors,
   setSenderErrors,
   handleSenderSubmit,
@@ -55,58 +58,84 @@ const Sender = ({
     const fetchCity = async () => {
       console.log("Fetching city for zip code:", zipCode, countrycode);
       if (zipCode.length < 4) return;
-
+  
       try {
-        if (countrycode === "in") {
-          const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
-          const data = res.data[0];
-
-          if (data.Status === "Success" && data.PostOffice && data.PostOffice.length > 0) {
-            const place = data.PostOffice[0];
-            console.log("Fetched place data (India):", place);
-            setFromCity(place.District);
-            setState(place.State);
-            setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
-          } else {
-            throw new Error("No records found");
-          }
-        } else {
-          const res = await axios.get(
-            `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countrycode}|postal_code:${zipCode}`
-          );
-
-          const components = res.data.results?.[0]?.address_components || [];
-
-          let city = '';
-          let state = '';
-
-          components.forEach(component => {
-            if (component.types.includes('locality')) {
-              city = component.long_name;
-            }
-            if (component.types.includes('administrative_area_level_1')) {
-              state = component.long_name;
-            }
-          });
-
-
-          setFromCity(city);
-          setState(state);
+        // Step 1: Try custom backend API
+        const response = await axios.post(`${api.BackendURL}/locations/getstateCitybyPostalCode`, {
+          CountryID: countryId, 
+          PostalCode: zipCode,
+        });
+  
+        const userData = response.data?.user?.[0] || [];
+        console.log(userData)
+  
+        if (userData.length > 0) {
+          const place = userData[0];
+          console.log("Fetched from backend:", place);
+          setFromCity(place.city);
+          setState(place.state);
           setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
+          return; 
         }
-
+  
+        throw new Error("No data from backend");
       } catch (err) {
-        console.error("Error fetching location:", err.message);
-        setFromCity("");
-        setSenderErrors((prev) => ({
-          ...prev,
-          zipCode: "Invalid or unsupported zip code.",
-        }));
+        console.warn("Custom API failed or returned no data. Falling back...", err.message);
+  
+        try {
+          // Step 2: Fallback to public APIs
+          if (countrycode === "in") {
+            const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
+            const data = res.data[0];
+  
+            if (data.Status === "Success" && data.PostOffice?.length > 0) {
+              const place = data.PostOffice[0];
+              console.log("Fetched from India Postal API:", place);
+              setFromCity(place.Block);
+              setState(place.State);
+              setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
+            } else {
+              throw new Error("No records from India API");
+            }
+          } else {
+            const res = await axios.get(
+              `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countrycode}|postal_code:${zipCode}`
+            );
+  
+            const components = res.data.results?.[0]?.address_components || [];
+  
+            let city = '';
+            let state = '';
+  
+            components.forEach(component => {
+              if (component.types.includes('locality')) {
+                city = component.long_name;
+              }
+              if (component.types.includes('administrative_area_level_1')) {
+                state = component.long_name;
+              }
+            });
+  
+            console.log("Fetched from Google API:", { city, state });
+  
+            setFromCity(city);
+            setState(state);
+            setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
+          }
+        } catch (fallbackErr) {
+          console.error("All APIs failed:", fallbackErr.message);
+          setFromCity("");
+          setSenderErrors((prev) => ({
+            ...prev,
+            zipCode: "Invalid or unsupported zip code.",
+          }));
+        }
       }
     };
-
+  
     fetchCity();
   }, [zipCode, countrycode, setFromCity, setState, setSenderErrors]);
+  
 
   const today = new Date().toISOString().split("T")[0];
 

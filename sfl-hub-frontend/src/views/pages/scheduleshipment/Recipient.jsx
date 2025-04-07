@@ -19,6 +19,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { api } from "../../../utils/api";
 
 const Recipient = ({
   recipientCountry,
@@ -57,54 +58,89 @@ const Recipient = ({
   useEffect(() => {
     const fetchCity = async () => {
       if (recipientZipCode.length < 4) return;
-
+  
       try {
-        if (recipientcountrycode === "in") {
-          const res = await axios.get(`https://api.postalpincode.in/pincode/${recipientZipCode}`);
-          const data = res.data[0];
-
-          if (data.Status === "Success" && data.PostOffice && data.PostOffice.length > 0) {
-            const place = data.PostOffice[0];
-            setRecipientCity(place.District);
-            setRecipientState(place.State);
-            setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
-          } else {
-            throw new Error("No records found");
-          }
-        } else {
-          const res = await axios.get(
-            `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
-          );
-
-          const components = res.data.results?.[0]?.address_components || [];
-
-          let city = '';
-          let state = '';
-
-          components.forEach(component => {
-            if (component.types.includes('locality')) {
-              city = component.long_name;
-            }
-            if (component.types.includes('administrative_area_level_1')) {
-              state = component.long_name;
-            }
-          });
-          setRecipientCity(city);
-          setRecipientState(state);
+        // Step 1: Try backend API
+        const response = await axios.post(`${api.BackendURL}/locations/getstateCitybyPostalCode`, {
+          CountryID: recipientCountryId, 
+          PostalCode: recipientZipCode,
+        });
+  
+        const userData = response.data?.user?.[0] || [];
+  
+        if (userData.length > 0) {
+          const place = userData[0];
+          console.log("Recipient location from backend:", place);
+          setRecipientCity(place.city);
+          setRecipientState(place.state);
           setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
+          return; 
         }
+  
+        throw new Error("No data from backend");
       } catch (err) {
-        console.error("Error fetching location:", err.message);
-        setRecipientCity("");
-        setRecipientErrors((prev) => ({
-          ...prev,
-          recipientZipCode: "Invalid or unsupported zip code.",
-        }));
+        console.warn("Recipient API fallback triggered:", err.message);
+  
+        try {
+          // Step 2: Fallback to external APIs
+          if (recipientcountrycode === "in") {
+            const res = await axios.get(`https://api.postalpincode.in/pincode/${recipientZipCode}`);
+            const data = res.data[0];
+  
+            if (data.Status === "Success" && data.PostOffice?.length > 0) {
+              const place = data.PostOffice[0];
+              console.log("Recipient data from India API:", place);
+              setRecipientCity(place.District);
+              setRecipientState(place.State);
+              setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
+            } else {
+              throw new Error("No records from India postal API");
+            }
+          } else {
+            const res = await axios.get(
+              `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
+            );
+  
+            const components = res.data.results?.[0]?.address_components || [];
+  
+            let city = '';
+            let state = '';
+  
+            components.forEach(component => {
+              if (component.types.includes('locality')) {
+                city = component.long_name;
+              }
+              if (component.types.includes('administrative_area_level_1')) {
+                state = component.long_name;
+              }
+            });
+  
+            console.log("Recipient data from Google API:", { city, state });
+  
+            setRecipientCity(city);
+            setRecipientState(state);
+            setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
+          }
+        } catch (fallbackErr) {
+          console.error("Recipient zip lookup failed:", fallbackErr.message);
+          setRecipientCity("");
+          setRecipientErrors((prev) => ({
+            ...prev,
+            recipientZipCode: "Invalid or unsupported zip code.",
+          }));
+        }
       }
     };
-
+  
     fetchCity();
-  }, [recipientZipCode, recipientcountrycode, setRecipientCity, setRecipientState, setRecipientErrors]);
+  }, [
+    recipientZipCode,
+    recipientcountrycode,
+    setRecipientCity,
+    setRecipientState,
+    setRecipientErrors,
+  ]);
+  
 
   // Common styles for all rows
   const rowStyle = {
@@ -216,7 +252,7 @@ const Recipient = ({
                 country={recipientCountryId}
                 state={recipientState}
                 setState={setRecipientState}
-                senderErrors={recipientErrors} // Should be recipientErrors, but keeping as per your code
+                senderErrors={recipientErrors} 
               />
             </Box>
           ) : (
@@ -303,8 +339,8 @@ const Recipient = ({
               <MenuItem value="Commercial">Commercial</MenuItem>
             </Select>
           </FormControl>
-          <Box sx={fieldStyle} /> {/* Placeholder */}
-          <Box sx={fieldStyle} /> {/* Placeholder */}
+          <Box sx={fieldStyle} /> 
+          <Box sx={fieldStyle} /> 
         </Box>
 
         {/* Buttons */}

@@ -8,7 +8,7 @@ import LoginPage from "./views/pages/LoginPage";
 import ForgotPassword from "./views/pages/ForgetPage";
 import ScheduleShipment from "./views/pages/scheduleshipment/Scheduleshipment";
 import Myshipment from "./views/pages/myshipment/Myshipment";
-
+import "./App.css";
 
 
 function App() {
