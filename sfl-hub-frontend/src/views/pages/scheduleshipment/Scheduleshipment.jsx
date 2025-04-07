@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import {api} from '../../../utils/api'
 
 // MUI Components
 import Box from "@mui/material/Box";
@@ -26,10 +28,33 @@ import Sender from "./Sender";
 import Recipient from "./Recipient";
 import Package from "./Package";
 
-import { countries } from "../../../data/Countries";
+// import { countries } from "../../../data/Countries";
 
 const Schedule = () => {
   const navigate = useNavigate();
+
+  const [countries, setCountries] = useState([]);
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get(`${api.BackendURL}/locations/getCountry`);
+        const countryData = res.data?.user?.[0] || [];
+
+        const formattedCountries = countryData.map(country => ({
+          value: country.countrycode.toLowerCase(),
+          label: country.countryname
+        }));
+
+        setCountries(formattedCountries);
+      } catch (error) {
+        console.error('Failed to fetch countries:', error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
   // Profile
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);

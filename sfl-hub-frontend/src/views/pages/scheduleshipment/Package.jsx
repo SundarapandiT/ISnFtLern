@@ -165,7 +165,7 @@ const Package = ({
                           variant="outlined"
                           size="small"
                            // Responsive width and margin
-                          sx={{ width: { xs: '100%', sm: '60px' }, mb: { xs: 1, sm: 0 } }}
+                          sx={{ width: { xs: '100%', sm: '90px' }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`length_${index}`]}
                           helperText={packageErrors[`length_${index}`]}
                            InputProps={{
@@ -181,7 +181,7 @@ const Package = ({
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
-                          sx={{ width: { xs: '100%', sm: '60px' }, mb: { xs: 1, sm: 0 } }}
+                          sx={{ width: { xs: '100%', sm: '90px' }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`width_${index}`]}
                           helperText={packageErrors[`width_${index}`]}
                            InputProps={{
@@ -197,7 +197,7 @@ const Package = ({
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
-                          sx={{ width: { xs: '100%', sm: '60px' }}}
+                          sx={{ width: { xs: '100%', sm: '90px' }}}
                           error={!!packageErrors[`height_${index}`]}
                           helperText={packageErrors[`height_${index}`]}
                            InputProps={{
