@@ -43,7 +43,8 @@ const Schedule = () => {
 
         const formattedCountries = countryData.map(country => ({
           value: country.countrycode.toLowerCase(),
-          label: country.countryname
+          label: country.countryname,
+          countryid: country.countryid,
         }));
 
         setCountries(formattedCountries);
@@ -93,6 +94,7 @@ const Schedule = () => {
   // State for Sender tab
   const [country, setCountry] = useState("");
   const [countrycode, setcountrycode] = useState("");
+  const [countryId, setCountryId] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
@@ -111,6 +113,7 @@ const Schedule = () => {
   // Recipient tab
   const [recipientCountry, setRecipientCountry] = useState("");
   const [recipientcountrycode, setrecipientcountrycode] = useState("");
+  const [recipientCountryId,setRecipientCountryId ]=useState("");
   const [recipientCompanyName, setRecipientCompanyName] = useState("");
   const [recipientContactName, setRecipientContactName] = useState("");
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
@@ -571,8 +574,11 @@ const validateRecipientForm = () => {
     const fromCountryObj = countries.find((c) => c.value === fromCountry);
     const toCountryObj = countries.find((c) => c.value === toCountry);
     setCountry(fromCountryObj ? fromCountryObj.label : "");
+
     setcountrycode(fromCountryObj ? fromCountryObj.value.toLowerCase() : "");
+    setCountryId(fromCountryObj ? fromCountryObj.countryid : "");
     setRecipientCountry(toCountryObj ? toCountryObj.label : "");
+    setRecipientCountryId(toCountryObj ? toCountryObj.countryid : "");
     setrecipientcountrycode(toCountryObj ? toCountryObj.value.toLowerCase() : "");
   }, [fromCountry, toCountry]);
 
@@ -709,6 +715,7 @@ const validateRecipientForm = () => {
             <Sender
               country={country}
               countrycode={countrycode}
+              countryId={countryId}
               setCountry={setCountry}
               companyName={companyName}
               setCompanyName={setCompanyName}
@@ -747,6 +754,7 @@ const validateRecipientForm = () => {
               {...{
                 recipientCountry,
                 recipientcountrycode,
+                recipientCountryId,
                 setRecipientCountry,
                 recipientCompanyName,
                 setRecipientCompanyName,

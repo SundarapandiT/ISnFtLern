@@ -23,6 +23,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 const Recipient = ({
   recipientCountry,
   recipientcountrycode,
+  recipientCountryId,
   setRecipientCountry,
   recipientCompanyName,
   setRecipientCompanyName,
@@ -150,7 +151,7 @@ const Recipient = ({
             error={!!recipientErrors.contactName}
             helperText={recipientErrors.contactName}
             sx={fieldStyle}
-            InputProps={{ startAdornment: <PersonIcon sx={{ color: "action.active", mr: 1 }} /> }}
+            InputProps={{ startAdornment: <PersonIcon sx={{ color: "red", mr: 1 }} /> }}
           />
         </Box>
 
@@ -207,12 +208,12 @@ const Recipient = ({
             error={!!recipientErrors.recipientCity}
             helperText={recipientErrors.recipientCity}
             sx={fieldStyle}
-            InputProps={{ startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} /> }}
+            InputProps={{ startAdornment: <BusinessIcon sx={{ color: "red", mr: 1 }} /> }}
           />
           {recipientCountry ? (
             <Box sx={fieldStyle}>
               <StateDropdown
-                country={recipientCountry}
+                country={recipientCountryId}
                 state={recipientState}
                 setState={setRecipientState}
                 senderErrors={recipientErrors} // Should be recipientErrors, but keeping as per your code
@@ -226,7 +227,7 @@ const Recipient = ({
         {/* Row 4: Phone 1, Phone 2, Email Address */}
         <Box sx={rowStyle}>
           {/* Phone 1 */}
-          <Box sx={{ ...fieldStyle, width: '100%', mr: 2 }}>
+          <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
               country={'in'}
               value={recipientPhone1}
@@ -241,7 +242,7 @@ const Recipient = ({
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
-              specialLabel=""
+              specialLabel="Phone 1"
               placeholder="Phone 1"
             />
             {recipientErrors.phone1 && (
@@ -252,7 +253,7 @@ const Recipient = ({
           </Box>
 
           {/* Phone 2 */}
-          <Box sx={{ ...fieldStyle, width: '100%', mr: 2 }}>
+          <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
               country={'in'}
               value={recipientPhone2}
@@ -267,14 +268,15 @@ const Recipient = ({
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
-              specialLabel=""
+              specialLabel="Phone 2"
               placeholder="Phone 2"
             />
           </Box>
 
           {/* Email Address */}
           <TextField
-            placeholder="Email Address"
+            variant="outlined"
+            label="Email Address"
             value={recipientEmail}
             onChange={(e) => setRecipientEmail(e.target.value)}
             fullWidth

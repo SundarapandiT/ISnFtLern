@@ -18,6 +18,7 @@ import StateDropdown from "./Statedropdown";
 const Sender = ({
   country,
   countrycode,
+  countryId,
   setCountry,
   companyName,
   setCompanyName,
@@ -159,7 +160,7 @@ const Sender = ({
             helperText={senderErrors.contactName}
             sx={fieldStyle}
             InputProps={{
-              startAdornment: <PersonIcon sx={{ color: "action.active", mr: 1 }} />,
+              startAdornment: <PersonIcon sx={{ color: "red", mr: 1 }} />,
             }}
           />
         </Box>
@@ -226,13 +227,13 @@ const Sender = ({
             helperText={senderErrors.fromCity}
             sx={fieldStyle}
             InputProps={{
-              startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} />,
+              startAdornment: <BusinessIcon sx={{ color: "red", mr: 1 }} />,
             }}
           />
           {country ? (
             <Box sx={fieldStyle}>
               <StateDropdown
-                country={country}
+                country={countryId}
                 state={state}
                 setState={setState}
                 senderErrors={senderErrors}
@@ -246,7 +247,7 @@ const Sender = ({
         {/* Row 4: Phone 1, Phone 2, Email */}
         <Box sx={rowStyle}>
           {/* Phone 1 */}
-          <Box sx={{ ...fieldStyle, width: '100%', mr: 2 }}>
+          <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
               country={countrycode}
               value={phone1}
@@ -261,7 +262,7 @@ const Sender = ({
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
-              specialLabel=""
+              specialLabel="Phone 1"
             />
             {senderErrors.phone1 && (
               <Typography variant="caption" color="error">
@@ -271,7 +272,7 @@ const Sender = ({
           </Box>
 
           {/* Phone 2 */}
-          <Box sx={{ ...fieldStyle, width: '100%', mr: 2 }}>
+          <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
               country={countrycode}
               value={phone2}
@@ -286,13 +287,14 @@ const Sender = ({
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
-              specialLabel=""
+              specialLabel="Phone 2"
             />
           </Box>
 
           {/* Email Address */}
           <TextField
-            placeholder="Email Address"
+            variant="outlined"
+            label="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
