@@ -598,6 +598,7 @@ const Schedule = () => {
     <Root>
       <Sidebar
         drawerOpen={drawerOpen}
+        Loginname={Loginname}
         toggleDrawer={toggleDrawer}
         handleMenuOpen={handleMenuOpen}
         anchorEl={anchorEl}

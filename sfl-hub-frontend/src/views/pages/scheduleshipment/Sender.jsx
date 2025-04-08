@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import axios from "axios";
 import { Box, TextField, Typography, Button, MenuItem, FormControl, InputLabel, Select } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
@@ -55,10 +55,18 @@ const Sender = ({
   handleSenderSubmit,
   handlePrevious,
 }) => {
+  const debounceRef = useRef(null); 
+
   useEffect(() => {
-    const fetchCity = async () => {
+    if (!zipCode || zipCode.length < 3) {
+      setFromCity("");
+      return;
+    }
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(async () => {
       console.log("Fetching city for zip code:", zipCode, countrycode);
-      if (zipCode.length < 4) return;
 
       try {
         // Step 1: Try custom backend API
@@ -68,11 +76,9 @@ const Sender = ({
         });
 
         const userData = response.data?.user?.[0] || [];
-        console.log(userData)
 
         if (userData.length > 0) {
           const place = userData[0];
-          console.log("Fetched from backend:", place);
           setFromCity(place.city);
           setState(place.state);
           setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
@@ -91,10 +97,10 @@ const Sender = ({
 
             if (data.Status === "Success" && data.PostOffice?.length > 0) {
               const place = data.PostOffice[0];
-              console.log("Fetched from India Postal API:", place);
-              setFromCity(place.Block);
+              setFromCity(place.Block || place.District);
               setState(place.State);
               setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
+              return;
             } else {
               throw new Error("No records from India API");
             }
@@ -109,15 +115,9 @@ const Sender = ({
             let state = '';
 
             components.forEach(component => {
-              if (component.types.includes('locality')) {
-                city = component.long_name;
-              }
-              if (component.types.includes('administrative_area_level_1')) {
-                state = component.long_name;
-              }
+              if (component.types.includes('locality')) city = component.long_name;
+              if (component.types.includes('administrative_area_level_1')) state = component.long_name;
             });
-
-            console.log("Fetched from Google API:", { city, state });
 
             setFromCity(city);
             setState(state);
@@ -132,10 +132,10 @@ const Sender = ({
           }));
         }
       }
-    };
+    }, 500); 
 
-    fetchCity();
-  }, [zipCode, countrycode, setFromCity, setState, setSenderErrors]);
+    return () => clearTimeout(debounceRef.current);
+  }, [zipCode, countrycode, countryId]);
 
 
   const today = new Date().toISOString().split("T")[0];

@@ -23,6 +23,7 @@ import {
 
 const Sidebar = ({
   drawerWidth,
+  Loginname,
   setDrawerWidth,
   drawerOpen,
   toggleDrawer,
@@ -51,7 +52,7 @@ const Sidebar = ({
 
           <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
             <UsernameButton startIcon={<AccountCircleIcon />} onClick={handleMenuOpen}>
-              Daredevil
+              {Loginname}
             </UsernameButton>
             <Menu
               anchorEl={anchorEl}

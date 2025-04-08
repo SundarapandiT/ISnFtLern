@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import axios from "axios";
 import StateDropdown from "./Statedropdown";
 import {
@@ -55,44 +55,49 @@ const Recipient = ({
   handleRecipientSubmit,
   handleRecipientPrevious,
 }) => {
+  const debounceRef = useRef(null); 
+
   useEffect(() => {
-    const fetchCity = async () => {
-      if (recipientZipCode.length < 4) return;
-  
+    if (recipientZipCode.length < 4) return;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(async () => {
       try {
         // Step 1: Try backend API
         const response = await axios.post(`${api.BackendURL}/locations/getstateCitybyPostalCode`, {
-          CountryID: recipientCountryId, 
+          CountryID: recipientCountryId,
           PostalCode: recipientZipCode,
         });
-  
+
         const userData = response.data?.user?.[0] || [];
-  
+
         if (userData.length > 0) {
           const place = userData[0];
           console.log("Recipient location from backend:", place);
           setRecipientCity(place.city);
           setRecipientState(place.state);
           setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
-          return; 
+          return;
         }
-  
+
         throw new Error("No data from backend");
       } catch (err) {
         console.warn("Recipient API fallback triggered:", err.message);
-  
+
         try {
           // Step 2: Fallback to external APIs
           if (recipientcountrycode === "in") {
             const res = await axios.get(`https://api.postalpincode.in/pincode/${recipientZipCode}`);
             const data = res.data[0];
-  
+
             if (data.Status === "Success" && data.PostOffice?.length > 0) {
               const place = data.PostOffice[0];
               console.log("Recipient data from India API:", place);
               setRecipientCity(place.District);
               setRecipientState(place.State);
               setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
+              return;
             } else {
               throw new Error("No records from India postal API");
             }
@@ -100,23 +105,19 @@ const Recipient = ({
             const res = await axios.get(
               `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
             );
-  
+
             const components = res.data.results?.[0]?.address_components || [];
-  
-            let city = '';
-            let state = '';
-  
-            components.forEach(component => {
-              if (component.types.includes('locality')) {
-                city = component.long_name;
-              }
-              if (component.types.includes('administrative_area_level_1')) {
-                state = component.long_name;
-              }
+
+            let city = "";
+            let state = "";
+
+            components.forEach((component) => {
+              if (component.types.includes("locality")) city = component.long_name;
+              if (component.types.includes("administrative_area_level_1")) state = component.long_name;
             });
-  
+
             console.log("Recipient data from Google API:", { city, state });
-  
+
             setRecipientCity(city);
             setRecipientState(state);
             setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
@@ -130,12 +131,13 @@ const Recipient = ({
           }));
         }
       }
-    };
-  
-    fetchCity();
+    }, 500); // ⏳ 500ms debounce
+
+    return () => clearTimeout(debounceRef.current); 
   }, [
     recipientZipCode,
     recipientcountrycode,
+    recipientCountryId,
     setRecipientCity,
     setRecipientState,
     setRecipientErrors,
