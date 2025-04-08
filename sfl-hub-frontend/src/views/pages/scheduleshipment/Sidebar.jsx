@@ -1,68 +1,71 @@
-import React from "react";
+import React from 'react';
 import {
-  Drawer,
   Box,
   Button,
   Menu,
   MenuItem,
   List,
-  ListItem,
   ListItemIcon,
   ListItemText,
-} from "@mui/material";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
-// import ReceiptIcon from "@mui/icons-material/Receipt";
-// import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+} from '@mui/material';
+
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ListIcon from '@mui/icons-material/List';
+
+import {
+  SidebarWrapper,
+  MobileDrawer,
+  LogoBox,
+  UsernameButton,
+  ProfileBox,
+  StyledListItem,
+} from '../../styles/sidebarStyles'; 
+
+import IconButton from '@mui/material/IconButton';
+import Drawer from '@mui/material/Drawer';
 
 const Sidebar = ({
+  drawerWidth,
   drawerOpen,
   toggleDrawer,
-  handleMenuOpen,
   anchorEl,
   open,
+  handleMenuOpen,
   handleMenuClose,
   activeModule,
   handleModuleClick,
-  drawerWidth,
-  setDrawerWidth,
+  setDrawerOpen,
+  halfopen,
 }) => {
+  const modules = ['Schedule Shipment', 'My Shipment'];
+
   return (
     <>
-      {/* Mobile Sidebar */}
-      <Drawer
+      {/* Mobile Drawer */}
+      <MobileDrawer
         anchor="left"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
-        sx={{ display: { xs: "block", sm: "none" } }}
       >
-        <Box sx={{ width: 300, bgcolor: "#292929", height: "100%", p: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 4, borderBottom: "1px solid grey" }}>
-            <img
-              src="/sfllogo2--.png"
-              alt="Logo"
-              width={120}
-              style={{ marginBottom: 10, justifySelf: "center", alignSelf: "center" }}
-            />
-          </Box>
+        <ProfileBox >
+          <LogoBox>
+            <img src="/sfllogo2--.png" alt="Logo" width={120} style={{ marginBottom: 10 }} />
+          </LogoBox>
 
-          <Box sx={{ display: { xs: "block", sm: "none" } }}>
-            <Button
-              startIcon={<AccountCircleIcon />}
-              sx={{ textTransform: "none" }}
-              onClick={handleMenuOpen}
-            >
+          <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+            <UsernameButton startIcon={<AccountCircleIcon />} onClick={handleMenuOpen}>
               Daredevil
-            </Button>
-
-            {/* Dropdown Menu */}
+            </UsernameButton>
             <Menu
               anchorEl={anchorEl}
               open={open}
               onClose={handleMenuClose}
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
               <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
               <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
@@ -70,87 +73,59 @@ const Sidebar = ({
           </Box>
 
           <List>
-            {["Schedule Shipment", "My Shipment"].map(
-              (module) => (
-                <ListItem
-                  key={module}
-                  component="button"
-                  selected={activeModule === module}
-                  onClick={() => handleModuleClick(module)}
-                  sx={{
-                    backgroundColor: activeModule === module ? "#00ACC1" : "transparent",
-                    color: activeModule === module ? "white" : "inherit",
-                    borderRadius: 1,
-                    "&.Mui-selected": { backgroundColor: "#00ACC1", color: "white", borderRadius: 1 },
-                    "&:hover": { backgroundColor: "#00ACC1", color: "white", borderRadius: 1 },
-                    transition: "background-color 0.3s ease-in-out",
-                  }}
-                >
-                  <ListItemIcon sx={{ color: "white" }}>
-                    {module === "Schedule Shipment" ? <LocalShippingIcon /> :
-                      module === "My Shipment" ? <DirectionsBoatIcon /> : ""
-                      // module === "Billing" ? <ReceiptIcon /> :
-                      //   <NoteAddIcon />
-                    }
-                  </ListItemIcon>
-                  <ListItemText primary={module} sx={{ color: "white" }} />
-                </ListItem>
-              )
-            )}
-          </List>
-        </Box>
-      </Drawer>
-
-      {/* Permanent Sidebar for larger screens */}
-      <Box
-        sx={{
-          width: drawerWidth,
-          bgcolor: "#1a202c",
-          color: "white",
-          p: 1,
-          display: { xs: "none", sm: "block", overflow: "hidden" },
-          transition: "width 0.3s ease-in-out",
-        }}
-        onMouseEnter={() => setDrawerWidth(250)}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", mb: 4, borderBottom: "1px solid grey" }}>
-          <img
-            src={drawerWidth == 250 ? "/sfllogo2--.png" : "/logo-icon.png"}
-            alt="Logo"
-            width={200}
-            style={{ marginBottom: 10, justifySelf: "center", alignSelf: "center" }}
-          />
-        </Box>
-        <List>
-          {["Schedule Shipment", "My Shipment"].map(
-            (module) => (
-              <ListItem
+            {modules.map((module) => (
+              <StyledListItem
                 key={module}
                 component="button"
                 selected={activeModule === module}
                 onClick={() => handleModuleClick(module)}
-                sx={{
-                  backgroundColor: activeModule === module ? "#00ACC1" : "transparent",
-                  color: activeModule === module ? "white" : "inherit",
-                  borderRadius: 1, cursor: "pointer",
-                  "&.Mui-selected": { backgroundColor: "#00ACC1", color: "white", borderRadius: 1 },
-                  "&:hover": { backgroundColor: "#00ACC1", color: "white", borderRadius: 1 },
-                  transition: "background-color 0.3s ease-in-out",
-                }}
+                active={activeModule === module}
               >
-                <ListItemIcon sx={{ color: "white" }}>
-                  {module === "Schedule Shipment" ? <LocalShippingIcon /> :
-                    module === "My Shipment" ? <DirectionsBoatIcon /> : ""
-                    // module === "Billing" ? <ReceiptIcon /> :
-                    //   <NoteAddIcon />
-                  }
+                <ListItemIcon sx={{ color: 'white' }}>
+                  {module === 'Schedule Shipment' ? <LocalShippingIcon /> : <DirectionsBoatIcon />}
                 </ListItemIcon>
-                <ListItemText primary={module} sx={{ color: "white" }} />
-              </ListItem>
-            )
-          )}
+                <ListItemText primary={module} sx={{ color: 'white' }} />
+              </StyledListItem>
+            ))}
+          </List>
+        </ProfileBox>
+      </MobileDrawer>
+
+      {/* Permanent Sidebar (Desktop) */}
+      <SidebarWrapper
+        sx={{
+          width: drawerWidth,
+        }}
+        onMouseEnter={() => {
+          if (drawerWidth ===60) setDrawerOpen(true);
+        }}
+      >
+        <LogoBox>
+          <img
+            src={drawerWidth === 250 ? '/sfllogo2--.png' : '/logo-icon.png'}
+            alt="Logo"
+            width={drawerWidth === 250 ? 200 : 60}
+            style={{ marginBottom: 10 }}
+          />
+        </LogoBox>
+
+        <List>
+          {modules.map((module) => (
+            <StyledListItem
+              key={module}
+              component="button"
+              selected={activeModule === module}
+              onClick={() => handleModuleClick(module)}
+              active={activeModule === module}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                {module === 'Schedule Shipment' ? <LocalShippingIcon /> : <DirectionsBoatIcon />}
+              </ListItemIcon>
+              <ListItemText primary={module} sx={{ color: 'white' }} />
+            </StyledListItem>
+          ))}
         </List>
-      </Box>
+      </SidebarWrapper>
     </>
   );
 };

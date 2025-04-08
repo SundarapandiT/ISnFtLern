@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import {api} from '../../../utils/api'
+import { api } from '../../../utils/api'
 
 // MUI Components
 import Box from "@mui/material/Box";
@@ -30,7 +30,19 @@ import Package from "./Package";
 
 // import { countries } from "../../../data/Countries";
 
+import {
+  Root,
+  MainContent,
+  AppBarBox,
+  DesktopToggleBtn,
+  MobileToggleBtn,
+  ContentBox,
+  IconBox,
+  UsernameButton,
+} from '../../styles/scheduleshipmentStyle';
+
 const Schedule = () => {
+
   const navigate = useNavigate();
 
   const [countries, setCountries] = useState([]);
@@ -68,7 +80,7 @@ const Schedule = () => {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {  
+  const handleLogout = () => {
     navigate("/auth/login-page");
     localStorage.removeItem("user");
     handleMenuClose();
@@ -76,7 +88,7 @@ const Schedule = () => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [Loginname,setLoginname]=useState("Unknown")
+  const [Loginname, setLoginname] = useState("Unknown")
 
   useEffect(() => {
     const storedName = JSON.parse(localStorage.getItem("user"));
@@ -113,7 +125,7 @@ const Schedule = () => {
   // Recipient tab
   const [recipientCountry, setRecipientCountry] = useState("");
   const [recipientcountrycode, setrecipientcountrycode] = useState("");
-  const [recipientCountryId,setRecipientCountryId ]=useState("");
+  const [recipientCountryId, setRecipientCountryId] = useState("");
   const [recipientCompanyName, setRecipientCompanyName] = useState("");
   const [recipientContactName, setRecipientContactName] = useState("");
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
@@ -306,37 +318,37 @@ const Schedule = () => {
 
 
   // Validation for Recipient tab
-const validateRecipientForm = () => {
-  const newErrors = {};
-  if (!recipientContactName.trim()) {
-    newErrors.contactName = "Contact Name is required";
-  }
-  if (!recipientAddressLine1.trim()) {
-    newErrors.addressLine1 = "Address Line 1 is required";
-  }
-  if (!recipientZipCode.trim()) {
-    newErrors.recipientZipCode = "Zip Code is required"; // Updated key to match Recipient.jsx
-  }
-  if (!recipientCity.trim()) {
-    newErrors.recipientCity = "City is required"; // Updated key to match Recipient.jsx
-  }
-  if (!recipientState.trim()) {
-    newErrors.state = "State is required";
-  }
-  if (!recipientPhone1.trim()) {
-    newErrors.phone1 = "Phone 1 is required";
-  } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1)) {
-    newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
-  }
-  if (!recipientEmail.trim()) {
-    newErrors.email = "Email is required";
-  } else if (!/\S+@\S+\.\S+/.test(recipientEmail)) {
-    newErrors.email = "Please enter a valid email address";
-  }
+  const validateRecipientForm = () => {
+    const newErrors = {};
+    if (!recipientContactName.trim()) {
+      newErrors.contactName = "Contact Name is required";
+    }
+    if (!recipientAddressLine1.trim()) {
+      newErrors.addressLine1 = "Address Line 1 is required";
+    }
+    if (!recipientZipCode.trim()) {
+      newErrors.recipientZipCode = "Zip Code is required"; // Updated key to match Recipient.jsx
+    }
+    if (!recipientCity.trim()) {
+      newErrors.recipientCity = "City is required"; // Updated key to match Recipient.jsx
+    }
+    if (!recipientState.trim()) {
+      newErrors.state = "State is required";
+    }
+    if (!recipientPhone1.trim()) {
+      newErrors.phone1 = "Phone 1 is required";
+    } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1)) {
+      newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
+    }
+    if (!recipientEmail.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(recipientEmail)) {
+      newErrors.email = "Please enter a valid email address";
+    }
 
-  setRecipientErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+    setRecipientErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   // Validation for Package tab
   const validatePackageForm = () => {
@@ -549,7 +561,7 @@ const validateRecipientForm = () => {
   };
 
   const halfopen = () => {
-    setDrawerWidth((prevWidth) => (prevWidth === 250 ? 70 : 250));
+    setDrawerWidth((prevWidth) => (prevWidth === 250 ? 60 : 250));
   };
 
   const handleModuleClick = (module) => {
@@ -583,7 +595,7 @@ const validateRecipientForm = () => {
   }, [fromCountry, toCountry]);
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Root>
       <Sidebar
         drawerOpen={drawerOpen}
         toggleDrawer={toggleDrawer}
@@ -598,38 +610,40 @@ const validateRecipientForm = () => {
       />
 
       {/* Main Content */}
-      <Box sx={{ flexGrow: 1, backgroundColor: "#EEEEEE" }}>
+      <MainContent>
         {/* Header */}
         <AppBar position="static" color="default" elevation={1} sx={{ boxShadow: "none", }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", p: 1 }}>
-            <IconButton
-              edge="start"
-              color="primary"
-              onClick={halfopen}
-              sx={{ display: { xs: "none", sm: "block" }, ml: 2 }}
-            >
-              {drawerwidth===70?<ListIcon/>:<MoreVertIcon />}
-            </IconButton>
+          <AppBarBox>
+            <DesktopToggleBtn>
+              <IconButton
+                edge="start"
+                color="primary"
+                onClick={halfopen}
+              >
+                {drawerwidth ===60 ? <ListIcon /> : <MoreVertIcon />}
+              </IconButton>
+            </DesktopToggleBtn>
 
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={() => setDrawerOpen(true)}
-              sx={{ display: { xs: "block", sm: "none" } }}
-            >
-              <MenuIcon />
-            </IconButton>
+            <MobileToggleBtn>
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={() => setDrawerOpen(true)}
+              >
+                <MenuIcon />
+              </IconButton>
+            </MobileToggleBtn>
+
 
             <Box sx={{ flexGrow: 1 }} />
 
 
-            <Button
+            <UsernameButton
               startIcon={<AccountCircleIcon />}
-              sx={{ textTransform: "none", color: "grey", display: { xs: "none", sm: "flex" } }}
               onClick={handleMenuOpen}
             >
               {Loginname}
-            </Button>
+            </UsernameButton>
 
 
             <Menu
@@ -648,40 +662,13 @@ const validateRecipientForm = () => {
               <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
-          </Box>
+          </AppBarBox>
         </AppBar>
-        <Box
-          sx={{
-            width: { xs: "90%", sm: "90%" },
-            alignSelf: "center",
-            justifyContent: "center",
-            margin: { xs: "2rem auto", md: "4rem auto" },
-            backgroundColor: "white",
-            padding: { xs: "10px", sm: "10px" },
-            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-            borderRadius: 2,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            overflowY: "auto",
-          }}
-        >
+        <ContentBox>
           <Typography variant="h5" sx={{ mb: 3 }}>
-            <Box
-              sx={{
-                display: "inline-flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: 55,
-                height: 55,
-                borderRadius: "7px",
-                backgroundColor: "#c30ac9",
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-                marginRight: 2,
-              }}
-            >
+            <IconBox>
               <FlightTakeoffIcon sx={{ fontSize: 23, color: "white" }} />
-            </Box>
+            </IconBox>
             Schedule Shipment
           </Typography>
 
@@ -818,7 +805,7 @@ const validateRecipientForm = () => {
               <Typography>Form for payment details will go here.</Typography>
             </Box>
           )} */}
-        </Box>
+        </ContentBox>
 
         {/* Placeholder for other modules */}
         {activeModule === "My Shipment" && activeTab === "my-shipment" && (
@@ -837,8 +824,8 @@ const validateRecipientForm = () => {
             <Typography>Content for File a Claim will go here.</Typography>
           </Box>
         )} */}
-      </Box>
-    </Box>
+      </MainContent>
+    </Root>
   );
 };
 

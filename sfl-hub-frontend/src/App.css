@@ -1,3 +1,8 @@
+body {
+  margin: 0;
+}
+
+
 .special-label {
     font-size: smaller;
     color: #757575;

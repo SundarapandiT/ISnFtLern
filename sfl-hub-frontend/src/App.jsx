@@ -3,7 +3,6 @@ import {React} from "react";
 import RegisterPage from "./views/pages/RegisterPage";
 import EmailVerification from "./views/pages/EmailVerification";
 import { Toaster } from "react-hot-toast";
-import "./index.css";
 import LoginPage from "./views/pages/LoginPage";
 import ForgotPassword from "./views/pages/ForgetPage";
 import ScheduleShipment from "./views/pages/scheduleshipment/Scheduleshipment";
