@@ -7,6 +7,8 @@ import {
   Button,
 } from "@mui/material";
 
+import {NextButton,PickupBox} from "../../styles/scheduleshipmentStyle";
+
 const PickupForm = ({
   shipmentType,
   setShipmentType,
@@ -19,17 +21,7 @@ const PickupForm = ({
   handlePickupSubmit,
 }) => {
   return (
-    <Box
-      sx={{
-        p: 3,
-        bgcolor: "white",
-        borderRadius: 2,
-        m: 3,
-        width: "65%",
-        alignSelf: "center",
-        margin: "auto",
-      }}
-    >
+    <PickupBox>
       <form onSubmit={handlePickupSubmit}>
         <FormControl fullWidth sx={{ mb: 2 }}>
           <Autocomplete
@@ -88,16 +80,15 @@ const PickupForm = ({
         </FormControl>
 
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button
+          <NextButton
             type="submit"
             variant="contained"
-            sx={{ bgcolor: "#E91E63", "&:hover": { bgcolor: "#ed64a6" } }}
           >
             Next
-          </Button>
+          </NextButton>
         </Box>
       </form>
-    </Box>
+    </PickupBox>
   );
 };
 

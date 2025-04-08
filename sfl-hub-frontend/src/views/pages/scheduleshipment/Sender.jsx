@@ -11,10 +11,11 @@ import "react-phone-input-2/lib/material.css";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping"; 
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday"; 
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import StateDropdown from "./Statedropdown";
 import { api } from "../../../utils/api";
+import { PhoneInputStyle,PrevButton,NextButton,ButtonBox } from "../../styles/scheduleshipmentStyle"
 
 
 
@@ -45,10 +46,10 @@ const Sender = ({
   setPhone2,
   email,
   setEmail,
-  needsPickup, 
-  setNeedsPickup, 
-  pickupDate, 
-  setPickupDate, 
+  needsPickup,
+  setNeedsPickup,
+  pickupDate,
+  setPickupDate,
   senderErrors,
   setSenderErrors,
   handleSenderSubmit,
@@ -58,36 +59,36 @@ const Sender = ({
     const fetchCity = async () => {
       console.log("Fetching city for zip code:", zipCode, countrycode);
       if (zipCode.length < 4) return;
-  
+
       try {
         // Step 1: Try custom backend API
         const response = await axios.post(`${api.BackendURL}/locations/getstateCitybyPostalCode`, {
-          CountryID: countryId, 
+          CountryID: countryId,
           PostalCode: zipCode,
         });
-  
+
         const userData = response.data?.user?.[0] || [];
         console.log(userData)
-  
+
         if (userData.length > 0) {
           const place = userData[0];
           console.log("Fetched from backend:", place);
           setFromCity(place.city);
           setState(place.state);
           setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
-          return; 
+          return;
         }
-  
+
         throw new Error("No data from backend");
       } catch (err) {
         console.warn("Custom API failed or returned no data. Falling back...", err.message);
-  
+
         try {
           // Step 2: Fallback to public APIs
           if (countrycode === "in") {
             const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
             const data = res.data[0];
-  
+
             if (data.Status === "Success" && data.PostOffice?.length > 0) {
               const place = data.PostOffice[0];
               console.log("Fetched from India Postal API:", place);
@@ -101,12 +102,12 @@ const Sender = ({
             const res = await axios.get(
               `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countrycode}|postal_code:${zipCode}`
             );
-  
+
             const components = res.data.results?.[0]?.address_components || [];
-  
+
             let city = '';
             let state = '';
-  
+
             components.forEach(component => {
               if (component.types.includes('locality')) {
                 city = component.long_name;
@@ -115,9 +116,9 @@ const Sender = ({
                 state = component.long_name;
               }
             });
-  
+
             console.log("Fetched from Google API:", { city, state });
-  
+
             setFromCity(city);
             setState(state);
             setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
@@ -132,10 +133,10 @@ const Sender = ({
         }
       }
     };
-  
+
     fetchCity();
   }, [zipCode, countrycode, setFromCity, setState, setSenderErrors]);
-  
+
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -282,12 +283,10 @@ const Sender = ({
               value={phone1}
               onChange={(phone) => setPhone1(phone)}
               inputStyle={{
+                PhoneInputStyle,
                 width: '100%',
-                height: '56px',
-                fontSize: '16px',
-                borderRadius: '4px',
                 borderColor: senderErrors.phone1 ? 'red' : '#c4c4c4',
-                paddingLeft: '48px' // To mimic the icon spacing
+
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
@@ -307,12 +306,10 @@ const Sender = ({
               value={phone2}
               onChange={(phone) => setPhone2(phone)}
               inputStyle={{
+                PhoneInputStyle,
                 width: '100%',
-                height: '56px',
-                fontSize: '16px',
-                borderRadius: '4px',
                 borderColor: '#c4c4c4',
-                paddingLeft: '48px'
+
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
@@ -377,40 +374,23 @@ const Sender = ({
         </Box>
 
         {/* Buttons */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "space-between",
-            gap: 2,
-          }}
-        >
-          <Button
+        <ButtonBox>
+          <PrevButton
             variant="contained"
             startIcon={<ArrowBackIcon />}
             onClick={handlePrevious}
-            sx={{
-              width: { xs: "100%", sm: "auto" },
-              bgcolor: "#999999",
-              "&:hover": { bgcolor: "#666666" },
-              color: "white",
-            }}
           >
             Previous
-          </Button>
-          <Button
+          </PrevButton>
+
+          <NextButton
             type="submit"
             variant="contained"
-            sx={{
-              bgcolor: "#E91E63",
-              "&:hover": { bgcolor: "#ed64a6" },
-              width: { xs: "100%", sm: "auto" },
-            }}
             endIcon={<ArrowForwardIcon />}
           >
             Next
-          </Button>
-        </Box>
+          </NextButton>
+        </ButtonBox>
       </form>
     </Box>
   );

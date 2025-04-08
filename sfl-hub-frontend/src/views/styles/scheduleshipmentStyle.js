@@ -79,3 +79,59 @@ export const UsernameButton = styled(Button)(({ theme }) => ({
     display: 'flex',
   },
 }));
+
+
+//phoneInput
+export const PhoneInputStyle = {
+  width: '100%',
+  height: '56px',
+  fontSize: '16px',
+  borderRadius: '4px',
+  paddingLeft: '48px' ,
+};
+
+// Buttons.js 
+export const ButtonBox = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  gap: theme.spacing(2),
+  [theme.breakpoints.up("sm")]: {
+    flexDirection: "row",
+  },
+}));
+
+export const PrevButton = styled(Button)(({ theme }) => ({
+  width: "100%",
+  backgroundColor: "#999999",
+  color: "white",
+  "&:hover": {
+    backgroundColor: "#666666",
+  },
+  [theme.breakpoints.up("sm")]: {
+    width: "auto",
+  },
+}));
+
+export const NextButton = styled(Button)(({ theme }) => ({
+  width: "100%",
+  backgroundColor: "#E91E63",
+  color: "white",
+  "&:hover": {
+    backgroundColor: "#ed64a6",
+  },
+  [theme.breakpoints.up("sm")]: {
+    width: "auto",
+  },
+}));
+
+export const PickupBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
+  backgroundColor: "white",
+  borderRadius: theme.spacing(2),
+  margin: theme.spacing(3),
+  width: "65%",
+  alignSelf: "center",
+  marginLeft: "auto",
+  marginRight: "auto",
+}));

@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Box,
-  Button,
   Menu,
   MenuItem,
   List,
@@ -12,9 +11,6 @@ import {
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
-import MenuIcon from '@mui/icons-material/Menu';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import ListIcon from '@mui/icons-material/List';
 
 import {
   SidebarWrapper,
@@ -25,11 +21,9 @@ import {
   StyledListItem,
 } from '../../styles/sidebarStyles'; 
 
-import IconButton from '@mui/material/IconButton';
-import Drawer from '@mui/material/Drawer';
-
 const Sidebar = ({
   drawerWidth,
+  setDrawerWidth,
   drawerOpen,
   toggleDrawer,
   anchorEl,
@@ -39,7 +33,6 @@ const Sidebar = ({
   activeModule,
   handleModuleClick,
   setDrawerOpen,
-  halfopen,
 }) => {
   const modules = ['Schedule Shipment', 'My Shipment'];
 
@@ -97,7 +90,7 @@ const Sidebar = ({
           width: drawerWidth,
         }}
         onMouseEnter={() => {
-          if (drawerWidth ===60) setDrawerOpen(true);
+          if (drawerWidth ===60) setDrawerWidth(250);
         }}
       >
         <LogoBox>

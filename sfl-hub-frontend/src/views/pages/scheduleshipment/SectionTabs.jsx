@@ -1,5 +1,6 @@
 import React from "react";
-import { Tabs, Tab, Box } from "@mui/material";
+
+import { StyledTabs, StyledTab, AnimatedIndicator } from '../../styles/StyledTabs';
 
 const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmentType }) => {
   // Define tabs dynamically based on shipmentType
@@ -14,55 +15,30 @@ const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmen
   const currentIndex = tabOrder.indexOf(activeTab);
 
   return (
-    <Tabs
+    <StyledTabs
       orientation={isMobile ? "vertical" : "horizontal"}
       value={activeTab}
       onChange={(e, newValue) => setActiveTab(newValue)}
       variant="fullWidth"
-      indicatorColor="undefined"
-      sx={{ position: "relative", backgroundColor: "#EEEEEE" }}
+      indicatorColor="transparent"
     >
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: isMobile ? "auto" : 0,
-          left: isMobile ? "auto" : `${(tabValues.indexOf(activeTab) * 100) / tabValues.length}%`,
-          top: isMobile ? `${(tabValues.indexOf(activeTab) * 100) / tabValues.length}%` : "auto",
-          width: isMobile ? "100%" : `${100 / tabValues.length}%`,
-          height: isMobile ? `${100 / tabValues.length}%` : "100%",
-          backgroundColor: "#E91E63",
-          borderRadius: "5px",
-          boxShadow: "0px 5px 10px rgba(0, 0, 0, 0.3)",
-          transition: isMobile ? "top 0.3s ease-in-out" : "left 0.3s ease-in-out",
-        }}
+      <AnimatedIndicator
+        isMobile={isMobile}
+        activeIndex={tabValues.indexOf(activeTab)}
+        length={tabValues.length}
       />
       {tabLabels.map((label, index) => {
         const isDisabled = index > currentIndex && !completedTabs[tabOrder[index - 1]];
         return (
-          <Tab
+          <StyledTab
             key={label}
             label={label}
             value={tabValues[index]}
             disabled={isDisabled}
-            sx={{
-              textAlign: "center",
-              fontSize: { xs: "12px", sm: "16px" },
-              backgroundColor: activeTab === tabValues[index] ? "" : "transparent",
-              borderRadius: "9px",
-              transition: "background-color 0.3s ease-in-out, color 0.3s ease-in-out",
-              "&.Mui-selected": {
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-                color: "white",
-              },
-              "&.Mui-disabled": {
-                color: "rgba(0, 0, 0, 0.26)",
-                opacity: 1,
-              },
-            }}
           />
         );
       })}
-    </Tabs>
+    </StyledTabs>
   );
 };
 
