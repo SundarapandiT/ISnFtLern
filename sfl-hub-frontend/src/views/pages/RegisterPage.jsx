@@ -285,34 +285,6 @@ const RegisterPage = () => {
       return; 
     }
   
-    if (otpResult.success) {
-      try {
-        const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
-        if (!SECRET_KEY) throw new Error("Encryption key is missing!");
-  
-        const encryptedData = {
-          Name: CryptoJS.AES.encrypt(registerDetails.fullname, SECRET_KEY).toString(),
-          UserName: CryptoJS.AES.encrypt(registerDetails.username, SECRET_KEY).toString(),
-          Password: CryptoJS.AES.encrypt(registerDetails.password, SECRET_KEY).toString(),
-          Phone: CryptoJS.AES.encrypt(registerDetails.mobile, SECRET_KEY).toString(),
-          Email: CryptoJS.AES.encrypt(registerDetails.email, SECRET_KEY).toString(),
-        };
-  
-        const res = await axios.post(`${api.BackendURL}/users/UserRegisteration`, {
-          data: encryptedData,
-        });
-  
-        if (res.data.user?.message === "User Registration Successfully") {
-          toast.success("Registered successfully!");
-          navigate("/auth/login-page");
-        } else {
-          toast.error(res.data.user?.message || "Registration failed");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        toast.error("Something went wrong!");
-      }
-    }
   };
     
   return (

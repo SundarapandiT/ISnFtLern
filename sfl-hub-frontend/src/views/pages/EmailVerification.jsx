@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { useRegister } from "../RegisterContext";
 import axios from "axios";
 import { api } from "../../utils/api";
+import CryptoJS from "crypto-js";
 
 
 const EmailVerification = () => {
@@ -53,30 +54,65 @@ const EmailVerification = () => {
         email: registerDetails.email,
         otp_code: enteredOtp,
       });
-
+  
       if (response.status === 200 && response.data.status === "verified") {
-        toast.dismiss(loadingToast);
         toast.success(response.data.message, {
           position: "top-right",
           autoClose: 3000,
         });
-
-        // setEmailVerify(true);
+  
         setdisable(true);
-        navigate('/auth/login-page');
+  
+        try {
+          const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+          if (!SECRET_KEY) throw new Error("Encryption key is missing!");
+        
+          const registerToast = toast.loading("Registering user...");
+        
+          const encrypt = (text) => CryptoJS.AES.encrypt(text, SECRET_KEY).toString();
+        
+          const encryptedData = {
+            Name: encrypt(registerDetails.fullname),
+            UserName: encrypt(registerDetails.username),
+            Password: encrypt(registerDetails.password),
+            Phone: encrypt(registerDetails.mobile),
+            Email: encrypt(registerDetails.email),
+          };
+        
+          const res = await axios.post(`${api.BackendURL}/users/UserRegisteration`, {
+            data: encryptedData,
+          });
+        
+          toast.dismiss(registerToast); // dismiss after response
+        
+          if (res.status === 200 && res.data.user?.message === "User Registration Successfully") {
+            toast.success("Registered successfully!");
+            navigate("/auth/login-page");
+          } else {
+            toast.error(res.data.user?.message || "Registration failed");
+          }
+        
+        } catch (error) {
+          toast.dismiss(); // In case it didn't get dismissed above
+          console.error("Registration Error:", error);
+          toast.error(error?.response?.data?.message || "Something went wrong!");
+        }        
+  
       } else {
         throw new Error("OTP verification failed");
       }
-
+  
     } catch (error) {
       console.error("Error verifying OTP:", error);
-      toast.dismiss(loadingToast);
       toast.error("Invalid OTP. Please try again.", {
         position: "top-right",
         autoClose: 3000,
       });
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
+  
   const sendMail = async () => {
     const loadingToast = toast.loading("Sending OTP...");
 
