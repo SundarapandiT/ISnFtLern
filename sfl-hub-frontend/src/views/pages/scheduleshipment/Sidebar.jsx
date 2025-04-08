@@ -89,6 +89,8 @@ const Sidebar = ({
       <SidebarWrapper
         sx={{
           width: drawerWidth,
+          minWidth: drawerWidth,
+          flexShrink: 0,
         }}
         onMouseEnter={() => {
           if (drawerWidth ===60) setDrawerWidth(250);
