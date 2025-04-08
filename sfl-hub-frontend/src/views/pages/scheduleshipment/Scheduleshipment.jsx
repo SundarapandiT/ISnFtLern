@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { api } from '../../../utils/api'
+import { toast } from "react-hot-toast";
 
 // MUI Components
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
-import Button from "@mui/material/Button";
+// import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import AppBar from "@mui/material/AppBar";
 import Menu from "@mui/material/Menu";
@@ -164,6 +165,70 @@ const Schedule = () => {
     },
   ]);
   const [packageErrors, setPackageErrors] = useState({});
+
+  const handleSubmit = async () => {
+    const requestData = {
+      schedulePickup: {
+        shipmentType,
+        fromCountry,
+        toCountry,
+      },
+      sender: {
+        country,
+        countrycode,
+        countryId,
+        companyName,
+        contactName,
+        addressLine1,
+        addressLine2,
+        addressLine3,
+        zipCode,
+        fromCity,
+        state,
+        phone1,
+        phone2,
+        email,
+        needsPickup,
+        pickupDate,
+      },
+      recipient: {
+        recipientCountry,
+        recipientcountrycode,
+        recipientCountryId,
+        recipientCompanyName,
+        recipientContactName,
+        recipientAddressLine1,
+        recipientAddressLine2,
+        recipientAddressLine3,
+        recipientZipCode,
+        recipientCity,
+        recipientState,
+        recipientPhone1,
+        recipientPhone2,
+        recipientEmail,
+        recipientLocationType,
+      },
+      package: {
+        packageType,
+        noOfPackages,
+        dutiesPaidBy,
+        packageData,
+        commercialInvoiceData,
+      },
+    };
+  
+    const toastId = toast.loading("Scheduling your shipment...");
+  
+    try {
+      const response = await axios.post(`${api.BackendURL}/users/scheduleshipment`, requestData);
+      toast.success("Shipment scheduled successfully!", { id: toastId });
+      console.log(response.data);
+    } catch (error) {
+      toast.error("Failed to schedule shipment. Please try again.", { id: toastId });
+      console.error(error);
+    }
+  };
+  
 
 
   const [completedTabs, setCompletedTabs] = useState({
@@ -491,8 +556,10 @@ const Schedule = () => {
         commercialInvoiceData,
       });
       setCompletedTabs((prev) => ({ ...prev, package: true }));
-      setActiveTab("payment");
+      // setActiveTab("payment");
       window.scrollTo({ top: 0, behavior: "smooth" });
+      handleSubmit(); 
+      // navigate("/admin/Myshipment")
     }
   };
 

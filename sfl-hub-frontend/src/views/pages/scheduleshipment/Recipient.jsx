@@ -21,6 +21,9 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { api } from "../../../utils/api";
 
+import { PhoneInputStyle,PrevButton,NextButton,ButtonBox } from "../../styles/scheduleshipmentStyle"
+
+
 const Recipient = ({
   recipientCountry,
   recipientcountrycode,
@@ -272,11 +275,9 @@ const Recipient = ({
               onChange={(phone) => setRecipientPhone1(phone)}
               inputStyle={{
                 width: '100%',
-                height: '56px',
-                fontSize: '16px',
-                borderRadius: '4px',
+                PhoneInputStyle,
                 borderColor: recipientErrors.phone1 ? 'red' : '#c4c4c4',
-                paddingLeft: '48px'
+                
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
@@ -298,11 +299,8 @@ const Recipient = ({
               onChange={(phone) => setRecipientPhone2(phone)}
               inputStyle={{
                 width: '100%',
-                height: '56px',
-                fontSize: '16px',
-                borderRadius: '4px',
-                borderColor: '#c4c4c4',
-                paddingLeft: '48px'
+                PhoneInputStyle,
+                borderColor: recipientErrors.phone2 ? 'red' : '#c4c4c4',
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
@@ -346,35 +344,22 @@ const Recipient = ({
         </Box>
 
         {/* Buttons */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "space-between",
-            gap: 2,
-          }}
-        >
-          <Button
-            variant="outlined"
+        <ButtonBox >
+        <PrevButton
+            variant="contained"
             startIcon={<ArrowBackIcon />}
             onClick={handleRecipientPrevious}
-            sx={{ width: { xs: "100%", sm: "auto" }, mb: { xs: 1, sm: 0 } }}
           >
             Previous
-          </Button>
-          <Button
+          </PrevButton>
+          <NextButton
             type="submit"
             variant="contained"
-            sx={{
-              bgcolor: "#E91E63",
-              "&:hover": { bgcolor: "#ed64a6" },
-              width: { xs: "100%", sm: "auto" },
-            }}
             endIcon={<ArrowForwardIcon />}
           >
             Next
-          </Button>
-        </Box>
+          </NextButton>
+        </ButtonBox>
       </form>
     </Box>
   );
