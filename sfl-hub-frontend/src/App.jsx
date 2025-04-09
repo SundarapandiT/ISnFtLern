@@ -22,7 +22,7 @@ function App() {
         <Route path="/emailverification" element={<EmailVerification/>}/>
         <Route path="/auth/forgotpassword-page" element={<ForgotPassword/>}/>
         <Route path="/admin/Scheduleshipment" element={<ScheduleShipment/>}/>
-        <Route path="/admin/Myshipment" element={<Myshipment/>}/>
+        {/* <Route path="/admin/ShipmentList" element={<Myshipment/>}/> */}
       </Routes>
     </Router>
   );

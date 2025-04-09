@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { api } from '../../../utils/api'
 import { toast } from "react-hot-toast";
+import Myshipment from "../myshipment/Myshipment";
 
 // MUI Components
 import Box from "@mui/material/Box";
@@ -40,7 +41,7 @@ import {
   ContentBox,
   IconBox,
   UsernameButton,
-} from '../../styles/scheduleshipmentStyle';
+  } from '../../styles/scheduleshipmentStyle';
 
 const Schedule = () => {
 
@@ -216,6 +217,7 @@ const Schedule = () => {
         commercialInvoiceData,
       },
     };
+    console.log(requestData); // Log the request data for debugging
   
     const toastId = toast.loading("Scheduling your shipment...");
   
@@ -243,6 +245,22 @@ const Schedule = () => {
   const [activeModule, setActiveModule] = useState("Schedule Shipment");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerwidth, setDrawerWidth] = useState(250);
+
+  useEffect(() => {
+    const basePath = "/admin";
+    let path = "";
+  
+    if (activeModule === "My Shipment" && activeTab === "my-shipment") {
+      path = "/ShipmentList";
+    } else if (activeModule === "Schedule Shipment") {
+      path = "/Scheduleshipment";
+    }
+  
+    if (path) {
+      window.history.pushState({}, '', `${basePath}${path}`);
+    }
+  }, [activeModule, activeTab]);
+  
 
   // Function to update the number of rows in packageData based on noOfPackages
   const updatePackageRows = (num) => {
@@ -732,7 +750,9 @@ const Schedule = () => {
             </Menu>
           </AppBarBox>
         </AppBar>
+        {activeModule === "Schedule Shipment" && (
         <ContentBox>
+        
           <Typography variant="h5" sx={{ mb: 3 }}>
             <IconBox>
               <FlightTakeoffIcon sx={{ fontSize: 23, color: "white" }} />
@@ -873,11 +893,11 @@ const Schedule = () => {
               <Typography>Form for payment details will go here.</Typography>
             </Box>
           )} */}
-        </ContentBox>
+        </ContentBox>)}
 
         {/* Placeholder for other modules */}
         {activeModule === "My Shipment" && activeTab === "my-shipment" && (
-          navigate("/admin/Myshipment")
+         <Myshipment />
         )}
 
         {/* {activeModule === "Billing" && (
