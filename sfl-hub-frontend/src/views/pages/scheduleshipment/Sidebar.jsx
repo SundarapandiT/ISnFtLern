@@ -19,7 +19,7 @@ import {
   UsernameButton,
   ProfileBox,
   StyledListItem,
-} from '../../styles/sidebarStyles'; 
+} from '../../styles/sidebarStyles';
 
 const Sidebar = ({
   drawerWidth,
@@ -87,13 +87,9 @@ const Sidebar = ({
 
       {/* Permanent Sidebar (Desktop) */}
       <SidebarWrapper
-        sx={{
-          width: drawerWidth,
-          minWidth: drawerWidth,
-          flexShrink: 0,
-        }}
+        drawerWidth={drawerWidth}
         onMouseEnter={() => {
-          if (drawerWidth ===60) setDrawerWidth(250);
+          if (drawerWidth === 60) setDrawerWidth(250);
         }}
       >
         <LogoBox>

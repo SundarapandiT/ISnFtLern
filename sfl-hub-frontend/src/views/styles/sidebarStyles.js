@@ -2,21 +2,23 @@ import { styled } from '@mui/material/styles';
 import { Box, Drawer, Button, Menu, ListItem } from '@mui/material';
 
 // Wrapper for desktop sidebar
-export const SidebarWrapper = styled(Box)(({ theme }) => ({
-  width: '250px',
+export const SidebarWrapper = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'drawerWidth',
+})(({ theme, drawerWidth }) => ({
+  width: drawerWidth,
   backgroundColor: '#1a202c',
   color: 'white',
   padding: theme.spacing(1),
-  display: 'none',
   overflow: 'hidden',
+  flexShrink: 0,
   transition: 'width 0.3s ease-in-out',
-  
+  display: 'none',
 
   [theme.breakpoints.up('sm')]: {
     display: 'block',
-    
   },
 }));
+
 
 // Drawer for mobile
 export const MobileDrawer = styled(Drawer)(({ theme }) => ({
