@@ -63,12 +63,11 @@ const ResetPassword = () => {
       }));
       return;
     }
-
+    
     try {
       const res = await axios.post(`${api.BackendURL}/users/resetPassword`, {
         newPassword,
-        confirmPassword,
-        email:resetKey, // Send the reset key to backend
+        email:resetKey, 
       });
 
       if (res.data?.success) {
