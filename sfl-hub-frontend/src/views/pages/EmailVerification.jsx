@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, Button, Container, Grid, Paper, TextField, Typography, useMediaQuery, IconButton } from "@mui/material";
+import { Box, Container, Grid, TextField, Typography, useMediaQuery } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import { useRegister } from "../RegisterContext";
 import axios from "axios";
 import { api } from "../../utils/api";
 import CryptoJS from "crypto-js";
+import { BackgroundContainer, CloseButton, emailverifyContainer, StyledButton, StyledPaper,emailLogoBox } from "../styles/AuthStyle";
 
 
 const EmailVerification = () => {
@@ -163,22 +164,20 @@ const EmailVerification = () => {
 
   return (
     <>
-      <Box
+      <BackgroundContainer
         position="absolute"
         top={0} left={0} right={0} bottom={0}
-        sx={{ backgroundImage: "url('/login-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}
       />
-      <Container maxWidth="sm" sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
-        <Paper elevation={3} sx={{ padding: isMobile ? 2 : 4, borderRadius: 3, textAlign: "center", position: "relative" }}>
-          <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+      <Container maxWidth="sm" sx={emailverifyContainer}>
+        <StyledPaper elevation={3}>
+          <Box sx={emailLogoBox}>
             <img src="/3001931.jpg" alt="Email Verification" width={isMobile ? 60 : 200} height={isMobile ? 60 : 200} />
           </Box>
-          <IconButton
-            sx={{ position: "absolute", top: 10, right: 10, "&:hover": { color: "red" } }}
+          <CloseButton
             onClick={() => setOpen(false)}
           >
             <CloseIcon />
-          </IconButton>
+          </CloseButton>
           <Typography variant={isMobile ? "h6" : "h5"} fontWeight={600} gutterBottom>
             Verify Your Email Address
           </Typography>
@@ -208,20 +207,20 @@ const EmailVerification = () => {
           <Typography variant="body2" mt={2}>
             Want to change your email? <Typography component="span" color="primary" sx={{ cursor: "pointer" }} onClick={() => { navigate('/auth/register-page') }}>Change Here</Typography>
           </Typography>
-          <Button
+          <StyledButton
             variant="contained"
             color="warning"
             fullWidth
             onClick={() => validateOtp(otp.join(""))}
-            sx={{ mt: 3, borderRadius: 3, padding: 1.5, backgroundColor: "red" }}
             disabled={disable}
+            sx={{p:1.5}}
           >
             Verify Email
-          </Button>
+          </StyledButton>
           <Typography variant="body2" mt={2} color="primary" sx={{ cursor: "pointer" }} onClick={sendMail}>
             Resend Code
           </Typography>
-        </Paper>
+        </StyledPaper>
       </Container></>
 
   );

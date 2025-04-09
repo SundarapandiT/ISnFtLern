@@ -7,6 +7,7 @@ import axios from "axios";
 import { api } from "../../utils/api";
 
 import { PersonOutline as FaUser, LockOutlined as FaLock } from "@mui/icons-material";
+import { BackgroundContainer,StyledPaper,StyledButton, linkStyle } from "../styles/AuthStyle";
 
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
@@ -93,20 +94,8 @@ const LoginPage = () => {
   };  
 
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          backgroundImage: "url('/login-bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-
-
-        }}
-      >
-        <Paper elevation={3} sx={{ padding: 4, maxWidth: 400, textAlign: "center", position: "relative", borderRadius: 2, boxShadow: 3, borderTop: "5px solid #d9040c" }}>
+      <BackgroundContainer>
+        <StyledPaper elevation={3}>
           <img src={logo} alt="Logo" width={150} style={{ marginBottom: 20, justifySelf: "center" }} />
           <Typography variant="h5" fontWeight="bold" gutterBottom>
 
@@ -154,28 +143,26 @@ const LoginPage = () => {
                 ),
               }}
             />
-            <Button
+            <StyledButton
               type="submit"
               variant="contained"
               color="error"
               fullWidth
-              sx={{ mt: 2, backgroundColor: "#d9040c", boxShadow: "1px 1px 3px red" }}
-
             >
               {/* {loading ? <CircularProgress size={24} /> : "LOG IN"} */}
               LOG IN
-            </Button>
+            </StyledButton>
             <Box display="flex" justifyContent="space-between" mt={2}>
-              <Typography variant="body2" component="a" href="/auth/forgotpassword-page" color="primary" sx={{ color: "darkblue", textDecoration: "none" }}>
+              <Typography variant="body2" component="a" href="/auth/forgotpassword-page" color="primary" sx={linkStyle}>
                 Forgot Password?
               </Typography>
-              <Typography variant="body2" color="primary" component="a" href="/auth/register-page" sx={{ color: "darkblue", textDecoration: "none" }} >
+              <Typography variant="body2" color="primary" component="a" href="/auth/register-page" sx={linkStyle} >
                 Don't have an account?
               </Typography>
             </Box>
           </form>
-        </Paper>
-      </Box>
+        </StyledPaper>
+      </BackgroundContainer>
     );
   };
 

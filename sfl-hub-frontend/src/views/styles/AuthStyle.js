@@ -1,6 +1,6 @@
 // ResetPasswordStyles.js
 import { styled } from "@mui/material/styles";
-import { Box, Paper, Button } from "@mui/material";
+import { Box, Paper, Button, IconButton } from "@mui/material";
 
 export const BackgroundContainer = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -29,5 +29,30 @@ export const StyledButton = styled(Button)(({ theme }) => ({
   color: "#fff",
   "&:hover": {
     backgroundColor: "#b9030a",
+  },
+}));
+
+export const linkStyle = {
+  color: "darkblue",
+  textDecoration: "none",
+  "&:hover": {
+    textDecoration: "underline",
+  },
+};
+
+export const emailverifyContainer = {
+  display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" 
+}
+export const emailLogoBox = {
+  display: "flex", justifyContent: "center", mb: 2 
+};
+
+export const CloseButton = styled(IconButton)(({ theme }) => ({
+  position: "absolute",
+  top: 10,
+  right: 10,
+  color: theme.palette.text.primary,
+  "&:hover": {
+    color: "red",
   },
 }));

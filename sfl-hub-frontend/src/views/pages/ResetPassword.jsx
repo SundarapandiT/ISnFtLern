@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Paper, Typography, TextField, InputAdornment, IconButton, Button } from "@mui/material";
+import { Box,Typography, TextField, InputAdornment, IconButton, Button } from "@mui/material";
 import { FaLock } from "react-icons/fa";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom"; // for location and navigation
@@ -7,6 +7,8 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import logo from "/SFL_logo.png";
 import { api } from "../../utils/api"; 
+import { BackgroundContainer,StyledPaper,StyledButton,linkStyle } from "../styles/AuthStyle";
+
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -84,8 +86,8 @@ const ResetPassword = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundImage: "url('/login-bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
-      <Paper elevation={3} sx={{ padding: 4, maxWidth: 400, textAlign: "center", position: "relative", borderRadius: 2, boxShadow: 3, borderTop: "5px solid #d9040c" }}>
+    <BackgroundContainer>
+      <StyledPaper elevation={3} >
         <img src={logo} alt="Logo" width={150} style={{ marginBottom: 20 }} />
         <Typography variant="h5" fontWeight="bold" gutterBottom>
           Reset Password
@@ -134,12 +136,23 @@ const ResetPassword = () => {
               ),
             }}
           />
-          <Button type="submit" variant="contained" color="error" fullWidth sx={{ mt: 2, backgroundColor: "#d9040c", boxShadow: "1px 1px 3px red" }}>
+          <StyledButton type="submit" variant="contained" color="error" fullWidth >
             Reset Password
-          </Button>
+          </StyledButton>
+          <Box display="flex" justifyContent="center" mt={2}>
+        <Typography
+          variant="body2"
+          color="primary"
+          component="a"
+          href="/auth/login-page"
+          sx={linkStyle}
+        >
+          Back to Login
+        </Typography>
+      </Box>
         </form>
-      </Paper>
-    </Box>
+      </StyledPaper>
+    </BackgroundContainer>
   );
 };
 

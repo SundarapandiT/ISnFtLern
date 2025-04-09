@@ -7,12 +7,12 @@ import {
   Box,
   TextField,
   MenuItem,
-  Button,
   Typography,
-  Paper,
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import logo from "/SFL_logo.png";
+
+import { BackgroundContainer,StyledPaper,StyledButton,linkStyle } from "../styles/AuthStyle";
 
 const ForgotPassword = () => {
   // State to manage form inputs
@@ -61,28 +61,9 @@ const ForgotPassword = () => {
   }
 
 return (
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "100vh",
-      backgroundImage: "url('/login-bg.png')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    }}
-  >
-    <Paper
+  <BackgroundContainer>
+    <StyledPaper
       elevation={3}
-      sx={{
-        padding: 4,
-        maxWidth: 400,
-        textAlign: "center",
-        position: "relative",
-        borderRadius: 2,
-        boxShadow: 3,
-        borderTop: "5px solid #d9040c",
-      }}
     >
       <img
         src={logo}
@@ -171,7 +152,7 @@ return (
       </TextField>
 
       {/* Submit Button */}
-      <Button
+      <StyledButton
         variant="contained"
         color="error"
         fullWidth
@@ -179,7 +160,7 @@ return (
         onClick={handleSubmit}
       >
         SUBMIT
-      </Button>
+      </StyledButton>
 
       {/* Back to Login */}
       <Box display="flex" justifyContent="center" mt={2}>
@@ -188,13 +169,13 @@ return (
           color="primary"
           component="a"
           href="/auth/login-page"
-          sx={{ color: "darkblue", textDecoration: "none" }}
+          sx={linkStyle}
         >
           Back to Login
         </Typography>
       </Box>
-    </Paper>
-  </Box>
+    </StyledPaper>
+  </BackgroundContainer>
 );
 };
 
