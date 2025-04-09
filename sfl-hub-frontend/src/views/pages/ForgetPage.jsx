@@ -44,11 +44,13 @@ const ForgotPassword = () => {
         email: CryptoJS.AES.encrypt(formData.email, SECRET_KEY).toString(),
         selectedEmailMy: CryptoJS.AES.encrypt(formData.requestType, SECRET_KEY).toString(),
       };
-      const res = await axios.post(`${api.BackendURL}/forget`, {
+      const res = await axios.post(`${api.BackendURL}/users/forgotPassword`, {
         data: payload,
       });
-      if (res.data.success) {
-        toast.success(" Verification email sent successfully!");
+      if (res.data.user?.message==="Reset password link sent successfully over email") {
+        toast.success("Reset password link sent successfully over email");
+      } else if (res.data.user?.message==="UserName sent successfully over email") {
+        toast.success("UserName sent successfully over email");
       } else {
         toast.error(res.data.message || "Cant sent to mail");
       }

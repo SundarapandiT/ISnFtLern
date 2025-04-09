@@ -67,7 +67,7 @@ const LoginPage = () => {
         const decryptedPhone = CryptoJS.AES.decrypt(res.data.user.data.p_phonenum, SECRET_KEY).toString(CryptoJS.enc.Utf8);
         const decryptedUsername = CryptoJS.AES.decrypt(res.data.user.data.p_username, SECRET_KEY).toString(CryptoJS.enc.Utf8);
   
-        localStorage.setItem("user", JSON.stringify({
+        sessionStorage.setItem("user", JSON.stringify({
           name: decryptedName,
           email: decryptedEmail,
           phone: decryptedPhone,

@@ -6,8 +6,10 @@ import { Toaster } from "react-hot-toast";
 import LoginPage from "./views/pages/LoginPage";
 import ForgotPassword from "./views/pages/ForgetPage";
 import ScheduleShipment from "./views/pages/scheduleshipment/Scheduleshipment";
-import Myshipment from "./views/pages/myshipment/Myshipment";
+import ResetPassword from "./views/pages/ResetPassword";
+// import Myshipment from "./views/pages/myshipment/Myshipment";
 import "./App.css";
+import './index.css';
 
 
 function App() {
@@ -21,6 +23,7 @@ function App() {
         <Route path="/auth/register-page" element={<RegisterPage />} />
         <Route path="/emailverification" element={<EmailVerification/>}/>
         <Route path="/auth/forgotpassword-page" element={<ForgotPassword/>}/>
+        <Route path="/auth/ResetPassword" element={<ResetPassword/>}/>
         <Route path="/admin/Scheduleshipment" element={<ScheduleShipment/>}/>
         {/* <Route path="/admin/ShipmentList" element={<Myshipment/>}/> */}
       </Routes>

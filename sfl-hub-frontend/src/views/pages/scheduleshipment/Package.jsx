@@ -46,7 +46,7 @@ const Package = ({
   updatePackageRows,
 }) => {
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, bgcolor: "white", borderRadius: 2, m: { xs: 1, sm: 2 } }}>
+    <Box className="ss-box">
       {/* Top Selectors */}
       <Grid container spacing={2} sx={{ mb: 2 }}>
         {/* Kept xs={12} sm={4} as it's a common responsive pattern */}
@@ -106,23 +106,23 @@ const Package = ({
         {/* Added Box for horizontal scroll on small screens */}
         <Box sx={{ overflowX: 'auto', mb: 2 }}>
           <TableContainer component={Paper} sx={{ minWidth: 650 }}> {/* Set minWidth for TableContainer */}
-            <Table>
+            <Table className="common-table">
               <TableHead>
-                <TableRow sx={{ bgcolor: "#333" }}>
+                <TableRow>
                    {/* Added minWidth and responsive padding to header cells */}
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 100, padding: { xs: '8px', sm: '16px' } }}>No of Pkgs</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 120, padding: { xs: '8px', sm: '16px' } }}>Weight (lbs)*</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 250, padding: { xs: '8px', sm: '16px' } }}>Dimension (L + W + H in)*</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 150, padding: { xs: '8px', sm: '16px' } }}>Chargeable Wt</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 150, padding: { xs: '8px', sm: '16px' } }}>Insured Val (USD)*</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", padding: { xs: '8px', sm: '16px' } }}></TableCell> {/* For Delete Icon */}
+                  <TableCell sx={{ width: 245 }}>No of Pkgs</TableCell>
+                  <TableCell sx={{ width: 245 }}>Weight (lbs)*</TableCell>
+                  <TableCell sx={{ width: 499 }}>Dimension (L + W + H in)*</TableCell>
+                  <TableCell sx={{ minWidth: 150 }}>Chargeable Wt</TableCell>
+                  <TableCell sx={{ minWidth: 150 }}>Insured Val (USD)*</TableCell>
+                  <TableCell sx={{}}></TableCell> {/* For Delete Icon */}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {packageData.map((pkg, index) => (
                   <TableRow key={index}>
                     {/* Added responsive padding */}
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       <TextField
                         name="noOfPackages"
                         type="number"
@@ -137,7 +137,7 @@ const Package = ({
                         sx={{ backgroundColor: '#f0f0f0' }} // Indicate read-only visually
                       />
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       <TextField
                         name="weight"
                         type="number"
@@ -153,7 +153,7 @@ const Package = ({
                         }}
                       />
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       {/* Responsive Box for dimensions */}
                       <Box sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 1 }}>
                         <TextField
@@ -165,7 +165,7 @@ const Package = ({
                           variant="outlined"
                           size="small"
                            // Responsive width and margin
-                          sx={{ width: { xs: '100%', sm: '90px' }, mb: { xs: 1, sm: 0 } }}
+                          sx={{ width: { xs: '100%', sm: '31%' }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`length_${index}`]}
                           helperText={packageErrors[`length_${index}`]}
                            InputProps={{
@@ -181,7 +181,7 @@ const Package = ({
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
-                          sx={{ width: { xs: '100%', sm: '90px' }, mb: { xs: 1, sm: 0 } }}
+                          sx={{ width: { xs: '100%', sm: '31%' }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`width_${index}`]}
                           helperText={packageErrors[`width_${index}`]}
                            InputProps={{
@@ -206,7 +206,7 @@ const Package = ({
                         />
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       <TextField
                         name="chargeableWeight"
                         type="number"
@@ -222,7 +222,7 @@ const Package = ({
                          sx={{ backgroundColor: '#f0f0f0' }} // Indicate read-only visually
                       />
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       <TextField
                         name="insuredValue"
                         type="number"
@@ -238,7 +238,7 @@ const Package = ({
                         helperText={packageErrors[`insuredValue_${index}`]}
                       />
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       {packageData.length > 1 && (
                         <IconButton
                           onClick={() => handleRemovePackage(index)}
@@ -308,23 +308,23 @@ const Package = ({
         {/* Added Box for horizontal scroll on small screens */}
          <Box sx={{ overflowX: 'auto', mb: 2 }}>
           <TableContainer component={Paper} sx={{ minWidth: 650 }}> {/* Set minWidth for TableContainer */}
-            <Table>
+            <Table className="common-table">
               <TableHead>
                 <TableRow sx={{ bgcolor: "#333" }}>
                    {/* Added minWidth and responsive padding to header cells */}
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 100, padding: { xs: '8px', sm: '16px' } }}>Pkg No</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 200, padding: { xs: '8px', sm: '16px' } }}>Content Description*</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 100, padding: { xs: '8px', sm: '16px' } }}>Quantity*</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 150, padding: { xs: '8px', sm: '16px' } }}>Value/Qty (USD)*</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", minWidth: 150, padding: { xs: '8px', sm: '16px' } }}>Total Value (USD)</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold", padding: { xs: '8px', sm: '16px' } }}></TableCell> {/* For Delete Icon */}
+                  <TableCell sx={{ width: 100 }}>Pkg No</TableCell>
+                  <TableCell sx={{ width: 889 }}>Content Description*</TableCell>
+                  <TableCell sx={{ minWidth: 100 }}>Quantity*</TableCell>
+                  <TableCell sx={{ minWidth: 150 }}>Value/Qty (USD)*</TableCell>
+                  <TableCell sx={{ minWidth: 150 }}>Total Value (USD)</TableCell>
+                  <TableCell sx={{}}></TableCell> {/* For Delete Icon */}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {commercialInvoiceData.map((invoice, index) => (
                   <TableRow key={index}>
                      {/* Added responsive padding */}
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       <FormControl fullWidth variant="outlined" size="small">
                         {/* Removed explicit InputLabel for cleaner table look */}
                         <Select
@@ -348,7 +348,7 @@ const Package = ({
                         )}
                       </FormControl>
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       <TextField
                         name="contentDescription"
                         value={invoice.contentDescription || ""}
@@ -360,7 +360,7 @@ const Package = ({
                         helperText={packageErrors[`contentDescription_${index}`]}
                       />
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       <TextField
                         name="quantity"
                         type="number"
@@ -373,7 +373,7 @@ const Package = ({
                         helperText={packageErrors[`quantity_${index}`]}
                       />
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       <TextField
                         name="valuePerQty"
                         type="number"
@@ -389,7 +389,7 @@ const Package = ({
                         helperText={packageErrors[`valuePerQty_${index}`]}
                       />
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       <TextField
                         value={calculateTotalValue(index) || "0.00"} // Ensure calculateTotalValue handles NaN/null
                         fullWidth
@@ -402,7 +402,7 @@ const Package = ({
                         sx={{ backgroundColor: '#f0f0f0' }} // Indicate read-only visually
                       />
                     </TableCell>
-                    <TableCell sx={{ padding: { xs: '8px', sm: '16px' } }}>
+                    <TableCell sx={{}}>
                       {commercialInvoiceData.length > 1 && (
                         <IconButton
                           onClick={() => handleRemoveInvoiceRow(index)}

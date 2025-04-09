@@ -84,7 +84,7 @@ const Schedule = () => {
 
   const handleLogout = () => {
     navigate("/auth/login-page");
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     handleMenuClose();
   }
 
@@ -93,7 +93,7 @@ const Schedule = () => {
   const [Loginname, setLoginname] = useState("Unknown")
 
   useEffect(() => {
-    const storedName = JSON.parse(localStorage.getItem("user"));
+    const storedName = JSON.parse(sessionStorage.getItem("user"));
     if (storedName) {
       setLoginname(storedName.name);
     }
@@ -234,10 +234,10 @@ const Schedule = () => {
 
 
   const [completedTabs, setCompletedTabs] = useState({
-    "schedule-pickup": false,
+    "schedule-pickup": false, 
     sender: false,
     recipient: false,
-    package: shipmentType !== "sea",
+    package: shipmentType !== "sea", 
     payment: false,
   });
 
