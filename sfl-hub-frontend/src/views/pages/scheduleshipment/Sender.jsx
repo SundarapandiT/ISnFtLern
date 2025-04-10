@@ -76,6 +76,7 @@ const Sender = ({
         });
 
         const userData = response.data?.user?.[0] || [];
+        console.log("Custom API response:", userData);
 
         if (userData.length > 0) {
           const place = userData[0];
@@ -95,6 +96,7 @@ const Sender = ({
             const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
             const data = res.data[0];
 
+            console.log("India API response:", data);
             if (data.Status === "Success" && data.PostOffice?.length > 0) {
               const place = data.PostOffice[0];
               setFromCity(place.Block || place.District);
@@ -110,6 +112,7 @@ const Sender = ({
             );
 
             const components = res.data.results?.[0]?.address_components || [];
+            console.log("Google API response:", components);
 
             let city = '';
             let state = '';
@@ -136,6 +139,8 @@ const Sender = ({
 
     return () => clearTimeout(debounceRef.current);
   }, [zipCode, countrycode, countryId]);
+
+  
 
 
   const today = new Date().toISOString().split("T")[0];

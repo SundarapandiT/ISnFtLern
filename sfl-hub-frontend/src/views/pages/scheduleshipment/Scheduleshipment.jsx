@@ -93,9 +93,12 @@ const Schedule = () => {
   const [Loginname, setLoginname] = useState("Unknown")
 
   useEffect(() => {
-    const storedName = JSON.parse(sessionStorage.getItem("user"));
-    if (storedName) {
-      setLoginname(storedName.name);
+    const storedUser = JSON.parse(sessionStorage.getItem("user"));
+    if (storedUser) {
+      setLoginname(storedUser.name);
+      setContactName(storedUser.name);
+      setEmail(storedUser.email);
+      setPhone1(storedUser.phone);
     }
   }, []);
 
