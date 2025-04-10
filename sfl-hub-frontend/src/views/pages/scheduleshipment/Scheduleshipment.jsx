@@ -244,7 +244,7 @@ const Schedule = () => {
     payment: false,
   });
 
-  const [activeTab, setActiveTab] = useState("schedule-pickup");
+  const [activeTab, setActiveTab] = useState("package");
   const [activeModule, setActiveModule] = useState("Schedule Shipment");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerwidth, setDrawerWidth] = useState(250);
@@ -309,10 +309,10 @@ const Schedule = () => {
   };
 
   const handleAddPackage = () => {
-    setPackageData([
+    const newData = [
       ...packageData,
       {
-        noOfPackages: 1,
+        noOfPackages: packageData.length + 1,
         weight: 0,
         length: 0,
         width: 0,
@@ -320,13 +320,15 @@ const Schedule = () => {
         chargeableWeight: 0,
         insuredValue: 0,
       },
-    ]);
+    ];
+    setPackageData(newData);
+    setNoOfPackages(Math.min(newData.length, 10)); // Sync with dropdown, cap at 10
   };
 
   const handleRemovePackage = (index) => {
-    const updatedPackageData = [...packageData];
-    updatedPackageData.splice(index, 1);
-    setPackageData(updatedPackageData);
+    const newData = packageData.filter((_, i) => i !== index);
+    setPackageData(newData);
+    setNoOfPackages(Math.max(newData.length, 1)); // Sync with dropdown, minimum 1
   };
 
   const handleInvoiceChange = (index, event) => {
@@ -571,8 +573,7 @@ const Schedule = () => {
   };
 
   // Handle form submission for Package tab
-  const handlePackageSubmit = (event) => {
-    event.preventDefault();
+  const handlePackageSubmit = () => {
     if (validatePackageForm()) {
       console.log("Package Form submitted:", {
         packageData,

@@ -24,6 +24,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ButtonBox, NextButton, PrevButton } from "../../styles/scheduleshipmentStyle";
+import toast from "react-hot-toast";
 
 const Package = ({
   packageData,
@@ -49,17 +50,23 @@ const Package = ({
 
   function handleNext(e) {
     const totalInsuredValue = packageData.reduce(
-      (sum, pkg) => sum + Number(pkg.insuredValue || 0),
-      0
+        (sum, pkg) => sum + Number(pkg.insuredValue || 0),
+        0
     );
     const totalDeclaredValue = commercialInvoiceData.reduce(
-      (sum, _, index) => sum + Number(calculateTotalValue(index) || 0),
-      0
+        (sum, _, index) => sum + Number(calculateTotalValue(index) || 0),
+        0
     );
 
     const isNextEnabled = totalInsuredValue <= totalDeclaredValue && totalInsuredValue > 0;
-    return isNextEnabled;
-  }
+
+    if (isNextEnabled) {
+        handlePackageSubmit();
+    } else {
+        toast.error("Insured value should be less than or equal to Total declared value and greater than zero.");
+    }
+}
+
 
   return (
     <Box className="ss-box">
@@ -118,7 +125,7 @@ const Package = ({
       </Grid>
 
       {/* Package Details Table */}
-      <form onSubmit={handlePackageSubmit}>
+      <form>
         {/* Added Box for horizontal scroll on small screens */}
         <Box sx={{ overflowX: 'auto', mb: 2 }}>
           <TableContainer component={Paper} sx={{ minWidth: 650 }}> {/* Set minWidth for TableContainer */}
@@ -231,8 +238,8 @@ const Package = ({
                         fullWidth
                         variant="outlined"
                         size="small"
-                        disabled // Keep disabled as it's calculated
                         InputProps={{
+                          readOnly: true,
                           endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
                         }}
                         sx={{ backgroundColor: '#f0f0f0' }} // Indicate read-only visually
@@ -279,7 +286,7 @@ const Package = ({
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleAddPackage}
-            disabled={packageData.length >= noOfPackages}
+            disabled={packageData.length >= 10}
           >
             ADD NEW ROW
           </Button>
@@ -450,10 +457,9 @@ const Package = ({
             Previous
           </PrevButton>
           <NextButton
-            type="submit"
             variant="contained"
             endIcon={<ArrowForwardIcon />}
-            disabled={!handleNext()}
+            onClick={handleNext}
           >
             Next
           </NextButton>
