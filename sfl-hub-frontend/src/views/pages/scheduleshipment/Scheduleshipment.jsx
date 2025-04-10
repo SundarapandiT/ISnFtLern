@@ -241,7 +241,7 @@ const Schedule = () => {
     payment: false,
   });
 
-  const [activeTab, setActiveTab] = useState("package");
+  const [activeTab, setActiveTab] = useState("schedule-pickup");
   const [activeModule, setActiveModule] = useState("Schedule Shipment");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerwidth, setDrawerWidth] = useState(250);

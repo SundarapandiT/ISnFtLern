@@ -23,6 +23,7 @@ import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { ButtonBox, NextButton, PrevButton } from "../../styles/scheduleshipmentStyle";
 
 const Package = ({
   packageData,
@@ -278,11 +279,6 @@ const Package = ({
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleAddPackage}
-            sx={{
-              bgcolor: "#777",
-              "&:hover": { bgcolor: "#999" },
-              width: { xs: '100%', sm: 'auto' }
-            }}
             disabled={packageData.length >= noOfPackages}
           >
             ADD NEW ROW
@@ -430,11 +426,7 @@ const Package = ({
             startIcon={<AddIcon />}
             onClick={handleAddInvoiceRow}
             className="add-button"
-            sx={{
-              bgcolor: "#777",
-              "&:hover": { bgcolor: "#999" },
-              width: { xs: '100%', sm: 'auto' }
-            }}
+            
           >
             ADD NEW ROW
           </Button>
@@ -448,30 +440,24 @@ const Package = ({
         </Box>
 
         {/* Navigation Buttons - Already responsive */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: 1 }}>
+        <ButtonBox>
           {/* Reversed column order on xs so 'Next' appears below 'Previous' */}
-          <Button
+          <PrevButton
             variant="outlined"
             startIcon={<ArrowBackIcon />}
             onClick={handlepackagePrevious}
-            sx={{ width: { xs: "100%", sm: "auto" } }} // mb applied by gap
           >
             Previous
-          </Button>
-          <Button
+          </PrevButton>
+          <NextButton
             type="submit"
             variant="contained"
-            sx={{
-              bgcolor: "#E91E63",
-              "&:hover": { bgcolor: "#C2185B" },
-              width: { xs: "100%", sm: "auto" },
-            }}
             endIcon={<ArrowForwardIcon />}
             disabled={!handleNext()}
           >
             Next
-          </Button>
-        </Box>
+          </NextButton>
+        </ButtonBox>
       </form>
     </Box>
   );
