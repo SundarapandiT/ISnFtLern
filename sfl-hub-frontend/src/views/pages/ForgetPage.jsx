@@ -35,6 +35,7 @@ const ForgotPassword = () => {
     e.preventDefault();
 
     try {
+      const loadingToast = toast.loading("Sending Mail...");
       const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
       if (!SECRET_KEY) {
@@ -48,14 +49,18 @@ const ForgotPassword = () => {
         data: payload,
       });
       if (res.data.user?.message==="Reset password link sent successfully over email") {
+        toast.dismiss(loadingToast);
         toast.success("Reset password link sent successfully over email");
       } else if (res.data.user?.message==="UserName sent successfully over email") {
+        toast.dismiss(loadingToast);
         toast.success("UserName sent successfully over email");
       } else {
-        toast.error(res.data.message || "Cant sent to mail");
+        toast.dismiss(loadingToast);
+        toast.error(res.data.user?.message || "Cant sent to mail");
       }
     } catch (error) {
       console.error("verification send error:", error);
+      toast.dismiss(loadingToast);
       toast.error(error.message || "Something went wrong");
     }
   }
@@ -113,7 +118,7 @@ return (
                 },
                 "& .Mui-selected": {
                   // Style for the selected item in the dropdown menu
-                  backgroundColor: "#1976d2", // Blue background for selected item
+                  backgroundColor: "#1565c0", // Blue background for selected item
                   color: "white", // White text for selected item
                   "&:hover": {
                     backgroundColor: "#1565c0", // Slightly darker blue on hover for selected item

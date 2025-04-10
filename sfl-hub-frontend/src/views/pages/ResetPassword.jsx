@@ -7,6 +7,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import logo from "/SFL_logo.png";
 import { api } from "../../utils/api"; 
+import CryptoJS from "crypto-js";
 import { BackgroundContainer,StyledPaper,StyledButton,linkStyle } from "../styles/AuthStyle";
 
 
@@ -38,14 +39,16 @@ const ResetPassword = () => {
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-
+  
+    // Clear previous error states
     setError({
       newPasswordErr: false,
       newPasswordHelperText: "",
       confirmPasswordErr: false,
       confirmPasswordHelperText: "",
     });
-
+  
+    // Frontend validation
     if (newPassword.length < 6) {
       setError((prev) => ({
         ...prev,
@@ -54,7 +57,7 @@ const ResetPassword = () => {
       }));
       return;
     }
-
+  
     if (newPassword !== confirmPassword) {
       setError((prev) => ({
         ...prev,
@@ -63,26 +66,44 @@ const ResetPassword = () => {
       }));
       return;
     }
-    
+  
     try {
+      const loadingToast = toast.loading("Resetting password...");
+      const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+  
+      if (!SECRET_KEY) {
+        throw new Error("Encryption key is missing from environment variables!");
+      }
+  
+      // Encrypt the password
+      const encryptedPassword = CryptoJS.AES.encrypt(newPassword, SECRET_KEY).toString();
+  
+      // Send POST request to backend
       const res = await axios.post(`${api.BackendURL}/users/resetPassword`, {
-        newPassword,
-        email:resetKey, 
+        newPassword: encryptedPassword,
+        email: resetKey, // assuming resetKey contains email or reset token from query param
       });
-
-      if (res.data?.success) {
+  
+      console.log("Response from reset password:", res.data);
+  
+      // Handle response
+      if (res.data.user?.message === "Updated Successfully") {
+        toast.dismiss(loadingToast);
         toast.success("Password has been reset successfully!");
         setNewPassword("");
         setConfirmPassword("");
-        navigate("/auth/login-page"); 
+        navigate("/auth/login-page"); // redirect to login page
       } else {
-        toast.error(res.data?.message || "Something went wrong");
+        toast.dismiss(loadingToast);
+        toast.error(res.data.user?.message || "Something went wrong");
       }
     } catch (err) {
       console.error("Reset error:", err);
+      toast.dismiss(loadingToast);
       toast.error("Failed to reset password");
     }
   };
+  
 
   return (
     <BackgroundContainer>
