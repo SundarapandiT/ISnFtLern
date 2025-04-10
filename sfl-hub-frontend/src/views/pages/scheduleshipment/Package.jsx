@@ -45,6 +45,21 @@ const Package = ({
   setDutiesPaidBy,
   updatePackageRows,
 }) => {
+
+  function handleNext(e) {
+    const totalInsuredValue = packageData.reduce(
+      (sum, pkg) => sum + Number(pkg.insuredValue || 0),
+      0
+    );
+    const totalDeclaredValue = commercialInvoiceData.reduce(
+      (sum, _, index) => sum + Number(calculateTotalValue(index) || 0),
+      0
+    );
+
+    const isNextEnabled = totalInsuredValue <= totalDeclaredValue && totalInsuredValue > 0;
+    return isNextEnabled;
+  }
+
   return (
     <Box className="ss-box">
       {/* Top Selectors */}
@@ -109,13 +124,13 @@ const Package = ({
             <Table className="common-table">
               <TableHead>
                 <TableRow>
-                   {/* Added minWidth and responsive padding to header cells */}
+                  {/* Added minWidth and responsive padding to header cells */}
                   <TableCell sx={{ width: 245 }}>No of Pkgs</TableCell>
                   <TableCell sx={{ width: 245 }}>Weight (lbs)*</TableCell>
                   <TableCell sx={{ width: 499 }}>Dimension (L + W + H in)*</TableCell>
                   <TableCell sx={{ minWidth: 150 }}>Chargeable Wt</TableCell>
                   <TableCell sx={{ minWidth: 150 }}>Insured Val (USD)*</TableCell>
-                  <TableCell sx={{}}></TableCell> {/* For Delete Icon */}
+                  {packageData.length > 1 && <TableCell></TableCell>} {/*For Delete Icon*/}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -126,7 +141,7 @@ const Package = ({
                       <TextField
                         name="noOfPackages"
                         type="number"
-                        value={pkg.noOfPackages || index + 1} // Default to row number if empty
+                        value={index + 1} // Default to row number if empty
                         // onChange={(e) => handlePackageChange(index, e)} // Usually you might not edit this directly if tied to selector
                         InputProps={{ readOnly: true }} // Make read-only if controlled by selector
                         fullWidth
@@ -148,14 +163,14 @@ const Package = ({
                         size="small"
                         error={!!packageErrors[`weight_${index}`]}
                         helperText={packageErrors[`weight_${index}`]}
-                         InputProps={{
-                            endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
                         }}
                       />
                     </TableCell>
                     <TableCell sx={{}}>
                       {/* Responsive Box for dimensions */}
-                      <Box sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 1 }}>
+                      <Box className="dimensions">
                         <TextField
                           name="length"
                           type="number"
@@ -164,13 +179,13 @@ const Package = ({
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
-                           // Responsive width and margin
+                          // Responsive width and margin
                           sx={{ width: { xs: '100%', sm: '31%' }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`length_${index}`]}
                           helperText={packageErrors[`length_${index}`]}
-                           InputProps={{
-                                endAdornment: <InputAdornment position="end">in</InputAdornment>,
-                           }}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                          }}
                         />
                         <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>+</Typography>
                         <TextField
@@ -184,9 +199,9 @@ const Package = ({
                           sx={{ width: { xs: '100%', sm: '31%' }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`width_${index}`]}
                           helperText={packageErrors[`width_${index}`]}
-                           InputProps={{
-                                endAdornment: <InputAdornment position="end">in</InputAdornment>,
-                           }}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                          }}
                         />
                         <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>+</Typography>
                         <TextField
@@ -197,12 +212,12 @@ const Package = ({
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
-                          sx={{ width: { xs: '100%', sm: '90px' }}}
+                          sx={{ width: { xs: '100%', sm: '90px' } }}
                           error={!!packageErrors[`height_${index}`]}
                           helperText={packageErrors[`height_${index}`]}
-                           InputProps={{
-                                endAdornment: <InputAdornment position="end">in</InputAdornment>,
-                           }}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                          }}
                         />
                       </Box>
                     </TableCell>
@@ -216,10 +231,10 @@ const Package = ({
                         variant="outlined"
                         size="small"
                         disabled // Keep disabled as it's calculated
-                         InputProps={{
-                            endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
-                         }}
-                         sx={{ backgroundColor: '#f0f0f0' }} // Indicate read-only visually
+                        InputProps={{
+                          endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
+                        }}
+                        sx={{ backgroundColor: '#f0f0f0' }} // Indicate read-only visually
                       />
                     </TableCell>
                     <TableCell sx={{}}>
@@ -257,14 +272,8 @@ const Package = ({
         </Box>
 
         {/* Responsive Box for Add button and totals */}
-        <Box sx={{
-          display: "flex",
-          flexDirection: { xs: 'column', sm: 'row' }, // Stack on small screens
-          justifyContent: "space-between",
-          alignItems: { xs: 'stretch', sm: 'center' }, // Stretch button on xs, center align on sm+
-          gap: { xs: 2, sm: 0 }, // Add gap when stacked
-          mb: 2
-        }}>
+
+        <Box className="action-row">
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -272,22 +281,15 @@ const Package = ({
             sx={{
               bgcolor: "#777",
               "&:hover": { bgcolor: "#999" },
-              width: { xs: '100%', sm: 'auto' } // Full width button on xs
+              width: { xs: '100%', sm: 'auto' }
             }}
-            disabled={packageData.length >= noOfPackages} // Disable if max packages reached
+            disabled={packageData.length >= noOfPackages}
           >
             ADD NEW ROW
           </Button>
-          {/* Responsive Box for summary text */}
-          <Box sx={{
-             display: "flex",
-             flexDirection: { xs: 'column', md: 'row' }, // Stack totals on xs/sm, row on md+
-             gap: { xs: 0.5, md: 2 },
-             alignItems: { xs: 'flex-end', sm: 'flex-end', md: 'center' }, // Align text right when stacked
-             textAlign: { xs: 'right', md: 'left'},
-             width: { xs: '100%', md: 'auto' }
-           }}>
-            <Typography variant="body2" sx={{fontWeight: 'bold'}}>Totals:</Typography>
+
+          <Box className="summary-box">
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Totals:</Typography>
             <Typography variant="body2">Pkgs: {packageData.length}</Typography>
             <Typography variant="body2">
               Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2)} lbs
@@ -301,29 +303,30 @@ const Package = ({
           </Box>
         </Box>
 
+
         {/* Commercial Invoice Section */}
         <Typography variant="h6" sx={{ mt: 4, mb: 1 }}> {/* Increased top margin */}
           Commercial Invoice
         </Typography>
         {/* Added Box for horizontal scroll on small screens */}
-         <Box sx={{ overflowX: 'auto', mb: 2 }}>
+        <Box sx={{ overflowX: 'auto', mb: 2 }}>
           <TableContainer component={Paper} sx={{ minWidth: 650 }}> {/* Set minWidth for TableContainer */}
             <Table className="common-table">
               <TableHead>
                 <TableRow sx={{ bgcolor: "#333" }}>
-                   {/* Added minWidth and responsive padding to header cells */}
+                  {/* Added minWidth and responsive padding to header cells */}
                   <TableCell sx={{ width: 100 }}>Pkg No</TableCell>
                   <TableCell sx={{ width: 889 }}>Content Description*</TableCell>
                   <TableCell sx={{ minWidth: 100 }}>Quantity*</TableCell>
                   <TableCell sx={{ minWidth: 150 }}>Value/Qty (USD)*</TableCell>
                   <TableCell sx={{ minWidth: 150 }}>Total Value (USD)</TableCell>
-                  <TableCell sx={{}}></TableCell> {/* For Delete Icon */}
+                  {commercialInvoiceData.length > 1 && <TableCell></TableCell>}{/*For Delete Icon*/}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {commercialInvoiceData.map((invoice, index) => (
                   <TableRow key={index}>
-                     {/* Added responsive padding */}
+                    {/* Added responsive padding */}
                     <TableCell sx={{}}>
                       <FormControl fullWidth variant="outlined" size="small">
                         {/* Removed explicit InputLabel for cleaner table look */}
@@ -334,7 +337,7 @@ const Package = ({
                           displayEmpty // Allows placeholder/empty display
                           error={!!packageErrors[`packageNumber_${index}`]}
                         >
-                           {/* Generate options based on the actual number of packages */}
+                          {/* Generate options based on the actual number of packages */}
                           {[...Array(packageData.length).keys()].map((_, i) => (
                             <MenuItem key={i + 1} value={String(i + 1)}>
                               {i + 1}
@@ -418,30 +421,25 @@ const Package = ({
               </TableBody>
             </Table>
           </TableContainer>
-         </Box>
+        </Box>
 
         {/* Responsive Box for Add button and total value */}
-        <Box sx={{
-            display: "flex",
-            flexDirection: { xs: 'column', sm: 'row' }, // Stack on small screens
-            justifyContent: "space-between",
-            alignItems: { xs: 'stretch', sm: 'center' }, // Stretch button on xs, center align on sm+
-            gap: { xs: 2, sm: 0 }, // Add gap when stacked
-            mb: 2
-          }}>
+        <Box className="invoice-action-row">
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleAddInvoiceRow}
+            className="add-button"
             sx={{
               bgcolor: "#777",
               "&:hover": { bgcolor: "#999" },
-              width: { xs: '100%', sm: 'auto' } // Full width button on xs
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             ADD NEW ROW
           </Button>
-          <Typography variant="body1" sx={{ fontWeight: 'bold', textAlign: { xs: 'right', sm: 'left' } }}> {/* Align right on xs */}
+
+          <Typography variant="body1" className="total-value-text">
             Total Declared Value: $
             {commercialInvoiceData
               .reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0)
@@ -451,7 +449,7 @@ const Package = ({
 
         {/* Navigation Buttons - Already responsive */}
         <Box sx={{ display: "flex", justifyContent: "space-between", flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: 1 }}>
-           {/* Reversed column order on xs so 'Next' appears below 'Previous' */}
+          {/* Reversed column order on xs so 'Next' appears below 'Previous' */}
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
@@ -465,10 +463,11 @@ const Package = ({
             variant="contained"
             sx={{
               bgcolor: "#E91E63",
-              "&:hover": { bgcolor: "#C2185B" }, // Darker hover
+              "&:hover": { bgcolor: "#C2185B" },
               width: { xs: "100%", sm: "auto" },
             }}
             endIcon={<ArrowForwardIcon />}
+            disabled={!handleNext()}
           >
             Next
           </Button>

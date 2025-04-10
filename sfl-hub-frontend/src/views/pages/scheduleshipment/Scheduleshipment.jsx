@@ -241,7 +241,7 @@ const Schedule = () => {
     payment: false,
   });
 
-  const [activeTab, setActiveTab] = useState("schedule-pickup");
+  const [activeTab, setActiveTab] = useState("package");
   const [activeModule, setActiveModule] = useState("Schedule Shipment");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerwidth, setDrawerWidth] = useState(250);
@@ -293,7 +293,9 @@ const Schedule = () => {
 
     if (["weight", "length", "width", "height"].includes(name)) {
       const pkg = updatedPackageData[index];
-      const dimensionalWeight = (pkg.length * pkg.width * pkg.height) / 139;
+      const dimensionalWeight = fromCountry === toCountry
+      ? (pkg.length * pkg.width * pkg.height) / 166 // Domestic
+      : (pkg.length * pkg.width * pkg.height) / 139; // International
       updatedPackageData[index].chargeableWeight = Math.max(
         Number(pkg.weight) || 0,
         dimensionalWeight || 0
