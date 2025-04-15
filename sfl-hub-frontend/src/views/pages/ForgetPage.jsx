@@ -110,18 +110,18 @@ return (
                 "& .MuiMenuItem-root": {
                   // Default style for menu items
                   padding: "8px 16px",
-                  justifyContent: "flex-start", // Align text to the left in the dropdown
+                  justifyContent: "flex-start", 
                   "&:hover": {
-                    backgroundColor: "#1976d2", // Blue background on hover
-                    color: "white", // White text on hover
+                    backgroundColor: "#1565c0", 
+                    color: "white", 
                   },
                 },
                 "& .Mui-selected": {
-                  // Style for the selected item in the dropdown menu
-                  backgroundColor: "#1565c0", // Blue background for selected item
-                  color: "white", // White text for selected item
+                 
+                  backgroundColor: "#1565c0", 
+                  color: "white", 
                   "&:hover": {
-                    backgroundColor: "#1565c0", // Slightly darker blue on hover for selected item
+                    backgroundColor: "#1565c0", 
                   },
                 },
               },
