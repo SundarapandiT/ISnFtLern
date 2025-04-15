@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Routes, Route } from "react-router-dom";
+
 import axios from "axios";
 import { api } from '../../../utils/api'
 import { toast } from "react-hot-toast";
@@ -42,10 +43,13 @@ import {
   IconBox,
   UsernameButton,
   } from '../../styles/scheduleshipmentStyle';
+import Myshipmentnew from "../myshipment/MyShipmentNew";
+
 
 const Schedule = () => {
 
   const navigate = useNavigate();
+  const [edit, setEdit] = useState(false);
 
   const [countries, setCountries] = useState([]);
 
@@ -171,6 +175,15 @@ const Schedule = () => {
   const [packageErrors, setPackageErrors] = useState({});
 
   const handleSubmit = async () => {
+    const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+    if (!SECRET_KEY) {
+      throw new Error("Encryption key is missing!");
+    }
+  
+    // Helper function to encrypt values safely
+    const encrypt = (value) =>
+      value ? CryptoJS.AES.encrypt(value, SECRET_KEY).toString() : "";
+  
     const requestData = {
       schedulePickup: {
         shipmentType,
@@ -182,16 +195,16 @@ const Schedule = () => {
         countrycode,
         countryId,
         companyName,
-        contactName,
-        addressLine1,
-        addressLine2,
-        addressLine3,
+        contactName: encrypt(contactName),
+        addressLine1: encrypt(addressLine1),
+        addressLine2: encrypt(addressLine2),
+        addressLine3: encrypt(addressLine3),
         zipCode,
         fromCity,
         state,
-        phone1,
-        phone2,
-        email,
+        phone1: encrypt(phone1),
+        phone2: encrypt(phone2),
+        email: encrypt(email),
         needsPickup,
         pickupDate,
       },
@@ -200,16 +213,16 @@ const Schedule = () => {
         recipientcountrycode,
         recipientCountryId,
         recipientCompanyName,
-        recipientContactName,
-        recipientAddressLine1,
-        recipientAddressLine2,
-        recipientAddressLine3,
+        recipientContactName: encrypt(recipientContactName),
+        recipientAddressLine1: encrypt(recipientAddressLine1),
+        recipientAddressLine2: encrypt(recipientAddressLine2),
+        recipientAddressLine3: encrypt(recipientAddressLine3),
         recipientZipCode,
         recipientCity,
         recipientState,
-        recipientPhone1,
-        recipientPhone2,
-        recipientEmail,
+        recipientPhone1: encrypt(recipientPhone1),
+        recipientPhone2: encrypt(recipientPhone2),
+        recipientEmail: encrypt(recipientEmail),
         recipientLocationType,
       },
       package: {
@@ -220,12 +233,16 @@ const Schedule = () => {
         commercialInvoiceData,
       },
     };
-    console.log(requestData); // Log the request data for debugging
+  
+    console.log(requestData); 
   
     const toastId = toast.loading("Scheduling your shipment...");
   
     try {
-      const response = await axios.post(`${api.BackendURL}/users/scheduleshipment`, requestData);
+      const response = await axios.post(
+        `${api.BackendURL}/users/scheduleshipment`,
+        requestData
+      );
       toast.success("Shipment scheduled successfully!", { id: toastId });
       console.log(response.data);
     } catch (error) {
@@ -244,25 +261,25 @@ const Schedule = () => {
     payment: false,
   });
 
-  const [activeTab, setActiveTab] = useState("package");
+  const [activeTab, setActiveTab] = useState("schedule-pickup");
   const [activeModule, setActiveModule] = useState("Schedule Shipment");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerwidth, setDrawerWidth] = useState(250);
-
   useEffect(() => {
-    const basePath = "/admin";
-    let path = "";
-  
-    if (activeModule === "My Shipment" && activeTab === "my-shipment") {
-      path = "/ShipmentList";
-    } else if (activeModule === "Schedule Shipment") {
-      path = "/Scheduleshipment";
+    if (
+      activeModule === "My Shipment" &&
+      activeTab === "my-shipment" && edit===false &&
+      !location.pathname.endsWith("/ShipmentList")
+    ) {
+      navigate("/admin/ShipmentList", { replace: true });
     }
-  
-    if (path) {
-      window.history.pushState({}, '', `${basePath}${path}`);
+    else if (activeModule === "Schedule Shipment") {
+      if (activeTab === "schedule-pickup") {
+        navigate("/admin/Scheduleshipment", { replace: true });
+      }
     }
-  }, [activeModule, activeTab]);
+  }, [activeModule, activeTab, navigate]);
+
   
 
   // Function to update the number of rows in packageData based on noOfPackages
@@ -652,7 +669,7 @@ const Schedule = () => {
   };
 
   const halfopen = () => {
-    setDrawerWidth((prevWidth) => (prevWidth === 250 ? 60 : 250));
+    setDrawerWidth((prevWidth) => (prevWidth === 250 ? 70 : 250));
   };
 
   const handleModuleClick = (module) => {
@@ -712,7 +729,7 @@ const Schedule = () => {
                 color="primary"
                 onClick={halfopen}
               >
-                {drawerwidth ===60 ? <ListIcon /> : <MoreVertIcon />}
+                {drawerwidth ===70 ? <ListIcon /> : <MoreVertIcon />}
               </IconButton>
             </DesktopToggleBtn>
 
@@ -902,9 +919,9 @@ const Schedule = () => {
         </ContentBox>)}
 
         {/* Placeholder for other modules */}
-        {activeModule === "My Shipment" && activeTab === "my-shipment" && (
-         <Myshipment />
-        )}
+        {/* {activeModule === "My Shipment" && activeTab === "my-shipment" && (
+         navigate("ShipmentList")
+        )} */}
 
         {/* {activeModule === "Billing" && (
           <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
@@ -918,7 +935,12 @@ const Schedule = () => {
             <Typography>Content for File a Claim will go here.</Typography>
           </Box>
         )} */}
+        <Routes>
+        <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit}/>} />
+        <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} /> } />
+      </Routes>
       </MainContent>
+      
     </Root>
   );
 };

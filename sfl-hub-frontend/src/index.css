@@ -1,113 +1,253 @@
-
-
-
 /* package tab styles start */
 
 .ss-box {
-    width: 100%;
-    padding: 20px 0 10px 0;
+  width: 100%;
+  padding: 20px 0 10px 0;
 }
 
 .common-table thead {
-    background: #333333;
+  background: #333333;
 }
 
 .common-table thead tr th {
-    color: #fff;
-    font-weight: 600;
+  color: #fff;
+  font-weight: 600;
 }
 
 .common-table tbody tr td {
-    padding: 16px 8px;
+  padding: 16px 8px;
 }
 
 .common-table tbody tr td:first-child {
-    padding-left: 0;
+  padding-left: 0;
 }
 
 .common-table tbody tr td:last-child {
-    padding-right: 0px;
+  padding-right: 0px;
 }
 
 .dimensions {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* MUI spacing unit 1 = 8px */
-    flex-direction: column;
-    margin-left: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* MUI spacing unit 1 = 8px */
+  flex-direction: column;
+  margin-left: 5px;
+}
+
+.action-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 16px; /* MUI spacing 2 = 16px */
+  margin-bottom: 16px;
+}
+
+
+.summary-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* MUI spacing 0.5 = 4px */
+  align-items: flex-end;
+  text-align: right;
+  width: 100%;
+}
+.invoice-action-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 16px; /* spacing 2 */
+  margin-bottom: 16px;
+}
+
+
+.add-button {
+  background-color: #777;
+  width: 100%;
+}
+
+.add-button:hover {
+  background-color: #999;
+}
+
+@media (min-width: 600px) {
+  .dimensions {
+    flex-direction: row;
   }
-  
   .action-row {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: stretch;
-    gap: 16px; /* MUI spacing 2 = 16px */
-    margin-bottom: 16px;
-  }
-  
-
-  .summary-box {
-    display: flex;
-    flex-direction: column;
-    gap: 4px; /* MUI spacing 0.5 = 4px */
-    align-items: flex-end;
-    text-align: right;
-    width: 100%;
-  }
-  .invoice-action-row {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: stretch;
-    gap: 16px; /* spacing 2 */
-    margin-bottom: 16px;
-  }
-
-  
-  .add-button {
-    background-color: #777;
-    width: 100%;
-  }
-  
-  .add-button:hover {
-    background-color: #999;
-  }
-  
-  @media (min-width: 600px) {
-    .dimensions {
       flex-direction: row;
-    }
-    .action-row {
-        flex-direction: row;
-        align-items: center;
-        gap: 0;
-      }
-      .add-button {
-        width: auto;
-      }
-      .total-value-text {
-        text-align: left;
-      }
-      .total-value-text {
-        font-weight: bold;
-        text-align: right;
-      }
-      .invoice-action-row {
-        flex-direction: row;
-        align-items: center;
-        gap: 0;
-      }
-  }
-  @media (min-width: 900px) {
-    .summary-box {
-      flex-direction: row;
-      gap: 16px; /* MUI spacing 2 = 16px */
       align-items: center;
-      text-align: left;
+      gap: 0;
+    }
+    .add-button {
       width: auto;
     }
+    .total-value-text {
+      text-align: left;
+    }
+    .total-value-text {
+      font-weight: bold;
+      text-align: right;
+    }
+    .invoice-action-row {
+      flex-direction: row;
+      align-items: center;
+      gap: 0;
+    }
+}
+@media (min-width: 900px) {
+  .summary-box {
+    flex-direction: row;
+    gap: 16px; /* MUI spacing 2 = 16px */
+    align-items: center;
+    text-align: left;
+    width: auto;
   }
-  
-  
+}
+
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.tbl-minwd {
+  min-width: 650px;
+}
+
+.bg-grey {
+  background: #f0f0f0;
+}
+
+.dimension-col {
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  display: flex;
+  gap: 16px;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  text-align: left;
+  width: auto;
+}
+
+.dim-input {
+  width: 31%;
+}
+
+.ci-table-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.footer-btns {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+}
+
+@media (max-width: 767px) {
+  .dim-input {
+      width: 100%;
+      margin-bottom: 8px;
+  }
+  .ci-table-footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+  }
+  .footer-btns {
+      flex-direction: column-reverse;
+  }
+}
+
 /* package tab styles ends */
+
+/* my shipment styles starts */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Roboto","Helvetica","Arial",sans-serif;
+}
+
+.page-wrap {
+  width: 100%;
+  padding: 15px;
+}
+
+.card {
+  background: #fff;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
+  border-radius: 6px;
+  margin-top: 30px;
+}
+
+.card-header {
+  width: 100%;
+  padding: 0 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-title {
+  width: 100%;
+  max-width: 30%;
+}
+
+.card-title h2 {
+  margin: 0;
+  color: #000;
+  font-weight: normal;
+  font-size: 1.3em;
+}
+
+.card-icon {
+  width: 62px !important;
+  height: 62px !important;
+  margin-top: -20px;
+}
+
+.card-title h2 span {
+  margin-top: 10px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.card-filter {
+  width: 100%;
+  max-width: 70%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding-top: 10px;
+}
+
+.card-body {
+  width: 100%;
+  padding: 15px;
+}
+
+.table-footer {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+/* my shipment styles ends */

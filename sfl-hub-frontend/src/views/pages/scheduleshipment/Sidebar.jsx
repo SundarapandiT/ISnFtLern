@@ -89,14 +89,14 @@ const Sidebar = ({
       <SidebarWrapper
         drawerWidth={drawerWidth}
         onMouseEnter={() => {
-          if (drawerWidth === 60) setDrawerWidth(250);
+          if (drawerWidth === 70) setDrawerWidth(250);
         }}
       >
         <LogoBox>
           <img
             src={drawerWidth === 250 ? '/sfllogo2--.png' : '/logo-icon.png'}
             alt="Logo"
-            width={drawerWidth === 250 ? 200 : 60}
+            width={drawerWidth === 250 ? 200 : 70}
             style={{ marginBottom: 10 }}
           />
         </LogoBox>

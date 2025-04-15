@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextField, Button, IconButton, InputAdornment, Box, Typography, Paper } from "@mui/material";
+import { TextField, Button, IconButton, InputAdornment, Box, Typography } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import logo from "/SFL_logo.png";
 import { toast } from "react-hot-toast";

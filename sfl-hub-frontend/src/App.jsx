@@ -8,6 +8,8 @@ import ForgotPassword from "./views/pages/ForgetPage";
 import ScheduleShipment from "./views/pages/scheduleshipment/Scheduleshipment";
 import ResetPassword from "./views/pages/ResetPassword";
 // import Myshipment from "./views/pages/myshipment/Myshipment";
+import ShipmentDashboard from "./views/pages/myshipment/Myshipment";
+import MyShipmentnew from "./views/pages/myshipment/MyShipmentNew";
 import "./App.css";
 import './index.css';
 
@@ -24,8 +26,8 @@ function App() {
         <Route path="/emailverification" element={<EmailVerification/>}/>
         <Route path="/auth/forgotpassword-page" element={<ForgotPassword/>}/>
         <Route path="/auth/ResetPassword" element={<ResetPassword/>}/>
-        <Route path="/admin/Scheduleshipment" element={<ScheduleShipment/>}/>
-        {/* <Route path="/admin/ShipmentList" element={<Myshipment/>}/> */}
+        <Route path="/admin/*" element={<ScheduleShipment/>}/>
+        {/* <Route path="/myshipmentnew" element={<MyShipmentnew />} /> */}
       </Routes>
     </Router>
   );
