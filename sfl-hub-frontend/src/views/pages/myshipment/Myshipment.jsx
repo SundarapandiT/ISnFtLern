@@ -22,7 +22,6 @@ import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import EditIcon from "@mui/icons-material/Edit";
 import { IconBox } from "../../styles/scheduleshipmentStyle";
 import { useStyles } from "../../styles/MyshipmentStyle";
-import Myshipmentnew from "./MyShipmentNew";
 
 const ShipmentDashboard = ({setEdit}) => {
   const classes = useStyles();

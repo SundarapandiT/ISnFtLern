@@ -7,9 +7,6 @@ import LoginPage from "./views/pages/LoginPage";
 import ForgotPassword from "./views/pages/ForgetPage";
 import ScheduleShipment from "./views/pages/scheduleshipment/Scheduleshipment";
 import ResetPassword from "./views/pages/ResetPassword";
-// import Myshipment from "./views/pages/myshipment/Myshipment";
-import ShipmentDashboard from "./views/pages/myshipment/Myshipment";
-import MyShipmentnew from "./views/pages/myshipment/MyShipmentNew";
 import "./App.css";
 import './index.css';
 
