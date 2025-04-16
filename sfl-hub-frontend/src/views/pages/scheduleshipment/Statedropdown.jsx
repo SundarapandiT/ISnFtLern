@@ -54,7 +54,7 @@ const StateDropdown = ({ country, setState, senderErrors, state: selectedState }
             required
           />
         )}
-        value={states.find((s) => s === selectedState) || ""}
+        value={states.find((s) => s === selectedState) || selectedState || ""} // set the selected state
       />
       {senderErrors.state && (
         <Typography color="error" variant="caption">

@@ -57,7 +57,6 @@ const Recipient = ({
   handleRecipientSubmit,
   handleRecipientPrevious,
 }) => {
-  console.log("Recipient component rendered",);
   const debounceRef = useRef(null); 
 
   useEffect(() => {
@@ -114,9 +113,13 @@ const Recipient = ({
             let city = "";
             let state = "";
 
-            components.forEach((component) => {
-              if (component.types.includes("locality")) city = component.long_name;
-              if (component.types.includes("administrative_area_level_1")) state = component.long_name;
+            components.forEach(component => {
+              if (component.types.includes('locality') || component.types.includes('postal_town')) {
+                city = component.long_name;
+              }
+              if (component.types.includes('administrative_area_level_1')) {
+                state = component.long_name;
+              }
             });
 
             console.log("Recipient data from Google API:", { city, state });

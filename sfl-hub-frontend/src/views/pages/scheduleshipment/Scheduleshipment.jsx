@@ -185,54 +185,84 @@ const Schedule = () => {
       value ? CryptoJS.AES.encrypt(value, SECRET_KEY).toString() : "";
   
     const requestData = {
-      schedulePickup: {
-        shipmentType,
-        fromCountry,
-        toCountry,
+      UserID: userId,
+      ipAddress: "",
+      TrackingNumber: null,
+      shipments: {
+        tracking_number: "",
+        shipment_type: shipmentType,
+        location_type: recipientLocationType,
+        is_pickup: needsPickup,
+        pickup_date: pickupDate,
+        package_type: packageType,
+        total_packages: noOfPackages,
+        is_pay_online: 0,
+        is_pay_bank: 0,
+        promo_code: "",
+        is_agree: "",
+        total_weight: totalWeight,
+        total_chargable_weight: totalChargableWeight,
+        total_insured_value: 0,
+        duties_paid_by: dutiesPaidBy,
+        total_declared_value: 0,
+        userName: userName,
+        ServiceName: "",
+        SubServiceName: "",
+        managed_by: managedBy,
+        ShippingID: null,
+        InvoiceDueDate: null,
       },
-      sender: {
-        country,
-        countrycode,
-        countryId,
-        companyName,
-        contactName: encrypt(contactName),
-        addressLine1: encrypt(addressLine1),
-        addressLine2: encrypt(addressLine2),
-        addressLine3: encrypt(addressLine3),
-        zipCode,
-        fromCity,
-        state,
+      MovingBackToIndia: false,
+      from_address: {
+        AddressID: null,
+        country_id: countryId,
+        country_name: fromCountry,
+        fromCountryCode: countrycode,
+        company_name: companyName,
+        contact_name: encrypt(contactName),
+        address_1: encrypt(addressLine1),
+        address_2: encrypt(addressLine2),
+        address_3: encrypt(addressLine3),
+        MovingBack: false,
+        OriginalPassportAvailable: false,
+        EligibleForTR: false,
+        city_id: "",
+        city_name: fromCity,
+        fedex_city: "",
+        state_id: "",
+        state_name: state,
+        zip_code: zipCode,
         phone1: encrypt(phone1),
         phone2: encrypt(phone2),
         email: encrypt(email),
-        needsPickup,
-        pickupDate,
       },
-      recipient: {
-        recipientCountry,
-        recipientcountrycode,
-        recipientCountryId,
-        recipientCompanyName,
-        recipientContactName: encrypt(recipientContactName),
-        recipientAddressLine1: encrypt(recipientAddressLine1),
-        recipientAddressLine2: encrypt(recipientAddressLine2),
-        recipientAddressLine3: encrypt(recipientAddressLine3),
-        recipientZipCode,
-        recipientCity,
-        recipientState,
-        recipientPhone1: encrypt(recipientPhone1),
-        recipientPhone2: encrypt(recipientPhone2),
-        recipientEmail: encrypt(recipientEmail),
-        recipientLocationType,
+      to_address: {
+        AddressID: null,
+        country_id: recipientCountryId,
+        country_name: recipientCountry,
+        toCountryCode: recipientcountrycode,
+        company_name: recipientCompanyName,
+        contact_name: encrypt(recipientContactName),
+        address_1: encrypt(recipientAddressLine1),
+        address_2: encrypt(recipientAddressLine2),
+        address_3: encrypt(recipientAddressLine3),
+        city_id: "",
+        city_name: recipientCity,
+        fedex_city: "",
+        state_id:"",
+        state_name: recipientState,
+        zip_code: recipientZipCode,
+        phone1: encrypt(recipientPhone1),
+        phone2: encrypt(recipientPhone2),
+        email: encrypt(recipientEmail),
       },
-      package: {
-        packageType,
-        noOfPackages,
-        dutiesPaidBy,
-        packageData,
-        commercialInvoiceData,
-      },
+      packages: packageData,
+      commercial: commercialInvoiceData,
+      invoiceData: [],
+      TotalCommercialvalue: totalCommercialValue,
+      TotalWeight: totalWeight,
     };
+    
   
     console.log(requestData); 
   
@@ -416,9 +446,10 @@ const Schedule = () => {
   
     if (!zipCode?.trim()) {
       newErrors.zipCode = "Zip Code is required";
-    } else if (!/^\d+$/.test(zipCode.trim())) {
-      newErrors.zipCode = "Zip Code should only contain numbers";
-    }
+    } 
+    // else if (!/^[a-zA-Z0-9\s]+$/.test(zipCode.trim())) {
+    //   newErrors.zipCode = "Zip Code should only contain numbers";
+    // }
   
     if (!fromCity?.trim()) newErrors.fromCity = "City is required";
   
@@ -471,6 +502,9 @@ const Schedule = () => {
     if (!recipientZipCode?.trim()) {
       newErrors.recipientZipCode = "Zip Code is required";
     }
+    // else if (!/^[a-zA-Z0-9\s]+$/.test(recipientZipCode.trim())) {
+    //   newErrors.zipCode = "Zip Code should only contain numbers";
+    // }
   
     if (!recipientCity?.trim()) {
       newErrors.recipientCity = "City is required";

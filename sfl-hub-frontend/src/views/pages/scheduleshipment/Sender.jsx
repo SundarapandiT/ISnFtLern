@@ -110,21 +110,29 @@ const Sender = ({
             const res = await axios.get(
               `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countrycode}|postal_code:${zipCode}`
             );
-
             const components = res.data.results?.[0]?.address_components || [];
             console.log("Google API response:", components);
-
+            
             let city = '';
             let state = '';
-
+            
+            // Loop through the components to extract city and state
             components.forEach(component => {
-              if (component.types.includes('locality')) city = component.long_name;
-              if (component.types.includes('administrative_area_level_1')) state = component.long_name;
+              if (component.types.includes('locality') || component.types.includes('postal_town')) {
+                city = component.long_name;
+              }
+              if (component.types.includes('administrative_area_level_1')) {
+                state = component.long_name;
+              }
             });
-
+            
+            // Update the state
             setFromCity(city);
             setState(state);
-            setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
+            
+            // Clear zipCode error if it's valid
+            setSenderErrors(prev => ({ ...prev, zipCode: "" }));
+            
           }
         } catch (fallbackErr) {
           console.error("All APIs failed:", fallbackErr.message);
@@ -136,11 +144,10 @@ const Sender = ({
         }
       }
     }, 500); 
+   
 
     return () => clearTimeout(debounceRef.current);
   }, [zipCode, countrycode, countryId]);
-
-  
 
 
   const today = new Date().toISOString().split("T")[0];
