@@ -388,7 +388,7 @@ const RegisterPage = () => {
               </Popover>
             )}
           </Box>
-          <Grid container spacing={isMobile ? 1 : 2}>
+          <Grid container spacing={isMobile ? 0 : 2} mb={1}>
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
