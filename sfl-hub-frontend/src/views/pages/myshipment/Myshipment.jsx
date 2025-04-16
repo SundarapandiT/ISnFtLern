@@ -289,20 +289,16 @@ const ShipmentDashboard = ({setEdit}) => {
             </Box>
           </div>
         </div>
-        <Box
-          sx={{
-            position: "fixed",
-            bottom: 10,
-            right: 10,
-            zIndex: 1000,
-            textAlign: "right",
-          }}
-        >
+        <Box className="footer-box">
           <Typography align="center" className={classes.footerTypography}>
-            All Rights Reserved. Site Powered by{" "}
-            <a href="https://sflworldwide.com/" target="_blank">
-              <span className={classes.sflLink}>SFL Worldwide</span>
-            </a>
+          All Rights Reserved. Site Powered by{" "}
+          <span
+            className={`${classes.sflLink} sfl-link`}
+            onClick={() => window.open("https://sflworldwide.com/", "_blank")}
+          >
+
+          SFL Worldwide
+          </span>
           </Typography>
         </Box>
       </div>
