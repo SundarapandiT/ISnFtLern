@@ -395,96 +395,107 @@ const Schedule = () => {
   // Validation for Sender tab
   const validateSenderForm = () => {
     const newErrors = {};
-
-    if (!country) newErrors.country = "Country name is required";
-    if (!contactName) newErrors.contactName = "Contact name is required";
-    if (!addressLine1) newErrors.addressLine1 = "Address Line 1 is required";
-    if (!/^[a-zA-Z0-9\s.,-]+$/.test(addressLine1)) {
+  
+    if (!country?.trim()) newErrors.country = "Country name is required";
+  
+    if (!contactName?.trim()) newErrors.contactName = "Contact name is required";
+  
+    if (!addressLine1?.trim()) {
+      newErrors.addressLine1 = "Address Line 1 is required";
+    } else if (!/^[a-zA-Z0-9\s.,-]+$/.test(addressLine1.trim())) {
       newErrors.addressLine1 = "Address Line 1 should not contain special characters";
     }
-    if (!addressLine2) newErrors.addressLine2 = "Address Line 2 is required";
-    else if (!/^[a-zA-Z0-9\s.,-]+$/.test(addressLine2)) {
+  
+    if (addressLine2?.trim() && !/^[a-zA-Z0-9\s.,-]+$/.test(addressLine2.trim())) {
       newErrors.addressLine2 = "Address Line 2 should not contain special characters";
     }
-    if (!addressLine3) newErrors.addressLine3 = "Address Line 3 is required";
-    else if (!/^[a-zA-Z0-9\s.,-]+$/.test(addressLine3)) {
+  
+    if (addressLine3?.trim() && !/^[a-zA-Z0-9\s.,-]+$/.test(addressLine3.trim())) {
       newErrors.addressLine3 = "Address Line 3 should not contain special characters";
     }
-    if (!zipCode) newErrors.zipCode = "Zip Code is required";
-    if (!/^\d+$/.test(zipCode)) {
+  
+    if (!zipCode?.trim()) {
+      newErrors.zipCode = "Zip Code is required";
+    } else if (!/^\d+$/.test(zipCode.trim())) {
       newErrors.zipCode = "Zip Code should only contain numbers";
     }
-    if (!fromCity) newErrors.fromCity = "City is required";
-    if (!state) newErrors.state = "State is required";
-
-    // Fixed Phone Validation
-    if (!phone1) {
+  
+    if (!fromCity?.trim()) newErrors.fromCity = "City is required";
+  
+    if (!state?.trim()) newErrors.state = "State is required";
+  
+    if (!phone1?.trim()) {
       newErrors.phone1 = "Phone 1 is required";
-    } else if (!/^\+?[1-9]\d{8,14}$/.test(phone1)) {
+    } else if (!/^\+?[1-9]\d{8,14}$/.test(phone1.trim())) {
       newErrors.phone1 = "Please enter a valid phone number";
     }
-
-    // Email Validation
-    if (!email) {
+  
+    if (!email?.trim()) {
       newErrors.email = "Email address is required";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/\S+@\S+\.\S+/.test(email.trim())) {
       newErrors.email = "Please enter a valid email address";
     }
+  
     if (needsPickup === "Yes - I Need Pickup Service" && !pickupDate) {
       newErrors.pickupDate = "Pickup Date is required";
     }
-
+  
     setSenderErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
 
   // Validation for Recipient tab
   const validateRecipientForm = () => {
     const newErrors = {};
-    if (!recipientContactName.trim()) {
+  
+    if (!recipientContactName?.trim()) {
       newErrors.contactName = "Contact Name is required";
     }
-    if (!recipientAddressLine1.trim()) {
+  
+    if (!recipientAddressLine1?.trim()) {
       newErrors.addressLine1 = "Address Line 1 is required";
-    }
-    if (!/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine1)) {
+    } else if (!/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine1.trim())) {
       newErrors.addressLine1 = "Address Line 1 should not contain special characters";
     }
-    if (!recipientAddressLine2.trim()) {
-      newErrors.addressLine2 = "Address Line 2 is required";
-    } else if (!/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine2)) {
+  
+    if (recipientAddressLine2?.trim() && !/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine2.trim())) {
       newErrors.addressLine2 = "Address Line 2 should not contain special characters";
     }
-    if (!recipientAddressLine3.trim()) {
-      newErrors.addressLine3 = "Address Line 3 is required";
-    } else if (!/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine3)) {
+  
+    if (recipientAddressLine3?.trim() && !/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine3.trim())) {
       newErrors.addressLine3 = "Address Line 3 should not contain special characters";
     }
-
-    if (!recipientZipCode.trim()) {
-      newErrors.recipientZipCode = "Zip Code is required"; 
+  
+    if (!recipientZipCode?.trim()) {
+      newErrors.recipientZipCode = "Zip Code is required";
     }
-    if (!recipientCity.trim()) {
-      newErrors.recipientCity = "City is required"; // Updated key to match Recipient.jsx
+  
+    if (!recipientCity?.trim()) {
+      newErrors.recipientCity = "City is required";
     }
-    if (!recipientState.trim()) {
+  
+    if (!recipientState?.trim()) {
       newErrors.state = "State is required";
     }
-    if (!recipientPhone1.trim()) {
+  
+    if (!recipientPhone1?.trim()) {
       newErrors.phone1 = "Phone 1 is required";
-    } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1)) {
+    } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1.trim())) {
       newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
     }
-    if (!recipientEmail.trim()) {
+  
+    if (!recipientEmail?.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(recipientEmail)) {
+    } else if (!/\S+@\S+\.\S+/.test(recipientEmail.trim())) {
       newErrors.email = "Please enter a valid email address";
     }
-
+  
     setRecipientErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
   // Validation for Package tab
   const validatePackageForm = () => {
@@ -581,7 +592,10 @@ const Schedule = () => {
         needsPickup,
         pickupDate,
       });
-      setCompletedTabs((prev) => ({ ...prev, sender: true }));
+      setCompletedTabs((prev) => ({
+         ...prev,
+         sender: true,
+         package: shipmentType !== "Ocean" }));
       setActiveTab("recipient");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
