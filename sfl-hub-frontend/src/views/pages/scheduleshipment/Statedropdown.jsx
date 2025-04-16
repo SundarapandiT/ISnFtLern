@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Autocomplete, TextField, FormControl, Typography } from "@mui/material";
-// import Allstates from '../../../data/Allstates.json';
-import {api} from "../../../utils/api";
+import { Autocomplete, TextField, FormControl } from "@mui/material";
+import { api } from "../../../utils/api";
 
 const StateDropdown = ({ country, setState, senderErrors, state: selectedState }) => {
   const [states, setStates] = useState([]);
@@ -10,21 +9,15 @@ const StateDropdown = ({ country, setState, senderErrors, state: selectedState }
 
   useEffect(() => {
     if (!country) return;
-  
+
     const fetchStates = async () => {
       try {
         setLoading(true);
-  
         const response = await axios.post(`${api.BackendURL}/locations/getstate`, {
           CountryID: country,
         });
-  
         const stateList = response.data.user?.[0] || [];
-        console.log(stateList)
-  
-        // Extract only statename
         const stateNames = stateList.map((state) => state.statename);
-  
         setStates(stateNames);
       } catch (error) {
         console.error("Failed to fetch states:", error);
@@ -33,20 +26,25 @@ const StateDropdown = ({ country, setState, senderErrors, state: selectedState }
         setLoading(false);
       }
     };
-  
+
     fetchStates();
   }, [country]);
-  
 
   return (
     <FormControl fullWidth>
       <Autocomplete
+        freeSolo
         disablePortal
         id="state-autocomplete"
         options={states}
         loading={loading}
         getOptionLabel={(option) => option}
-        onChange={(event, newValue) => setState(newValue)}
+        onChange={(event, newValue) => {
+          setState(newValue); // when selected from dropdown
+        }}
+        onInputChange={(event, newInputValue) => {
+          if (event) setState(newInputValue); // when typed manually
+        }}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -56,7 +54,7 @@ const StateDropdown = ({ country, setState, senderErrors, state: selectedState }
             required
           />
         )}
-        value={states.find((s) => s === selectedState) || null}
+        value={states.find((s) => s === selectedState) || ""}
       />
       {senderErrors.state && (
         <Typography color="error" variant="caption">

@@ -26,9 +26,9 @@ const PickupForm = ({
         <FormControl fullWidth sx={{ mb: 2 }}>
           <Autocomplete
             options={[
-              { label: "Air", value: "air" },
-              { label: "Ocean", value: "sea" },
-              { label: "Ground", value: "ground" },
+              { label: "Air", value: "Air" },
+              { label: "Ocean", value: "Ocean" },
+              { label: "Ground", value: "Ground" },
             ]}
             getOptionLabel={(option) => option.label}
             value={shipmentType ? { label: shipmentType, value: shipmentType } : null}

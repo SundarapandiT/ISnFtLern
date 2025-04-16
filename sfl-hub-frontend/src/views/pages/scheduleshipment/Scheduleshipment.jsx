@@ -257,7 +257,7 @@ const Schedule = () => {
     "schedule-pickup": false, 
     sender: false,
     recipient: false,
-    package: shipmentType !== "sea", 
+    package: shipmentType !== "Ocean", 
     payment: false,
   });
 
@@ -399,7 +399,21 @@ const Schedule = () => {
     if (!country) newErrors.country = "Country name is required";
     if (!contactName) newErrors.contactName = "Contact name is required";
     if (!addressLine1) newErrors.addressLine1 = "Address Line 1 is required";
+    if (!/^[a-zA-Z0-9\s.,-]+$/.test(addressLine1)) {
+      newErrors.addressLine1 = "Address Line 1 should not contain special characters";
+    }
+    if (!addressLine2) newErrors.addressLine2 = "Address Line 2 is required";
+    else if (!/^[a-zA-Z0-9\s.,-]+$/.test(addressLine2)) {
+      newErrors.addressLine2 = "Address Line 2 should not contain special characters";
+    }
+    if (!addressLine3) newErrors.addressLine3 = "Address Line 3 is required";
+    else if (!/^[a-zA-Z0-9\s.,-]+$/.test(addressLine3)) {
+      newErrors.addressLine3 = "Address Line 3 should not contain special characters";
+    }
     if (!zipCode) newErrors.zipCode = "Zip Code is required";
+    if (!/^\d+$/.test(zipCode)) {
+      newErrors.zipCode = "Zip Code should only contain numbers";
+    }
     if (!fromCity) newErrors.fromCity = "City is required";
     if (!state) newErrors.state = "State is required";
 
@@ -434,8 +448,22 @@ const Schedule = () => {
     if (!recipientAddressLine1.trim()) {
       newErrors.addressLine1 = "Address Line 1 is required";
     }
+    if (!/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine1)) {
+      newErrors.addressLine1 = "Address Line 1 should not contain special characters";
+    }
+    if (!recipientAddressLine2.trim()) {
+      newErrors.addressLine2 = "Address Line 2 is required";
+    } else if (!/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine2)) {
+      newErrors.addressLine2 = "Address Line 2 should not contain special characters";
+    }
+    if (!recipientAddressLine3.trim()) {
+      newErrors.addressLine3 = "Address Line 3 is required";
+    } else if (!/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine3)) {
+      newErrors.addressLine3 = "Address Line 3 should not contain special characters";
+    }
+
     if (!recipientZipCode.trim()) {
-      newErrors.recipientZipCode = "Zip Code is required"; // Updated key to match Recipient.jsx
+      newErrors.recipientZipCode = "Zip Code is required"; 
     }
     if (!recipientCity.trim()) {
       newErrors.recipientCity = "City is required"; // Updated key to match Recipient.jsx
@@ -526,7 +554,7 @@ const Schedule = () => {
       setCompletedTabs((prev) => ({
         ...prev,
         "schedule-pickup": true,
-        package: shipmentType !== "sea",
+        package: shipmentType !== "Ocean",
       }));
       setActiveTab("sender");
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -583,7 +611,7 @@ const Schedule = () => {
         console.log("Updated completedTabs:", updatedTabs);
         return updatedTabs;
       });
-      const nextTab = shipmentType === "sea" ? "payment" : "package";
+      const nextTab = shipmentType === "Ocean" ? "payment" : "package";
       // console.log("Navigating to:", nextTab);
       setActiveTab(nextTab);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -608,7 +636,7 @@ const Schedule = () => {
   // Handle tab change with validation
   const handleTabChange = (newTab) => {
     const tabOrder =
-      shipmentType === "sea"
+      shipmentType === "Ocean"
         ? ["schedule-pickup", "sender", "recipient", "payment"]
         : ["schedule-pickup", "sender", "recipient", "package", "payment"];
     const currentIndex = tabOrder.indexOf(activeTab);
@@ -681,7 +709,7 @@ const Schedule = () => {
         "schedule-pickup": false,
         sender: false,
         recipient: false,
-        package: shipmentType !== "sea",
+        package: shipmentType !== "Ocean",
         payment: false,
       });
     } else if (module === "My Shipment") {
@@ -886,8 +914,8 @@ const Schedule = () => {
               }}
             />
           )}
-          {/* Package Tab - Only render if shipmentType is not "sea" */}
-          {activeModule === "Schedule Shipment" && activeTab === "package" && shipmentType !== "sea" && (
+          {/* Package Tab - Only render if shipmentType is not "Ocean" */}
+          {activeModule === "Schedule Shipment" && activeTab === "package" && shipmentType !== "Ocean" && (
             <Package
               packageData={packageData}
               handlePackageChange={handlePackageChange}

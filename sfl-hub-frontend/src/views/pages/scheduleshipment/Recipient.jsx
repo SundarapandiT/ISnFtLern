@@ -57,6 +57,7 @@ const Recipient = ({
   handleRecipientSubmit,
   handleRecipientPrevious,
 }) => {
+  console.log("Recipient component rendered",);
   const debounceRef = useRef(null); 
 
   useEffect(() => {

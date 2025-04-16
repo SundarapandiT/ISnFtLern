@@ -5,7 +5,7 @@ import { StyledTabs, StyledTab, AnimatedIndicator } from '../../styles/StyledTab
 const SectionTabs = ({ activeTab, setActiveTab, isMobile, completedTabs, shipmentType }) => {
   // Define tabs dynamically based on shipmentType
   const tabLabels =
-    shipmentType === "sea"
+    shipmentType === "Ocean"
       ? ["Schedule Pickup", "Sender", "Recipient"]
       : ["Schedule Pickup", "Sender", "Recipient", "Package"];
   const tabValues = tabLabels.map((label) => label.toLowerCase().replace(" ", "-"));
