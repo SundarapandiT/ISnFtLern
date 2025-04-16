@@ -269,7 +269,7 @@ const Recipient = ({
           {/* Phone 1 */}
           <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
-              country={'in'}
+              country={recipientcountrycode}
               value={recipientPhone1}
               onChange={(phone) => setRecipientPhone1(phone)}
               inputStyle={{
@@ -293,7 +293,7 @@ const Recipient = ({
           {/* Phone 2 */}
           <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
-              country={'in'}
+              country={recipientcountrycode}
               value={recipientPhone2}
               onChange={(phone) => setRecipientPhone2(phone)}
               inputStyle={{

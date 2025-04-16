@@ -58,7 +58,7 @@ const LoginPage = () => {
   
       // Send the encrypted data to the backend without wrapping it in "data"
       const res = await axios.post(`${api.BackendURL}/users/UserLogin`, encryptedData);
-  
+      
       toast.dismiss(loadingToastId);
   
       // Check if the login was successful
@@ -74,7 +74,8 @@ const LoginPage = () => {
           phone: decryptedPhone,
           username: decryptedUsername,
         }));
-  
+        console.log(res.data?.LKA);
+     
         toast.success("Login successful!", { position: "top-right", autoClose: 3000 });
         navigate("/admin/Scheduleshipment", { replace: true });
       } else {

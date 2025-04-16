@@ -275,6 +275,7 @@ const Schedule = () => {
     }
     else if (activeModule === "Schedule Shipment") {
       if (activeTab === "schedule-pickup") {
+        setEdit(false);
         navigate("/admin/Scheduleshipment", { replace: true });
       }
     }
@@ -700,7 +701,7 @@ const Schedule = () => {
     setRecipientCountry(toCountryObj ? toCountryObj.label : "");
     setRecipientCountryId(toCountryObj ? toCountryObj.countryid : "");
     setrecipientcountrycode(toCountryObj ? toCountryObj.value.toLowerCase() : "");
-  }, [fromCountry, toCountry]);
+  }, [fromCountry, toCountry,countrycode,countryId,recipientCountryId,recipientcountrycode]);
 
   return (
     <Root>

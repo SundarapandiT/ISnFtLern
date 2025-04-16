@@ -224,7 +224,7 @@ const RegisterPage = () => {
       const response = await axios.post(`${api.BackendURL}/users/EmailVerifyOtp`, {
         email: registerDetails.email,
       });
-      const userMessage = response.data?.user?.message;
+      const userMessage = response.data?.message;
       if (userMessage === 'Email is already verified, no need to generate OTP.') {
         toast.error("Already registered with this email. Please login..", {
           position: "top-right",
