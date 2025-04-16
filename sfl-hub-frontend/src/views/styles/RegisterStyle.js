@@ -98,9 +98,10 @@ export const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
   },
   toggleVisibilityIcon: {
-    fontSize: 18,
+    fontSize: "small"
   },
   iconButton: {
-    padding: "5px",
+    padding: "1px",
+    width: "10px",
   },
 }));

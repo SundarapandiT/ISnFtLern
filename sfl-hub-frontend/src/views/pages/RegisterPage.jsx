@@ -5,7 +5,9 @@ import axios from "axios";
 import { api } from "../../utils/api";
 import { isEmpty } from "../../utils/constant";
 import { Box, Paper, TextField, Button, Typography, Link, InputAdornment, Grid, Popover, useMediaQuery, IconButton } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+// import { Visibility, VisibilityOff } from "@mui/icons-material";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { PersonOutline as FaUser, LockOutlined as FaLock } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
@@ -20,6 +22,7 @@ const RegisterPage = () => {
   const [activeField, setActiveField] = useState("");
   const isMobile = useMediaQuery("(max-width:600px)");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { registerDetails, setRegisterDetails } = useRegister();
   const navigate = useNavigate();
   const classes = useStyles({ isMobile });
@@ -126,7 +129,15 @@ const RegisterPage = () => {
         } else if (value.trim() !== value) {
           errors.fullnameErr = true;
           errors.fullnameHelperText = "Please enter valid Full Name";
-        } else {
+        }else if (value.length < 3) {
+            errors.fullnameErr = true;
+            errors.fullnameHelperText = "Full Name must be at least 3 characters long";
+          }
+          else if(!/^[a-zA-Z\s]+$/.test(value)) {
+            errors.fullnameErr = true;
+            errors.fullnameHelperText = "Full Name must contain only letters";
+          }
+         else {
           errors.fullname = value;
           errors.fullnameErr = false;
           errors.fullnameHelperText = "";
@@ -428,14 +439,15 @@ const RegisterPage = () => {
                         className={classes.iconButton}
                       >
                         {showPassword ? (
-                          <VisibilityOff className={classes.toggleVisibilityIcon} />
+                          <VisibilityOffIcon className={classes.toggleVisibilityIcon} />
                         ) : (
-                          <Visibility className={classes.toggleVisibilityIcon} />
+                          <VisibilityIcon className={classes.toggleVisibilityIcon} />
                         )}
                       </IconButton>
                     </InputAdornment>
                   ),
                 }}
+                
               />
               {activeField === "password" && (
                 <Popover
@@ -495,7 +507,7 @@ const RegisterPage = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                type={showPassword ? "text" : "password"}
+                type={showConfirmPassword ? "text" : "password"}
                 name="confirmpassword"
                 label="Confirm Password"
                 variant="outlined"
@@ -525,13 +537,13 @@ const RegisterPage = () => {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        onClick={() => setShowPassword((prev) => !prev)}
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
                         className={classes.iconButton}
                       >
-                        {showPassword ? (
-                          <VisibilityOff className={classes.toggleVisibilityIcon} />
+                        {showConfirmPassword ? (
+                          <VisibilityOffIcon className={classes.toggleVisibilityIcon} />
                         ) : (
-                          <Visibility className={classes.toggleVisibilityIcon} />
+                          <VisibilityIcon className={classes.toggleVisibilityIcon} />
                         )}
                       </IconButton>
                     </InputAdornment>
