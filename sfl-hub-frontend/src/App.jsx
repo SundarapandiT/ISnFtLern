@@ -10,6 +10,7 @@ import ResetPassword from "./views/pages/ResetPassword";
 // import Cookies from "js-cookie";
 import "./App.css";
 import "./index.css";
+// import ScheduleConfirmation from "./views/pages/scheduleconfirmation/ScheduleConfirmation";
 
 // ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
@@ -31,6 +32,7 @@ function App() {
         <Route path="/emailverification" element={<EmailVerification />} />
         <Route path="/auth/forgotpassword-page" element={<ForgotPassword />} />
         <Route path="/auth/ResetPassword" element={<ResetPassword />} />
+        {/* <Route path="/scheduleconfirmation" element={<ScheduleConfirmation />} /> */}
 
         {/*  Protected route (only accessible if user exists) */}
         <Route

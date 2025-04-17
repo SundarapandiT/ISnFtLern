@@ -46,12 +46,14 @@ import {
   } from '../../styles/scheduleshipmentStyle';
 import Myshipmentnew from "../myshipment/MyShipmentNew";
 import CryptoJS from "crypto-js";
+import ScheduleConfirmation from "../scheduleconfirmation/ScheduleConfirmation";
 
 
 const Schedule = () => {
 
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
+  const [confirmation,setConfirmation]=useState(false);
   const classes = useStyles();
 
   const [countries, setCountries] = useState([]);
@@ -184,6 +186,7 @@ const Schedule = () => {
   const [packageErrors, setPackageErrors] = useState({});
 
   const handleSubmit = async () => {
+    console.log("Submitting data...");
     const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
     if (!SECRET_KEY) {
       throw new Error("Encryption key is missing!");
@@ -213,7 +216,7 @@ const Schedule = () => {
         total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargeableWeight || 0), 0).toFixed(2),
         total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insuredValue || 0), 0).toFixed(2),
         duties_paid_by: dutiesPaidBy,
-        total_declared_value: commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2),
+        total_declared_value:commercialInvoiceData? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2):"",
         userName: userName,
         ServiceName: "",
         SubServiceName: "",
@@ -266,9 +269,9 @@ const Schedule = () => {
         email: encrypt(recipientEmail),
       },
       packages: packageData,
-      commercial: commercialInvoiceData,
+      commercial: commercialInvoiceData?commercialInvoiceData:[],
       invoiceData: [],
-      TotalCommercialvalue: commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2),
+      TotalCommercialvalue:commercialInvoiceData? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2):"",
       TotalWeight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
     };
     
@@ -283,10 +286,14 @@ const Schedule = () => {
         requestData
       );
       toast.success("Shipment scheduled successfully!", { id: toastId });
+      setConfirmation(true);
+      navigate("/admin/ScheduleConfirmation", { replace: true });
       console.log(response.data);
     } catch (error) {
       toast.error("Failed to schedule shipment. Please try again.", { id: toastId });
       console.error(error);
+      // setConfirmation(true)
+      // navigate("/admin/ScheduleConfirmation", { replace: true });
     }
   };
   
@@ -542,20 +549,23 @@ const Schedule = () => {
 
   // Validation for Package tab
   const validatePackageForm = () => {
+    console.log("starting to validate")
     const newErrors = {};
-
+  
+    // Main form validations
     if (!packageType) {
       newErrors.packageType = "Package Type is required";
     }
-
+  
     if (!noOfPackages || noOfPackages < 1) {
       newErrors.noOfPackages = "Number of packages must be at least 1";
     }
-
+  
     if (!dutiesPaidBy) {
       newErrors.dutiesPaidBy = "Duties & Taxes Paid By is required";
     }
-
+  
+    // Package data validation
     packageData.forEach((pkg, index) => {
       if (!pkg.noOfPackages || pkg.noOfPackages <= 0) {
         newErrors[`noOfPackages_${index}`] = "Number of packages is required and must be greater than 0";
@@ -572,30 +582,42 @@ const Schedule = () => {
       if (!pkg.height || pkg.height <= 0) {
         newErrors[`height_${index}`] = "Height is required and must be greater than 0";
       }
-      if (!pkg.insuredValue || pkg.insuredValue < 0) {
+      if (pkg.insuredValue === undefined || pkg.insuredValue < 0) {
         newErrors[`insuredValue_${index}`] = "Insured value is required and must be 0 or greater";
       }
     });
-
-    commercialInvoiceData.forEach((invoice, index) => {
-      if (!invoice.packageNumber) {
-        newErrors[`packageNumber_${index}`] = "Package number is required";
-      }
-      if (!invoice.contentDescription) {
-        newErrors[`contentDescription_${index}`] = "Content description is required";
-      }
-      if (!invoice.quantity || invoice.quantity <= 0) {
-        newErrors[`quantity_${index}`] = "Quantity is required and must be greater than 0";
-      }
-      if (!invoice.valuePerQty || invoice.valuePerQty <= 0) {
-        newErrors[`valuePerQty_${index}`] = "Value per quantity is required and must be greater than 0";
-      }
-    });
-
+  
+    // ✅ Validate commercialInvoiceData only if any field in the invoice is filled
+    if (samecountry === false && Array.isArray(commercialInvoiceData)) {
+      commercialInvoiceData.forEach((invoice, index) => {
+        const hasAnyField =
+          invoice.packageNumber ||
+          invoice.contentDescription ||
+          invoice.quantity ||
+          invoice.valuePerQty;
+    
+        if (hasAnyField) {
+          if (!invoice.packageNumber) {
+            newErrors[`packageNumber_${index}`] = "Package number is required";
+          }
+          if (!invoice.contentDescription) {
+            newErrors[`contentDescription_${index}`] = "Content description is required";
+          }
+          if (!invoice.quantity || invoice.quantity <= 0) {
+            newErrors[`quantity_${index}`] = "Quantity is required and must be greater than 0";
+          }
+          if (!invoice.valuePerQty || invoice.valuePerQty <= 0) {
+            newErrors[`valuePerQty_${index}`] = "Value per quantity is required and must be greater than 0";
+          }
+        }
+      });
+    }
+    
+  
     setPackageErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  
   // Handle form submission for Schedule Pickup tab
   const handlePickupSubmit = (e) => {
     e.preventDefault();
@@ -686,7 +708,8 @@ const Schedule = () => {
       // setActiveTab("payment");
       window.scrollTo({ top: 0, behavior: "smooth" });
       handleSubmit(); 
-      // navigate("/admin/Myshipment")
+      // navigate("/admin/ScheduleConfirmation", { replace: true });
+
     }
   };
 
@@ -761,6 +784,7 @@ const Schedule = () => {
   const handleModuleClick = (module) => {
     setActiveModule(module);
     if (module === "Schedule Shipment") {
+      setConfirmation(false);
       setActiveTab("schedule-pickup");
       setCompletedTabs({
         "schedule-pickup": false,
@@ -862,7 +886,7 @@ const Schedule = () => {
             </Menu>
           </AppBarBox>
         </AppBar>
-        {activeModule === "Schedule Shipment" && (
+        {activeModule === "Schedule Shipment" && !confirmation && (
         <ContentBox >
         
           <Typography variant="h5" sx={{ mb: 3 }}>
@@ -1028,6 +1052,7 @@ const Schedule = () => {
         <Routes>
         <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit}/>} />
         <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} /> } />
+        <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
       </Routes>
       </MainContent>
       

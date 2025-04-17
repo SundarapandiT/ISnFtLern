@@ -59,14 +59,16 @@ const Package = ({
       0
     );
 
-    if (!samecountry) {
+    if (samecountry===false) {
       const isNextEnabled = totalInsuredValue <= totalDeclaredValue && totalInsuredValue > 0;
       if (isNextEnabled) {
+        console.log("different country")
         handlePackageSubmit();
       } else {
         toast.error("Insured value should be less than or equal to Total declared value and greater than zero.");
       }
     } else {
+      console.log("same country")
       handlePackageSubmit();
     }
 
