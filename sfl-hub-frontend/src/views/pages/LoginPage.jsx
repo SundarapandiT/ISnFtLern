@@ -87,7 +87,7 @@ const LoginPage = () => {
   
       toast.dismiss(loadingToastId);
   
-      toast.error(error.response?.data?.message || error.message || "Something went wrong", {
+      toast.error(error.response?.data?.error || error.message || "Something went wrong", {
         position: "top-right",
         autoClose: 3000,
       });
