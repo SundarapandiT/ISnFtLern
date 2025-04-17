@@ -48,6 +48,7 @@ const EmailVerification = () => {
     }
   };
 
+
   const validateOtp = async (enteredOtp) => {
     const loadingToast = toast.loading("Verifying OTP...");
     try {
@@ -79,7 +80,6 @@ const EmailVerification = () => {
             Phone: encrypt(registerDetails.mobile),
             Email: encrypt(registerDetails.email),
           };
-        
           const res = await axios.post(`${api.BackendURL}/users/UserRegisteration`, {
             data: encryptedData,
           });
@@ -88,6 +88,7 @@ const EmailVerification = () => {
         
           if (res.status === 200 && res.data.user?.message === "User Registration Successfully") {
             toast.success("Registered successfully!");
+            
             navigate("/auth/login-page");
           } else {
             toast.error(res.data.user?.message || "Registration failed");

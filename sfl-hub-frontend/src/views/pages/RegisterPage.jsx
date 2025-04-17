@@ -262,12 +262,36 @@ const RegisterPage = () => {
       toast.dismiss(loadingToast);
     }
   };
+  const SendtoOldDatabase = async () => {
+    console.log("Sending OTP to old database...");
+    try {
+      const response = await axios.post(`${api.OldDatabaseURL}/authentication/userRegister`, {
+        Email: registerDetails.email,
+        Password: registerDetails.password,
+        Phone: registerDetails.mobile,
+        Name: registerDetails.fullname,
+        UserName: registerDetails.username,
+        Phone2:"",
+        "UserDetails":{"AccountNumber":"","ManagedBy":"","CompanyName":"","AddressLine1":"","AddressLine2":"","AddressLine3":"","ZipCode":"","City":"","State":"","ContactName":"","CountryID":"","UserDetailID":null}
+  
+      });
+      if (response.status === 200 || response.data.success===true) {
+        console.log("old database: ",response.data.success);
+        console.log(response.data);}
+      else {  
+        throw new Error("Failed to register user in old database".response.data);
+      }
+    } catch (error) {
+      console.error("Error sending data to old database:", error);
+    }
+  }
 
   const signUp = async (event) => {
     event.preventDefault();
     if (!validate()) return;
     const otpResult = await sendMail();
     if (otpResult.success && !otpResult.verified) {
+      SendtoOldDatabase();
       navigate("/emailverification");
       return;
     }
