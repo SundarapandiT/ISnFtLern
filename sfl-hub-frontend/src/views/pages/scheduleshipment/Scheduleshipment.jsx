@@ -45,6 +45,7 @@ import {
   UsernameButton,
   } from '../../styles/scheduleshipmentStyle';
 import Myshipmentnew from "../myshipment/MyShipmentNew";
+import CryptoJS from "crypto-js";
 
 
 const Schedule = () => {
@@ -97,6 +98,8 @@ const Schedule = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [Loginname, setLoginname] = useState("Unknown")
+  const [userId, setUserId] = useState("");
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
     const storedUser = JSON.parse(sessionStorage.getItem("user"));
@@ -105,6 +108,8 @@ const Schedule = () => {
       setContactName(storedUser.name);
       setEmail(storedUser.email);
       setPhone1(storedUser.phone);
+      setUserId(storedUser.userId?storedUser.userId:"12345")
+      setUserName(storedUser.username);
     }
   }, []);
 
@@ -115,6 +120,7 @@ const Schedule = () => {
   const [pickupErrors, setPickupErrors] = useState({});
 
   // State for Sender tab
+
   const [country, setCountry] = useState("");
   const [countrycode, setcountrycode] = useState("");
   const [countryId, setCountryId] = useState("");
@@ -166,6 +172,7 @@ const Schedule = () => {
       insuredValue: 0,
     }))
   );
+  const [samecountry, setSamecountry] = useState(false);
   const [commercialInvoiceData, setCommercialInvoiceData] = useState([
     {
       packageNumber: "1",
@@ -202,15 +209,15 @@ const Schedule = () => {
         is_pay_bank: 0,
         promo_code: "",
         is_agree: "",
-        total_weight: totalWeight,
-        total_chargable_weight: totalChargableWeight,
-        total_insured_value: 0,
+        total_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
+        total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargeableWeight || 0), 0).toFixed(2),
+        total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insuredValue || 0), 0).toFixed(2),
         duties_paid_by: dutiesPaidBy,
-        total_declared_value: 0,
+        total_declared_value: commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2),
         userName: userName,
         ServiceName: "",
         SubServiceName: "",
-        managed_by: managedBy,
+        managed_by: "",
         ShippingID: null,
         InvoiceDueDate: null,
       },
@@ -261,8 +268,8 @@ const Schedule = () => {
       packages: packageData,
       commercial: commercialInvoiceData,
       invoiceData: [],
-      TotalCommercialvalue: totalCommercialValue,
-      TotalWeight: totalWeight,
+      TotalCommercialvalue: commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2),
+      TotalWeight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
     };
     
   
@@ -293,7 +300,7 @@ const Schedule = () => {
     payment: false,
   });
 
-  const [activeTab, setActiveTab] = useState("schedule-pickup");
+  const [activeTab, setActiveTab] = useState("schedule-pickup"); // Default active tab
   const [activeModule, setActiveModule] = useState("Schedule Shipment");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerwidth, setDrawerWidth] = useState(250);
@@ -779,6 +786,9 @@ const Schedule = () => {
     setRecipientCountry(toCountryObj ? toCountryObj.label : "");
     setRecipientCountryId(toCountryObj ? toCountryObj.countryid : "");
     setrecipientcountrycode(toCountryObj ? toCountryObj.value.toLowerCase() : "");
+
+    setSamecountry(fromCountryObj && toCountryObj && fromCountryObj.value === toCountryObj.value);
+
   }, [fromCountry, toCountry,countrycode,countryId,recipientCountryId,recipientcountrycode]);
 
   return (
@@ -986,6 +996,7 @@ const Schedule = () => {
               dutiesPaidBy={dutiesPaidBy}
               setDutiesPaidBy={setDutiesPaidBy}
               updatePackageRows={updatePackageRows}
+              samecountry={samecountry}
             />
           )}
 

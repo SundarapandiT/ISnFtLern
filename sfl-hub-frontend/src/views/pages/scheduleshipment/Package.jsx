@@ -46,26 +46,31 @@ const Package = ({
   dutiesPaidBy,
   setDutiesPaidBy,
   updatePackageRows,
+  samecountry,
 }) => {
 
   function handleNext(e) {
     const totalInsuredValue = packageData.reduce(
-        (sum, pkg) => sum + Number(pkg.insuredValue || 0),
-        0
+      (sum, pkg) => sum + Number(pkg.insuredValue || 0),
+      0
     );
     const totalDeclaredValue = commercialInvoiceData.reduce(
-        (sum, _, index) => sum + Number(calculateTotalValue(index) || 0),
-        0
+      (sum, _, index) => sum + Number(calculateTotalValue(index) || 0),
+      0
     );
 
-    const isNextEnabled = totalInsuredValue <= totalDeclaredValue && totalInsuredValue > 0;
-
-    if (isNextEnabled) {
+    if (!samecountry) {
+      const isNextEnabled = totalInsuredValue <= totalDeclaredValue && totalInsuredValue > 0;
+      if (isNextEnabled) {
         handlePackageSubmit();
-    } else {
+      } else {
         toast.error("Insured value should be less than or equal to Total declared value and greater than zero.");
+      }
+    } else {
+      handlePackageSubmit();
     }
-}
+
+  }
 
 
   return (
@@ -306,146 +311,146 @@ const Package = ({
           </Box>
         </Box>
 
-      <Box sx={{display:""}}> 
-        {/* Commercial Invoice Section */}
-        <Typography variant="h6" sx={{ mt: 4, mb: 1 }}> {/* Increased top margin */}
-          Commercial Invoice
-        </Typography>
-        {/* Added Box for horizontal scroll on small screens */}
-        <Box sx={{ overflowX: 'auto', mb: 2 }}>
-          <TableContainer component={Paper} sx={{ minWidth: 650 }}> {/* Set minWidth for TableContainer */}
-            <Table className="common-table">
-              <TableHead>
-                <TableRow sx={{ bgcolor: "#333" }}>
-                  {/* Added minWidth and responsive padding to header cells */}
-                  <TableCell sx={{ width: 100 }}>Pkg No</TableCell>
-                  <TableCell sx={{ width: 889 }}>Content Description*</TableCell>
-                  <TableCell sx={{ minWidth: 100 }}>Quantity*</TableCell>
-                  <TableCell sx={{ minWidth: 150 }}>Value/Qty (USD)*</TableCell>
-                  <TableCell sx={{ minWidth: 150 }}>Total Value (USD)</TableCell>
-                  {commercialInvoiceData.length > 1 && <TableCell></TableCell>}{/*For Delete Icon*/}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {commercialInvoiceData.map((invoice, index) => (
-                  <TableRow key={index}>
-                    {/* Added responsive padding */}
-                    <TableCell sx={{}}>
-                      <FormControl fullWidth variant="outlined" size="small">
-                        {/* Removed explicit InputLabel for cleaner table look */}
-                        <Select
-                          name="packageNumber"
-                          value={invoice.packageNumber || ""}
-                          onChange={(e) => handleInvoiceChange(index, e)}
-                          displayEmpty // Allows placeholder/empty display
-                          error={!!packageErrors[`packageNumber_${index}`]}
-                        >
-                          {/* Generate options based on the actual number of packages */}
-                          {[...Array(packageData.length).keys()].map((_, i) => (
-                            <MenuItem key={i + 1} value={String(i + 1)}>
-                              {i + 1}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        {packageErrors[`packageNumber_${index}`] && (
-                          <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
-                            {packageErrors[`packageNumber_${index}`]}
-                          </Typography>
-                        )}
-                      </FormControl>
-                    </TableCell>
-                    <TableCell sx={{}}>
-                      <TextField
-                        name="contentDescription"
-                        value={invoice.contentDescription || ""}
-                        onChange={(e) => handleInvoiceChange(index, e)}
-                        fullWidth
-                        variant="outlined"
-                        size="small"
-                        error={!!packageErrors[`contentDescription_${index}`]}
-                        helperText={packageErrors[`contentDescription_${index}`]}
-                      />
-                    </TableCell>
-                    <TableCell sx={{}}>
-                      <TextField
-                        name="quantity"
-                        type="number"
-                        value={invoice.quantity || ""}
-                        onChange={(e) => handleInvoiceChange(index, e)}
-                        fullWidth
-                        variant="outlined"
-                        size="small"
-                        error={!!packageErrors[`quantity_${index}`]}
-                        helperText={packageErrors[`quantity_${index}`]}
-                      />
-                    </TableCell>
-                    <TableCell sx={{}}>
-                      <TextField
-                        name="valuePerQty"
-                        type="number"
-                        value={invoice.valuePerQty || ""}
-                        onChange={(e) => handleInvoiceChange(index, e)}
-                        fullWidth
-                        variant="outlined"
-                        size="small"
-                        InputProps={{
-                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                        }}
-                        error={!!packageErrors[`valuePerQty_${index}`]}
-                        helperText={packageErrors[`valuePerQty_${index}`]}
-                      />
-                    </TableCell>
-                    <TableCell sx={{}}>
-                      <TextField
-                        value={calculateTotalValue(index) || "0.00"} // Ensure calculateTotalValue handles NaN/null
-                        fullWidth
-                        variant="outlined"
-                        size="small"
-                        InputProps={{
-                          readOnly: true,
-                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                        }}
-                        sx={{ backgroundColor: '#f0f0f0' }} // Indicate read-only visually
-                      />
-                    </TableCell>
-                    <TableCell sx={{}}>
-                      {commercialInvoiceData.length > 1 && (
-                        <IconButton
-                          onClick={() => handleRemoveInvoiceRow(index)}
-                          sx={{ color: "gray" }}
-                          aria-label="delete invoice row"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
-
-        {/* Responsive Box for Add button and total value */}
-        <Box className="invoice-action-row">
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleAddInvoiceRow}
-            className="add-button"
-            
-          >
-            ADD NEW ROW
-          </Button>
-
-          <Typography variant="body1" className="total-value-text">
-            Total Declared Value: $
-            {commercialInvoiceData
-              .reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0)
-              .toFixed(2)}
+        <Box sx={{ display: samecountry ? "none" : "block" }}>
+          {/* Commercial Invoice Section */}
+          <Typography variant="h6" sx={{ mt: 4, mb: 1 }}> {/* Increased top margin */}
+            Commercial Invoice
           </Typography>
+          {/* Added Box for horizontal scroll on small screens */}
+          <Box sx={{ overflowX: 'auto', mb: 2 }}>
+            <TableContainer component={Paper} sx={{ minWidth: 650 }}> {/* Set minWidth for TableContainer */}
+              <Table className="common-table">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: "#333" }}>
+                    {/* Added minWidth and responsive padding to header cells */}
+                    <TableCell sx={{ width: 100 }}>Pkg No</TableCell>
+                    <TableCell sx={{ width: 889 }}>Content Description*</TableCell>
+                    <TableCell sx={{ minWidth: 100 }}>Quantity*</TableCell>
+                    <TableCell sx={{ minWidth: 150 }}>Value/Qty (USD)*</TableCell>
+                    <TableCell sx={{ minWidth: 150 }}>Total Value (USD)</TableCell>
+                    {commercialInvoiceData.length > 1 && <TableCell></TableCell>}{/*For Delete Icon*/}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {commercialInvoiceData.map((invoice, index) => (
+                    <TableRow key={index}>
+                      {/* Added responsive padding */}
+                      <TableCell sx={{}}>
+                        <FormControl fullWidth variant="outlined" size="small">
+                          {/* Removed explicit InputLabel for cleaner table look */}
+                          <Select
+                            name="packageNumber"
+                            value={invoice.packageNumber || ""}
+                            onChange={(e) => handleInvoiceChange(index, e)}
+                            displayEmpty // Allows placeholder/empty display
+                            error={!!packageErrors[`packageNumber_${index}`]}
+                          >
+                            {/* Generate options based on the actual number of packages */}
+                            {[...Array(packageData.length).keys()].map((_, i) => (
+                              <MenuItem key={i + 1} value={String(i + 1)}>
+                                {i + 1}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {packageErrors[`packageNumber_${index}`] && (
+                            <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
+                              {packageErrors[`packageNumber_${index}`]}
+                            </Typography>
+                          )}
+                        </FormControl>
+                      </TableCell>
+                      <TableCell sx={{}}>
+                        <TextField
+                          name="contentDescription"
+                          value={invoice.contentDescription || ""}
+                          onChange={(e) => handleInvoiceChange(index, e)}
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          error={!!packageErrors[`contentDescription_${index}`]}
+                          helperText={packageErrors[`contentDescription_${index}`]}
+                        />
+                      </TableCell>
+                      <TableCell sx={{}}>
+                        <TextField
+                          name="quantity"
+                          type="number"
+                          value={invoice.quantity || ""}
+                          onChange={(e) => handleInvoiceChange(index, e)}
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          error={!!packageErrors[`quantity_${index}`]}
+                          helperText={packageErrors[`quantity_${index}`]}
+                        />
+                      </TableCell>
+                      <TableCell sx={{}}>
+                        <TextField
+                          name="valuePerQty"
+                          type="number"
+                          value={invoice.valuePerQty || ""}
+                          onChange={(e) => handleInvoiceChange(index, e)}
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          }}
+                          error={!!packageErrors[`valuePerQty_${index}`]}
+                          helperText={packageErrors[`valuePerQty_${index}`]}
+                        />
+                      </TableCell>
+                      <TableCell sx={{}}>
+                        <TextField
+                          value={calculateTotalValue(index) || "0.00"} // Ensure calculateTotalValue handles NaN/null
+                          fullWidth
+                          variant="outlined"
+                          size="small"
+                          InputProps={{
+                            readOnly: true,
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          }}
+                          sx={{ backgroundColor: '#f0f0f0' }} // Indicate read-only visually
+                        />
+                      </TableCell>
+                      <TableCell sx={{}}>
+                        {commercialInvoiceData.length > 1 && (
+                          <IconButton
+                            onClick={() => handleRemoveInvoiceRow(index)}
+                            sx={{ color: "gray" }}
+                            aria-label="delete invoice row"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+
+          {/* Responsive Box for Add button and total value */}
+          <Box className="invoice-action-row">
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleAddInvoiceRow}
+              className="add-button"
+
+            >
+              ADD NEW ROW
+            </Button>
+
+            <Typography variant="body1" className="total-value-text">
+              Total Declared Value: $
+              {commercialInvoiceData
+                .reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0)
+                .toFixed(2)}
+            </Typography>
+          </Box>
         </Box>
-      </Box>
 
         {/* Navigation Buttons - Already responsive */}
         <ButtonBox>
