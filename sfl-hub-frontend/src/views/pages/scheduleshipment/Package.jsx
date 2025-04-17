@@ -306,7 +306,7 @@ const Package = ({
           </Box>
         </Box>
 
-
+      <Box sx={{display:""}}> 
         {/* Commercial Invoice Section */}
         <Typography variant="h6" sx={{ mt: 4, mb: 1 }}> {/* Increased top margin */}
           Commercial Invoice
@@ -445,6 +445,7 @@ const Package = ({
               .toFixed(2)}
           </Typography>
         </Box>
+      </Box>
 
         {/* Navigation Buttons - Already responsive */}
         <ButtonBox>

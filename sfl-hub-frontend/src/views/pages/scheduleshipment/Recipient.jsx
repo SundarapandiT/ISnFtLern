@@ -4,6 +4,7 @@ import StateDropdown from "./Statedropdown";
 import {
   Box,
   TextField,
+  Typography,
   FormControl,
   InputLabel,
   Select,
@@ -20,7 +21,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { api } from "../../../utils/api";
 
-import { PhoneInputStyle,PrevButton,NextButton,ButtonBox } from "../../styles/scheduleshipmentStyle"
+import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle"
 
 
 const Recipient = ({
@@ -57,7 +58,7 @@ const Recipient = ({
   handleRecipientSubmit,
   handleRecipientPrevious,
 }) => {
-  const debounceRef = useRef(null); 
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     if (recipientZipCode.length < 4) return;
@@ -139,7 +140,7 @@ const Recipient = ({
       }
     }, 500); // ⏳ 500ms debounce
 
-    return () => clearTimeout(debounceRef.current); 
+    return () => clearTimeout(debounceRef.current);
   }, [
     recipientZipCode,
     recipientcountrycode,
@@ -148,7 +149,7 @@ const Recipient = ({
     setRecipientState,
     setRecipientErrors,
   ]);
-  
+
 
   // Common styles for all rows
   const rowStyle = {
@@ -174,9 +175,28 @@ const Recipient = ({
             label="Country"
             value={recipientCountry}
             onChange={(e) => setRecipientCountry(e.target.value)}
+            onFocus={() =>
+              setRecipientErrors((prev) => ({
+                ...prev,
+                country: "Can change in Schedule-pickup",
+              }))
+            }
+            onBlur={() =>
+              setRecipientErrors((prev) => ({ ...prev, country: "" }))
+            }
             fullWidth
             sx={fieldStyle}
-            InputProps={{ startAdornment: <PublicIcon sx={{ color: "action.active", mr: 1 }} /> }}
+            InputProps={{
+              readOnly: true,
+              startAdornment: (
+                <PublicIcon sx={{ color: "action.active", mr: 1 }} />
+              ),
+            }}
+            helperText={
+              recipientErrors?.country ? (
+                <span style={{ color: "grey" }}>{recipientErrors.country}</span>
+              ) : null
+            }
           />
           <TextField
             label="Company Name"
@@ -260,7 +280,7 @@ const Recipient = ({
                 country={recipientCountryId}
                 state={recipientState}
                 setState={setRecipientState}
-                senderErrors={recipientErrors} 
+                senderErrors={recipientErrors}
               />
             </Box>
           ) : (
@@ -280,7 +300,7 @@ const Recipient = ({
                 width: '100%',
                 PhoneInputStyle,
                 borderColor: recipientErrors.phone1 ? 'red' : '#c4c4c4',
-                
+
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
@@ -342,13 +362,13 @@ const Recipient = ({
               <MenuItem value="Commercial">Commercial</MenuItem>
             </Select>
           </FormControl>
-          <Box sx={fieldStyle} /> 
-          <Box sx={fieldStyle} /> 
+          <Box sx={fieldStyle} />
+          <Box sx={fieldStyle} />
         </Box>
 
         {/* Buttons */}
         <ButtonBox >
-        <PrevButton
+          <PrevButton
             variant="contained"
             startIcon={<ArrowBackIcon />}
             onClick={handleRecipientPrevious}

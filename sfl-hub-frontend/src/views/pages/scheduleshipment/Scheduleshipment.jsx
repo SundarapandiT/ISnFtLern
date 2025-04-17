@@ -5,6 +5,7 @@ import axios from "axios";
 import { api } from '../../../utils/api'
 import { toast } from "react-hot-toast";
 import Myshipment from "../myshipment/Myshipment";
+import { useStyles } from "../../styles/MyshipmentStyle";
 
 // MUI Components
 import Box from "@mui/material/Box";
@@ -50,6 +51,7 @@ const Schedule = () => {
 
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
+  const classes = useStyles();
 
   const [countries, setCountries] = useState([]);
 
@@ -270,7 +272,7 @@ const Schedule = () => {
   
     try {
       const response = await axios.post(
-        `${api.BackendURL}/users/scheduleshipment`,
+        `${api.BackendURL}/shipment/addShipments`,
         requestData
       );
       toast.success("Shipment scheduled successfully!", { id: toastId });
@@ -851,11 +853,11 @@ const Schedule = () => {
           </AppBarBox>
         </AppBar>
         {activeModule === "Schedule Shipment" && (
-        <ContentBox>
+        <ContentBox >
         
           <Typography variant="h5" sx={{ mb: 3 }}>
-            <IconBox>
-              <FlightTakeoffIcon sx={{ fontSize: 23, color: "white" }} />
+            <IconBox className="card-icon">
+              <FlightTakeoffIcon className={classes.iconBox} />
             </IconBox>
             Schedule Shipment
           </Typography>

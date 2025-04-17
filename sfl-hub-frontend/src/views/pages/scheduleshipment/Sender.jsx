@@ -15,7 +15,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import StateDropdown from "./Statedropdown";
 import { api } from "../../../utils/api";
-import { PhoneInputStyle,PrevButton,NextButton,ButtonBox } from "../../styles/scheduleshipmentStyle"
+import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle"
 
 
 
@@ -55,7 +55,7 @@ const Sender = ({
   handleSenderSubmit,
   handlePrevious,
 }) => {
-  const debounceRef = useRef(null); 
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     if (!zipCode || zipCode.length < 3) {
@@ -112,10 +112,10 @@ const Sender = ({
             );
             const components = res.data.results?.[0]?.address_components || [];
             console.log("Google API response:", components);
-            
+
             let city = '';
             let state = '';
-            
+
             // Loop through the components to extract city and state
             components.forEach(component => {
               if (component.types.includes('locality') || component.types.includes('postal_town')) {
@@ -125,14 +125,14 @@ const Sender = ({
                 state = component.long_name;
               }
             });
-            
+
             // Update the state
             setFromCity(city);
             setState(state);
-            
+
             // Clear zipCode error if it's valid
             setSenderErrors(prev => ({ ...prev, zipCode: "" }));
-            
+
           }
         } catch (fallbackErr) {
           console.error("All APIs failed:", fallbackErr.message);
@@ -143,8 +143,8 @@ const Sender = ({
           }));
         }
       }
-    }, 500); 
-   
+    }, 500);
+
 
     return () => clearTimeout(debounceRef.current);
   }, [zipCode, countrycode, countryId]);
@@ -176,12 +176,25 @@ const Sender = ({
             label="Country"
             value={country}
             onChange={(e) => setCountry(e.target.value)}
+            onFocus={() =>
+              setSenderErrors((prev) => ({ ...prev, country: "Can change in Schedule-pickup" }))
+            }
+            onBlur={() => {
+              setSenderErrors((prev) => ({ ...prev, country: "" }));
+            }}
             fullWidth
             sx={fieldStyle}
             InputProps={{
+              readOnly: true,
               startAdornment: <PublicIcon sx={{ color: "action.active", mr: 1 }} />,
             }}
+            helperText={
+              senderErrors.country ? (
+                <span style={{ color: "grey" }}>{senderErrors.country}</span>
+              ) : null
+            }
           />
+
           <TextField
             label="Company Name"
             value={companyName}
