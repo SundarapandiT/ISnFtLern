@@ -300,8 +300,13 @@ const Schedule = () => {
         toast.error("Shipment scheduled error",{ id: toastId });
       }
     } catch (error) {
+      // const {shipments,from_address,to_address}=requestData;
+
       toast.error("Failed to schedule shipment. Please try again.", { id: toastId });
-      console.error(error);}
+      console.error(error);
+      // setConfirmation(true);
+      // navigate("/admin/ScheduleConfirmation", { replace: true,state:{trackingNumber:"12345678912",shipment:shipments,sender:from_address,recipient:to_address,packageData:packageData,commercialInvoiceData:commercialInvoiceData} });
+    }
     
   };
   
@@ -698,10 +703,14 @@ const Schedule = () => {
         console.log("Updated completedTabs:", updatedTabs);
         return updatedTabs;
       });
-      const nextTab = shipmentType === "Ocean" ? "payment" : "package";
-      // console.log("Navigating to:", nextTab);
-      setActiveTab(nextTab);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (shipmentType === "Ocean") {
+        handleSubmit();
+      } else {
+        const nextTab = "package";
+        setActiveTab(nextTab);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      
     }
   };
 
