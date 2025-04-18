@@ -283,7 +283,7 @@ const Schedule = () => {
     try {
       const response = await axios.post(
         `${api.BackendURL}/shipment/addShipments`,
-        requestData
+        {data:requestData}
       );
 
       const {shipments,from_address,to_address}=requestData;
