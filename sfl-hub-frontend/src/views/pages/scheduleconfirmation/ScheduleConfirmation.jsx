@@ -3,16 +3,16 @@ import GridContainer from "../../styles/grid/GridContainer.jsx";
 import GridItem from "../../styles/grid/GridItem.jsx";
 //import { fileBase } from "../../utils/config";
 import Right from "../../../assets/check.svg";
-import error from "../../../assets/error.svg";
+// import error from "../../../assets/error.svg";
 import box from "../../../assets/box-receive.png";
-import downloadImage from "../../../assets/downloadimage.svg";
+// import downloadImage from "../../../assets/downloadimage.svg";
 import { useLocation } from 'react-router-dom';
 import CryptoJS from "crypto-js";
 
 const ScheduleConfirmation = () => {
-const location =  useLocation();
-const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
-const {trackingNumber,shipment,sender,recipient,packageData,commercialInvoiceData} = location.state || {};
+  const location = useLocation();
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+  const { trackingNumber, shipment, sender, recipient, packageData, commercialInvoiceData } = location.state || {};
 
   const [state, setState] = useState({
     trackingNumber: trackingNumber,
@@ -87,10 +87,6 @@ const {trackingNumber,shipment,sender,recipient,packageData,commercialInvoiceDat
     from_address,
     to_address,
     shipments,
-    FedexTrackingNumber,
-    AttachmentsLink1,
-    AttachmentsLink2,
-    LableError,
   } = state;
 
   return (
@@ -120,197 +116,88 @@ const {trackingNumber,shipment,sender,recipient,packageData,commercialInvoiceDat
               <div className="scs-table">
                 <p>
                   <span>
-                    <i className="fa fa-user"></i>Sender Name:
+                    <i className="fa fa-user"></i> Sender Name:
                   </span>
-                  <i>{CryptoJS.AES.decrypt(from_address.contact_name, SECRET_KEY).toString(CryptoJS.enc.Utf8) || "sfl sender"}</i>
+                  <i>
+                    {CryptoJS.AES.decrypt(from_address.contact_name, SECRET_KEY).toString(CryptoJS.enc.Utf8) || "sfl sender"}
+                  </i>
                 </p>
-                {state.showGetrate ? (
-                  <p>
-                    <span>
-                      <i className="fa fa-ship" aria-hidden="true"></i>Shipment
-                      Type:
-                    </span>
-                    <i>{shipments.shipment_type|| ""}</i>
-                  </p>
-                ) : (
-                  <p>
-                    <span>
-                      <i className="fa fa-truck" aria-hidden="true"></i>Tracking
-                      Number:
-                    </span>
-                    <i>{state.trackingNumber || "sfl"}</i>
-                  </p>
-                )}
-                {state.showGetrate ? (
-                  <p>
-                    <span>
-                      <i className="fa fa-truck" aria-hidden="true"></i>SFL
-                      Number:
-                    </span>
-                    <i>{state.trackingNumber || "sfl"}</i>
-                  </p>
-                ) : null}
+                <p>
+                  <span>
+                    <i className="fa fa-truck" aria-hidden="true"></i> Tracking Number:
+                  </span>
+                  <i>{state.trackingNumber || "sfl"}</i>
+                </p>
               </div>
             </GridItem>
             <GridItem md="6" xs={12}>
               <div className="scs-table">
                 <p>
                   <span>
-                    <i className="fa fa-user"></i>Recipient Name:
+                    <i className="fa fa-user"></i> Recipient Name:
                   </span>
-                  <i>{ CryptoJS.AES.decrypt(to_address.contact_name, SECRET_KEY).toString(CryptoJS.enc.Utf8) || "sfl recipient"}</i>
+                  <i>
+                    {CryptoJS.AES.decrypt(to_address.contact_name, SECRET_KEY).toString(CryptoJS.enc.Utf8) || "sfl recipient"}
+                  </i>
                 </p>
-                {state.showGetrate ? (
-                  <p>
-                    <span>
-                      <i className="fa fa-ship" aria-hidden="true"></i>Service:
-                    </span>
-                    <i>{shipments.ServiceName || ""}</i>
-                  </p>
-                ) : (
-                  <p>
-                    <span>
-                      <i className="fa fa-truck" aria-hidden="true"></i>Shipment
-                      Type:
-                    </span>
-                    <i>{shipments.shipment_type || ""}</i>
-                  </p>
-                )}
-                {state.showGetrate ? (
-                  <p>
-                    <span>
-                      <i className="fa fa-truck" aria-hidden="true"></i>FedEx
-                      Number:
-                    </span>
-                    <i>{FedexTrackingNumber || "sflfedex"}</i>
-                  </p>
-                ) : null}
+                <p>
+                  <span>
+                    <i className="fa fa-ship" aria-hidden="true"></i> Shipment Type:
+                  </span>
+                  <i>{shipments.shipment_type || ""}</i>
+                </p>
               </div>
             </GridItem>
           </GridContainer>
         </div>
-        {state.showGetrate ? (
-          state.showGetrateError ? (
-            <div className="scs-error">
-              <GridContainer>
-                <GridItem md="3" xs={12}>
-                  <div className="scs-error-img">
-                    <img src={error} alt="SFL" />
-                  </div>
-                </GridItem>
-                <GridItem md="9" xs={12}>
-                  <div className="scs-error-inner">
-                    <h3>Error</h3>
-                    <h5>Generating Shipping Label</h5>
-                    <p>
-                      Sorry we have encountered error in generating FedEx
-                      shipping label; please contact your sales representative
-                      or contact our office at 1-800-691-2335 for further
-                      assistance.
-                    </p>
-                    <h5>Error Message:</h5>
-                    <p>{LableError}</p>
-                  </div>
-                </GridItem>
-              </GridContainer>
-            </div>
-          ) : (
-            <div className="scs-download">
-              <GridContainer>
-                <GridItem md="6" xs={12}>
-                  <div className="scs-download-img">
-                    <img src={downloadImage} alt="SFL" />
-                  </div>
-                </GridItem>
-                <GridItem md="6" xs={12}>
-                  <div className="scs-download-content">
-                    <p>
-                      Please find below link to download your prepaid shipping
-                      label and commercial invoice for your shipment.
-                    </p>
-                    {AttachmentsLink1 !== "" ? (
-                      <div className="scs-download-btn">
-                        <button
-                          onClick={(event) => {
-                            event.preventDefault();
-                            window.open(AttachmentsLink1);
-                          }}
-                        >
-                          <i className="fa fa-download" aria-hidden="true"></i>
-                          Download
-                        </button>
-                        <span>Prepaid Shipping Label</span>
-                      </div>
-                    ) : null}
-                    {AttachmentsLink2 !== "" ? (
-                      <div className="scs-download-btn">
-                        <button
-                          onClick={(event) => {
-                            event.preventDefault();
-                            window.open(AttachmentsLink2);
-                          }}
-                        >
-                          <i className="fa fa-download" aria-hidden="true"></i>
-                          Download
-                        </button>
-                        <span>Commercial Invoice</span>
-                      </div>
-                    ) : null}
-                  </div>
-                </GridItem>
-              </GridContainer>
-            </div>
-          )
-        ) : (
-          <div className="scs-steps">
-            <h3>How does shipping works with SFL Worldwide?</h3>
-            <GridContainer>
-              <GridItem md="5" xs={12}>
-                <div className="scs-steps-video">
-                  <iframe
-                    src="https://www.youtube.com/embed/ldTbD6h1CjM"
-                    frameBorder="0"
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    title="video"
-                    width="100%"
-                    height="200"
-                  ></iframe>
-                </div>
-              </GridItem>
-              <GridItem md="7" xs={12}>
-                <div className="scs-steps-inner">
-                  <h4>Step 1:</h4>
-                  <p>
-                    After scheduling your shipment, you will receive a call
-                    from our associates to go over your shipment.
-                  </p>
-                  <h4>Step 2:</h4>
-                  <p>
-                    You will receive an email with a prepaid shipping label
-                    and a commercial invoice if required. As a standard
-                    process, we advise you to print the shipping label and
-                    securely paste it on your box or envelope.
-                  </p>
-                  <h4>International Shipment:</h4>
-                  <p>
-                    You will receive an email with a prepaid shipping
-                    label/document and a commercial invoice if required. As a
-                    standard process, we advise you to print the shipping
-                    label/document and securely paste it on your box or
-                    envelope.
-                  </p>
-                  <h4>Step 3:</h4>
-                  <p>
-                    Depending upon the selected service, we will arrange a
-                    door pickup or you may drop your package at the nearest
-                    drop off location provided by us.
-                  </p>
-                </div>
-              </GridItem>
-            </GridContainer>
-          </div>
-        )}
+        <div className="scs-steps">
+          <h3>How does shipping works with SFL Worldwide?</h3>
+          <GridContainer>
+            <GridItem md="5" xs={12}>
+              <div className="scs-steps-video">
+                <iframe
+                  src="https://www.youtube.com/embed/ldTbD6h1CjM"
+                  frameBorder="0"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                  title="video"
+                  width="100%"
+                  height="200"
+                ></iframe>
+              </div>
+            </GridItem>
+            <GridItem md="7" xs={12}>
+              <div className="scs-steps-inner">
+                <h4>Step 1:</h4>
+                <p>
+                  After scheduling your shipment, you will receive a call from our
+                  associates to go over your shipment.
+                </p>
+                <h4>Step 2:</h4>
+                <p>
+                  You will receive an email with a prepaid shipping label and a
+                  commercial invoice if required. As a standard process, we advise you
+                  to print the shipping label and securely paste it on your box or
+                  envelope.
+                </p>
+                <h4>International Shipment:</h4>
+                <p>
+                  You will receive an email with a prepaid shipping label/document and a
+                  commercial invoice if required. As a standard process, we advise you
+                  to print the shipping label/document and securely paste it on your box
+                  or envelope.
+                </p>
+                <h4>Step 3:</h4>
+                <p>
+                  Depending upon the selected service, we will arrange a door pickup or
+                  you may drop your package at the nearest drop off location provided by
+                  us.
+                </p>
+              </div>
+            </GridItem>
+          </GridContainer>
+        </div>
+
         <div className="scs-instruction">
           <GridContainer>
             <GridItem md="8" xs={12}>

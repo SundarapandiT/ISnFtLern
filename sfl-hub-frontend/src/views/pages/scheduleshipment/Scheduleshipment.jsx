@@ -300,12 +300,12 @@ const Schedule = () => {
         toast.error("Shipment scheduled error",{ id: toastId });
       }
     } catch (error) {
-      // const {shipments,from_address,to_address}=requestData;
+      const {shipments,from_address,to_address}=requestData;
 
       toast.error("Failed to schedule shipment. Please try again.", { id: toastId });
       console.error(error);
-      // setConfirmation(true);
-      // navigate("/admin/ScheduleConfirmation", { replace: true,state:{trackingNumber:"12345678912",shipment:shipments,sender:from_address,recipient:to_address,packageData:packageData,commercialInvoiceData:commercialInvoiceData} });
+      setConfirmation(true);
+      navigate("/admin/ScheduleConfirmation", { replace: true,state:{trackingNumber:"12345678912",shipment:shipments,sender:from_address,recipient:to_address,packageData:packageData,commercialInvoiceData:commercialInvoiceData} });
     }
     
   };
@@ -1071,6 +1071,23 @@ const Schedule = () => {
         <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} /> } />
         <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
       </Routes>
+      <Box className="footer-box" sx={{
+        justifySelf:isMobile?"center":"flex-end",
+        marginRight:3,
+        marginTop:2,
+        marginBottom:1,
+      }}>
+                <Typography align="center" className={classes.footerTypography} sx={{fontSize:isMobile?"12px":"15px"}}>
+                All Rights Reserved. Site Powered by{" "}
+                <span
+                  className={`${classes.sflLink} sfl-link`}
+                  onClick={() => window.open("https://sflworldwide.com/", "_blank")}
+                >
+      
+                SFL Worldwide
+                </span>
+                </Typography>
+              </Box>
       </MainContent>
       
     </Root>

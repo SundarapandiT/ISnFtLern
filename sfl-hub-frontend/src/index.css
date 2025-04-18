@@ -252,7 +252,7 @@ body {
 
 /* myshipment footer  */
 .footer-box {
-  position: fixed;
+  /* position: fixed; */
   bottom: 10px;
   right: 10px;
   z-index: 1000;
@@ -332,6 +332,7 @@ body {
 }
 .ssc-header-img img {
   width: 150px;
+  margin-top: 10px;
 }
 
 .scs-content {
@@ -352,7 +353,8 @@ body {
   border-radius: 6px;
   padding: 20px;
   margin-bottom: 20px;
-  margin-left: 20px;
+  margin-left: 7px;
+  width: 250px;
 }
 
 .scs-table p {
@@ -397,6 +399,7 @@ body {
 .scs-steps-inner h4 {
   font-size: 16px;
   margin-bottom: 10px;
+  color: #d32f2f;
 }
 
 .scs-steps-inner p {
@@ -447,6 +450,8 @@ body {
 }
 
 @media (min-width: 768px) {
+  
+
   .scs-header {
     padding: 50px 0 40px;
     display: flex;

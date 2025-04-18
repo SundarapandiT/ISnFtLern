@@ -13,11 +13,11 @@ import "./index.css";
 // import ScheduleConfirmation from "./views/pages/scheduleconfirmation/ScheduleConfirmation";
 
 // ProtectedRoute component
-const ProtectedRoute = ({ children }) => {
-  const authToken = sessionStorage.getItem("user"); // Check if the userdata exists in sessionStorage
+// const ProtectedRoute = ({ children }) => {
+//   const authToken = sessionStorage.getItem("user"); 
  
-  return authToken ? children : <Navigate to="/auth/login-page" replace />;
-};
+//   return authToken ? children : <Navigate to="/auth/login-page" replace />;
+// };
 
 function App() {
   return (
@@ -38,9 +38,9 @@ function App() {
         <Route
           path="/admin/*"
           element={
-            <ProtectedRoute>
+            // <ProtectedRoute>
               <ScheduleShipment />
-            </ProtectedRoute>
+            // </ProtectedRoute>
           }
         />
       </Routes>

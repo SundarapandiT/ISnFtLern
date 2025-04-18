@@ -289,7 +289,7 @@ const ShipmentDashboard = ({setEdit}) => {
             </Box>
           </div>
         </div>
-        <Box className="footer-box">
+        {/* <Box className="footer-box">
           <Typography align="center" className={classes.footerTypography}>
           All Rights Reserved. Site Powered by{" "}
           <span
@@ -300,7 +300,7 @@ const ShipmentDashboard = ({setEdit}) => {
           SFL Worldwide
           </span>
           </Typography>
-        </Box>
+        </Box> */}
       </div>
       
     </div>
