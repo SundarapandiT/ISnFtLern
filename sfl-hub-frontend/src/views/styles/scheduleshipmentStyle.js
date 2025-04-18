@@ -47,11 +47,11 @@ export const ContentBox = styled(Box)(({ theme }) => ({
   backgroundColor: 'white',
   padding: '10px',
   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)',
-  borderRadius: 16,
+  borderRadius: 10,
   display: 'flex',
   flexDirection: 'column',
   gap: 16,
-  overflowY: 'auto',
+  // overflowY: 'auto',
   [theme.breakpoints.down('md')]: {
     margin: '2rem auto',
   },
@@ -64,10 +64,11 @@ export const IconBox = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   width: 55,
   height: 55,
-  borderRadius: 7,
+  // borderRadius: 7,
   backgroundColor: '#c30ac9',
   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)',
-  marginRight: theme.spacing(2),
+  marginRight: theme.spacing(3),
+  marginLeft: theme.spacing(1),
 }));
 
 // Username button

@@ -50,8 +50,8 @@ const Package = ({
 }) => {
 
   function handleNext(e) {
-    const totalInsuredValue = packageData.reduce(
-      (sum, pkg) => sum + Number(pkg.insuredValue || 0),
+    const totalinsured_value = packageData.reduce(
+      (sum, pkg) => sum + Number(pkg.insured_value || 0),
       0
     );
     const totalDeclaredValue = commercialInvoiceData.reduce(
@@ -60,7 +60,7 @@ const Package = ({
     );
 
     if (samecountry===false) {
-      const isNextEnabled = totalInsuredValue <= totalDeclaredValue && totalInsuredValue > 0;
+      const isNextEnabled = totalinsured_value <= totalDeclaredValue && totalinsured_value > 0;
       if (isNextEnabled) {
         console.log("different country")
         handlePackageSubmit();
@@ -73,7 +73,6 @@ const Package = ({
     }
 
   }
-
 
   return (
     <Box className="ss-box">
@@ -238,9 +237,9 @@ const Package = ({
                     </TableCell>
                     <TableCell sx={{}}>
                       <TextField
-                        name="chargeableWeight"
+                        name="chargable_weight"
                         type="number"
-                        value={pkg.chargeableWeight || ""}
+                        value={pkg.chargable_weight || ""}
                         // onChange={(e) => handlePackageChange(index, e)} // Usually calculated, so disable direct edit
                         fullWidth
                         variant="outlined"
@@ -254,9 +253,9 @@ const Package = ({
                     </TableCell>
                     <TableCell sx={{}}>
                       <TextField
-                        name="insuredValue"
+                        name="insured_value"
                         type="number"
-                        value={pkg.insuredValue || ""}
+                        value={pkg.insured_value || ""}
                         onChange={(e) => handlePackageChange(index, e)}
                         fullWidth
                         variant="outlined"
@@ -264,8 +263,8 @@ const Package = ({
                         InputProps={{
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                         }}
-                        error={!!packageErrors[`insuredValue_${index}`]}
-                        helperText={packageErrors[`insuredValue_${index}`]}
+                        error={!!packageErrors[`insured_value_${index}`]}
+                        helperText={packageErrors[`insured_value_${index}`]}
                       />
                     </TableCell>
                     <TableCell sx={{}}>
@@ -305,10 +304,10 @@ const Package = ({
               Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2)} lbs
             </Typography>
             <Typography variant="body2">
-              Chrg Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.chargeableWeight || 0), 0).toFixed(2)} lbs
+              Chrg Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2)} lbs
             </Typography>
             <Typography variant="body2">
-              Ins Val: ${packageData.reduce((sum, pkg) => sum + Number(pkg.insuredValue || 0), 0).toFixed(2)}
+              Ins Val: ${packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2)}
             </Typography>
           </Box>
         </Box>

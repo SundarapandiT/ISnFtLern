@@ -170,8 +170,8 @@ const Schedule = () => {
       length: 0,
       width: 0,
       height: 0,
-      chargeableWeight: 0,
-      insuredValue: 0,
+      chargable_weight: 0,
+      insured_value: 0,
     }))
   );
   const [samecountry, setSamecountry] = useState(false);
@@ -213,8 +213,8 @@ const Schedule = () => {
         promo_code: "",
         is_agree: "",
         total_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
-        total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargeableWeight || 0), 0).toFixed(2),
-        total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insuredValue || 0), 0).toFixed(2),
+        total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2),
+        total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2),
         duties_paid_by: dutiesPaidBy,
         total_declared_value:commercialInvoiceData? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2):"",
         userName: userName,
@@ -285,16 +285,24 @@ const Schedule = () => {
         `${api.BackendURL}/shipment/addShipments`,
         requestData
       );
-      toast.success("Shipment scheduled successfully!", { id: toastId });
-      setConfirmation(true);
-      navigate("/admin/ScheduleConfirmation", { replace: true });
-      console.log(response.data);
+
+      const {shipments,from_address,to_address}=requestData;
+      const trackingNumber = response.data?.user?.TrackingNumber;
+    
+      if (trackingNumber) {
+        toast.success(`Shipment scheduled successfully! Tracking Number: ${trackingNumber}`, {
+          id: toastId,
+        });
+        setConfirmation(true);
+        navigate("/admin/ScheduleConfirmation", { replace: true,state:{trackingNumber:trackingNumber,shipment:shipments,sender:from_address,recipient:to_address,packageData:packageData,commercialInvoiceData:commercialInvoiceData} });
+        console.log("Tracking Number:", trackingNumber);
+      } else {
+        toast.error("Shipment scheduled error",{ id: toastId });
+      }
     } catch (error) {
       toast.error("Failed to schedule shipment. Please try again.", { id: toastId });
-      console.error(error);
-      // setConfirmation(true)
-      // navigate("/admin/ScheduleConfirmation", { replace: true });
-    }
+      console.error(error);}
+    
   };
   
 
@@ -341,8 +349,8 @@ const Schedule = () => {
         length: 0,
         width: 0,
         height: 0,
-        chargeableWeight: 0,
-        insuredValue: 0,
+        chargable_weight: 0,
+        insured_value: 0,
       }));
       setPackageData([...packageData, ...newRows]);
     } else if (newNum < currentLength) {
@@ -363,7 +371,7 @@ const Schedule = () => {
       const dimensionalWeight = fromCountry === toCountry
       ? (pkg.length * pkg.width * pkg.height) / 166 // Domestic
       : (pkg.length * pkg.width * pkg.height) / 139; // International
-      updatedPackageData[index].chargeableWeight = Math.max(
+      updatedPackageData[index].chargable_weight = Math.max(
         Number(pkg.weight) || 0,
         dimensionalWeight || 0
       ).toFixed(2);
@@ -381,8 +389,8 @@ const Schedule = () => {
         length: 0,
         width: 0,
         height: 0,
-        chargeableWeight: 0,
-        insuredValue: 0,
+        chargable_weight: 0,
+        insured_value: 0,
       },
     ];
     setPackageData(newData);
@@ -582,8 +590,8 @@ const Schedule = () => {
       if (!pkg.height || pkg.height <= 0) {
         newErrors[`height_${index}`] = "Height is required and must be greater than 0";
       }
-      if (pkg.insuredValue === undefined || pkg.insuredValue < 0) {
-        newErrors[`insuredValue_${index}`] = "Insured value is required and must be 0 or greater";
+      if (pkg.insured_value === undefined || pkg.insured_value < 0) {
+        newErrors[`insured_value_${index}`] = "Insured value is required and must be 0 or greater";
       }
     });
   

@@ -6,17 +6,23 @@ import Right from "../../../assets/check.svg";
 import error from "../../../assets/error.svg";
 import box from "../../../assets/box-receive.png";
 import downloadImage from "../../../assets/downloadimage.svg";
+import { useLocation } from 'react-router-dom';
+import CryptoJS from "crypto-js";
 
 const ScheduleConfirmation = () => {
+const location =  useLocation();
+const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+const {trackingNumber,shipment,sender,recipient,packageData,commercialInvoiceData} = location.state || {};
+
   const [state, setState] = useState({
-    trackingNumber: "",
-    from_address: {},
-    to_address: {},
-    packages: [],
-    commercial: [],
+    trackingNumber: trackingNumber,
+    from_address: sender,
+    to_address: recipient,
+    packages: packageData,
+    commercial: commercialInvoiceData,
     payment_online: {},
     payment_bank: {},
-    shipments: {},
+    shipments: shipment,
     paymentType: "",
     isPackage: true,
     showGetrate: true,
@@ -29,62 +35,57 @@ const ScheduleConfirmation = () => {
     LableError: "",
   });
 
-  useEffect(() => {
-    if (localStorage.getItem("shipmentObj")) {
-      const data = JSON.parse(localStorage.getItem("shipmentObj"));
+  // useEffect(() => {
+  //   if (localStorage.getItem("shipmentObj")) {
+  //     const data = JSON.parse(localStorage.getItem("shipmentObj"));
 
-      let attachData = data.Attachments;
-      let mainLabelIndex, commInvoiceIndex;
-      let attachpath = "";
-      let attachPath2 = "";
-      if (data.data) {
-        if (attachData.length > 0 && data.data.MasterTrackingId) {
-          let labelFileName = "Label_" + data.data.MasterTrackingId.TrackingNumber;
-          mainLabelIndex = attachData.findIndex((x) => x.FileName === labelFileName);
-          commInvoiceIndex = attachData.findIndex((x) => x.DocumentType === "Commercial Invoice");
-          if (mainLabelIndex !== -1) {
-            attachpath = attachData[mainLabelIndex]["AttachmentPath"];
-          } else {
-            attachpath = attachData[0]["AttachmentPath"];
-          }
-          if (commInvoiceIndex !== -1) {
-            attachPath2 = attachData[commInvoiceIndex]["path"];
-          }
-        }
-      }
+  //     let attachData = data.Attachments;
+  //     let mainLabelIndex, commInvoiceIndex;
+  //     let attachpath = "";
+  //     let attachPath2 = "";
+  //     if (data.data) {
+  //       if (attachData.length > 0 && data.data.MasterTrackingId) {
+  //         let labelFileName = "Label_" + data.data.MasterTrackingId.TrackingNumber;
+  //         mainLabelIndex = attachData.findIndex((x) => x.FileName === labelFileName);
+  //         commInvoiceIndex = attachData.findIndex((x) => x.DocumentType === "Commercial Invoice");
+  //         if (mainLabelIndex !== -1) {
+  //           attachpath = attachData[mainLabelIndex]["AttachmentPath"];
+  //         } else {
+  //           attachpath = attachData[0]["AttachmentPath"];
+  //         }
+  //         if (commInvoiceIndex !== -1) {
+  //           attachPath2 = attachData[commInvoiceIndex]["path"];
+  //         }
+  //       }
+  //     }
 
-      setState((prevState) => ({
-        ...prevState,
-        Attachments: data.Attachments,
-        trackingNumber: data.trackingNumber,
-        from_address: data.Second_data.from_address,
-        to_address: data.Second_data.to_address,
-        packages: data.Second_data.packages,
-        commercial: data.Second_data.commercial,
-        payment_online: data.Second_data.PaymentData[0],
-        payment_bank: data.Second_data.PaymentData[0],
-        paymentType: data.Second_data.paymentType,
-        shipments: data.Second_data.shipments,
-        isPackage: data.Second_data.shipments.package_type === "Documents (Under 0.5Lbs)" ? false : true,
-        showGetrate: data.showGetrate,
-        showGetrateError: data.showGetrateError,
-        data: data.data,
-        FedexTrackingNumber: Object.keys(data.data).length !== 0 ? (data.data.success ? data.data.MasterTrackingId.TrackingNumber : "") : "",
-        AttachmentsLink1: data.Attachments.length != 0 ? fileBase + attachpath : "",
-        AttachmentsLink2: data.Attachments.length > 1 ? attachPath2 : "",
-        LableError: Object.keys(data.data).length !== 0 ? data.data.data : "",
-      }));
-    }
-  }, []);
+  //     setState((prevState) => ({
+  //       ...prevState,
+  //       Attachments: data.Attachments,
+  //       trackingNumber: data.trackingNumber,
+  //       from_address: data.Second_data.from_address,
+  //       to_address: data.Second_data.to_address,
+  //       packages: data.Second_data.packages,
+  //       commercial: data.Second_data.commercial,
+  //       payment_online: data.Second_data.PaymentData[0],
+  //       payment_bank: data.Second_data.PaymentData[0],
+  //       paymentType: data.Second_data.paymentType,
+  //       shipments: data.Second_data.shipments,
+  //       isPackage: data.Second_data.shipments.package_type === "Documents (Under 0.5Lbs)" ? false : true,
+  //       showGetrate: data.showGetrate,
+  //       showGetrateError: data.showGetrateError,
+  //       data: data.data,
+  //       FedexTrackingNumber: Object.keys(data.data).length !== 0 ? (data.data.success ? data.data.MasterTrackingId.TrackingNumber : "") : "",
+  //       AttachmentsLink1: data.Attachments.length != 0 ? fileBase + attachpath : "",
+  //       AttachmentsLink2: data.Attachments.length > 1 ? attachPath2 : "",
+  //       LableError: Object.keys(data.data).length !== 0 ? data.data.data : "",
+  //     }));
+  //   }
+  // }, []);
 
   const {
     from_address,
     to_address,
-    packageData,
-    commercialInvoiceData,
-    paymentType,
-    payment_online,
-    payment_bank,
     shipments,
     FedexTrackingNumber,
     AttachmentsLink1,
@@ -121,7 +122,7 @@ const ScheduleConfirmation = () => {
                   <span>
                     <i className="fa fa-user"></i>Sender Name:
                   </span>
-                  <i>{from_address.contact_name || "sundarapandi"}</i>
+                  <i>{CryptoJS.AES.decrypt(from_address.contact_name, SECRET_KEY).toString(CryptoJS.enc.Utf8) || "sfl sender"}</i>
                 </p>
                 {state.showGetrate ? (
                   <p>
@@ -129,7 +130,7 @@ const ScheduleConfirmation = () => {
                       <i className="fa fa-ship" aria-hidden="true"></i>Shipment
                       Type:
                     </span>
-                    <i>{shipments.shipment_type|| "Air"}</i>
+                    <i>{shipments.shipment_type|| ""}</i>
                   </p>
                 ) : (
                   <p>
@@ -137,7 +138,7 @@ const ScheduleConfirmation = () => {
                       <i className="fa fa-truck" aria-hidden="true"></i>Tracking
                       Number:
                     </span>
-                    <i>{state.trackingNumber || "12345678"}</i>
+                    <i>{state.trackingNumber || "sfl"}</i>
                   </p>
                 )}
                 {state.showGetrate ? (
@@ -146,7 +147,7 @@ const ScheduleConfirmation = () => {
                       <i className="fa fa-truck" aria-hidden="true"></i>SFL
                       Number:
                     </span>
-                    <i>{state.trackingNumber || "12345678"}</i>
+                    <i>{state.trackingNumber || "sfl"}</i>
                   </p>
                 ) : null}
               </div>
@@ -157,14 +158,14 @@ const ScheduleConfirmation = () => {
                   <span>
                     <i className="fa fa-user"></i>Recipient Name:
                   </span>
-                  <i>{to_address.contact_name || "hitesh"}</i>
+                  <i>{ CryptoJS.AES.decrypt(to_address.contact_name, SECRET_KEY).toString(CryptoJS.enc.Utf8) || "sfl recipient"}</i>
                 </p>
                 {state.showGetrate ? (
                   <p>
                     <span>
                       <i className="fa fa-ship" aria-hidden="true"></i>Service:
                     </span>
-                    <i>{shipments.ServiceName || "recip"}</i>
+                    <i>{shipments.ServiceName || ""}</i>
                   </p>
                 ) : (
                   <p>
@@ -172,7 +173,7 @@ const ScheduleConfirmation = () => {
                       <i className="fa fa-truck" aria-hidden="true"></i>Shipment
                       Type:
                     </span>
-                    <i>{shipments.shipment_type || "Air"}</i>
+                    <i>{shipments.shipment_type || ""}</i>
                   </p>
                 )}
                 {state.showGetrate ? (
@@ -181,7 +182,7 @@ const ScheduleConfirmation = () => {
                       <i className="fa fa-truck" aria-hidden="true"></i>FedEx
                       Number:
                     </span>
-                    <i>{FedexTrackingNumber || "12345678"}</i>
+                    <i>{FedexTrackingNumber || "sflfedex"}</i>
                   </p>
                 ) : null}
               </div>
