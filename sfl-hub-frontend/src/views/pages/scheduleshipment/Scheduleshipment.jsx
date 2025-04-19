@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 
 import axios from "axios";
-import { api } from '../../../utils/api'
+import { api, encryptURL } from '../../../utils/api'
 import { toast } from "react-hot-toast";
 import Myshipment from "../myshipment/Myshipment";
 import { useStyles } from "../../styles/MyshipmentStyle";
@@ -280,10 +280,12 @@ const Schedule = () => {
     console.log(requestData); 
   
     const toastId = toast.loading("Scheduling your shipment...");
+    const encodedUrl= encryptURL("/shipment/addShipments");
+    
   
     try {
       const response = await axios.post(
-        `${api.BackendURL}/shipment/addShipments`,
+        `${api.BackendURL}/shipment/${encodedUrl}`,
         {data:requestData}
       );
 

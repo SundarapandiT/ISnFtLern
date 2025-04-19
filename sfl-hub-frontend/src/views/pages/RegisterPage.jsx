@@ -2,7 +2,7 @@ import { React, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { api } from "../../utils/api";
+import { api,encryptURL } from "../../utils/api";
 import { isEmpty } from "../../utils/constant";
 import { Box, Paper, TextField, Button, Typography, Link, InputAdornment, Grid, Popover, useMediaQuery, IconButton } from "@mui/material";
 // import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -231,8 +231,10 @@ const RegisterPage = () => {
 
   const sendMail = async () => {
     const loadingToast = toast.loading("Sending OTP...");
+    const encodedUrl= encryptURL("/users/EmailVerifyOtp");
+
     try {
-      const response = await axios.post(`${api.BackendURL}/users/EmailVerifyOtp`, {
+      const response = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, {
         email: registerDetails.email,
       });
       const userMessage = response.data?.message;

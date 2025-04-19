@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useRegister } from "../RegisterContext";
 import axios from "axios";
-import { api } from "../../utils/api";
+import { api, encryptURL } from "../../utils/api";
 import CryptoJS from "crypto-js";
 import { BackgroundContainer, CloseButton, emailverifyContainer, StyledButton, StyledPaper,emailLogoBox } from "../styles/AuthStyle";
 // import { Person } from "@mui/icons-material";
@@ -53,8 +53,10 @@ const EmailVerification = () => {
 
   const validateOtp = async (enteredOtp) => {
     const loadingToast = toast.loading("Verifying OTP...");
+    const encodedUrl= encryptURL("/users/verifyOtp");
+
     try {
-      const response = await axios.post(`${api.BackendURL}/users/verifyOtp`, {
+      const response = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, {
         email: registerDetails.email,
         otp_code: enteredOtp,
       });
@@ -72,6 +74,8 @@ const EmailVerification = () => {
           if (!SECRET_KEY) throw new Error("Encryption key is missing!");
         
           const registerToast = toast.loading("Registering user...");
+
+              const encodedUrl= encryptURL("/users/UserRegisteration");
         
           const encrypt = (text) => CryptoJS.AES.encrypt(text, SECRET_KEY).toString();
         
@@ -82,7 +86,9 @@ const EmailVerification = () => {
             Phone: encrypt(registerDetails.mobile),
             Email: encrypt(registerDetails.email),
             PersonID: encrypt(personid)       };
-          const res = await axios.post(`${api.BackendURL}/users/UserRegisteration`, {
+
+
+          const res = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, {
             data: encryptedData,
           });
         
@@ -119,9 +125,10 @@ const EmailVerification = () => {
   
   const sendMail = async () => {
     const loadingToast = toast.loading("Sending OTP...");
+    const encodedUrl= encryptURL("/users/EmailVerifyOtp");
 
     try {
-      const response = await axios.post(`${api.BackendURL}/users/EmailVerifyOtp`, {
+      const response = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, {
         email: registerDetails.email,
       });
 

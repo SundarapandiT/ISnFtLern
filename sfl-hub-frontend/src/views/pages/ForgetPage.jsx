@@ -63,9 +63,11 @@ const ForgotPassword = () => {
       email: CryptoJS.AES.encrypt(formData.email, SECRET_KEY).toString(),
       selectedEmailMy: CryptoJS.AES.encrypt(formData.requestType, SECRET_KEY).toString(),
     };
+     const encodedUrl= encryptURL("/users/forgotPassword");
+    
   
     await toast.promise(
-      axios.post(`${api.BackendURL}/users/forgotPassword`, { data: payload }),
+      axios.post(`${api.BackendURL}/users/${encodedUrl}`, { data: payload }),
       {
         loading: "Sending Mail...",
         success: (res) => {

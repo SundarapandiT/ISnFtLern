@@ -4,7 +4,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import logo from "/SFL_logo.png";
 import { toast } from "react-hot-toast";
 import axios from "axios";
-import { api } from "../../utils/api";
+import { api, encryptURL } from "../../utils/api";
 
 import { PersonOutline as FaUser, LockOutlined as FaLock } from "@mui/icons-material";
 import { BackgroundContainer,StyledPaper,StyledButton, linkStyle } from "../styles/AuthStyle";
@@ -52,6 +52,9 @@ const LoginPage = () => {
       // const encryptedUrl = CryptoJS.AES.encrypt('/users/UserLogin', SECRET_KEY).toString();
       // const encodedUrl = encodeURIComponent(encryptedUrl);
       // const requestUrl = `${api.BackendURL}/users/${encodedUrl}`; 
+
+          const encodedUrl= encryptURL("/users/UserLogin");
+      
   
       // Encrypt the login credentials before sending them to the backend
       const encryptedData = {
@@ -60,7 +63,7 @@ const LoginPage = () => {
       };
   
       // Send the encrypted data to the backend without wrapping it in "data"
-      const res = await axios.post(`${api.BackendURL}/users/UserLogin`, encryptedData);
+      const res = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, encryptedData);
       
       toast.dismiss(loadingToastId);
   
