@@ -33,6 +33,11 @@ const ForgotPassword = () => {
     }));
   };
 
+   // Validate email format
+   const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,6 +49,16 @@ const ForgotPassword = () => {
       return;
     }
   
+     // Check for valid email format
+     if (!isValidEmail(formData.email)) {
+      toast.error("E-MAIL ID Not Found");
+      return;
+    }
+    if (!formData.requestType) {
+      toast.error("Please select an option from the dropdown.");
+      return;
+    }
+
     const payload = {
       email: CryptoJS.AES.encrypt(formData.email, SECRET_KEY).toString(),
       selectedEmailMy: CryptoJS.AES.encrypt(formData.requestType, SECRET_KEY).toString(),
@@ -64,13 +79,17 @@ const ForgotPassword = () => {
             setTimeout(() => navigate("/auth/login-page"), 1500);
             return msg;
           } else if (msg === "Could not retrieve necessary user details.") {
-            return "Could not retrieve necessary user details. Please register.";
+            throw new Error("Could not retrieve necessary user details. Give Valid Email ID or Signup!!");
           } else {
             throw new Error(msg || "Cannot send email");
           }
         },
         error: (err) => {
           console.error("verification send error:", err);
+          if (err.response.data.message==="Could not retrieve necessary user details.") {
+            return ("Could not retrieve necessary user details. Give Valid Email ID or Signup!!");
+            
+          }
           return err.response.data.message || "Something went wrong";
         }
       }

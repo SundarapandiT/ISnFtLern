@@ -111,7 +111,7 @@ const Schedule = () => {
       setEmail(storedUser.email);
       setPhone1(storedUser.phone);
       // setUserId(storedUser.personID);
-      setUserId(sessionStorage.getItem("PersonID")||"");
+      setUserId(sessionStorage.getItem("PersonID")||storedUser.personID||"3aaf69e0-5369-49d8-9b87-371b3c78ffbe");
       setUserName(storedUser.username);
     }
   }, []);

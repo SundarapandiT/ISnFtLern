@@ -1,5 +1,5 @@
-import {React,useState} from "react";
-import {  useLocation, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import { 
   TextField,
@@ -7,964 +7,937 @@ import {
   Select, 
   InputLabel, 
   FormControl,
-  InputAdornment 
+  InputAdornment,
+  Button,
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  useMediaQuery,
 } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person'; // Import missing icons
+import PersonIcon from '@mui/icons-material/Person';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PublicIcon from '@mui/icons-material/Public';
 import EmailIcon from '@mui/icons-material/Email';
 import BusinessIcon from '@mui/icons-material/Business';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
-import { IconBox } from "../../styles/scheduleshipmentStyle";
+import { 
+  IconBox,
+  SectionPaper,
+  GridContainer,
+  TableStyled,
+  ButtonContainer,
+  ResponsiveTypography,
+  ResponsiveButton,
+} from "../../styles/myshipmentnew";
 import TabNavigation from "./TabNavigation";
 
-const Myshipmentnew = ({setEdit}) => {
+const ResponsiveTable = ({ columns, rows }) => {
+  const isMobile = useMediaQuery('(max-width:600px)');
+
+  if (isMobile) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {rows.map((row, rowIndex) => (
+          <SectionPaper key={rowIndex} sx={{ p: 1.5 }}>
+            {columns.map((col, colIndex) => (
+              <Box key={colIndex} sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
+                <Typography variant="caption" sx={{ minWidth: 120, fontWeight: 'bold' }}>
+                  {col}:
+                </Typography>
+                <TextField
+                  fullWidth
+                  value={row[col.toLowerCase().replace(/\(|\)/g, '')] || ""}
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                  size="small"
+                />
+              </Box>
+            ))}
+          </SectionPaper>
+        ))}
+      </Box>
+    );
+  }
+
+  return (
+    <TableStyled>
+      <TableHead>
+        <TableRow>
+          {columns.map((col) => (
+            <TableCell key={col}>{col}</TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {rows.map((row, rowIndex) => (
+          <TableRow key={rowIndex}>
+            {columns.map((col) => (
+              <TableCell key={col}>
+                <TextField
+                  fullWidth
+                  value={row[col.toLowerCase().replace(/\(|\)/g, '')] || ""}
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </TableStyled>
+  );
+};
+
+const Myshipmentnew = ({ setEdit }) => {
   const location = useLocation();
   const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState("customer");
+  const [activeTab, setActiveTab] = useState("customer");
   const { shipment } = location.state || {};
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   if (!shipment) {
-    return <div style={{ padding: "20px", color: "red" }}>No shipment data available.</div>;
+    return (
+      <Box sx={{ p: isMobile ? 1.5 : 2.5, color: 'error.main' }}>
+        No shipment data available.
+      </Box>
+    );
   }
 
   const handleBack = () => {
-  
     setEdit(false);
-    navigate("/admin/ShipmentList", {replace: true});
+    navigate("/admin/ShipmentList", { replace: true });
   };
+
   const handleTabClick = (tab) => {
     setActiveTab(tab === activeTab ? null : tab);
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-            <IconBox>
-              <FlightTakeoffIcon sx={{ fontSize: 23, color: "white" }} />
-            </IconBox>
-            <h2 style={{ margin: 0 }}>Shipment Information</h2>
-          </div>
-    
-          <div style={{ 
-            background: "#fff", 
-            padding: "20px", 
-            borderRadius: "8px", 
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)" 
-          }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "20px" }}>
+    <Box sx={{ p: isMobile ? 1.5 : 2.5, fontFamily: 'Arial, sans-serif', width: '100%' }}>
+      <SectionPaper>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: isMobile ? 1.5 : 2.5 , position:'relative',pl:6}}>
+        <IconBox>
+          <FlightTakeoffIcon sx={{ fontSize: isMobile ? 20 : 23, color: 'white' }} />
+        </IconBox>
+        <ResponsiveTypography variant="h5" sx={{pl:1.5,mt:-1.5,mb:3}}>
+          Shipment Information
+        </ResponsiveTypography>
+      </Box>
+
+      
+        <GridContainer>
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>Shipment Status</InputLabel>
+            <Select value={shipment.status || "Cancelled"} label="Shipment Status">
+              <MenuItem value="Cancelled">Cancelled</MenuItem>
+              <MenuItem value="In Transit">In Transit</MenuItem>
+              <MenuItem value="Delivered">Delivered</MenuItem>
+              <MenuItem value="Customs Clearance">Customs Clearance</MenuItem>
+            </Select>
+          </FormControl>
+
+          <TextField
+            fullWidth
+            label="Tracking Number"
+            value={shipment.tracking || "101049399"}
+            InputProps={{ readOnly: true }}
+            variant="outlined"
+          />
+
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>Package Type</InputLabel>
+            <Select value="Package" label="Package Type">
+              <MenuItem value="Package">Package</MenuItem>
+              <MenuItem value="Document">Document</MenuItem>
+            </Select>
+          </FormControl>
+
+          <TextField
+            fullWidth
+            label="No. of Packages"
+            value="1"
+            InputProps={{ readOnly: true }}
+            variant="outlined"
+          />
+        </GridContainer>
+        <GridContainer>
+          <TextField
+            fullWidth
+            label="Managed By"
+            value="Nirav Shah"
+            InputProps={{ readOnly: true }}
+            variant="outlined"
+          />
+
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>Shipment Type</InputLabel>
+            <Select value="Air" label="Shipment Type">
+              <MenuItem value="Air">Air</MenuItem>
+              <MenuItem value="Sea">Sea</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>Service Type</InputLabel>
+            <Select value="Standard" label="Service Type">
+              <MenuItem value="Standard">Standard</MenuItem>
+              <MenuItem value="Express">Express</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>Sub Service Type</InputLabel>
+            <Select value="" label="Sub Service Type">
+              <MenuItem value="">Select</MenuItem>
+            </Select>
+          </FormControl>
+        </GridContainer>
+      </SectionPaper>
+
+      <TabNavigation activeTab={activeTab} handleTabClick={handleTabClick} />
+
+      {activeTab === "customer" && (
+        <>
+          <SectionPaper>
+            <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+              Sender Information
+            </ResponsiveTypography>
+            <GridContainer>
+              <TextField
+                fullWidth
+                label="Contact Name"
+                value="Test"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <PersonIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Address Line 1"
+                value="Test"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Address Line 2"
+                value=""
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Address Line 3"
+                value=""
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <PublicIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+            </GridContainer>
+            <GridContainer>
               <FormControl fullWidth variant="outlined">
-                <InputLabel>Shipment Status</InputLabel>
-                <Select value={shipment.status || "Cancelled"} label="Shipment Status">
-                  <MenuItem value="Cancelled">Cancelled</MenuItem>
-                  <MenuItem value="In Transit">In Transit</MenuItem>
-                  <MenuItem value="Delivered">Delivered</MenuItem>
-                  <MenuItem value="Customs Clearance">Customs Clearance</MenuItem>
+                <InputLabel>From Country</InputLabel>
+                <Select value="United States" label="From Country">
+                  <MenuItem value="United States">United States</MenuItem>
                 </Select>
               </FormControl>
-    
-              <TextField fullWidth label="Tracking Number" value={shipment.tracking || "101049399"} InputProps={{ readOnly: true }} variant="outlined" />
-    
+              <TextField
+                fullWidth
+                label="Zip"
+                value="75063"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="City"
+                value="Irving"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <BusinessIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
               <FormControl fullWidth variant="outlined">
-                <InputLabel>Package Type</InputLabel>
-                <Select value="Package" label="Package Type">
-                  <MenuItem value="Package">Package</MenuItem>
-                  <MenuItem value="Document">Document</MenuItem>
+                <InputLabel>State</InputLabel>
+                <Select value="Texas" label="State">
+                  <MenuItem value="Texas">Texas</MenuItem>
                 </Select>
               </FormControl>
-    
-              <TextField fullWidth label="No. of Packages" value="1" InputProps={{ readOnly: true }} variant="outlined" />
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "20px", marginTop: "20px" }}>
-              <TextField fullWidth label="Managed By" value="Nirav Shah" InputProps={{ readOnly: true }} variant="outlined" />
-    
+            </GridContainer>
+            <GridContainer>
+              <TextField
+                fullWidth
+                label="Company Name"
+                value="Test"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <BusinessCenterIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Phone 1"
+                value="1234567890"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Phone 2"
+                value=""
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Email"
+                value="test@gmail.com"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+            </GridContainer>
+          </SectionPaper>
+
+          <SectionPaper>
+            <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+              Recipient Details
+            </ResponsiveTypography>
+            <GridContainer>
+              <TextField
+                fullWidth
+                label="Contact Name"
+                value="Test"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <PersonIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Address Line 1"
+                value="Test"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Address Line 2"
+                value=""
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Address Line 3"
+                value=""
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <PublicIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+            </GridContainer>
+            <GridContainer>
               <FormControl fullWidth variant="outlined">
-                <InputLabel>Shipment Type</InputLabel>
-                <Select value="Air" label="Shipment Type">
-                  <MenuItem value="Air">Air</MenuItem>
-                  <MenuItem value="Sea">Sea</MenuItem>
+                <InputLabel>To Country</InputLabel>
+                <Select value="India" label="To Country">
+                  <MenuItem value="India">India</MenuItem>
+                  <MenuItem value="USA">USA</MenuItem>
                 </Select>
               </FormControl>
-    
+              <TextField
+                fullWidth
+                label="Zip"
+                value="380001"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="City"
+                value="Ahmedabad"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <BusinessIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
               <FormControl fullWidth variant="outlined">
-                <InputLabel>Service Type</InputLabel>
-                <Select value="Standard" label="Service Type">
-                  <MenuItem value="Standard">Standard</MenuItem>
-                  <MenuItem value="Express">Express</MenuItem>
+                <InputLabel>State</InputLabel>
+                <Select value="Gujarat" label="State">
+                  <MenuItem value="Gujarat">Gujarat</MenuItem>
                 </Select>
               </FormControl>
-    
+            </GridContainer>
+            <GridContainer>
+              <TextField
+                fullWidth
+                label="Company Name"
+                value=""
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <BusinessCenterIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Phone 1"
+                value="1234567890"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Phone 2"
+                value=""
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+              <TextField
+                fullWidth
+                label="Email"
+                value=""
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+            </GridContainer>
+          </SectionPaper>
+
+          <SectionPaper>
+            <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+              Additional Details
+            </ResponsiveTypography>
+            <GridContainer>
+              <TextField
+                fullWidth
+                label="Ship Date"
+                value="04/11/2025"
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <PersonIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
               <FormControl fullWidth variant="outlined">
-                <InputLabel>Sub Service Type</InputLabel>
-                <Select value="" label="Sub Service Type">
-                  <MenuItem value="">Select</MenuItem>
+                <InputLabel>Location Type</InputLabel>
+                <Select value="Residential" label="Location Type">
+                  <MenuItem value="Residential">Residential</MenuItem>
+                  <MenuItem value="Commercial">Commercial</MenuItem>
                 </Select>
               </FormControl>
-            </div>
-          </div>
-         {/* {tabsection} */}
-         <TabNavigation activeTab={activeTab} handleTabClick={handleTabClick} />
-        
-          
-    
-          {activeTab === "customer" && (
-            <>
-              {/* Sender Information */}
-              <div style={{ 
-                background: "#fff", 
-                padding: "20px", 
-                borderRadius: "8px", 
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)", 
-                marginTop: "20px" 
-              }}>
-                <h2 style={{ margin: "0 0 20px 0" }}>Sender Information</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "20px" }}>
-                  <TextField
-                    fullWidth
-                    label="Contact Name"
-                    value="Test"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><PersonIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Address Line 1"
-                    value="Test"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><LocationOnIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Address Line 2"
-                    value=""
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end"><LocationOnIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Address Line 3"
-                    value=""
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end"><PublicIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "20px", marginTop: "20px" }}>
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel>From Country</InputLabel>
-                    <Select value="United States" label="From Country">
-                      <MenuItem value="United States">United States</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    fullWidth
-                    label="Zip"
-                    value="75063"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><EmailIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="City"
-                    value="Irving"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><BusinessIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel>State</InputLabel>
-                    <Select value="Texas" label="State">
-                      <MenuItem value="Texas">Texas</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "20px", marginTop: "20px" }}>
-                  <TextField
-                    fullWidth
-                    label="Company Name"
-                    value="Test"
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end"><BusinessCenterIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Phone 1"
-                    value="1234567890"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><LocalPhoneIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Phone 2"
-                    value=""
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end"><LocalPhoneIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    value="test@gmail.com"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><EmailIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                </div>
-              </div>
-    
-              {/* Recipient Details */}
-              <div style={{ 
-                background: "#fff", 
-                padding: "20px", 
-                borderRadius: "8px", 
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)", 
-                marginTop: "20px" 
-              }}>
-                <h2 style={{ margin: "0 0 20px 0" }}>Recipient Details</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "20px" }}>
-                  <TextField
-                    fullWidth
-                    label="Contact Name"
-                    value="Test"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><PersonIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Address Line 1"
-                    value="Test"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><LocationOnIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Address Line 2"
-                    value=""
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end"><LocationOnIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Address Line 3"
-                    value=""
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end"><PublicIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "20px", marginTop: "20px" }}>
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel>To Country</InputLabel>
-                    <Select value="India" label="To Country">
-                      <MenuItem value="India">India</MenuItem>
-                      <MenuItem value="USA">USA</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    fullWidth
-                    label="Zip"
-                    value="380001"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><EmailIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="City"
-                    value="Ahmedabad"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><BusinessIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel>State</InputLabel>
-                    <Select value="Gujarat" label="State">
-                      <MenuItem value="Gujarat">Gujarat</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "20px", marginTop: "20px" }}>
-                  <TextField
-                    fullWidth
-                    label="Company Name"
-                    value=""
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end"><BusinessCenterIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Phone 1"
-                    value="1234567890"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><LocalPhoneIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Phone 2"
-                    value=""
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end"><LocalPhoneIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    value=""
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end"><EmailIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                </div>
-              </div>
-    
-              {/* Additional Details */}
-              <div style={{ 
-                background: "#fff", 
-                padding: "20px", 
-                borderRadius: "8px", 
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)", 
-                marginTop: "20px" 
-              }}>
-                <h2 style={{ margin: "0 0 20px 0" }}>Additional Details</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "20px" }}>
-                  <TextField
-                    fullWidth
-                    label="Ship Date"
-                    value="04/11/2025"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: <InputAdornment position="end"><PersonIcon /></InputAdornment>,
-                    }}
-                    variant="outlined"
-                  />
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel>Location Type</InputLabel>
-                    <Select value="Residential" label="Location Type">
-                      <MenuItem value="Residential">Residential</MenuItem>
-                      <MenuItem value="Commercial">Commercial</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel>Duties & Taxes Paid By</InputLabel>
-                    <Select value="Recipient" label="Duties & Taxes Paid By">
-                      <MenuItem value="Recipient">Recipient</MenuItem>
-                      <MenuItem value="Sender">Sender</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    fullWidth
-                    label="Username"
-                    value="Testinganshu1@"
-                    InputProps={{ readOnly: true }}
-                    variant="outlined"
-                  />
-                </div>
-              </div>
-            </>
-          )}
-    
-          {activeTab === "package" && (
-            <div style={{ 
-              background: "#fff", 
-              padding: "20px", 
-              borderRadius: "8px", 
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)", 
-              marginTop: "20px" 
-            }}>
-              <h2 style={{ margin: "0 0 20px 0" }}>Package</h2>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#424242", color: "#fff" }}>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Number</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Weight</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Dim(L)</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Dim(W)</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Dim(H)</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Charge Weight</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Insurance</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="1"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="10"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="1"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="10"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="10"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="10"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="0.00"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
-                <div style={{ display: "flex", gap: "20px" }}>
-                  <TextField
-                    label="Total"
-                    value="0"
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                  <TextField
-                    label="Total"
-                    value="0.00"
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-    
-          {activeTab === "commercial" && (
-            <div style={{ 
-              background: "#fff", 
-              padding: "20px", 
-              borderRadius: "8px", 
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)", 
-              marginTop: "20px" 
-            }}>
-              <h2 style={{ margin: "0 0 20px 0" }}>Commercial Invoice</h2>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#424242", color: "#fff" }}>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Package Number</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Package Content</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Quantity</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Value Per Qty</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Total Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="1"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="Test"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="1"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="1.00"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="1.00"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
-                <div style={{ display: "flex", gap: "20px" }}>
-                  <TextField
-                    label="Total Cost:"
-                    value="1.00"
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-    
-          {activeTab === "tracking" && (
-            <div style={{ 
-              background: "#fff", 
-              padding: "20px", 
-              borderRadius: "8px", 
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)", 
-              marginTop: "20px" 
-            }}>
-              <h2 style={{ margin: "0 0 20px 0" }}>Tracking</h2>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#424242", color: "#fff" }}>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Date</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Time</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Updates</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="C"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="1"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value=""
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
-    
-          {activeTab === "accounts" && (
-            <div style={{ 
-              background: "#fff", 
-              padding: "20px", 
-              borderRadius: "8px", 
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)", 
-              marginTop: "20px" 
-            }}>
-              <h2 style={{ margin: "0 0 20px 0" }}>Invoice</h2>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#424242", color: "#fff" }}>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Date</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Service</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Description</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Qty</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Cost</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="04/15/2025"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <FormControl fullWidth variant="outlined">
-                        <InputLabel>Service</InputLabel>
-                        <Select value="" label="Service">
-                          <MenuItem value="">Select</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value=""
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="0"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="0.00"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="0.00"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
-                <div style={{ display: "flex", gap: "20px" }}>
-                  <TextField
-                    label="Total Cost:"
-                    value="0.00"
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </div>
-              </div>
-    
-              <h2 style={{ margin: "20px 0 20px 0" }}>Payment Made</h2>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#424242", color: "#fff" }}>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Date</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Payment Type</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Number</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Confirmation</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="04/15/2025"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <FormControl fullWidth variant="outlined">
-                        <InputLabel>Payment Type</InputLabel>
-                        <Select value="" label="Payment Type">
-                          <MenuItem value="">Select</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="XXXX XXXX XXXX"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value=""
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="0.00"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
-                <div style={{ display: "flex", gap: "20px" }}>
-                  <TextField
-                    label="Total Cost:"
-                    value="0.00"
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-    
-          {activeTab === "documentation" && (
-            <div style={{ 
-              background: "#fff", 
-              padding: "20px", 
-              borderRadius: "8px", 
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)", 
-              marginTop: "20px" 
-            }}>
-              <h2 style={{ margin: "0 0 20px 0" }}>Documentation</h2>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "#424242", color: "#fff" }}>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Document Type</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Document Name</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>CreatedOn</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Attachment</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Status</th>
-                    <th style={{ padding: "10px", border: "1px solid #424242" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Duties & Taxes Paid By</InputLabel>
+                <Select value="Recipient" label="Duties & Taxes Paid By">
+                  <MenuItem value="Recipient">Recipient</MenuItem>
+                  <MenuItem value="Sender">Sender</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
+                label="Username"
+                value="Testinganshu1@"
+                InputProps={{ readOnly: true }}
+                variant="outlined"
+              />
+            </GridContainer>
+          </SectionPaper>
+        </>
+      )}
+
+      {activeTab === "package" && (
+        <SectionPaper>
+          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+            Package
+          </ResponsiveTypography>
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <ResponsiveTable
+              columns={["Number", "Weight", "Dim(L)", "Dim(W)", "Dim(H)", "Charge Weight", "Insurance"]}
+              rows={[{
+                number: "1",
+                weight: "10",
+                dimL: "1",
+                dimW: "10",
+                dimH: "10",
+                chargeWeight: "10",
+                insurance: "0.00"
+              }]}
+            />
+          </TableContainer>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.25, flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 1 : 2.5 }}>
+            <TextField
+              label="Total"
+              value="0"
+              variant="outlined"
+              InputProps={{ readOnly: true }}
+              sx={{ width: isMobile ? '100%' : 'auto' }}
+            />
+            <TextField
+              label="Total"
+              value="0.00"
+              variant="outlined"
+              InputProps={{ readOnly: true }}
+              sx={{ width: isMobile ? '100%' : 'auto' }}
+            />
+          </Box>
+        </SectionPaper>
+      )}
+
+      {activeTab === "commercial" && (
+        <SectionPaper>
+          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+            Commercial Invoice
+          </ResponsiveTypography>
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <ResponsiveTable
+              columns={["Package Number", "Package Content", "Quantity", "Value Per Qty", "Total Value"]}
+              rows={[{
+                packageNumber: "1",
+                packageContent: "Test",
+                quantity: "1",
+                valuePerQty: "1.00",
+                totalValue: "1.00"
+              }]}
+            />
+          </TableContainer>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.25 }}>
+            <TextField
+              label="Total Cost:"
+              value="1.00"
+              variant="outlined"
+              InputProps={{ readOnly: true }}
+              sx={{ width: isMobile ? '100%' : 'auto' }}
+            />
+          </Box>
+        </SectionPaper>
+      )}
+
+      {activeTab === "tracking" && (
+        <SectionPaper>
+          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+            Tracking
+          </ResponsiveTypography>
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <ResponsiveTable
+              columns={["Date", "Time", "Updates"]}
+              rows={[{
+                date: "C",
+                time: "1",
+                updates: ""
+              }]}
+            />
+          </TableContainer>
+        </SectionPaper>
+      )}
+
+      {activeTab === "accounts" && (
+        <SectionPaper>
+          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+            Invoice
+          </ResponsiveTypography>
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <TableStyled>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Service</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Qty</TableCell>
+                  <TableCell>Cost</TableCell>
+                  <TableCell>Total</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value="04/15/2025"
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel>Service</InputLabel>
+                      <Select value="" label="Service">
+                        <MenuItem value="">Select</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value=""
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value="0"
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value="0.00"
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value="0.00"
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </TableStyled>
+          </TableContainer>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.25 }}>
+            <TextField
+              label="Total Cost:"
+              value="0.00"
+              variant="outlined"
+              InputProps={{ readOnly: true }}
+              sx={{ width: isMobile ? '100%' : 'auto' }}
+            />
+          </Box>
+
+          <ResponsiveTypography variant="h6" sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}>
+            Payment Made
+          </ResponsiveTypography>
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <TableStyled>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Payment Type</TableCell>
+                  <TableCell>Number</TableCell>
+                  <TableCell>Confirmation</TableCell>
+                  <TableCell>Amount</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value="04/15/2025"
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel>Payment Type</InputLabel>
+                      <Select value="" label="Payment Type">
+                        <MenuItem value="">Select</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value="XXXX XXXX XXXX"
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value=""
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value="0.00"
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </TableStyled>
+          </TableContainer>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.25 }}>
+            <TextField
+              label="Total Cost:"
+              value="0.00"
+              variant="outlined"
+              InputProps={{ readOnly: true }}
+              sx={{ width: isMobile ? '100%' : 'auto' }}
+            />
+          </Box>
+        </SectionPaper>
+      )}
+
+      {activeTab === "documentation" && (
+        <SectionPaper>
+          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+            Documentation
+          </ResponsiveTypography>
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <TableStyled>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Document Type</TableCell>
+                  <TableCell>Document Name</TableCell>
+                  <TableCell>CreatedOn</TableCell>
+                  <TableCell>Attachment</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {[
+                  { type: "Commercial Invoice" },
+                  { type: "Invoice" },
+                  { type: "Contract" },
+                ].map((doc, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
                       <FormControl fullWidth variant="outlined">
                         <InputLabel>Document Type</InputLabel>
-                        <Select value="Commercial Invoice" label="Document Type">
+                        <Select value={doc.type} label="Document Type">
                           <MenuItem value="Commercial Invoice">Commercial Invoice</MenuItem>
                           <MenuItem value="Invoice">Invoice</MenuItem>
                           <MenuItem value="Contract">Contract</MenuItem>
                         </Select>
                       </FormControl>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value=""
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="04/15/2025"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button style={{ background: "#f44336", color: "#fff", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>VIEW FILE</button>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button style={{ background: "#ff9800", color: "#fff", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>APPROVED</button>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button style={{ background: "#2196f3", color: "#fff", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>...</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <FormControl fullWidth variant="outlined">
-                        <InputLabel>Document Type</InputLabel>
-                        <Select value="Invoice" label="Document Type">
-                          <MenuItem value="Commercial Invoice">Commercial Invoice</MenuItem>
-                          <MenuItem value="Invoice">Invoice</MenuItem>
-                          <MenuItem value="Contract">Contract</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value=""
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                    </TableCell>
+                    <TextField
+                      fullWidth
+                      value=""
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                    <TableCell>
                       <TextField
                         fullWidth
                         value="04/15/2025"
                         variant="outlined"
                         InputProps={{ readOnly: true }}
                       />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button style={{ background: "#f44336", color: "#fff", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>VIEW FILE</button>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button style={{ background: "#ff9800", color: "#fff", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>APPROVED</button>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button style={{ background: "#2196f3", color: "#fff", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>...</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <FormControl fullWidth variant="outlined">
-                        <InputLabel>Document Type</InputLabel>
-                        <Select value="Contract" label="Document Type">
-                          <MenuItem value="Commercial Invoice">Commercial Invoice</MenuItem>
-                          <MenuItem value="Invoice">Invoice</MenuItem>
-                          <MenuItem value="Contract">Contract</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value=""
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <TextField
-                        fullWidth
-                        value="04/15/2025"
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button style={{ background: "#f44336", color: "#fff", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>VIEW FILE</button>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button style={{ background: "#ff9800", color: "#fff", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>APPROVED</button>
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button style={{ background: "#2196f3", color: "#fff", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>...</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px", alignItems: "center" }}>
-                <button style={{ background: "#e0e0e0", color: "#757575", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>Previous</button>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span>Page 1 of 1</span>
-                  <TextField
-                    variant="outlined"
-                    value="10 rows"
-                    InputProps={{ readOnly: true }}
-                    style={{ width: "100px" }}
-                  />
-                </div>
-                <button style={{ background: "#e0e0e0", color: "#757575", border: "none", padding: "5px 10px", borderRadius: "4px", cursor: "pointer" }}>Next</button>
-              </div>
-            </div>
-          )}
-    
-          {/* Buttons */}
-          <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
-            <button 
-              style={{ 
-                background: "#ab47bc", 
-                color: "#fff", 
-                padding: "10px 20px", 
-                border: "none", 
-                borderRadius: "4px", 
-                cursor: "pointer" 
-              }}
+                    </TableCell>
+                    <TableCell>
+                      <ResponsiveButton
+                        variant="contained"
+                        color="error"
+                        sx={{ textTransform: 'none', fontSize: isMobile ? '0.75rem' : '0.875rem' }}
+                      >
+                        VIEW FILE
+                      </ResponsiveButton>
+                    </TableCell>
+                    <TableCell>
+                      <ResponsiveButton
+                        variant="contained"
+                        sx={{ backgroundColor: '#ff9800', textTransform: 'none', fontSize: isMobile ? '0.75rem' : '0.875rem' }}
+                      >
+                        APPROVED
+                      </ResponsiveButton>
+                    </TableCell>
+                    <TableCell>
+                      <ResponsiveButton
+                        variant="contained"
+                        color="primary"
+                        sx={{ textTransform: 'none', fontSize: isMobile ? '0.75rem' : '0.875rem' }}
+                      >
+                        ...
+                      </ResponsiveButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </TableStyled>
+          </TableContainer>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              mt: 1.25,
+              alignItems: 'center',
+              flexDirection: isMobile ? 'column' : 'row',
+              gap: isMobile ? 1 : 0,
+            }}
+          >
+            <ResponsiveButton
+              variant="contained"
+              sx={{ backgroundColor: '#e0e0e0', color: '#757575', textTransform: 'none' }}
             >
-              DUPLICATE
-            </button>
-            <button 
-              style={{ 
-                background: "#f44336", 
-                color: "#fff", 
-                padding: "10px 20px", 
-                border: "none", 
-                borderRadius: "4px", 
-                cursor: "pointer" 
-              }}
-              onClick={handleBack}
+              Previous
+            </ResponsiveButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: isMobile ? 1 : 1.25, flexDirection: isMobile ? 'column' : 'row' }}>
+              <ResponsiveTypography>Page 1 of 1</ResponsiveTypography>
+              <TextField
+                variant="outlined"
+                value="10 rows"
+                InputProps={{ readOnly: true }}
+                sx={{ width: isMobile ? '100%' : '100px' }}
+              />
+            </Box>
+            <ResponsiveButton
+              variant="contained"
+              sx={{ backgroundColor: '#e0e0e0', color: '#757575', textTransform: 'none' }}
             >
-              BACK TO MY SHIPMENT
-            </button>
-          </div>
-        </div>
+              Next
+            </ResponsiveButton>
+          </Box>
+        </SectionPaper>
+      )}
+
+      <ButtonContainer>
+        <ResponsiveButton
+          variant="contained"
+          sx={{ backgroundColor: '#ab47bc', textTransform: 'none' }}
+        >
+          DUPLICATE
+        </ResponsiveButton>
+        <ResponsiveButton
+          variant="contained"
+          color="error"
+          onClick={handleBack}
+          sx={{ textTransform: 'none' }}
+        >
+          BACK TO MY SHIPMENT
+        </ResponsiveButton>
+      </ButtonContainer>
+    </Box>
   );
 };
 

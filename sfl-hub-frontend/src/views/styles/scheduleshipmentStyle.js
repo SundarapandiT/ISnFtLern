@@ -119,7 +119,7 @@ export const NextButton = styled(Button)(({ theme }) => ({
   backgroundColor: "#E91E63",
   color: "white",
   "&:hover": {
-    backgroundColor: "#ed64a6",
+    backgroundColor: "red",
   },
   [theme.breakpoints.up("sm")]: {
     width: "auto",
