@@ -1,7 +1,8 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { api, encryptURL } from "../../../utils/api";
+import { toast } from "react-hot-toast";
 // import CryptoJS from "crypto-js";
 import {
   Typography,
@@ -22,96 +23,61 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
+import CircularProgress from '@mui/material/CircularProgress';
+
 import EditIcon from "@mui/icons-material/Edit";
 import { IconBox } from "../../styles/scheduleshipmentStyle";
 import { useStyles } from "../../styles/MyshipmentStyle";
 
-const ShipmentDashboard = ({setEdit}) => {
+const ShipmentDashboard = ({ setEdit }) => {
   const classes = useStyles();
+  const [loading, setLoading] = useState(false);
+
 
   const [shipmentsData, setShipmentsData] = useState([]);
-  const Person_ID=sessionStorage.getItem("personID");
+  const user = JSON.parse(sessionStorage.getItem("user"));
+  const Person_ID = user ? user.personID : "cant find PersonID";
+  console.log("Person_ID:", Person_ID); // Check if Person_ID is being set correctly
 
   useEffect(() => {
     const fetchShipments = async () => {
       try {
+        // const loading = toast.loading("Loading shipments...");
+        setLoading(true);
         // const encodedUrl= encryptURL("/shipment/myShipments"); 
         const response = await axios.post(`${api.BackendURL}/shipment/myShipments`,
-        {data:{Person_ID}}
-        ); 
+          { data: { Person_ID } }
+        );
         const data = response.data?.user?.[0]; // Get the array of shipments
         if (data) {
+          // toast.dismiss(loading);
+          // toast.success("Shipments loaded successfully!");
+          setLoading(false);
           setShipmentsData(data);
           console.log("Shipments data:", data);
         }
       } catch (error) {
         console.error('Error fetching shipments:', error);
+        // toast.dismiss(loading);
+        toast.error("Failed to load shipments. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchShipments();
   }, []);
+  useEffect(() => {
+    setFilteredData(shipmentsData);
+  }, [shipmentsData]);
 
-  const sampleData = [
-    {
-      id: 1,
-      date: "2025-04-11",
-      tracking: "TRK12345",
-      sender: "John Doe",
-      senderCity: "New York",
-      senderState: "NY",
-      receiver: "Jane Smith",
-      receiverCity: "Los Angeles",
-      receiverState: "CA",
-      type: "Standard",
-      status: "In Transit",
-    },
-    {
-      id: 2,
-      date: "2025-04-10",
-      tracking: "TRK67890",
-      sender: "Alice Brown",
-      senderCity: "Chicago",
-      senderState: "IL",
-      receiver: "Bob Wilson",
-      receiverCity: "Miami",
-      receiverState: "FL",
-      type: "Express",
-      status: "Delivered",
-    },
-    {
-      id: 3,
-      date: "2025-04-09",
-      tracking: "TRK11223",
-      sender: "Emma Davis",
-      senderCity: "Seattle",
-      senderState: "WA",
-      receiver: "Liam Johnson",
-      receiverCity: "Boston",
-      receiverState: "MA",
-      type: "Standard",
-      status: "Customs Clearance",
-    },
-    {
-      id: 4,
-      date: "2025-04-08",
-      tracking: "TRK44556",
-      sender: "Olivia Lee",
-      senderCity: "Austin",
-      senderState: "TX",
-      receiver: "Noah Clark",
-      receiverCity: "Denver",
-      receiverState: "CO",
-      type: "Fragile",
-      status: "Cancelled",
-    },
-  ];
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedStatuses, setSelectedStatuses] = useState([]);
-  const [filteredData, setFilteredData] = useState(sampleData); // New state for filtered data
+  const [filteredData, setFilteredData] = useState(shipmentsData); // New state for filtered data
   const navigate = useNavigate();
   const statuses = [
+    "New Request",
     "Cancelled",
     "Customs Clearance",
     "Delivered",
@@ -122,7 +88,6 @@ const ShipmentDashboard = ({setEdit}) => {
     "In-Distribution",
     "Incomplete",
     "Lost/Damaged",
-    "New Request",
     "On Hold",
     "Pickup scheduled",
     "To Be Deleted",
@@ -131,7 +96,7 @@ const ShipmentDashboard = ({setEdit}) => {
   const handleEdit = (row) => {
     // Navigate to MyShipmentnew page with row data
     setEdit(true);
-    navigate("/admin/MyShipmentNew", { state: { shipment: row }, replace: true  });
+    navigate("/admin/MyShipmentNew", { state: { shipment: row }, replace: true });
   };
 
   const handleClick = (event) => {
@@ -161,11 +126,11 @@ const ShipmentDashboard = ({setEdit}) => {
   const handleSearch = () => {
     if (selectedStatuses.length === 0 || selectedStatuses.length === statuses.length) {
       // If no statuses selected or all selected, show all data
-      setFilteredData(sampleData);
+      setFilteredData(shipmentsData);
     } else {
       // Filter data based on selected statuses
-      const filtered = sampleData.filter((row) =>
-        selectedStatuses.includes(row.status)
+      const filtered = shipmentsData.filter((row) =>
+        selectedStatuses.includes(row.shipmentstatus)
       );
       setFilteredData(filtered);
     }
@@ -176,8 +141,8 @@ const ShipmentDashboard = ({setEdit}) => {
   const isAllSelected =
     selectedStatuses.length === statuses.length && statuses.length > 0;
 
-  
-  
+
+
 
   return (
     <div>
@@ -257,7 +222,7 @@ const ShipmentDashboard = ({setEdit}) => {
                       "Type",
                       "Status",
                       "Actions",
-                    ].map((heading,index) => (
+                    ].map((heading, index) => (
                       <TableCell key={index} className={classes.tableCell}>
                         {heading}
                       </TableCell>
@@ -265,19 +230,25 @@ const ShipmentDashboard = ({setEdit}) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredData.length > 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={11} align="center">
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredData.length > 0 ? (
                     filteredData.map((row) => (
                       <TableRow key={row.id}>
-                        <TableCell>{row.date}</TableCell>
-                        <TableCell>{row.tracking}</TableCell>
-                        <TableCell>{row.sender}</TableCell>
-                        <TableCell>{row.senderCity}</TableCell>
-                        <TableCell>{row.senderState}</TableCell>
-                        <TableCell>{row.receiver}</TableCell>
-                        <TableCell>{row.receiverCity}</TableCell>
-                        <TableCell>{row.receiverState}</TableCell>
-                        <TableCell>{row.type}</TableCell>
-                        <TableCell>{row.status}</TableCell>
+                        <TableCell>{new Date(row.shipmentdate).toLocaleDateString('en-GB')}</TableCell>
+                        <TableCell>{row.trackingnumber}</TableCell>
+                        <TableCell>{row.fromcontactname}</TableCell>
+                        <TableCell>{row.fromcity}</TableCell>
+                        <TableCell>{row.fromstate}</TableCell>
+                        <TableCell>{row.tocontactname}</TableCell>
+                        <TableCell>{row.tocity}</TableCell>
+                        <TableCell>{row.tostate}</TableCell>
+                        <TableCell>{row.shipmenttype}</TableCell>
+                        <TableCell>{row.shipmentstatus}</TableCell>
                         <TableCell>
                           <EditIcon
                             className={classes.editIcon}
@@ -301,7 +272,7 @@ const ShipmentDashboard = ({setEdit}) => {
               <Button disabled variant="outlined">
                 Previous
               </Button>
-              <Typography>Total rows: {filteredData.length} of {sampleData.length}</Typography>
+              <Typography>Total rows: {filteredData.length} of {shipmentsData.length}</Typography>
               <Select defaultValue={10}>
                 <MenuItem value={5}>5 rows</MenuItem>
                 <MenuItem value={10}>10 rows</MenuItem>
@@ -329,7 +300,7 @@ const ShipmentDashboard = ({setEdit}) => {
           </Typography>
         </Box> */}
       </div>
-      
+
     </div>
   );
 };
