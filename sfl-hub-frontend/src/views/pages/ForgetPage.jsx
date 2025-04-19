@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import CryptoJS from "crypto-js";
 import axios from "axios";
-import { api } from "../../utils/api";
+import { api, encryptURL } from "../../utils/api";
 import {
   Box,
   TextField,

@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { api, encryptURL } from "../../../utils/api";
+// import CryptoJS from "crypto-js";
 import {
   Typography,
   Button,
@@ -25,6 +28,30 @@ import { useStyles } from "../../styles/MyshipmentStyle";
 
 const ShipmentDashboard = ({setEdit}) => {
   const classes = useStyles();
+
+  const [shipmentsData, setShipmentsData] = useState([]);
+  const Person_ID=sessionStorage.getItem("personID");
+
+  useEffect(() => {
+    const fetchShipments = async () => {
+      try {
+        // const encodedUrl= encryptURL("/shipment/myShipments"); 
+        const response = await axios.post(`${api.BackendURL}/shipment/myShipments`,
+        {data:{Person_ID}}
+        ); 
+        const data = response.data?.user?.[0]; // Get the array of shipments
+        if (data) {
+          setShipmentsData(data);
+          console.log("Shipments data:", data);
+        }
+      } catch (error) {
+        console.error('Error fetching shipments:', error);
+      }
+    };
+
+    fetchShipments();
+  }, []);
+
   const sampleData = [
     {
       id: 1,
