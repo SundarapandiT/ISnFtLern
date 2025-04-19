@@ -79,6 +79,8 @@ const LoginPage = () => {
           username: decryptedUsername,
           personID: decryptedPersonID,
         }));
+        console.log("Without utf8: ",res.data.user.data.p_personID)
+        console.log("PersonId: ", decryptedPersonID);
      
         toast.success("Login successful!", { position: "top-right", autoClose: 3000 });
         navigate("/admin/Scheduleshipment", { replace: true });

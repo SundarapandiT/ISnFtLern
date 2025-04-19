@@ -276,8 +276,9 @@ const RegisterPage = () => {
   
       });
       if (response.status === 200 || response.data.success===true) {
-        console.log("old database: ",response.data.success);
-        console.log(response.data);}
+        console.log("old database: ",response.data.data?.message);
+        sessionStorage.setItem("PersonID", response.data.data?.PersonID);
+        }
       else {  
         throw new Error("Failed to register user in old database".response.data);
       }

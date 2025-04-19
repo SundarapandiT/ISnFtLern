@@ -9,10 +9,12 @@ import axios from "axios";
 import { api } from "../../utils/api";
 import CryptoJS from "crypto-js";
 import { BackgroundContainer, CloseButton, emailverifyContainer, StyledButton, StyledPaper,emailLogoBox } from "../styles/AuthStyle";
+// import { Person } from "@mui/icons-material";
 
 
 const EmailVerification = () => {
   const {  registerDetails } = useRegister();
+  const personid=sessionStorage.getItem("PersonID")||"";
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -79,7 +81,7 @@ const EmailVerification = () => {
             Password: encrypt(registerDetails.password),
             Phone: encrypt(registerDetails.mobile),
             Email: encrypt(registerDetails.email),
-          };
+            PersonID: encrypt(personid)       };
           const res = await axios.post(`${api.BackendURL}/users/UserRegisteration`, {
             data: encryptedData,
           });
@@ -95,7 +97,7 @@ const EmailVerification = () => {
           }
         
         } catch (error) {
-          toast.dismiss(); // In case it didn't get dismissed above
+          toast.dismiss(); 
           console.error("Registration Error:", error);
           toast.error(error?.response?.data?.message || "Something went wrong!");
         }        
