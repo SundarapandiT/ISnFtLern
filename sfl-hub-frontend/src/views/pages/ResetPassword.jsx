@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom"; // for location and
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import logo from "/SFL_logo.png";
-import { api } from "../../utils/api"; 
+import { api, encryptURL } from "../../utils/api"; 
 import CryptoJS from "crypto-js";
 import { BackgroundContainer,StyledPaper,StyledButton,linkStyle } from "../styles/AuthStyle";
 
@@ -74,12 +74,14 @@ const ResetPassword = () => {
       if (!SECRET_KEY) {
         throw new Error("Encryption key is missing from environment variables!");
       }
+
+      const encodedUrl = encryptURL("/users/resetPassword");
   
       // Encrypt the password
       const encryptedPassword = CryptoJS.AES.encrypt(newPassword, SECRET_KEY).toString();
   
       // Send POST request to backend
-      const res = await axios.post(`${api.BackendURL}/users/resetPassword`, {
+      const res = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, {
         newPassword: encryptedPassword,
         email: resetKey, // assuming resetKey contains email or reset token from query param
       });
