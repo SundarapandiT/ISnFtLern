@@ -240,6 +240,8 @@ const Sender = ({
             value={addressLine2}
             onChange={(e) => setAddressLine2(e.target.value)}
             fullWidth
+            error={!!senderErrors.addressLine2}
+            helperText={senderErrors.addressLine2}
             sx={fieldStyle}
             InputProps={{
               startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} />,
@@ -250,6 +252,8 @@ const Sender = ({
             value={addressLine3}
             onChange={(e) => setAddressLine3(e.target.value)}
             fullWidth
+            error={!!senderErrors.addressLine3}
+            helperText={senderErrors.addressLine3}
             sx={fieldStyle}
             InputProps={{
               startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} />,

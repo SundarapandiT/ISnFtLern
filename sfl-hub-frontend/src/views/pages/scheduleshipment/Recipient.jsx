@@ -237,6 +237,8 @@ const Recipient = ({
             value={recipientAddressLine2}
             onChange={(e) => setRecipientAddressLine2(e.target.value)}
             fullWidth
+            error={!!recipientErrors.addressLine2}
+            helperText={recipientErrors.addressLine2}
             sx={fieldStyle}
             InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />
@@ -245,6 +247,8 @@ const Recipient = ({
             value={recipientAddressLine3}
             onChange={(e) => setRecipientAddressLine3(e.target.value)}
             fullWidth
+            error={!!recipientErrors.addressLine3}
+            helperText={recipientErrors.addressLine3}
             sx={fieldStyle}
             InputProps={{ startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} /> }}
           />

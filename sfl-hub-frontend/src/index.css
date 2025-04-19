@@ -277,11 +277,11 @@ body {
   width: 100%;
   margin-top: 20px;
   background: #fff;
-  border-radius: 20px;
+  border-radius: 10px;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
   font-weight: 400;
   max-width: 1200px; /* Set a maximum width to prevent stretching */
-  margin-left: auto; /* Center the container */
+  margin-left: 20px; /* Center the container */
   margin-right: auto; /* Center the container */
   padding: 0 20px; /* Add some padding for smaller screens */
 }

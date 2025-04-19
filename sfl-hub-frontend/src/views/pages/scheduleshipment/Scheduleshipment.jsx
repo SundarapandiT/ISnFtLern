@@ -300,12 +300,10 @@ const Schedule = () => {
         toast.error("Shipment scheduled error",{ id: toastId });
       }
     } catch (error) {
-      const {shipments,from_address,to_address}=requestData;
 
       toast.error("Failed to schedule shipment. Please try again.", { id: toastId });
       console.error(error);
-      setConfirmation(true);
-      navigate("/admin/ScheduleConfirmation", { replace: true,state:{trackingNumber:"12345678912",shipment:shipments,sender:from_address,recipient:to_address,packageData:packageData,commercialInvoiceData:commercialInvoiceData} });
+     
     }
     
   };
@@ -370,20 +368,26 @@ const Schedule = () => {
       ...updatedPackageData[index],
       [name]: value,
     };
-
+  
     if (["weight", "length", "width", "height"].includes(name)) {
       const pkg = updatedPackageData[index];
-      const dimensionalWeight = fromCountry === toCountry
-      ? (pkg.length * pkg.width * pkg.height) / 166 // Domestic
-      : (pkg.length * pkg.width * pkg.height) / 139; // International
-      updatedPackageData[index].chargable_weight = Math.max(
-        Number(pkg.weight) || 0,
-        dimensionalWeight || 0
-      ).toFixed(2);
+      const weight = parseFloat(pkg.weight) || 0;
+      const length = parseFloat(pkg.length) || 0;
+      const width = parseFloat(pkg.width) || 0;
+      const height = parseFloat(pkg.height) || 0;
+  
+      
+        const dimensionalWeight = fromCountry === toCountry
+          ? (length * width * height) / 166 // Domestic
+          : (length * width * height) / 139; // International;
+  
+        updatedPackageData[index].chargable_weight = Math.max(weight, dimensionalWeight).toFixed(2);
+      
     }
-
+  
     setPackageData(updatedPackageData);
   };
+  
 
   const handleAddPackage = () => {
     const newData = [
@@ -492,7 +496,7 @@ const Schedule = () => {
   
     if (!email?.trim()) {
       newErrors.email = "Email address is required";
-    } else if (!/\S+@\S+\.\S+/.test(email.trim())) {
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())) {
       newErrors.email = "Please enter a valid email address";
     }
   
@@ -551,7 +555,7 @@ const Schedule = () => {
   
     if (!recipientEmail?.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(recipientEmail.trim())) {
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(recipientEmail.trim())) {
       newErrors.email = "Please enter a valid email address";
     }
   
@@ -648,6 +652,12 @@ const Schedule = () => {
       setActiveTab("sender");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+    else{
+      toast.error("Please fill with Valid Information", {
+        position: "top-right",
+        autoClose: 3000,}
+      )
+    }
   };
 
   // Handle form submission for Sender tab
@@ -676,6 +686,12 @@ const Schedule = () => {
          package: shipmentType !== "Ocean" }));
       setActiveTab("recipient");
       window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    else{
+      toast.error("Please fill with Valid Information", {
+        position: "top-right",
+        autoClose: 3000,}
+      )
     }
   };
 
@@ -711,6 +727,12 @@ const Schedule = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
       
+    }
+    else{
+      toast.error("Please fill with Valid Information", {
+        position: "top-right",
+        autoClose: 3000,}
+      )
     }
   };
 
