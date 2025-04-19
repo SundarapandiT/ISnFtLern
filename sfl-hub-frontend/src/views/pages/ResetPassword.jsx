@@ -77,6 +77,7 @@ const ResetPassword = () => {
 
       const encodedUrl = encryptURL("/users/resetPassword");
   
+      
       // Encrypt the password
       const encryptedPassword = CryptoJS.AES.encrypt(newPassword, SECRET_KEY).toString();
   
