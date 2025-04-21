@@ -468,15 +468,15 @@ const Schedule = () => {
   
     if (!addressLine1?.trim()) {
       newErrors.addressLine1 = "Address Line 1 is required";
-    } else if (!/^[a-zA-Z0-9\s.,-]+$/.test(addressLine1.trim())) {
+    } else if (!/^[a-zA-Z0-9\s.,-/()]+$/.test(addressLine1.trim())) {
       newErrors.addressLine1 = "Address Line 1 should not contain special characters";
     }
   
-    if (addressLine2?.trim() && !/^[a-zA-Z0-9\s.,-]+$/.test(addressLine2.trim())) {
+    if (addressLine2?.trim() && !/^[a-zA-Z0-9\s.,-/()]+$/.test(addressLine2.trim())) {
       newErrors.addressLine2 = "Address Line 2 should not contain special characters";
     }
   
-    if (addressLine3?.trim() && !/^[a-zA-Z0-9\s.,-]+$/.test(addressLine3.trim())) {
+    if (addressLine3?.trim() && !/^[a-zA-Z0-9\s.,-/()]+$/.test(addressLine3.trim())) {
       newErrors.addressLine3 = "Address Line 3 should not contain special characters";
     }
   
@@ -523,15 +523,15 @@ const Schedule = () => {
   
     if (!recipientAddressLine1?.trim()) {
       newErrors.addressLine1 = "Address Line 1 is required";
-    } else if (!/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine1.trim())) {
+    } else if (!/^[a-zA-Z0-9\s.,-/()]+$/.test(recipientAddressLine1.trim())) {
       newErrors.addressLine1 = "Address Line 1 should not contain special characters";
     }
   
-    if (recipientAddressLine2?.trim() && !/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine2.trim())) {
+    if (recipientAddressLine2?.trim() && !/^[a-zA-Z0-9\s.,-/()]+$/.test(recipientAddressLine2.trim())) {
       newErrors.addressLine2 = "Address Line 2 should not contain special characters";
     }
   
-    if (recipientAddressLine3?.trim() && !/^[a-zA-Z0-9\s.,-]+$/.test(recipientAddressLine3.trim())) {
+    if (recipientAddressLine3?.trim() && !/^[a-zA-Z0-9\s.,-/()]+$/.test(recipientAddressLine3.trim())) {
       newErrors.addressLine3 = "Address Line 3 should not contain special characters";
     }
   
