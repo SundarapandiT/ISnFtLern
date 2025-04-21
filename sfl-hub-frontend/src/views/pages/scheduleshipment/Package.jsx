@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, createRef } from "react";
 import {
   Box,
   Typography,
@@ -23,7 +23,6 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import Slide from '@mui/material/Slide';
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -55,6 +54,17 @@ const Package = ({
   // State to control dialog visibility
   const [openDialog, setOpenDialog] = useState(false);
 
+  // Create an array of refs for valuePerQty TextFields (one ref per row)
+  const valuePerQtyRefs = useRef(
+    commercialInvoiceData.map(() => createRef())
+  );
+
+  // Update refs when commercialInvoiceData changes (e.g., when rows are added/removed)
+  React.useEffect(() => {
+    valuePerQtyRefs.current = commercialInvoiceData.map(
+      (_, i) => valuePerQtyRefs.current[i] || createRef()
+    );
+  }, [commercialInvoiceData.length]);
 
   function handleNext(e) {
     const totalinsured_value = packageData.reduce(
@@ -87,13 +97,12 @@ const Package = ({
 
   // Function to handle update action and focus valuePerQty
   const handleUpdateCommercialValue = () => {
+    // Focus the valuePerQty TextField in the first row (index 0)
+    if (valuePerQtyRefs.current[0]?.current) {
+      valuePerQtyRefs.current[0].current.focus();
+    }
     setOpenDialog(false);
   };
-
-  const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-  });
-  
 
   return (
     <Box className="ss-box">
@@ -101,12 +110,11 @@ const Package = ({
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
-        TransitionComponent={Transition}
         aria-labelledby="insured-value-dialog-title"
         sx={{ "& .MuiDialog-paper": { minWidth: "400px", p: 2 } }}
       >
         <DialogTitle id="insured-value-dialog-title" sx={{ fontWeight: "bold" }}>
-        Insured Value cannot exceed Customs value.
+          Insured Value cannot exceed Customs value.
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary">
@@ -241,7 +249,7 @@ const Package = ({
                             endAdornment: <InputAdornment position="end">in</InputAdornment>,
                           }}
                         />
-                        <Typography sx={{ display: { xs: "none", sm: "block Elyse" } }}>+</Typography>
+                        <Typography sx={{ display: { xs: "none", sm: "block" } }}>+</Typography>
                         <TextField
                           name="width"
                           type="number"
@@ -427,6 +435,7 @@ const Package = ({
                           fullWidth
                           variant="outlined"
                           size="small"
+                          inputRef={valuePerQtyRefs.current[index]} // Attach ref to TextField
                           InputProps={{
                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           }}

@@ -471,7 +471,6 @@ const Schedule = () => {
     } else if (!/^[a-zA-Z0-9\s.,-/()]+$/.test(addressLine1.trim())) {
       newErrors.addressLine1 = "Address Line 1 should not contain special characters";
     }
-  
     if (addressLine2?.trim() && !/^[a-zA-Z0-9\s.,-/()]+$/.test(addressLine2.trim())) {
       newErrors.addressLine2 = "Address Line 2 should not contain special characters";
     }
@@ -515,57 +514,65 @@ const Schedule = () => {
 
   // Validation for Recipient tab
   const validateRecipientForm = () => {
-    const newErrors = {};
-  
-    if (!recipientContactName?.trim()) {
-      newErrors.contactName = "Contact Name is required";
-    }
-  
-    if (!recipientAddressLine1?.trim()) {
-      newErrors.addressLine1 = "Address Line 1 is required";
-    } else if (!/^[a-zA-Z0-9\s.,-/()]+$/.test(recipientAddressLine1.trim())) {
-      newErrors.addressLine1 = "Address Line 1 should not contain special characters";
-    }
-  
-    if (recipientAddressLine2?.trim() && !/^[a-zA-Z0-9\s.,-/()]+$/.test(recipientAddressLine2.trim())) {
-      newErrors.addressLine2 = "Address Line 2 should not contain special characters";
-    }
-  
-    if (recipientAddressLine3?.trim() && !/^[a-zA-Z0-9\s.,-/()]+$/.test(recipientAddressLine3.trim())) {
-      newErrors.addressLine3 = "Address Line 3 should not contain special characters";
-    }
-  
-    if (!recipientZipCode?.trim()) {
-      newErrors.recipientZipCode = "Zip Code is required";
-    }
-    // else if (!/^[a-zA-Z0-9\s]+$/.test(recipientZipCode.trim())) {
-    //   newErrors.zipCode = "Zip Code should only contain numbers";
-    // }
-  
-    if (!recipientCity?.trim()) {
-      newErrors.recipientCity = "City is required";
-    }
-  
-    if (!recipientState?.trim()) {
-      newErrors.state = "State is required";
-    }
-  
-    if (!recipientPhone1?.trim()) {
-      newErrors.phone1 = "Phone 1 is required";
-    } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1.trim())) {
-      newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
-    }
-  
-    if (!recipientEmail?.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(recipientEmail.trim())) {
-      newErrors.email = "Please enter a valid email address";
-    }
-  
-    setRecipientErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-  
+  const newErrors = {};
+
+  // Existing recipient validations
+  if (!recipientContactName?.trim()) {
+    newErrors.contactName = "Contact Name is required";
+  }
+
+  if (!recipientAddressLine1?.trim()) {
+    newErrors.addressLine1 = "Address Line 1 is required";
+  } else if (!/^[a-zA-Z0-9\s.,-/()]+$/.test(recipientAddressLine1.trim())) {
+    newErrors.addressLine1 = "Address Line 1 should not contain special characters";
+  }
+
+  if (recipientAddressLine2?.trim() && !/^[a-zA-Z0-9\s.,-/()]+$/.test(recipientAddressLine2.trim())) {
+    newErrors.addressLine2 = "Address Line 2 should not contain special characters";
+  }
+
+  if (recipientAddressLine3?.trim() && !/^[a-zA-Z0-9\s.,-/()]+$/.test(recipientAddressLine3.trim())) {
+    newErrors.addressLine3 = "Address Line 3 should not contain special characters";
+  }
+
+  if (!recipientZipCode?.trim()) {
+    newErrors.recipientZipCode = "Zip Code is required";
+  }
+
+  if (!recipientCity?.trim()) {
+    newErrors.recipientCity = "City is required";
+  }
+
+  if (!recipientState?.trim()) {
+    newErrors.state = "State is required";
+  }
+
+  if (!recipientPhone1?.trim()) {
+    newErrors.phone1 = "Phone 1 is required";
+  } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1.trim())) {
+    newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
+  }
+
+  if (!recipientEmail?.trim()) {
+    newErrors.email = "Email is required";
+  } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(recipientEmail.trim())) {
+    newErrors.email = "Please enter a valid email address";
+  }
+
+  // New validation: Ensure recipient address is not the same as sender address
+  if (
+    recipientAddressLine1?.trim().toLowerCase() === addressLine1?.trim().toLowerCase() &&
+    recipientCity?.trim().toLowerCase() === fromCity?.trim().toLowerCase() &&
+    recipientState?.trim().toLowerCase() === state?.trim().toLowerCase() &&
+    recipientZipCode?.trim().toLowerCase() === zipCode?.trim().toLowerCase() &&
+    recipientCountry?.trim().toLowerCase() === country?.trim().toLowerCase()
+  ) {
+    newErrors.addressLine1 = "Recipient address cannot be the same as the sender address";
+  }
+
+  setRecipientErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   // Validation for Package tab
   const validatePackageForm = () => {
