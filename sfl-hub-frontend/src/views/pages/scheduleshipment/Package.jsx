@@ -23,6 +23,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
+import Slide from '@mui/material/Slide';
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -54,15 +55,6 @@ const Package = ({
   // State to control dialog visibility
   const [openDialog, setOpenDialog] = useState(false);
 
-  // Create refs for valuePerQty TextFields
-  const valuePerQtyRefs = useRef([]);
-
-  // Initialize refs array based on commercialInvoiceData length
-  if (valuePerQtyRefs.current.length !== commercialInvoiceData.length) {
-    valuePerQtyRefs.current = Array(commercialInvoiceData.length)
-      .fill()
-      .map((_, i) => valuePerQtyRefs.current[i] || React.createRef());
-  }
 
   function handleNext(e) {
     const totalinsured_value = packageData.reduce(
@@ -95,12 +87,13 @@ const Package = ({
 
   // Function to handle update action and focus valuePerQty
   const handleUpdateCommercialValue = () => {
-    // Focus the valuePerQty TextField of the first row
-    if (valuePerQtyRefs.current[0]?.current) {
-      valuePerQtyRefs.current[0].current.focus();
-    }
     setOpenDialog(false);
   };
+
+  const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+  });
+  
 
   return (
     <Box className="ss-box">
@@ -108,6 +101,7 @@ const Package = ({
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
+        TransitionComponent={Transition}
         aria-labelledby="insured-value-dialog-title"
         sx={{ "& .MuiDialog-paper": { minWidth: "400px", p: 2 } }}
       >
@@ -433,7 +427,6 @@ const Package = ({
                           fullWidth
                           variant="outlined"
                           size="small"
-                          inputRef={valuePerQtyRefs.current[index]} // Assign ref to valuePerQty
                           InputProps={{
                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           }}
