@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -18,13 +18,16 @@ import {
   Paper,
   InputAdornment,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ButtonBox, NextButton, PrevButton } from "../../styles/scheduleshipmentStyle";
-import toast from "react-hot-toast";
 
 const Package = ({
   packageData,
@@ -48,6 +51,19 @@ const Package = ({
   updatePackageRows,
   samecountry,
 }) => {
+  // State to control dialog visibility
+  const [openDialog, setOpenDialog] = useState(false);
+
+  // Create refs for valuePerQty TextFields
+  const valuePerQtyRefs = useRef([]);
+
+  // Initialize refs array based on commercialInvoiceData length
+  if (valuePerQtyRefs.current.length !== commercialInvoiceData.length) {
+    valuePerQtyRefs.current = Array(commercialInvoiceData.length)
+      .fill()
+      .map((_, i) => valuePerQtyRefs.current[i] || React.createRef());
+  }
+
   function handleNext(e) {
     const totalinsured_value = packageData.reduce(
       (sum, pkg) => sum + Number(pkg.insured_value || 0),
@@ -64,7 +80,7 @@ const Package = ({
         console.log("different country");
         handlePackageSubmit();
       } else {
-        toast.error("Insured value should be less than or equal to Total declared value and greater than zero.");
+        setOpenDialog(true);
       }
     } else {
       console.log("same country");
@@ -72,8 +88,49 @@ const Package = ({
     }
   }
 
+  // Function to close the dialog
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  // Function to handle update action and focus valuePerQty
+  const handleUpdateCommercialValue = () => {
+    // Focus the valuePerQty TextField of the first row
+    if (valuePerQtyRefs.current[0]?.current) {
+      valuePerQtyRefs.current[0].current.focus();
+    }
+    setOpenDialog(false);
+  };
+
   return (
     <Box className="ss-box">
+      {/* Dialog for Insured Value Error */}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="insured-value-dialog-title"
+        sx={{ "& .MuiDialog-paper": { minWidth: "400px", p: 2 } }}
+      >
+        <DialogTitle id="insured-value-dialog-title" sx={{ fontWeight: "bold" }}>
+        Insured Value cannot exceed Customs value.
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            Please change "Value Per Qty" in Commercial Invoice or update "Insured Value" in Get Rate.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleUpdateCommercialValue}
+            variant="contained"
+            color="primary"
+            sx={{ textTransform: "none" }}
+          >
+            Update Commercial Value
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} sm={4}>
           <FormControl fullWidth>
@@ -190,7 +247,7 @@ const Package = ({
                             endAdornment: <InputAdornment position="end">in</InputAdornment>,
                           }}
                         />
-                        <Typography sx={{ display: { xs: "none", sm: "block" } }}>+</Typography>
+                        <Typography sx={{ display: { xs: "none", sm: "block Elyse" } }}>+</Typography>
                         <TextField
                           name="width"
                           type="number"
@@ -376,6 +433,7 @@ const Package = ({
                           fullWidth
                           variant="outlined"
                           size="small"
+                          inputRef={valuePerQtyRefs.current[index]} // Assign ref to valuePerQty
                           InputProps={{
                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           }}
