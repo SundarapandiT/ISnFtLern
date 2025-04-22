@@ -131,39 +131,33 @@ const EmailVerification = () => {
       const response = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, {
         email: registerDetails.email,
       });
-
-      if (response.status === 200) {
-        toast.dismiss(loadingToast);
-        const message = response.data?.message;
-        const userMessage = response.data?.user?.message;
-
-
-        if (message === "Email is already verified, no need to generate OTP") {
-          toast.info("Email is already registered and verified.", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        } else if (userMessage === "OTP sent successfully") {
-          toast.success("OTP sent successfully!", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        } else {
-          throw new Error("Failed to send OTP");
-        }
+      const userMessage = response.data?.message;
+      if (userMessage === 'Email is already verified, no need to generate OTP.') {
+        toast.error("Already registered with this email. Please login..", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return { success: false, verified: true };
+      } else if (userMessage === "OTP sent successfully") {
+        toast.success("OTP sent successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return { success: true, verified: false };
       } else {
-        throw new Error("Unexpected response from server");
+        throw new Error(userMessage || "Failed to send OTP");
       }
     } catch (error) {
       console.error("Error sending OTP:", error);
-      toast.dismiss(loadingToast);
-
-      toast.error("Failed to send OTP. Try again.", {
+      toast.error(error?.response?.data?.message || "Failed to send OTP. Try again.", {
         position: "top-right",
         autoClose: 3000,
       });
+      return { success: false, verified: false };
+    } finally {
+      toast.dismiss(loadingToast);
     }
-  }
+  };
 
 
   useEffect(() => {
