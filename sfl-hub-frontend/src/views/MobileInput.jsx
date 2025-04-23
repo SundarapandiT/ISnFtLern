@@ -7,7 +7,7 @@ import "react-phone-input-2/lib/material.css";
 const MobileInput = ({ registerDetails, handleChange, handleRegister, handleBlur, setState, state }) => {
   return (
     <PhoneInput
-      country={"in"} 
+      country={"us"} 
       enableSearch={true}
       value={registerDetails.mobile}
       onChange={(value, countryData) => {

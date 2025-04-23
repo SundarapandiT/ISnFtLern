@@ -332,6 +332,7 @@ const Schedule = () => {
       !location.pathname.endsWith("/ShipmentList")
     ) {
       navigate("/admin/ShipmentList", { replace: true });
+     
     }
     else if (activeModule === "Schedule Shipment") {
       if (activeTab === "schedule-pickup") {
@@ -834,6 +835,8 @@ const Schedule = () => {
     setActiveModule(module);
     if (module === "Schedule Shipment") {
       setConfirmation(false);
+      //refresh page
+      // window.location.reload();
       setActiveTab("schedule-pickup");
       setCompletedTabs({
         "schedule-pickup": false,
@@ -842,7 +845,9 @@ const Schedule = () => {
         package: shipmentType !== "Ocean",
         payment: false,
       });
+      
     } else if (module === "My Shipment") {
+      setEdit(false)
       setActiveTab("my-shipment");
     }
     setDrawerOpen(false);

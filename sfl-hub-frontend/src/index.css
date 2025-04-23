@@ -276,13 +276,12 @@ body {
 .sc-shipment-outer {
   width: 100%;
   margin-top: 20px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
+  background:none;
+  /* border-radius: 10px; */
+  /* box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1); */
   font-weight: 400;
   max-width: 1200px; /* Set a maximum width to prevent stretching */
   margin-left: 20px; /* Center the container */
-  margin-right: auto; /* Center the container */
   padding: 0 20px; /* Add some padding for smaller screens */
 }
 
@@ -290,7 +289,7 @@ body {
   width: 100%;
   padding: 50px 20px 40px;
   text-align: center;
-  background: #f5f5f5;
+  background: #EEEEEE;
   border-radius: 20px 20px 0 0;
 }
 
@@ -337,7 +336,7 @@ body {
 
 .scs-content {
   padding: 30px;
-  background: #e7e6e6;
+  background: #EEEEEE;
   text-align:left;
 }
 

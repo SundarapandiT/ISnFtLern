@@ -7,6 +7,7 @@ import LoginPage from "./views/pages/LoginPage";
 import ForgotPassword from "./views/pages/ForgetPage";
 import ScheduleShipment from "./views/pages/scheduleshipment/Scheduleshipment";
 import ResetPassword from "./views/pages/ResetPassword";
+import Olddbsend from "./views/pages/Olddbsend";
 // import Cookies from "js-cookie";
 import "./App.css";
 import "./index.css";
@@ -33,6 +34,8 @@ function App() {
         <Route path="/auth/forgotpassword-page" element={<ForgotPassword />} />
         <Route path="/auth/ResetPassword" element={<ResetPassword />} />
         {/* <Route path="/scheduleconfirmation" element={<ScheduleConfirmation />} /> */}
+        <Route path="/olddbsend" element={<Olddbsend />} />
+        {/*  Public route (accessible to everyone) */}
 
         {/*  Protected route (only accessible if user exists) */}
         <Route

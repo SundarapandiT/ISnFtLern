@@ -266,6 +266,7 @@ const RegisterPage = () => {
   };
   const SendtoOldDatabase = async () => {
     console.log("Sending OTP to old database...");
+    const loadingToast = toast.loading("wait...");
     try {
       const response = await axios.post(`${api.OldDatabaseURL}/authentication/userRegister`, {
         Email: registerDetails.email,
@@ -273,35 +274,55 @@ const RegisterPage = () => {
         Phone: registerDetails.mobile,
         Name: registerDetails.fullname,
         UserName: registerDetails.username,
-        Phone2:"",
-        "UserDetails":{"AccountNumber":"","ManagedBy":"","CompanyName":"","AddressLine1":"","AddressLine2":"","AddressLine3":"","ZipCode":"","City":"","State":"","ContactName":"","CountryID":"","UserDetailID":null}
-  
-      });
-      if (response.status === 200 || response.data.success===true) {
-        console.log("old database: ",response.data.data?.message);
-        sessionStorage.setItem("PersonID", response.data.data?.PersonID);
+        Phone2: "",
+        UserDetails: {
+          AccountNumber: "", ManagedBy: "", CompanyName: "", AddressLine1: "",
+          AddressLine2: "", AddressLine3: "", ZipCode: "", City: "", State: "",
+          ContactName: "", CountryID: "", UserDetailID: null
         }
-      else {  
-        throw new Error("Failed to register user in old database".response.data);
+      });
+  
+      const resData = response.data;
+  
+      if (resData.success) {
+        toast.dismiss(loadingToast);
+        console.log("old database: ", resData.data.message);
+        sessionStorage.setItem("PersonID", resData.data?.PersonID);
+        return true; 
+      } else {
+        console.warn("User not added, message:", resData.message);
+        toast.dismiss(loadingToast);
+        toast.error(resData.message)
+        return false;
       }
     } catch (error) {
       console.error("Error sending data to old database:", error);
+      toast.dismiss(loadingToast);
+      toast.error(error);
+      return false;
     }
-  }
+  };
+  
 
   const signUp = async (event) => {
     event.preventDefault();
     if (!validate()) return;
+    const addedSuccessfully = await SendtoOldDatabase();
+      if (addedSuccessfully) {
+  
     const otpResult = await sendMail();
     if (otpResult.success && !otpResult.verified) {
-      SendtoOldDatabase();
-      navigate("/emailverification");
+      
+        navigate("/emailverification");
+      }
       return;
     }
+  
     if (!otpResult.success && otpResult.verified) {
       return;
     }
   };
+  
 
   return (
     <Box className={classes.root}>
