@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 
 import axios from "axios";
-import { api, encryptURL } from '../../../utils/api'
+import { api, encryptURL, getStateID } from '../../../utils/api'
 import { toast } from "react-hot-toast";
 import Myshipment from "../myshipment/Myshipment";
 import { useStyles } from "../../styles/MyshipmentStyle";
@@ -165,6 +165,13 @@ const Schedule = () => {
   const [recipientLocationType, setRecipientLocationType] = useState("Residential");
   const [recipientErrors, setRecipientErrors] = useState({});
 
+
+  const [fromoldcountryid, setfromoldcountryid] = useState("");
+  const [fromoldstateid, setfromoldstateid] = useState("");
+  const [recipientoldcountryid, setrecipientoldcountryid] = useState("");
+  const [recipientoldstateid, setrecipientoldstateid] = useState("");
+
+
   // Package tab
   const [packageType, setPackageType] = useState("Package");
   const [noOfPackages, setNoOfPackages] = useState(1);
@@ -199,18 +206,18 @@ const Schedule = () => {
       const response = await axios.post(
         "https://hubapi.sflworldwide.com/scheduleshipment/getManagedByPhoneOREmailShipment",
         {
-          // FromEmail: email,
-          // FromPhone1: phone1,
-          // FromPhone2: phone2,
-          // ToEmail: recipientEmail,
-          // ToPhone1: recipientPhone1,
-          // ToPhone2: recipientPhone2,
-          FromEmail: "test@gmail.com",
-            FromPhone1: "7412589630",
-            FromPhone2: "",
-            ToEmail: "",
-            ToPhone1: "8660330457",
-            ToPhone2: "recipientPhone2",
+          FromEmail: email,
+          FromPhone1: phone1.replace(/^\+\d{1,4}/, ''),
+          FromPhone2: phone2.replace(/^\+\d{1,4}/, ''),
+          ToEmail: recipientEmail,
+          ToPhone1: recipientPhone1.replace(/^\+\d{1,4}/, ''),
+          ToPhone2: recipientPhone2.replace(/^\+\d{1,4}/, ''),
+        //   FromEmail: "test@gmail.com",
+        //     FromPhone1: "7412589630",
+        //     FromPhone2: "",
+        //     ToEmail: "",
+        //     ToPhone1: "8660330457",
+        //     ToPhone2: "recipientPhone2",
         }
       );
   
@@ -276,7 +283,7 @@ const Schedule = () => {
           tracking_number: "",
           shipment_type: shipmentType,
           location_type: recipientLocationType,
-          is_pickup: needsPickup,
+          is_pickup: needsPickup==="Yes - I Need Pickup" ? true : false,
           pickup_date: pickupDate,
           package_type: packageType,
           total_packages: noOfPackages,
@@ -307,7 +314,7 @@ const Schedule = () => {
         MovingBackToIndia: false,
         from_address: {
           AddressID: null,
-          country_id: countryId,
+          country_id: fromoldcountryid?fromoldcountryid:202,
           country_name: fromCountry,
           fromCountryCode: countrycode,
           company_name: companyName,
@@ -318,10 +325,10 @@ const Schedule = () => {
           MovingBack: false,
           OriginalPassportAvailable: false,
           EligibleForTR: false,
-          city_id: "",
+          city_id: 1,
           city_name: fromCity,
           fedex_city: "",
-          state_id: "",
+          state_id: fromoldstateid?fromoldstateid:1,
           state_name: state,
           zip_code: zipCode,
           phone1: phone1,
@@ -330,7 +337,7 @@ const Schedule = () => {
         },
         to_address: {
           AddressID: null,
-          country_id: recipientCountryId,
+          country_id: recipientoldcountryid?recipientoldcountryid:89,
           country_name: recipientCountry,
           toCountryCode: recipientcountrycode,
           company_name: recipientCompanyName,
@@ -338,10 +345,10 @@ const Schedule = () => {
           address_1: recipientAddressLine1,
           address_2: recipientAddressLine2,
           address_3: recipientAddressLine3,
-          city_id: "",
+          city_id: 1,
           city_name: recipientCity,
           fedex_city: "",
-          state_id: "",
+          state_id: recipientoldstateid?recipientoldstateid:1,
           state_name: recipientState,
           zip_code: recipientZipCode,
           phone1: recipientPhone1,
@@ -415,105 +422,83 @@ const Schedule = () => {
   
       const requestData = {
         UserID: userId,
-        ipAddress: "",
-        TrackingNumber: null,
-        shipments: {
-          tracking_number: "",
-          shipment_type: shipmentType,
-          location_type: recipientLocationType,
-          is_pickup: needsPickup,
-          pickup_date: pickupDate,
-          package_type: packageType,
-          total_packages: noOfPackages,
-          is_pay_online: 0,
-          is_pay_bank: 0,
-          promo_code: "",
-          is_agree: "",
-          total_weight: packageData
-            .reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0)
-            .toFixed(2),
-          total_chargable_weight: packageData
-            .reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0)
-            .toFixed(2),
-          total_insured_value: packageData
-            .reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0)
-            .toFixed(2),
-          duties_paid_by: dutiesPaidBy,
-          total_declared_value: commercialInvoiceData
-            ? commercialInvoiceData
-                .reduce(
-                  (sum, _, index) =>
-                    sum + Number(calculateTotalValue(index) || 0),
-                  0
-                )
-                .toFixed(2)
-            : "",
-          userName: userName,
-          ServiceName: "",
-          SubServiceName: "",
-          managed_by: managedBy,
-          ShippingID: shippingId,
-          InvoiceDueDate: null,
-        },
-        MovingBackToIndia: false,
-        from_address: {
-          AddressID: null,
-          country_id: countryId,
-          country_name: fromCountry,
-          fromCountryCode: countrycode,
-          company_name: companyName,
-          contact_name: encrypt(contactName),
-          address_1: encrypt(addressLine1),
-          address_2: encrypt(addressLine2),
-          address_3: encrypt(addressLine3),
-          MovingBack: false,
-          OriginalPassportAvailable: false,
-          EligibleForTR: false,
-          city_id: "",
-          city_name: fromCity,
-          fedex_city: "",
-          state_id: "",
-          state_name: state,
-          zip_code: zipCode,
-          phone1: encrypt(phone1),
-          phone2: encrypt(phone2),
-          email: encrypt(email),
-        },
-        to_address: {
-          AddressID: null,
-          country_id: recipientCountryId,
-          country_name: recipientCountry,
-          toCountryCode: recipientcountrycode,
-          company_name: recipientCompanyName,
-          contact_name: encrypt(recipientContactName),
-          address_1: encrypt(recipientAddressLine1),
-          address_2: encrypt(recipientAddressLine2),
-          address_3: encrypt(recipientAddressLine3),
-          city_id: "",
-          city_name: recipientCity,
-          fedex_city: "",
-          state_id: "",
-          state_name: recipientState,
-          zip_code: recipientZipCode,
-          phone1: encrypt(recipientPhone1),
-          phone2: encrypt(recipientPhone2),
-          email: encrypt(recipientEmail),
-        },
-        packages: packageData,
-        commercial: commercialInvoiceData ? commercialInvoiceData : [],
-        invoiceData: [],
-        TotalCommercialvalue: commercialInvoiceData
-          ? commercialInvoiceData
-              .reduce(
-                (sum, _, index) => sum + Number(calculateTotalValue(index) || 0),
-                0
-              )
-              .toFixed(2)
-          : "",
-        TotalWeight: packageData
-          .reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0)
-          .toFixed(2),
-      };
+      ipAddress: "",
+      TrackingNumber: null,
+      shipments: {
+        tracking_number: "",
+        shipment_type: shipmentType,
+        location_type: recipientLocationType,
+        is_pickup: needsPickup,
+        pickup_date: pickupDate,
+        package_type: packageType,
+        total_packages: noOfPackages,
+        is_pay_online: 0,
+        is_pay_bank: 0,
+        promo_code: "",
+        is_agree: "",
+        total_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
+        total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2),
+        total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2),
+        duties_paid_by: dutiesPaidBy,
+        total_declared_value:commercialInvoiceData? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2):"",
+        userName: userName,
+        ServiceName: "",
+        SubServiceName: "",
+        managed_by: managedBy,
+        ShippingID:null,
+        OldshippingID:shippingId,
+        InvoiceDueDate: null,
+      },
+      MovingBackToIndia: false,
+      from_address: {
+        AddressID: null,
+        country_id: countryId,
+        country_name: fromCountry,
+        fromCountryCode: countrycode,
+        company_name: companyName,
+        contact_name: encrypt(contactName),
+        address_1: encrypt(addressLine1),
+        address_2: encrypt(addressLine2),
+        address_3: encrypt(addressLine3),
+        MovingBack: false,
+        OriginalPassportAvailable: false,
+        EligibleForTR: false,
+        city_id: "",
+        city_name: fromCity,
+        fedex_city: "",
+        state_id: "",
+        state_name: state,
+        zip_code: zipCode,
+        phone1: encrypt(phone1),
+        phone2: encrypt(phone2),
+        email: encrypt(email),
+      },
+      to_address: {
+        AddressID: null,
+        country_id: recipientCountryId,
+        country_name: recipientCountry,
+        toCountryCode: recipientcountrycode,
+        company_name: recipientCompanyName,
+        contact_name: encrypt(recipientContactName),
+        address_1: encrypt(recipientAddressLine1),
+        address_2: encrypt(recipientAddressLine2),
+        address_3: encrypt(recipientAddressLine3),
+        city_id: "",
+        city_name: recipientCity,
+        fedex_city: "",
+        state_id:"",
+        state_name: recipientState,
+        zip_code: recipientZipCode,
+        phone1: encrypt(recipientPhone1),
+        phone2: encrypt(recipientPhone2),
+        email: encrypt(recipientEmail),
+      },
+      packages: packageData,
+      commercial: commercialInvoiceData?commercialInvoiceData:[],
+      invoiceData: [],
+      TotalCommercialvalue:commercialInvoiceData? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2):"",
+      TotalWeight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
+    };
   
       console.log(requestData);
   
@@ -984,7 +969,9 @@ const Schedule = () => {
         setActiveTab(nextTab);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
-      
+      const oldobj=getStateID(country,state,setfromoldcountryid,setfromoldstateid)
+    const oldobj1=getStateID(recipientCountry,recipientState,setrecipientoldcountryid,setrecipientoldstateid);
+    
     }
     else{
       toast.error("Please fill with Valid Information", {
@@ -1102,6 +1089,7 @@ const Schedule = () => {
     }
     setDrawerOpen(false);
   };
+
 
   // Map country codes to country names for Sender and Recipient
   useEffect(() => {
