@@ -319,7 +319,7 @@ const Sender = ({
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
-              specialLabel="Phone 1"
+              specialLabel="Phone 1 *"
             />
             {senderErrors.phone1 && (
               <Typography variant="caption" color="error">

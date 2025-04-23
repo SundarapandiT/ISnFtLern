@@ -308,7 +308,7 @@ const Recipient = ({
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
-              specialLabel="Phone 1"
+              specialLabel="Phone 1 *"
               placeholder="Phone 1"
             />
             {recipientErrors.phone1 && (
@@ -343,12 +343,11 @@ const Recipient = ({
             value={recipientEmail}
             onChange={(e) => setRecipientEmail(e.target.value)}
             fullWidth
-            required
             error={!!recipientErrors.email}
             helperText={recipientErrors.email}
             sx={fieldStyle}
             InputProps={{
-              startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />,
+              startAdornment: <EmailIcon sx={{ color: "action.active", mr: 1 }} />,
             }}
           />
         </Box>

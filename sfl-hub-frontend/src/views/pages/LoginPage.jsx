@@ -74,6 +74,7 @@ const LoginPage = () => {
         const decryptedPhone = CryptoJS.AES.decrypt(res.data.user.data.p_phonenum, SECRET_KEY).toString(CryptoJS.enc.Utf8);
         const decryptedUsername = CryptoJS.AES.decrypt(res.data.user.data.p_username, SECRET_KEY).toString(CryptoJS.enc.Utf8);
         const decryptedPersonID = CryptoJS.AES.decrypt(res.data.user.data.p_personID, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+         const decryptedOldPersonID = CryptoJS.AES.decrypt(res.data.user.data.p_OldPersonID, SECRET_KEY).toString(CryptoJS.enc.Utf8);
   
         sessionStorage.setItem("user", JSON.stringify({
           name: decryptedName,
@@ -81,9 +82,9 @@ const LoginPage = () => {
           phone: decryptedPhone,
           username: decryptedUsername,
           personID: decryptedPersonID,
+          oldPersonID: decryptedOldPersonID,
         }));
-        console.log("Without utf8: ",res.data.user.data.p_personID)
-        console.log("PersonId: ", decryptedPersonID);
+        sessionStorage.setItem("PersonID", decryptedOldPersonID);
      
         toast.success("Login successful!", { position: "top-right", autoClose: 3000 });
         navigate("/admin/Scheduleshipment", { replace: true });

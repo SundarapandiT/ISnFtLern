@@ -93,12 +93,36 @@ const ShipmentDashboard = ({ setEdit }) => {
     "To Be Deleted",
   ];
   const open = Boolean(anchorEl);
-  const handleEdit = (row) => {
-    // Navigate to MyShipmentnew page with row data
-    setEdit(true);
-    navigate("/admin/MyShipmentNew", { state: { shipment: row }, replace: true });
+  const handleEdit = async (row) => {
+    const loadingToast = toast.loading("Fetching shipment details...");
+    try {
+  
+      // Make API call to get shipment details
+      const response = await axios.post(`${api.BackendURL}/shipment/getmyShipments`, {
+        data: { Shipping_ID:row.shippingid},
+      });
+  
+      toast.dismiss(loadingToast);
+  
+      if (response.status === 200 && response.data?.user) {
+        const shipmentData = response.data.user; // Full shipment details from API
+        console.log("Fetched Shipment Data:", shipmentData); // Debug log
+  
+        // Navigate to MyShipmentNew with fetched data
+        setEdit(true);
+        navigate("/admin/MyShipmentNew", {
+          state: { shipment: shipmentData },
+          replace: true,
+        });
+      } else {
+        toast.error("Failed to fetch shipment details");
+      }
+    } catch (error) {
+      console.error("Error fetching shipment details:", error);
+      toast.dismiss(loadingToast);
+      toast.error(error?.response?.data?.message || "Failed to fetch shipment details");
+    }
   };
-
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };

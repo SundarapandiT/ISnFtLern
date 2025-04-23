@@ -101,6 +101,7 @@ const Schedule = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [Loginname, setLoginname] = useState("Unknown")
   const [userId, setUserId] = useState("");
+  const [userOldid, setUserOldId] = useState("");
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
@@ -111,8 +112,12 @@ const Schedule = () => {
       setEmail(storedUser.email);
       setPhone1(storedUser.phone);
       // setUserId(storedUser.personID);
-      setUserId(storedUser.personID||"3aaf69e0-5369-49d8-9b87-371b3c78ffbe");
+      setUserId(storedUser.personID);
       setUserName(storedUser.username);
+    }
+    const storedPersonId = sessionStorage.getItem("PersonID");
+    if (storedPersonId) {
+      setUserOldId(storedPersonId);
     }
   }, []);
 
@@ -185,130 +190,372 @@ const Schedule = () => {
     },
   ]);
   const [packageErrors, setPackageErrors] = useState({});
+  const [managedBy, setManagedBy] = useState("");
+  const [shippingid, setShippingId] = useState("");
 
+  const getManagedBy = async () => {
+    const loadingToast = toast.loading("Fetching ManagedBy...");
+    try {
+      const response = await axios.post(
+        "https://hubapi.sflworldwide.com/scheduleshipment/getManagedByPhoneOREmailShipment",
+        {
+          // FromEmail: email,
+          // FromPhone1: phone1,
+          // FromPhone2: phone2,
+          // ToEmail: recipientEmail,
+          // ToPhone1: recipientPhone1,
+          // ToPhone2: recipientPhone2,
+          FromEmail: "test@gmail.com",
+            FromPhone1: "7412589630",
+            FromPhone2: "",
+            ToEmail: "",
+            ToPhone1: "8660330457",
+            ToPhone2: "recipientPhone2",
+        }
+      );
+  
+      const managedby = response.data?.data?.[0]?.ManagedBy || "";
+      setManagedBy(managedby);
+      toast.dismiss(loadingToast);
+      toast.success("ManagedBy fetched successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      console.log("ManagedBy:", managedby);
+      return managedby; // Return managedBy to indicate success
+    } catch (error) {
+      console.error("Failed to fetch ManagedBy", error);
+      toast.dismiss(loadingToast);
+      toast.error("Failed to fetch ManagedBy", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      throw error; // Throw error to stop further execution
+    }
+  };
+  
+  const SendOldDb = async () => {
+    try {
+      const managedByResult = await getManagedBy();
+      if (!managedByResult) {
+        throw new Error("ManagedBy is empty or not fetched");
+      }
+  
+      const loadingToast = toast.loading("Sending shipment...");
+      const transformedPackages = packageData.map((pkg, index) => ({
+        shipments_tracking_number: "",
+        PackageNumber: index + 1,
+        weight: Number(pkg.weight || 0).toFixed(2),
+        unit_of_weight: "LBS",
+        length: Number(pkg.length || 0).toFixed(2),
+        width: Number(pkg.width || 0).toFixed(2),
+        height: Number(pkg.height || 0).toFixed(2),
+        TV: false,
+        Crating: false,
+        Repack: false,
+        Stretch: false,
+        chargable_weight: Number(pkg.chargable_weight || 0).toFixed(2),
+        insured_value: Number(pkg.insured_value || 0).toFixed(2),
+      }));
+  
+      const transformedCommercial = commercialInvoiceData.map((item) => ({
+        shipments_tracking_number: "",
+        package_number: Number(item.packageNumber || 1),
+        content_description: item.contentDescription || "",
+        quantity: String(item.quantity || 0),
+        value_per_qty: Number(item.valuePerQty || 0).toFixed(2),
+        total_value: (Number(item.quantity || 0) * Number(item.valuePerQty || 0)).toFixed(2),
+        CommercialInvoiceID: null,
+      }));
+  
+      const payload = {
+        UserID: userOldid,
+        ipAddress: "",
+        TrackingNumber: null,
+        shipments: {
+          tracking_number: "",
+          shipment_type: shipmentType,
+          location_type: recipientLocationType,
+          is_pickup: needsPickup,
+          pickup_date: pickupDate,
+          package_type: packageType,
+          total_packages: noOfPackages,
+          is_pay_online: 0,
+          is_pay_bank: 0,
+          promo_code: "",
+          is_agree: "",
+          total_weight: transformedPackages
+            .reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0)
+            .toFixed(2),
+          total_chargable_weight: transformedPackages
+            .reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0)
+            .toFixed(2),
+          total_insured_value: transformedPackages
+            .reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0)
+            .toFixed(2),
+          duties_paid_by: dutiesPaidBy,
+          total_declared_value: transformedCommercial
+            .reduce((sum, item) => sum + Number(item.total_value || 0), 0)
+            .toFixed(2),
+          userName: userName,
+          ServiceName: "",
+          SubServiceName: "",
+          managed_by: managedByResult,
+          ShippingID: null,
+          InvoiceDueDate: null,
+        },
+        MovingBackToIndia: false,
+        from_address: {
+          AddressID: null,
+          country_id: countryId,
+          country_name: fromCountry,
+          fromCountryCode: countrycode,
+          company_name: companyName,
+          contact_name: contactName,
+          address_1: addressLine1,
+          address_2: addressLine2,
+          address_3: addressLine3,
+          MovingBack: false,
+          OriginalPassportAvailable: false,
+          EligibleForTR: false,
+          city_id: "",
+          city_name: fromCity,
+          fedex_city: "",
+          state_id: "",
+          state_name: state,
+          zip_code: zipCode,
+          phone1: phone1,
+          phone2: phone2,
+          email: email,
+        },
+        to_address: {
+          AddressID: null,
+          country_id: recipientCountryId,
+          country_name: recipientCountry,
+          toCountryCode: recipientcountrycode,
+          company_name: recipientCompanyName,
+          contact_name: recipientContactName,
+          address_1: recipientAddressLine1,
+          address_2: recipientAddressLine2,
+          address_3: recipientAddressLine3,
+          city_id: "",
+          city_name: recipientCity,
+          fedex_city: "",
+          state_id: "",
+          state_name: recipientState,
+          zip_code: recipientZipCode,
+          phone1: recipientPhone1,
+          phone2: recipientPhone2,
+          email: recipientEmail,
+        },
+        packages: transformedPackages,
+        commercial: transformedCommercial,
+        invoiceData: [],
+        PaymentData: [],
+        TotalCommercialvalue: transformedCommercial
+          .reduce((sum, item) => sum + Number(item.total_value || 0), 0)
+          .toFixed(2),
+        TotalWeight: transformedPackages
+          .reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0)
+          .toFixed(2),
+      };
+  
+      const response = await axios.post(
+        "https://hubapi.sflworldwide.com/scheduleshipment/addshipments",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      if (response.status === 200 && response.data.success) {
+        toast.dismiss(loadingToast);
+        toast.success("Shipment added successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        console.log("Shipment added successfully:", response.data);
+        const sid = response.data.data?.ShippingID;
+        setShippingId(sid);
+        return sid;
+      } else {
+        throw new Error("Something went wrong with shipment addition");
+      }
+    } catch (error) {
+      console.error("Error in SendOldDb:", error);
+      toast.dismiss(loadingToast);
+      toast.error("Error adding shipment", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      throw error;
+    }
+  };
+  
   const handleSubmit = async () => {
     console.log("Submitting data...");
     const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
     if (!SECRET_KEY) {
-      throw new Error("Encryption key is missing!");
+      toast.error("Encryption key is missing!");
+      return;
     }
-  
-    // Helper function to encrypt values safely
-    const encrypt = (value) =>
-      value ? CryptoJS.AES.encrypt(value, SECRET_KEY).toString() : "";
-  
-    const requestData = {
-      UserID: userId,
-      ipAddress: "",
-      TrackingNumber: null,
-      shipments: {
-        tracking_number: "",
-        shipment_type: shipmentType,
-        location_type: recipientLocationType,
-        is_pickup: needsPickup,
-        pickup_date: pickupDate,
-        package_type: packageType,
-        total_packages: noOfPackages,
-        is_pay_online: 0,
-        is_pay_bank: 0,
-        promo_code: "",
-        is_agree: "",
-        total_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
-        total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2),
-        total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2),
-        duties_paid_by: dutiesPaidBy,
-        total_declared_value:commercialInvoiceData? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2):"",
-        userName: userName,
-        ServiceName: "",
-        SubServiceName: "",
-        managed_by: "",
-        ShippingID: null,
-        InvoiceDueDate: null,
-      },
-      MovingBackToIndia: false,
-      from_address: {
-        AddressID: null,
-        country_id: countryId,
-        country_name: fromCountry,
-        fromCountryCode: countrycode,
-        company_name: companyName,
-        contact_name: encrypt(contactName),
-        address_1: encrypt(addressLine1),
-        address_2: encrypt(addressLine2),
-        address_3: encrypt(addressLine3),
-        MovingBack: false,
-        OriginalPassportAvailable: false,
-        EligibleForTR: false,
-        city_id: "",
-        city_name: fromCity,
-        fedex_city: "",
-        state_id: "",
-        state_name: state,
-        zip_code: zipCode,
-        phone1: encrypt(phone1),
-        phone2: encrypt(phone2),
-        email: encrypt(email),
-      },
-      to_address: {
-        AddressID: null,
-        country_id: recipientCountryId,
-        country_name: recipientCountry,
-        toCountryCode: recipientcountrycode,
-        company_name: recipientCompanyName,
-        contact_name: encrypt(recipientContactName),
-        address_1: encrypt(recipientAddressLine1),
-        address_2: encrypt(recipientAddressLine2),
-        address_3: encrypt(recipientAddressLine3),
-        city_id: "",
-        city_name: recipientCity,
-        fedex_city: "",
-        state_id:"",
-        state_name: recipientState,
-        zip_code: recipientZipCode,
-        phone1: encrypt(recipientPhone1),
-        phone2: encrypt(recipientPhone2),
-        email: encrypt(recipientEmail),
-      },
-      packages: packageData,
-      commercial: commercialInvoiceData?commercialInvoiceData:[],
-      invoiceData: [],
-      TotalCommercialvalue:commercialInvoiceData? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2):"",
-      TotalWeight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
-    };
-    
-  
-    console.log(requestData); 
-  
-    const toastId = toast.loading("Scheduling your shipment...");
-    const encodedUrl= encryptURL("/shipment/addShipments");
-    
   
     try {
+      // Call SendOldDb and wait for it to complete successfully
+      const shippingId = await SendOldDb();
+      if (!shippingId) {
+        throw new Error("Failed to obtain ShippingID");
+      }
+  
+      // Proceed with handleSubmit logic
+      const encrypt = (value) =>
+        value ? CryptoJS.AES.encrypt(value, SECRET_KEY).toString() : "";
+  
+      const requestData = {
+        UserID: userId,
+        ipAddress: "",
+        TrackingNumber: null,
+        shipments: {
+          tracking_number: "",
+          shipment_type: shipmentType,
+          location_type: recipientLocationType,
+          is_pickup: needsPickup,
+          pickup_date: pickupDate,
+          package_type: packageType,
+          total_packages: noOfPackages,
+          is_pay_online: 0,
+          is_pay_bank: 0,
+          promo_code: "",
+          is_agree: "",
+          total_weight: packageData
+            .reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0)
+            .toFixed(2),
+          total_chargable_weight: packageData
+            .reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0)
+            .toFixed(2),
+          total_insured_value: packageData
+            .reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0)
+            .toFixed(2),
+          duties_paid_by: dutiesPaidBy,
+          total_declared_value: commercialInvoiceData
+            ? commercialInvoiceData
+                .reduce(
+                  (sum, _, index) =>
+                    sum + Number(calculateTotalValue(index) || 0),
+                  0
+                )
+                .toFixed(2)
+            : "",
+          userName: userName,
+          ServiceName: "",
+          SubServiceName: "",
+          managed_by: managedBy,
+          ShippingID: shippingId,
+          InvoiceDueDate: null,
+        },
+        MovingBackToIndia: false,
+        from_address: {
+          AddressID: null,
+          country_id: countryId,
+          country_name: fromCountry,
+          fromCountryCode: countrycode,
+          company_name: companyName,
+          contact_name: encrypt(contactName),
+          address_1: encrypt(addressLine1),
+          address_2: encrypt(addressLine2),
+          address_3: encrypt(addressLine3),
+          MovingBack: false,
+          OriginalPassportAvailable: false,
+          EligibleForTR: false,
+          city_id: "",
+          city_name: fromCity,
+          fedex_city: "",
+          state_id: "",
+          state_name: state,
+          zip_code: zipCode,
+          phone1: encrypt(phone1),
+          phone2: encrypt(phone2),
+          email: encrypt(email),
+        },
+        to_address: {
+          AddressID: null,
+          country_id: recipientCountryId,
+          country_name: recipientCountry,
+          toCountryCode: recipientcountrycode,
+          company_name: recipientCompanyName,
+          contact_name: encrypt(recipientContactName),
+          address_1: encrypt(recipientAddressLine1),
+          address_2: encrypt(recipientAddressLine2),
+          address_3: encrypt(recipientAddressLine3),
+          city_id: "",
+          city_name: recipientCity,
+          fedex_city: "",
+          state_id: "",
+          state_name: recipientState,
+          zip_code: recipientZipCode,
+          phone1: encrypt(recipientPhone1),
+          phone2: encrypt(recipientPhone2),
+          email: encrypt(recipientEmail),
+        },
+        packages: packageData,
+        commercial: commercialInvoiceData ? commercialInvoiceData : [],
+        invoiceData: [],
+        TotalCommercialvalue: commercialInvoiceData
+          ? commercialInvoiceData
+              .reduce(
+                (sum, _, index) => sum + Number(calculateTotalValue(index) || 0),
+                0
+              )
+              .toFixed(2)
+          : "",
+        TotalWeight: packageData
+          .reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0)
+          .toFixed(2),
+      };
+  
+      console.log(requestData);
+  
+      const toastId = toast.loading("Scheduling your shipment...");
+      const encodedUrl = encryptURL("/shipment/addShipments");
+  
       const response = await axios.post(
         `${api.BackendURL}/shipment/${encodedUrl}`,
-        {data:requestData}
+        { data: requestData }
       );
-
-      const {shipments,from_address,to_address}=requestData;
+  
+      const { shipments, from_address, to_address } = requestData;
       const trackingNumber = response.data?.user?.TrackingNumber;
-    
+  
       if (trackingNumber) {
-        toast.success(`Shipment scheduled successfully! Tracking Number: ${trackingNumber}`, {
-          id: toastId,
-        });
+        toast.success(
+          `Shipment scheduled successfully! Tracking Number: ${trackingNumber}`,
+          { id: toastId }
+        );
         setConfirmation(true);
-        navigate("/admin/ScheduleConfirmation", { replace: true,state:{trackingNumber:trackingNumber,shipment:shipments,sender:from_address,recipient:to_address,packageData:packageData,commercialInvoiceData:commercialInvoiceData} });
+        navigate("/admin/ScheduleConfirmation", {
+          replace: true,
+          state: {
+            trackingNumber: trackingNumber,
+            shipment: shipments,
+            sender: from_address,
+            recipient: to_address,
+            packageData: packageData,
+            commercialInvoiceData: commercialInvoiceData,
+          },
+        });
         console.log("Tracking Number:", trackingNumber);
       } else {
-        toast.error("Shipment scheduled error",{ id: toastId });
+        toast.error("Shipment scheduled error", { id: toastId });
       }
     } catch (error) {
-
-      toast.error("Failed to schedule shipment. Please try again.", { id: toastId });
-      console.error(error);
-     
+      console.error("Error in handleSubmit:", error);
+      toast.error("Failed to schedule shipment. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
-    
   };
   
 
@@ -554,10 +801,10 @@ const Schedule = () => {
     newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
   }
 
-  if (!recipientEmail?.trim()) {
-    newErrors.email = "Email is required";
-  } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(recipientEmail.trim())) {
-    newErrors.email = "Please enter a valid email address";
+  if (recipientEmail?.trim()) {
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(recipientEmail.trim())) {
+      newErrors.email = "Please enter a valid email address";
+    }
   }
 
   // New validation: Ensure recipient address is not the same as sender address
@@ -845,10 +1092,13 @@ const Schedule = () => {
         package: shipmentType !== "Ocean",
         payment: false,
       });
+      navigate("/admin/Scheduleshipment", { replace: true });
+      window.location.reload();
       
     } else if (module === "My Shipment") {
       setEdit(false)
       setActiveTab("my-shipment");
+      navigate("/admin/ShipmentList", { replace: true });
     }
     setDrawerOpen(false);
   };

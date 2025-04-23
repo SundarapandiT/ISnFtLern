@@ -9,6 +9,7 @@ export default defineConfig(({ command }) => {
   // Base plugins that always run
   const plugins = [react()];
 
+
   // --- Conditionally add the obfuscator ONLY for the build command ---
   if (isBuild) {
     console.log("Obfuscator enabled for build."); // Optional: Add a log to confirm
@@ -30,7 +31,11 @@ export default defineConfig(({ command }) => {
   // --- End conditional obfuscator ---
 
   return {
-    plugins: plugins, // Use the plugins array (will include obfuscator only for build)
+    plugins: plugins, 
+    server: {
+      port: 5173, 
+    },
+    // Use the plugins array (will include obfuscator only for build)
     build: {
       chunkSizeWarningLimit: 30000,
       sourcemap: false, // Keep false for build if obfuscating
