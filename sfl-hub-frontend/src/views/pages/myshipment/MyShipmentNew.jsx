@@ -396,7 +396,7 @@ const Myshipmentnew = ({ setEdit }) => {
             <TextField
                 fullWidth
                 label="Country"
-                value={fromAddress.country || ""}
+                value={fromAddress.countryname || ""}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -572,7 +572,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <TextField
                 fullWidth
                 label="Country"
-                value={toAddress.country || ""}
+                value={toAddress.countryname || ""}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -715,7 +715,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 <InputLabel>Duties & Taxes Paid By</InputLabel>
                 <Select
                   disabled
-                  value={fromAddress.dutiespaidby || ""}
+                  value={fromAddress.dutiespaidby || "Recipient"}
                   label="Duties & Taxes Paid By"
                 >
                   <MenuItem value="">Select</MenuItem>

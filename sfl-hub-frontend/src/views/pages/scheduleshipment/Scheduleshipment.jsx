@@ -409,9 +409,10 @@ const handleSubmit = async () => {
     try {
     
       const managedByResult = await getManagedBy();
-      if (!managedByResult) {
-        throw new Error("ManagedBy is empty or not fetched");
-      }
+      console.log("managedByResult:", managedByResult);
+      // if (!managedByResult) {
+      //   throw new Error("ManagedBy is empty or not fetched");
+      // }
 
       
       const encrypt = (value) =>
@@ -442,7 +443,7 @@ const handleSubmit = async () => {
           ServiceName: "",
           SubServiceName: "",
           managed_by: "",
-          Old_managed_by:managedByResult,
+          Old_managed_by:managedByResult || "0",
           ShippingID: null,
           InvoiceDueDate: null,
         },
