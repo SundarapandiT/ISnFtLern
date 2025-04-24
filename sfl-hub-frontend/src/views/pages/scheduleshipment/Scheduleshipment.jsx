@@ -241,9 +241,10 @@ const Schedule = () => {
     }
 };
 
-const SendOldDb = async (trackingNumber) => {
+const SendOldDb = async (trackingNumber,managedByResult) => {
+  const loadingToast = toast.loading("Sending shipment...");
     try {
-      const loadingToast = toast.loading("Sending shipment...");
+      
       const transformedPackages = packageData.map((pkg, index) => ({
         shipments_tracking_number: trackingNumber || "",
         PackageNumber: index + 1,
@@ -303,7 +304,7 @@ const SendOldDb = async (trackingNumber) => {
           userName: userName,
           ServiceName: "",
           SubServiceName: "",
-          managed_by: managedBy,
+          managed_by: managedByResult,
           ShippingID: null,
           InvoiceDueDate: null,
         },
@@ -518,7 +519,7 @@ const handleSubmit = async () => {
         console.log("Tracking Number:", trackingNumber);
 
         // Call SendOldDb with the tracking number
-        const shippingId = await SendOldDb(trackingNumber);
+        const shippingId = await SendOldDb(trackingNumber,managedByResult);
         if (!shippingId) {
           throw new Error("Failed to obtain ShippingID");
         }
@@ -1079,9 +1080,10 @@ const handleSubmit = async () => {
   const handleModuleClick = (module) => {
     setActiveModule(module);
     if (module === "Schedule Shipment") {
+      navigate("/admin/Scheduleshipment", { replace: true });
+      window.location.reload();
       setConfirmation(false);
-      //refresh page
-      // window.location.reload();
+      
       setActiveTab("schedule-pickup");
       setCompletedTabs({
         "schedule-pickup": false,
@@ -1090,8 +1092,7 @@ const handleSubmit = async () => {
         package: shipmentType !== "Ocean",
         payment: false,
       });
-      navigate("/admin/Scheduleshipment", { replace: true });
-      window.location.reload();
+      
       
     } else if (module === "My Shipment") {
       setEdit(false)
@@ -1364,7 +1365,7 @@ const handleSubmit = async () => {
       <Box className="footer-box" sx={{
         justifySelf:isMobile?"center":"flex-end",
         marginRight:3,
-        marginTop:2,
+        marginTop:1,
         marginBottom:1,
       }}>
                 <Typography align="center" className={classes.footerTypography} sx={{fontSize:isMobile?"12px":"15px"}}>

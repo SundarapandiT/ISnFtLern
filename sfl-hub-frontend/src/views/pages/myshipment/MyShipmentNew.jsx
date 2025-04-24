@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import {
@@ -121,14 +121,43 @@ const Myshipmentnew = ({ setEdit }) => {
   const commercialItems = shipment?.COMMERCIAL || [];
   const trackingDetails = shipment?.TRACKINGDETAILS || [];
   const accountsDetails = shipment?.ACCOUNTSDETAILS || [];
-  console.log("shipmentInfo", shipment?.PACKAGE);
+
+  // Check if from and to countries are the same
+  const isSameCountry =
+    fromAddress.countryid && toAddress.countryid
+      ? fromAddress.countryid === toAddress.countryid
+      : false;
+
+  // Reset activeTab if "commercial" is selected but hidden
+  useEffect(() => {
+    if (isSameCountry && activeTab === "commercial") {
+      setActiveTab("customer");
+    }
+  }, [isSameCountry, activeTab]);
 
   // Sample documents data (replace with API data if applicable)
   const documents = [
-    { type: "Commercial Invoice", documentName: "", createdOn: "04/15/2025", attachment: "VIEW FILE", status: "IN PROGRESS" },
-    { type: "Invoice", documentName: "", createdOn: "04/15/2025", attachment: "VIEW FILE", status: "IN PROGRESS" },
-    { type: "Contract", documentName: "", createdOn: "04/15/2025", attachment: "VIEW FILE", status: "IN PROGRESS" },
-    
+    {
+      type: "Commercial Invoice",
+      documentName: "",
+      createdOn: "",
+      attachment: "VIEW FILE",
+      status: "IN PROGRESS",
+    },
+    {
+      type: "Invoice",
+      documentName: "",
+      createdOn: "",
+      attachment: "VIEW FILE",
+      status: "IN PROGRESS",
+    },
+    {
+      type: "Contract",
+      documentName: "",
+      createdOn: "",
+      attachment: "VIEW FILE",
+      status: "IN PROGRESS",
+    },
   ];
 
   if (!shipment || !shipmentInfo) {
@@ -266,7 +295,11 @@ const Myshipmentnew = ({ setEdit }) => {
 
           <FormControl fullWidth variant="outlined">
             <InputLabel>Service Type</InputLabel>
-            <Select value={fromAddress.servicename || ""} label="Service Type" disabled  >
+            <Select
+              value={fromAddress.servicename || ""}
+              label="Service Type"
+              disabled
+            >
               <MenuItem value="">Select</MenuItem>
               <MenuItem value="Standard">Standard</MenuItem>
               <MenuItem value="Express">Express</MenuItem>
@@ -279,7 +312,6 @@ const Myshipmentnew = ({ setEdit }) => {
               value={fromAddress.subservicename || ""}
               label="Sub Service Type"
               disabled
-              
             >
               <MenuItem value="">Select</MenuItem>
             </Select>
@@ -287,11 +319,15 @@ const Myshipmentnew = ({ setEdit }) => {
         </GridContainer>
       </SectionPaper>
 
-      <TabNavigation activeTab={activeTab} handleTabClick={handleTabClick} />
+      <TabNavigation
+        activeTab={activeTab}
+        handleTabClick={handleTabClick}
+        isSameCountry={isSameCountry}
+      />
 
       {activeTab === "customer" && (
         <>
-          <SectionPaper >
+          <SectionPaper>
             <ResponsiveTypography
               variant="h6"
               sx={{ mb: isMobile ? 1.5 : 2.5 }}
@@ -332,6 +368,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 label="Address Line 2"
                 value={fromAddress.addressline2 || ""}
                 InputProps={{
+                  readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
                       <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
@@ -345,6 +382,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 label="Address Line 3"
                 value={fromAddress.addressline3 || ""}
                 InputProps={{
+                  readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
                       <PublicIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
@@ -355,21 +393,15 @@ const Myshipmentnew = ({ setEdit }) => {
               />
             </GridContainer>
             <GridContainer>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>From Country</InputLabel>
-                <Select
-                  value={
-                    fromAddress.countryid ===
-                    "341168f9-1ba3-4511-8c84-aa3bdd3cf349"
-                      ? "India"
-                      : ""
-                  }
-                  label="From Country"
-                >
-                  <MenuItem value="India">India</MenuItem>
-                  <MenuItem value="Australia">Australia</MenuItem>
-                </Select>
-              </FormControl>
+            <TextField
+                fullWidth
+                label="Country"
+                value={fromAddress.country || ""}
+                InputProps={{
+                  readOnly: true,
+                }}
+                variant="outlined"
+              />
               <TextField
                 fullWidth
                 label="Zip"
@@ -398,20 +430,23 @@ const Myshipmentnew = ({ setEdit }) => {
                 }}
                 variant="outlined"
               />
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>State</InputLabel>
-                <Select value={fromAddress.state || ""} label="State">
-                  <MenuItem value="Tamil Nadu">Tamil Nadu</MenuItem>
-                  <MenuItem value="Victoria">Victoria</MenuItem>
-                </Select>
-              </FormControl>
+              <TextField
+                fullWidth
+                label="State"
+                value={fromAddress.state || ""}
+                InputProps={{
+                  readOnly: true,
+                }}
+                variant="outlined"
+              />
             </GridContainer>
             <GridContainer>
               <TextField
                 fullWidth
                 label="Company Name"
-                value={fromAddress.companyname || ""}
+                value={fromAddress.companyname}
                 InputProps={{
+                  readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
                       <BusinessCenterIcon
@@ -441,6 +476,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 label="Phone 2"
                 value={fromAddress.phone2 || ""}
                 InputProps={{
+                  readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
                       <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
@@ -507,7 +543,9 @@ const Myshipmentnew = ({ setEdit }) => {
                 label="Address Line 2"
                 value={toAddress.addressline2 || ""}
                 InputProps={{
+                  readOnly: true,
                   endAdornment: (
+                    
                     <InputAdornment position="end">
                       <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
@@ -520,6 +558,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 label="Address Line 3"
                 value={toAddress.addressline3 || ""}
                 InputProps={{
+                  readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
                       <PublicIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
@@ -530,21 +569,15 @@ const Myshipmentnew = ({ setEdit }) => {
               />
             </GridContainer>
             <GridContainer>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>To Country</InputLabel>
-                <Select
-                  value={
-                    toAddress.countryid ===
-                    "4e37f702-cbe7-4a01-822e-900d21a30bf8"
-                      ? "Australia"
-                      : ""
-                  }
-                  label="To Country"
-                >
-                  <MenuItem value="India">India</MenuItem>
-                  <MenuItem value="Australia">Australia</MenuItem>
-                </Select>
-              </FormControl>
+              <TextField
+                fullWidth
+                label="Country"
+                value={toAddress.country || ""}
+                InputProps={{
+                  readOnly: true,
+                }}
+                variant="outlined"
+              />
               <TextField
                 fullWidth
                 label="Zip"
@@ -573,13 +606,15 @@ const Myshipmentnew = ({ setEdit }) => {
                 }}
                 variant="outlined"
               />
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>State</InputLabel>
-                <Select value={toAddress.state || ""} label="State">
-                  <MenuItem value="Tamil Nadu">Tamil Nadu</MenuItem>
-                  <MenuItem value="Victoria">Victoria</MenuItem>
-                </Select>
-              </FormControl>
+              <TextField
+                fullWidth
+                label="State"
+                value={toAddress.state || ""}
+                InputProps={{
+                  readOnly: true,
+                }}
+                variant="outlined"
+              />
             </GridContainer>
             <GridContainer>
               <TextField
@@ -587,6 +622,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 label="Company Name"
                 value={toAddress.companyname || ""}
                 InputProps={{
+                  readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
                       <BusinessCenterIcon
@@ -616,6 +652,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 label="Phone 2"
                 value={toAddress.phone2 || ""}
                 InputProps={{
+                  readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
                       <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
@@ -629,6 +666,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 label="Email"
                 value={toAddress.email || ""}
                 InputProps={{
+                  readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
                       <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
@@ -665,6 +703,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <FormControl fullWidth variant="outlined">
                 <InputLabel>Location Type</InputLabel>
                 <Select
+                  disabled
                   value={fromAddress.locationtype || ""}
                   label="Location Type"
                 >
@@ -675,6 +714,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <FormControl fullWidth variant="outlined">
                 <InputLabel>Duties & Taxes Paid By</InputLabel>
                 <Select
+                  disabled
                   value={fromAddress.dutiespaidby || ""}
                   label="Duties & Taxes Paid By"
                 >
@@ -712,13 +752,13 @@ const Myshipmentnew = ({ setEdit }) => {
                 "Insurance",
               ]}
               rows={packages.map((pkg) => ({
-                number: pkg.packagenumber.toString(),
-                weight: pkg.estimetedweight,
-                diml: pkg.length,
-                dimw: pkg.width,
-                dimh: pkg.height,
-                chargeweight: pkg.chargableweight,
-                insurance: pkg.insuredvalue,
+                number: pkg.packagenumber.toString() || "1",
+                weight: pkg.estimetedweight || "0.00",
+                diml: pkg.length || "0.00",
+                dimw: pkg.width || "0.00",
+                dimh: pkg.height || "0.00",
+                chargeweight: pkg.chargableweight || "0.00",
+                insurance: pkg.insuredvalue || "0.00",
               }))}
             />
           </TableContainer>
@@ -749,7 +789,7 @@ const Myshipmentnew = ({ setEdit }) => {
         </SectionPaper>
       )}
 
-      {activeTab === "commercial" && (
+      {activeTab === "commercial" && !isSameCountry && (
         <SectionPaper>
           <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
             Commercial Invoice
@@ -764,11 +804,11 @@ const Myshipmentnew = ({ setEdit }) => {
                 "TotalValue",
               ]}
               rows={commercialItems.map((item) => ({
-                packagenumber: item.packagenumber.toString(),
-                packagecontent: item.contentdescription,
-                quantity: item.quantity.toString(),
-                valueperqty: item.valueperquantity,
-                totalvalue: item.totalvalue,
+                packagenumber: item.packagenumber.toString() || "1", 
+                packagecontent: item.contentdescription || "",
+                quantity: item.quantity.toString() || "0",
+                valueperqty: item.valueperquantity || "0.00",
+                totalvalue: item.totalvalue || "0.00",
               }))}
             />
           </TableContainer>
@@ -780,7 +820,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   (sum, item) => sum + parseFloat(item.totalvalue || 0),
                   0
                 )
-                .toFixed(2)}
+                .toFixed(2) || "0.00"}
               variant="outlined"
               InputProps={{ readOnly: true }}
               sx={{ width: isMobile ? "100%" : "auto" }}
@@ -849,7 +889,10 @@ const Myshipmentnew = ({ setEdit }) => {
                       <TableCell>
                         <FormControl fullWidth variant="outlined">
                           <InputLabel>Service</InputLabel>
-                          <Select value={invoice.service || ""} label="Service">
+                          <Select
+                            value={invoice.service || ""}
+                            label="Service"
+                          >
                             <MenuItem value="">Select</MenuItem>
                             {shipment?.INVENTORY?.map((inv) => (
                               <MenuItem
@@ -1046,7 +1089,10 @@ const Myshipmentnew = ({ setEdit }) => {
                       <TableCell>
                         <FormControl fullWidth variant="outlined">
                           <InputLabel>Document Type</InputLabel>
-                          <Select value={doc.type} label="Document Type">
+                          <Select
+                            value={doc.type}
+                            label="Document Type"
+                          >
                             <MenuItem value="Commercial Invoice">
                               Commercial Invoice
                             </MenuItem>
@@ -1073,7 +1119,7 @@ const Myshipmentnew = ({ setEdit }) => {
                       </TableCell>
                       <TableCell>
                         <ResponsiveButton
-                          disabled
+                          
                           variant="contained"
                           color="error"
                           sx={{
@@ -1086,7 +1132,7 @@ const Myshipmentnew = ({ setEdit }) => {
                       </TableCell>
                       <TableCell>
                         <ResponsiveButton
-                          disabled
+                          
                           variant="contained"
                           sx={{
                             backgroundColor: "#ff9800",

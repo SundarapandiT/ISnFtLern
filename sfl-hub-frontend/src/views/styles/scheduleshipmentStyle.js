@@ -43,7 +43,7 @@ export const ContentBox = styled(Box)(({ theme }) => ({
   width: '90%',
   alignSelf: 'center',
   justifyContent: 'center',
-  margin: '4rem auto',
+  margin: '5rem auto',
   backgroundColor: 'white',
   padding: '10px',
   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)',

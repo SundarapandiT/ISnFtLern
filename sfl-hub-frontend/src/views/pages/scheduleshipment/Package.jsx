@@ -177,9 +177,10 @@ const Package = ({
               value={dutiesPaidBy || "Recipient (No Additional Fees)"}
               label="Duties & Taxes Paid By"
               onChange={(e) => setDutiesPaidBy(e.target.value)}
+              disabled
             >
               <MenuItem value="Recipient (No Additional Fees)">Recipient (No Additional Fees)</MenuItem>
-              <MenuItem value="Sender (Additional $15 Fees Applied)">Sender (Additional $15 Fees Applied)</MenuItem>
+              {/* <MenuItem value="Sender (Additional $15 Fees Applied)">Sender (Additional $15 Fees Applied)</MenuItem> */}
             </Select>
           </FormControl>
         </Grid>
