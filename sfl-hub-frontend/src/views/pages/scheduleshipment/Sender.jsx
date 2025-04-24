@@ -54,6 +54,8 @@ const Sender = ({
   setSenderErrors,
   handleSenderSubmit,
   handlePrevious,
+  setoldphone1,
+  setoldphone2,
 }) => {
   const debounceRef = useRef(null);
 
@@ -148,6 +150,18 @@ const Sender = ({
 
     return () => clearTimeout(debounceRef.current);
   }, [zipCode, countrycode, countryId]);
+
+  useEffect(() => {
+    if (phone1 && countrycode) {
+      const input = document.querySelector(".react-tel-input input");
+      const dialCode = input?.value.match(/^\+(\d{1,4})/); // fallback
+      const rawDialCode = dialCode ? dialCode[1] : "";
+      if (rawDialCode && phone1.startsWith(`+${rawDialCode}`)) {
+        setoldphone1(phone1.replace(`+${rawDialCode}`, '').trim());
+        console.log(phone1.replace(`+${rawDialCode}`, '').trim())
+      }
+    }
+  }, [phone1, countrycode]);
 
 
   const today = new Date().toISOString().split("T")[0];
@@ -310,7 +324,13 @@ const Sender = ({
             <PhoneInput
               country={countrycode}
               value={phone1}
-              onChange={(phone) => setPhone1(phone)}
+              onChange={(phone, countryData) => {
+                setPhone1(phone);
+                const dialCode = countryData.dialCode; 
+                setoldphone1(phone.replace(`${dialCode}`, '').trim());
+                console.log(phone.replace(`${dialCode}`, '').trim())
+
+              }}
               inputStyle={{
                 PhoneInputStyle,
                 width: '100%',
@@ -333,7 +353,12 @@ const Sender = ({
             <PhoneInput
               country={countrycode}
               value={phone2}
-              onChange={(phone) => setPhone2(phone)}
+              onChange={(phone, countryData) => {
+                setPhone2(phone);
+                const dialCode = countryData.dialCode; 
+                setoldphone2(phone.replace(`${dialCode}`, '').trim());
+                console.log(phone.replace(`${dialCode}`, '').trim())
+              }}
               inputStyle={{
                 PhoneInputStyle,
                 width: '100%',

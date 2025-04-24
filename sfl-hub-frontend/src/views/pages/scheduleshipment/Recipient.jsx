@@ -57,6 +57,8 @@ const Recipient = ({
   setRecipientErrors,
   handleRecipientSubmit,
   handleRecipientPrevious,
+  setoldrecipientphone1,
+  setoldrecipientphone2,
 }) => {
   const debounceRef = useRef(null);
 
@@ -299,7 +301,11 @@ const Recipient = ({
             <PhoneInput
               country={recipientcountrycode}
               value={recipientPhone1}
-              onChange={(phone) => setRecipientPhone1(phone)}
+              onChange={(phone, countryData) => {
+                setRecipientPhone1(phone);
+                const dialCode = countryData.dialCode; 
+                setoldrecipientphone1(phone.replace(`${dialCode}`, '').trim());
+              }}
               inputStyle={{
                 width: '100%',
                 PhoneInputStyle,
@@ -323,7 +329,11 @@ const Recipient = ({
             <PhoneInput
               country={recipientcountrycode}
               value={recipientPhone2}
-              onChange={(phone) => setRecipientPhone2(phone)}
+              onChange={(phone, countryData) => {
+                setRecipientPhone2(phone);
+                const dialCode = countryData.dialCode; 
+                setoldrecipientphone2(phone.replace(`${dialCode}`, '').trim());
+              }}
               inputStyle={{
                 width: '100%',
                 PhoneInputStyle,

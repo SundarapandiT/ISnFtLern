@@ -24,15 +24,15 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import CircularProgress from '@mui/material/CircularProgress';
-
-import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { IconBox } from "../../styles/scheduleshipmentStyle";
 import { useStyles } from "../../styles/MyshipmentStyle";
 
 const ShipmentDashboard = ({ setEdit }) => {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
-
+  const [rowsPerPage, setRowsPerPage] = useState(10); // State for rows per page
+  const [page, setPage] = useState(0);
 
   const [shipmentsData, setShipmentsData] = useState([]);
   const user = JSON.parse(sessionStorage.getItem("user"));
@@ -94,15 +94,15 @@ const ShipmentDashboard = ({ setEdit }) => {
   ];
   const open = Boolean(anchorEl);
   const handleEdit = async (row) => {
-    const loadingToast = toast.loading("Fetching shipment details...");
+    //const loadingToast = toast.loading("Fetching shipment details...");
     try {
   
       // Make API call to get shipment details
       const response = await axios.post(`${api.BackendURL}/shipment/getmyShipments`, {
-        data: { Shipping_ID:row.shippingid},
+        data: { Shipping_ID: row.shippingid },
       });
   
-      toast.dismiss(loadingToast);
+      
   
       if (response.status === 200 && response.data?.user) {
         const shipmentData = response.data.user; // Full shipment details from API
@@ -115,14 +115,15 @@ const ShipmentDashboard = ({ setEdit }) => {
           replace: true,
         });
       } else {
-        toast.error("Failed to fetch shipment details");
+        console.log("Failed to fetch shipment details");
       }
     } catch (error) {
       console.error("Error fetching shipment details:", error);
-      toast.dismiss(loadingToast);
-      toast.error(error?.response?.data?.message || "Failed to fetch shipment details");
+     // toast.dismiss(loadingToast);
+      console.log(error?.response?.data?.message || "Failed to fetch shipment details");
     }
   };
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -159,11 +160,27 @@ const ShipmentDashboard = ({ setEdit }) => {
       setFilteredData(filtered);
     }
     console.log("Selected Statuses:", selectedStatuses);
+    setPage(0);
     handleClose();
   };
 
   const isAllSelected =
     selectedStatuses.length === statuses.length && statuses.length > 0;
+    const handleRowsPerPageChange = (event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0); // Reset to first page when changing rows per page
+    };
+  
+    // Handle pagination
+    const handlePreviousPage = () => {
+      setPage((prev) => Math.max(prev - 1, 0));
+    };
+  
+    const handleNextPage = () => {
+      setPage((prev) => Math.min(prev + 1, Math.ceil(filteredData.length / rowsPerPage) - 1));
+    };
+
+    const displayedRows = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
 
 
@@ -260,8 +277,8 @@ const ShipmentDashboard = ({ setEdit }) => {
                         <CircularProgress />
                       </TableCell>
                     </TableRow>
-                  ) : filteredData.length > 0 ? (
-                    filteredData.map((row) => (
+                  ) : displayedRows.length > 0 ? ( // Changed from filteredData to displayedRows
+                    displayedRows.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell>{new Date(row.shipmentdate).toLocaleDateString('en-GB')}</TableCell>
                         <TableCell>{row.trackingnumber}</TableCell>
@@ -274,10 +291,11 @@ const ShipmentDashboard = ({ setEdit }) => {
                         <TableCell>{row.shipmenttype}</TableCell>
                         <TableCell>{row.shipmentstatus}</TableCell>
                         <TableCell>
-                          <EditIcon
+                          <VisibilityIcon
                             className={classes.editIcon}
                             onClick={() => handleEdit(row)}
-                            style={{ cursor: "pointer" }}
+                            style={{ cursor: "pointer"
+                             }}
                           />
                         </TableCell>
                       </TableRow>
@@ -293,11 +311,15 @@ const ShipmentDashboard = ({ setEdit }) => {
               </Table>
             </TableContainer>
             <Box className="table-footer">
-              <Button disabled variant="outlined">
+              <Button variant="outlined"
+                onClick={handlePreviousPage}
+                disabled={page === 0}>
                 Previous
               </Button>
               <Typography>Total rows: {filteredData.length} of {shipmentsData.length}</Typography>
-              <Select defaultValue={10}>
+              <Select 
+                value={rowsPerPage}
+                onChange={handleRowsPerPageChange}>
                 <MenuItem value={5}>5 rows</MenuItem>
                 <MenuItem value={10}>10 rows</MenuItem>
                 <MenuItem value={20}>20 rows</MenuItem>
@@ -305,7 +327,9 @@ const ShipmentDashboard = ({ setEdit }) => {
                 <MenuItem value={50}>50 rows</MenuItem>
                 <MenuItem value={100}>100 rows</MenuItem>
               </Select>
-              <Button disabled variant="outlined">
+              <Button variant="outlined"
+                onClick={handleNextPage}
+                disabled={page >= Math.ceil(filteredData.length / rowsPerPage) - 1}>
                 Next
               </Button>
             </Box>

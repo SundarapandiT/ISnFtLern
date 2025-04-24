@@ -200,6 +200,12 @@ const Schedule = () => {
   const [managedBy, setManagedBy] = useState("");
   const [shippingid, setShippingId] = useState("");
 
+  const [oldphone1, setoldphone1] = useState("");
+  const [oldphone2, setoldphone2] = useState("");
+  const [oldrecipientphone1, setoldrecipientphone1] = useState("");
+  const [oldrecipientphone2, setoldrecipientphone2] = useState("");
+
+
   const getManagedBy = async () => {
     const loadingToast = toast.loading("Fetching ManagedBy...");
     try {
@@ -207,17 +213,11 @@ const Schedule = () => {
         "https://hubapi.sflworldwide.com/scheduleshipment/getManagedByPhoneOREmailShipment",
         {
           FromEmail: email,
-          FromPhone1: phone1.replace(/^\+\d{1,4}/, ''),
-          FromPhone2: phone2.replace(/^\+\d{1,4}/, ''),
+          FromPhone1: oldphone1,
+          FromPhone2: oldphone2,
           ToEmail: recipientEmail,
-          ToPhone1: recipientPhone1.replace(/^\+\d{1,4}/, ''),
-          ToPhone2: recipientPhone2.replace(/^\+\d{1,4}/, ''),
-        //   FromEmail: "test@gmail.com",
-        //     FromPhone1: "7412589630",
-        //     FromPhone2: "",
-        //     ToEmail: "",
-        //     ToPhone1: "8660330457",
-        //     ToPhone2: "recipientPhone2",
+          ToPhone1: oldrecipientphone1,
+          ToPhone2: oldrecipientphone2,
         }
       );
   
@@ -229,7 +229,7 @@ const Schedule = () => {
         autoClose: 3000,
       });
       console.log("ManagedBy:", managedby);
-      return managedby; // Return managedBy to indicate success
+      return managedby;
     } catch (error) {
       console.error("Failed to fetch ManagedBy", error);
       toast.dismiss(loadingToast);
@@ -237,20 +237,15 @@ const Schedule = () => {
         position: "top-right",
         autoClose: 3000,
       });
-      throw error; // Throw error to stop further execution
+      throw error;
     }
-  };
-  
-  const SendOldDb = async () => {
+};
+
+const SendOldDb = async (trackingNumber) => {
     try {
-      const managedByResult = await getManagedBy();
-      if (!managedByResult) {
-        throw new Error("ManagedBy is empty or not fetched");
-      }
-  
       const loadingToast = toast.loading("Sending shipment...");
       const transformedPackages = packageData.map((pkg, index) => ({
-        shipments_tracking_number: "",
+        shipments_tracking_number: trackingNumber || "",
         PackageNumber: index + 1,
         weight: Number(pkg.weight || 0).toFixed(2),
         unit_of_weight: "LBS",
@@ -264,9 +259,9 @@ const Schedule = () => {
         chargable_weight: Number(pkg.chargable_weight || 0).toFixed(2),
         insured_value: Number(pkg.insured_value || 0).toFixed(2),
       }));
-  
+
       const transformedCommercial = commercialInvoiceData.map((item) => ({
-        shipments_tracking_number: "",
+        shipments_tracking_number: trackingNumber || "",
         package_number: Number(item.packageNumber || 1),
         content_description: item.contentDescription || "",
         quantity: String(item.quantity || 0),
@@ -274,16 +269,17 @@ const Schedule = () => {
         total_value: (Number(item.quantity || 0) * Number(item.valuePerQty || 0)).toFixed(2),
         CommercialInvoiceID: null,
       }));
-  
+
       const payload = {
         UserID: userOldid,
         ipAddress: "",
-        TrackingNumber: null,
+        TrackingNumber:  null,
+        NewTrackingNumber:trackingNumber || null,
         shipments: {
           tracking_number: "",
           shipment_type: shipmentType,
           location_type: recipientLocationType,
-          is_pickup: needsPickup==="Yes - I Need Pickup" ? true : false,
+          is_pickup: needsPickup === "Yes - I Need Pickup" ? true : false,
           pickup_date: pickupDate,
           package_type: packageType,
           total_packages: noOfPackages,
@@ -307,14 +303,14 @@ const Schedule = () => {
           userName: userName,
           ServiceName: "",
           SubServiceName: "",
-          managed_by: managedByResult,
+          managed_by: managedBy,
           ShippingID: null,
           InvoiceDueDate: null,
         },
         MovingBackToIndia: false,
         from_address: {
           AddressID: null,
-          country_id: fromoldcountryid?fromoldcountryid:202,
+          country_id: fromoldcountryid ? fromoldcountryid : 202,
           country_name: fromCountry,
           fromCountryCode: countrycode,
           company_name: companyName,
@@ -328,7 +324,7 @@ const Schedule = () => {
           city_id: 1,
           city_name: fromCity,
           fedex_city: "",
-          state_id: fromoldstateid?fromoldstateid:1,
+          state_id: fromoldstateid ? fromoldstateid : 1,
           state_name: state,
           zip_code: zipCode,
           phone1: phone1,
@@ -337,7 +333,7 @@ const Schedule = () => {
         },
         to_address: {
           AddressID: null,
-          country_id: recipientoldcountryid?recipientoldcountryid:89,
+          country_id: recipientoldcountryid ? recipientoldcountryid : 89,
           country_name: recipientCountry,
           toCountryCode: recipientcountrycode,
           company_name: recipientCompanyName,
@@ -348,7 +344,7 @@ const Schedule = () => {
           city_id: 1,
           city_name: recipientCity,
           fedex_city: "",
-          state_id: recipientoldstateid?recipientoldstateid:1,
+          state_id: recipientoldstateid ? recipientoldstateid : 1,
           state_name: recipientState,
           zip_code: recipientZipCode,
           phone1: recipientPhone1,
@@ -366,7 +362,7 @@ const Schedule = () => {
           .reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0)
           .toFixed(2),
       };
-  
+
       const response = await axios.post(
         "https://hubapi.sflworldwide.com/scheduleshipment/addshipments",
         payload,
@@ -376,7 +372,7 @@ const Schedule = () => {
           },
         }
       );
-  
+
       if (response.status === 200 && response.data.success) {
         toast.dismiss(loadingToast);
         toast.success("Shipment added successfully", {
@@ -399,140 +395,153 @@ const Schedule = () => {
       });
       throw error;
     }
-  };
-  
-  const handleSubmit = async () => {
+};
+
+const handleSubmit = async () => {
     console.log("Submitting data...");
     const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
     if (!SECRET_KEY) {
       toast.error("Encryption key is missing!");
       return;
     }
-  
+
     try {
-      // Call SendOldDb and wait for it to complete successfully
-      const shippingId = await SendOldDb();
-      if (!shippingId) {
-        throw new Error("Failed to obtain ShippingID");
+    
+      const managedByResult = await getManagedBy();
+      if (!managedByResult) {
+        throw new Error("ManagedBy is empty or not fetched");
       }
-  
-      // Proceed with handleSubmit logic
+
+      
       const encrypt = (value) =>
         value ? CryptoJS.AES.encrypt(value, SECRET_KEY).toString() : "";
-  
+
       const requestData = {
         UserID: userId,
-      ipAddress: "",
-      TrackingNumber: null,
-      shipments: {
-        tracking_number: "",
-        shipment_type: shipmentType,
-        location_type: recipientLocationType,
-        is_pickup: needsPickup,
-        pickup_date: pickupDate,
-        package_type: packageType,
-        total_packages: noOfPackages,
-        is_pay_online: 0,
-        is_pay_bank: 0,
-        promo_code: "",
-        is_agree: "",
-        total_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
-        total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2),
-        total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2),
-        duties_paid_by: dutiesPaidBy,
-        total_declared_value:commercialInvoiceData? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2):"",
-        userName: userName,
-        ServiceName: "",
-        SubServiceName: "",
-        managed_by: managedBy,
-        ShippingID:null,
-        OldshippingID:shippingId,
-        InvoiceDueDate: null,
-      },
-      MovingBackToIndia: false,
-      from_address: {
-        AddressID: null,
-        country_id: countryId,
-        country_name: fromCountry,
-        fromCountryCode: countrycode,
-        company_name: companyName,
-        contact_name: encrypt(contactName),
-        address_1: encrypt(addressLine1),
-        address_2: encrypt(addressLine2),
-        address_3: encrypt(addressLine3),
-        MovingBack: false,
-        OriginalPassportAvailable: false,
-        EligibleForTR: false,
-        city_id: "",
-        city_name: fromCity,
-        fedex_city: "",
-        state_id: "",
-        state_name: state,
-        zip_code: zipCode,
-        phone1: encrypt(phone1),
-        phone2: encrypt(phone2),
-        email: encrypt(email),
-      },
-      to_address: {
-        AddressID: null,
-        country_id: recipientCountryId,
-        country_name: recipientCountry,
-        toCountryCode: recipientcountrycode,
-        company_name: recipientCompanyName,
-        contact_name: encrypt(recipientContactName),
-        address_1: encrypt(recipientAddressLine1),
-        address_2: encrypt(recipientAddressLine2),
-        address_3: encrypt(recipientAddressLine3),
-        city_id: "",
-        city_name: recipientCity,
-        fedex_city: "",
-        state_id:"",
-        state_name: recipientState,
-        zip_code: recipientZipCode,
-        phone1: encrypt(recipientPhone1),
-        phone2: encrypt(recipientPhone2),
-        email: encrypt(recipientEmail),
-      },
-      packages: packageData,
-      commercial: commercialInvoiceData?commercialInvoiceData:[],
-      invoiceData: [],
-      TotalCommercialvalue:commercialInvoiceData? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2):"",
-      TotalWeight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
-    };
-  
+        ipAddress: "",
+        TrackingNumber: null,
+        shipments: {
+          tracking_number: "",
+          shipment_type: shipmentType,
+          location_type: recipientLocationType,
+          is_pickup: needsPickup,
+          pickup_date: pickupDate,
+          package_type: packageType,
+          total_packages: noOfPackages,
+          is_pay_online: 0,
+          is_pay_bank: 0,
+          promo_code: "",
+          is_agree: "",
+          total_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
+          total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2),
+          total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2),
+          duties_paid_by: dutiesPaidBy,
+          total_declared_value: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2) : "",
+          userName: userName,
+          ServiceName: "",
+          SubServiceName: "",
+          managed_by: managedByResult,
+          ShippingID: null,
+          InvoiceDueDate: null,
+        },
+        MovingBackToIndia: false,
+        from_address: {
+          AddressID: null,
+          country_id: countryId,
+          country_name: fromCountry,
+          fromCountryCode: countrycode,
+          company_name: companyName,
+          contact_name: encrypt(contactName),
+          address_1: encrypt(addressLine1),
+          address_2: encrypt(addressLine2),
+          address_3: encrypt(addressLine3),
+          MovingBack: false,
+          OriginalPassportAvailable: false,
+          EligibleForTR: false,
+          city_id: "",
+          city_name: fromCity,
+          fedex_city: "",
+          state_id: "",
+          state_name: state,
+          zip_code: zipCode,
+          phone1: encrypt(phone1),
+          phone2: encrypt(phone2),
+          email: encrypt(email),
+        },
+        to_address: {
+          AddressID: null,
+          country_id: recipientCountryId,
+          country_name: recipientCountry,
+          toCountryCode: recipientcountrycode,
+          company_name: recipientCompanyName,
+          contact_name: encrypt(recipientContactName),
+          address_1: encrypt(recipientAddressLine1),
+          address_2: encrypt(recipientAddressLine2),
+          address_3: encrypt(recipientAddressLine3),
+          city_id: "",
+          city_name: recipientCity,
+          fedex_city: "",
+          state_id: "",
+          state_name: recipientState,
+          zip_code: recipientZipCode,
+          phone1: encrypt(recipientPhone1),
+          phone2: encrypt(recipientPhone2),
+          email: encrypt(recipientEmail),
+        },
+        packages: packageData,
+        commercial: commercialInvoiceData ? commercialInvoiceData : [],
+        invoiceData: [],
+        TotalCommercialvalue: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2) : "",
+        TotalWeight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
+      };
+
       console.log(requestData);
-  
+
       const toastId = toast.loading("Scheduling your shipment...");
       const encodedUrl = encryptURL("/shipment/addShipments");
-  
+
       const response = await axios.post(
         `${api.BackendURL}/shipment/${encodedUrl}`,
         { data: requestData }
       );
-  
+      if (response.data?.error) {
+      toast.dismiss(toastId);
+
+        throw new Error(response.data.error);
+      }
+
       const { shipments, from_address, to_address } = requestData;
       const trackingNumber = response.data?.user?.TrackingNumber;
-  
-      if (trackingNumber) {
-        toast.success(
-          `Shipment scheduled successfully! Tracking Number: ${trackingNumber}`,
-          { id: toastId }
-        );
-        setConfirmation(true);
-        navigate("/admin/ScheduleConfirmation", {
-          replace: true,
-          state: {
-            trackingNumber: trackingNumber,
-            shipment: shipments,
-            sender: from_address,
-            recipient: to_address,
-            packageData: packageData,
-            commercialInvoiceData: commercialInvoiceData,
-          },
-        });
+
+      
         console.log("Tracking Number:", trackingNumber);
+
+        // Call SendOldDb with the tracking number
+        const shippingId = await SendOldDb(trackingNumber);
+        if (!shippingId) {
+          throw new Error("Failed to obtain ShippingID");
+        }
+        if (trackingNumber) {
+          toast.success(
+            `Shipment scheduled successfully! Tracking Number: ${trackingNumber}`,
+            { id: toastId }
+          );
+          setConfirmation(true);
+          navigate("/admin/ScheduleConfirmation", {
+            replace: true,
+            state: {
+              trackingNumber: trackingNumber,
+              shipment: shipments,
+              sender: from_address,
+              recipient: to_address,
+              packageData: packageData,
+              commercialInvoiceData: commercialInvoiceData,
+            },
+          });
       } else {
-        toast.error("Shipment scheduled error", { id: toastId });
+      toast.dismiss(toastId);
+
+        throw new Error("Failed to obtain TrackingNumber");
       }
     } catch (error) {
       console.error("Error in handleSubmit:", error);
@@ -540,8 +549,9 @@ const Schedule = () => {
         position: "top-right",
         autoClose: 3000,
       });
+      throw error;
     }
-  };
+};
   
 
 
@@ -1250,6 +1260,8 @@ const Schedule = () => {
               setSenderErrors={setSenderErrors}
               handleSenderSubmit={handleSenderSubmit}
               handlePrevious={handlePrevious}
+              setoldphone1={setoldphone1}
+              setoldphone2={setoldphone2}
             />
           )}
           {activeModule === "Schedule Shipment" && activeTab === "recipient" && (
@@ -1287,6 +1299,8 @@ const Schedule = () => {
                 setRecipientErrors,
                 handleRecipientSubmit,
                 handleRecipientPrevious,
+                setoldrecipientphone1,
+                setoldrecipientphone2,
               }}
             />
           )}
