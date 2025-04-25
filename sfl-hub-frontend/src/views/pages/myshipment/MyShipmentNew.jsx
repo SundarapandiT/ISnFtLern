@@ -174,7 +174,11 @@ const Myshipmentnew = ({ setEdit }) => {
   };
 
   const handleTabClick = (tab) => {
-    setActiveTab(tab === activeTab ? null : tab);
+    // setActiveTab(tab === activeTab ? null : tab);
+    if (tab !== activeTab)
+    {
+      setActiveTab(tab)
+    }
   };
 
   // Pagination handlers
