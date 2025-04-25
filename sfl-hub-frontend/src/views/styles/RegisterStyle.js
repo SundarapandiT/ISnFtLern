@@ -54,7 +54,7 @@ export const useStyles = makeStyles((theme) => ({
   usernameValidationText: {
     display: "flex",
     alignItems: "center",
-    fontSize: "0.855rem",
+    fontSize: "0.755rem !important",
   },
   passwordPopover: {
     marginTop: theme.spacing(2),
@@ -69,7 +69,7 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "0.875rem",
   },
   passwordValidationText: {
-    fontSize: "0.8rem",
+    fontSize: "0.8rem !important",
     display: "flex",
     alignItems: "center",
   },

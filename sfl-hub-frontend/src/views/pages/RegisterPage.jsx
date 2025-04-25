@@ -264,59 +264,20 @@ const RegisterPage = () => {
       toast.dismiss(loadingToast);
     }
   };
-  const SendtoOldDatabase = async () => {
-    console.log("Sending OTP to old database...");
-    const loadingToast = toast.loading("wait...");
-    try {
-      const response = await axios.post(`${api.OldDatabaseURL}/authentication/userRegister`, {
-        Email: registerDetails.email,
-        Password: registerDetails.password,
-        Phone: registerDetails.mobile,
-        Name: registerDetails.fullname,
-        UserName: registerDetails.username,
-        Phone2: "",
-        UserDetails: {
-          AccountNumber: "", ManagedBy: "", CompanyName: "", AddressLine1: "",
-          AddressLine2: "", AddressLine3: "", ZipCode: "", City: "", State: "",
-          ContactName: "", CountryID: "", UserDetailID: null
-        }
-      });
   
-      const resData = response.data;
-  
-      if (resData.success) {
-        toast.dismiss(loadingToast);
-        console.log("old database: ", resData.data.message);
-        sessionStorage.setItem("PersonID", resData.data?.PersonID);
-        return true; 
-      } else {
-        console.warn("User not added, message:", resData.message);
-        toast.dismiss(loadingToast);
-        toast.error(resData.message)
-        return false;
-      }
-    } catch (error) {
-      console.error("Error sending data to old database:", error);
-      toast.dismiss(loadingToast);
-      toast.error(error);
-      return false;
-    }
-  };
   
 
   const signUp = async (event) => {
     event.preventDefault();
     if (!validate()) return;
-    const addedSuccessfully = await SendtoOldDatabase();
-      if (addedSuccessfully) {
+    
   
     const otpResult = await sendMail();
     if (otpResult.success && !otpResult.verified) {
       
         navigate("/emailverification");
       }
-      return;
-    }
+      
   
     if (!otpResult.success && otpResult.verified) {
       return;

@@ -50,6 +50,44 @@ const EmailVerification = () => {
     }
   };
 
+  const SendtoOldDatabase = async () => {
+      console.log("Sending OTP to old database...");
+      const loadingToast = toast.loading("wait...");
+      try {
+        const response = await axios.post(`${api.OldDatabaseURL}/authentication/userRegister`, {
+          Email: registerDetails.email,
+          Password: registerDetails.password,
+          Phone: registerDetails.mobile,
+          Name: registerDetails.fullname,
+          UserName: registerDetails.username,
+          Phone2: "",
+          UserDetails: {
+            AccountNumber: "", ManagedBy: "", CompanyName: "", AddressLine1: "",
+            AddressLine2: "", AddressLine3: "", ZipCode: "", City: "", State: "",
+            ContactName: "", CountryID: "", UserDetailID: null
+          }
+        });
+    
+        const resData = response.data;
+    
+        if (resData.success) {
+          toast.dismiss(loadingToast);
+          console.log("old database: ", resData.data.message);
+          sessionStorage.setItem("PersonID", resData.data?.PersonID);
+          return true; 
+        } else {
+          console.warn("User not added, message:", resData.message);
+          toast.dismiss(loadingToast);
+          toast.error(resData.message)
+          return false;
+        }
+      } catch (error) {
+        console.error("Error sending data to old database:", error);
+        toast.dismiss(loadingToast);
+        toast.error(error);
+        return false;
+      }
+    };
 
   const validateOtp = async (enteredOtp) => {
     const loadingToast = toast.loading("Verifying OTP...");
@@ -68,12 +106,15 @@ const EmailVerification = () => {
         });
   
         setdisable(true);
+        const addedSuccessfully = await SendtoOldDatabase();
+      if (addedSuccessfully) {
   
         try {
           const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
           if (!SECRET_KEY) throw new Error("Encryption key is missing!");
         
           const registerToast = toast.loading("Registering user...");
+          console.log(registerDetails)
 
               const encodedUrl= encryptURL("/users/UserRegisteration");
         
@@ -111,7 +152,7 @@ const EmailVerification = () => {
       } else {
         throw new Error("OTP verification failed");
       }
-  
+    }
     } catch (error) {
       console.error("Error verifying OTP:", error);
       toast.error("Invalid OTP. Please try again.", {
@@ -121,6 +162,7 @@ const EmailVerification = () => {
     } finally {
       toast.dismiss(loadingToast);
     }
+  
   };
   
   const sendMail = async () => {
