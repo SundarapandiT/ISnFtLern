@@ -14,7 +14,7 @@ import { BackgroundContainer, CloseButton, emailverifyContainer, StyledButton, S
 
 const EmailVerification = () => {
   const {  registerDetails } = useRegister();
-  const personid=sessionStorage.getItem("PersonID")||"";
+  // const personid=sessionStorage.getItem("PersonID")||"";
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -115,6 +115,7 @@ const EmailVerification = () => {
         
           const registerToast = toast.loading("Registering user...");
           console.log(registerDetails)
+          const personid=sessionStorage.getItem("PersonID")||"";
 
               const encodedUrl= encryptURL("/users/UserRegisteration");
         
