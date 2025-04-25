@@ -53,7 +53,10 @@ const ShipmentDashboard = ({ setEdit }) => {
           // toast.dismiss(loading);
           // toast.success("Shipments loaded successfully!");
           setLoading(false);
-          setShipmentsData(data);
+          const sortedData = [...data].sort((a, b) => 
+            new Date(b.shipmentdate) - new Date(a.shipmentdate)
+          );
+          setShipmentsData(sortedData);
           console.log("Shipments data:", data);
         }
       } catch (error) {
@@ -182,7 +185,7 @@ const ShipmentDashboard = ({ setEdit }) => {
 
     const displayedRows = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-
+    
 
 
   return (

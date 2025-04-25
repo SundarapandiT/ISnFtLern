@@ -45,6 +45,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<Navigate to="/auth/login-page" replace />} />
+
       </Routes>
     </Router>
   );
