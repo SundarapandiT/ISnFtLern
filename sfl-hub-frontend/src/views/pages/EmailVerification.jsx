@@ -54,18 +54,20 @@ const EmailVerification = () => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").slice(0, 6); // Only take first 6 digits
     if (/^\d{1,6}$/.test(pastedData)) {
-      const newOtp = pastedData.split('');
-      const newFilled = newOtp.map((char) => char !== "");
+      const newOtp = pastedData.split('').concat(Array(6 - pastedData.length).fill('')); // Pad with empty strings
+      const newFilled = Array(6).fill(false).map((_, index) => index < pastedData.length);
       setOtp(newOtp);
       setFilled(newFilled);
-      
-      // Focus on last field if all pasted
-      if (newOtp.length === 6) {
+  
+      // Focus on the next empty field or last field if all pasted
+      if (pastedData.length < 6) {
+        inputRefs.current[pastedData.length]?.focus();
+      } else {
         inputRefs.current[5]?.focus();
       }
     }
   };
-  
+ 
 
   const SendtoOldDatabase = async () => {
       console.log("Sending OTP to old database...");
