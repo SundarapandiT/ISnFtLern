@@ -2,7 +2,7 @@ import { React, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { api,encryptURL } from "../../utils/api";
+import { api, encryptURL } from "../../utils/api";
 import { isEmpty } from "../../utils/constant";
 import { Box, Paper, TextField, Button, Typography, Link, InputAdornment, Grid, Popover, useMediaQuery, IconButton } from "@mui/material";
 // import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -129,15 +129,15 @@ const RegisterPage = () => {
         } else if (value.trim() !== value) {
           errors.fullnameErr = true;
           errors.fullnameHelperText = "Please enter valid Full Name";
-        }else if (value.length < 3) {
-            errors.fullnameErr = true;
-            errors.fullnameHelperText = "Full Name must be at least 3 characters long";
-          }
-          else if(!/^[a-zA-Z\s]+$/.test(value)) {
-            errors.fullnameErr = true;
-            errors.fullnameHelperText = "Full Name must contain only letters";
-          }
-         else {
+        } else if (value.length < 3) {
+          errors.fullnameErr = true;
+          errors.fullnameHelperText = "Full Name must be at least 3 characters long";
+        }
+        else if (!/^[a-zA-Z\s]+$/.test(value)) {
+          errors.fullnameErr = true;
+          errors.fullnameHelperText = "Full Name must contain only letters";
+        }
+        else {
           errors.fullname = value;
           errors.fullnameErr = false;
           errors.fullnameHelperText = "";
@@ -231,7 +231,7 @@ const RegisterPage = () => {
 
   const sendMail = async () => {
     const loadingToast = toast.loading("Sending OTP...");
-    const encodedUrl= encryptURL("/users/EmailVerifyOtp");
+    const encodedUrl = encryptURL("/users/EmailVerifyOtp");
 
     try {
       const response = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, {
@@ -264,26 +264,26 @@ const RegisterPage = () => {
       toast.dismiss(loadingToast);
     }
   };
-  
-  
+
+
 
   const signUp = async (event) => {
     event.preventDefault();
     if (!validate()) return;
-    
-  
+
+
     const otpResult = await sendMail();
     if (otpResult.success && !otpResult.verified) {
-      
-        navigate("/emailverification");
-      }
-      
-  
+
+      navigate("/emailverification");
+    }
+
+
     if (!otpResult.success && otpResult.verified) {
       return;
     }
   };
-  
+
 
   return (
     <Box className={classes.root}>
@@ -293,7 +293,7 @@ const RegisterPage = () => {
           <img src="/SFL_logo.png" alt="SFL Worldwide" className={classes.logo} />
         </Box>
 
-        <form onSubmit={signUp}>
+        <form onSubmit={signUp} >
           <TextField
             fullWidth
             name="fullname"
@@ -352,6 +352,12 @@ const RegisterPage = () => {
               }}
               error={state.usernameErr}
               helperText={state.usernameHelperText}
+              autoComplete="off"
+              slotProps={{
+                input: {
+                  autoComplete: "off"
+                }
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -381,28 +387,28 @@ const RegisterPage = () => {
                     className={classes.usernameValidationText}
                   >
                     {/[a-zA-Z]/.test(state.username) ? <CheckCircle color="success" /> : <Cancel color="error" />}
-                      Must be letters a - z
+                    Must be letters a - z
                   </Typography>
                   <Typography
                     color={state.username.length >= 8 && state.username.length <= 32 ? "green" : "red"}
                     className={classes.usernameValidationText}
                   >
                     {state.username.length >= 8 && state.username.length <= 32 ? <CheckCircle color="success" /> : <Cancel color="error" />}
-                      Must be 8-32 characters long
+                    Must be 8-32 characters long
                   </Typography>
                   <Typography
                     color={/\d/.test(state.username) ? "green" : "red"}
                     className={classes.usernameValidationText}
                   >
                     {/\d/.test(state.username) ? <CheckCircle color="success" /> : <Cancel color="error" />}
-                      Can contain numbers (0-9)
+                    Can contain numbers (0-9)
                   </Typography>
                   <Typography
                     color={/[@\-_]/.test(state.username) ? "green" : "red"}
                     className={classes.usernameValidationText}
                   >
                     {/[@\-_]/.test(state.username) ? <CheckCircle color="success" /> : <Cancel color="error" />}
-                      Can contain special characters (@, -, _)
+                    Can contain special characters (@, -, _)
                   </Typography>
                 </Box>
               </Popover>
@@ -435,6 +441,12 @@ const RegisterPage = () => {
                 }}
                 error={state.passwordErr}
                 helperText={state.passwordHelperText}
+                autoComplete="off"
+                slotProps={{
+                  input: {
+                    autoComplete: "off"
+                  }
+                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -456,7 +468,7 @@ const RegisterPage = () => {
                     </InputAdornment>
                   ),
                 }}
-                
+
               />
               {activeField === "password" && (
                 <Popover
@@ -479,35 +491,35 @@ const RegisterPage = () => {
                       className={classes.passwordValidationText}
                     >
                       {/[A-Z]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-                        At least one uppercase letter (A-Z)
+                      At least one uppercase letter (A-Z)
                     </Typography>
                     <Typography
                       color={/[a-z]/.test(state.password) ? "green" : "red"}
                       className={classes.passwordValidationText}
                     >
                       {/[a-z]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-                        At least one lowercase letter (a-z)
+                      At least one lowercase letter (a-z)
                     </Typography>
                     <Typography
                       color={/[0-9]/.test(state.password) ? "green" : "red"}
                       className={classes.passwordValidationText}
                     >
                       {/[0-9]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-                        At least one number (0-9)
+                      At least one number (0-9)
                     </Typography>
                     <Typography
                       color={/[@\-_.]/.test(state.password) ? "green" : "red"}
                       className={classes.passwordValidationText}
                     >
                       {/[@\-_.]/.test(state.password) ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-                        At least one special character (@, #, $, etc.)
+                      At least one special character (@, #, $, etc.)
                     </Typography>
                     <Typography
                       color={state.password.length >= 8 ? "green" : "red"}
                       className={classes.passwordValidationText}
                     >
                       {state.password.length >= 8 ? <CheckCircle color="success" fontSize="small" /> : <Cancel color="error" fontSize="small" />}
-                        Minimum 8 characters
+                      Minimum 8 characters
                     </Typography>
                   </Box>
                 </Popover>
