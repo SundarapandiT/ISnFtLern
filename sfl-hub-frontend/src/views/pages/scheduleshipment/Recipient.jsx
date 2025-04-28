@@ -19,7 +19,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { api } from "../../../utils/api";
+import { api, encryptURL } from "../../../utils/api";
 
 import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle"
 
@@ -70,7 +70,8 @@ const Recipient = ({
     debounceRef.current = setTimeout(async () => {
       try {
         // Step 1: Try backend API
-        const response = await axios.post(`${api.BackendURL}/locations/getstateCitybyPostalCode`, {
+        const encodedUrl= encryptURL("/locations/getstateCitybyPostalCode");
+        const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
           CountryID: recipientCountryId,
           PostalCode: recipientZipCode,
         });

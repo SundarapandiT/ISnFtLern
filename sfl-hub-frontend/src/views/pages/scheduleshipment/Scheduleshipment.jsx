@@ -207,7 +207,7 @@ const Schedule = () => {
 
 
   const getManagedBy = async () => {
-    const loadingToast = toast.loading("Fetching ManagedBy...");
+    console.log("Fetching ManagedBy...");
     try {
       const response = await axios.post(
         "https://hubapi.sflworldwide.com/scheduleshipment/getManagedByPhoneOREmailShipment",
@@ -223,8 +223,7 @@ const Schedule = () => {
   
       const managedby = response.data?.data?.[0]?.ManagedBy || "";
       setManagedBy(managedby);
-      toast.dismiss(loadingToast);
-      toast.success("ManagedBy fetched successfully", {
+      console.log("ManagedBy fetched successfully", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -232,7 +231,6 @@ const Schedule = () => {
       return managedby;
     } catch (error) {
       console.error("Failed to fetch ManagedBy", error);
-      toast.dismiss(loadingToast);
       toast.error("Failed to fetch ManagedBy", {
         position: "top-right",
         autoClose: 3000,
@@ -304,7 +302,7 @@ const SendOldDb = async (trackingNumber,managedByResult) => {
           userName: userName,
           ServiceName: "",
           SubServiceName: "",
-          managed_by: managedByResult,
+          managed_by: managedByResult || "0",
           ShippingID: null,
           InvoiceDueDate: null,
         },

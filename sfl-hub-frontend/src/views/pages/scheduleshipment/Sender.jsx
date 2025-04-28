@@ -14,7 +14,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import StateDropdown from "./Statedropdown";
-import { api } from "../../../utils/api";
+import { api, encryptURL } from "../../../utils/api";
 import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle"
 
 
@@ -72,7 +72,8 @@ const Sender = ({
 
       try {
         // Step 1: Try custom backend API
-        const response = await axios.post(`${api.BackendURL}/locations/getstateCitybyPostalCode`, {
+        const encodedUrl= encryptURL("/locations/getstateCitybyPostalCode");
+        const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
           CountryID: countryId,
           PostalCode: zipCode,
         });

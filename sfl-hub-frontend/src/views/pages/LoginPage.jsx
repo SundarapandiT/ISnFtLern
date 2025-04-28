@@ -49,9 +49,6 @@ const LoginPage = () => {
       if (!SECRET_KEY) {
         throw new Error("Encryption key is missing!");
       }
-      // const encryptedUrl = CryptoJS.AES.encrypt('/users/UserLogin', SECRET_KEY).toString();
-      // const encodedUrl = encodeURIComponent(encryptedUrl);
-      // const requestUrl = `${api.BackendURL}/users/${encodedUrl}`; 
 
           const encodedUrl= encryptURL("/users/UserLogin");
       

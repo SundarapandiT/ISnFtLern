@@ -44,8 +44,9 @@ const ShipmentDashboard = ({ setEdit }) => {
       try {
         // const loading = toast.loading("Loading shipments...");
         setLoading(true);
-        // const encodedUrl= encryptURL("/shipment/myShipments"); 
-        const response = await axios.post(`${api.BackendURL}/shipment/myShipments`,
+        const encodedUrl= encryptURL("/shipment/myShipments"); 
+        // const response = await axios.post(`${api.BackendURL}/shipment/myShipments`,
+        const response = await axios.post(`${api.BackendURL}/shipment/${encodedUrl}`,
           { data: { Person_ID } }
         );
         const data = response.data?.user?.[0]; // Get the array of shipments
@@ -99,9 +100,10 @@ const ShipmentDashboard = ({ setEdit }) => {
   const handleEdit = async (row) => {
     //const loadingToast = toast.loading("Fetching shipment details...");
     try {
-  
+      const encodedUrl= encryptURL("/shipment/getmyShipments"); 
       // Make API call to get shipment details
-      const response = await axios.post(`${api.BackendURL}/shipment/getmyShipments`, {
+      // const response = await axios.post(`${api.BackendURL}/shipment/getmyShipments`, {
+        const response = await axios.post(`${api.BackendURL}/shipment/${encodedUrl}`, {
         data: { Shipping_ID: row.shippingid },
       });
   

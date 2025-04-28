@@ -50,6 +50,23 @@ const EmailVerification = () => {
     }
   };
 
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").slice(0, 6); // Only take first 6 digits
+    if (/^\d{1,6}$/.test(pastedData)) {
+      const newOtp = pastedData.split('');
+      const newFilled = newOtp.map((char) => char !== "");
+      setOtp(newOtp);
+      setFilled(newFilled);
+      
+      // Focus on last field if all pasted
+      if (newOtp.length === 6) {
+        inputRefs.current[5]?.focus();
+      }
+    }
+  };
+  
+
   const SendtoOldDatabase = async () => {
       console.log("Sending OTP to old database...");
       const loadingToast = toast.loading("wait...");
@@ -102,7 +119,7 @@ const EmailVerification = () => {
       if (response.status === 200 && response.data.status === "verified") {
         toast.success(response.data.message, {
           position: "top-right",
-          autoClose: 3000,
+          autoClose: 1500,
         });
   
         setdisable(true);
@@ -139,7 +156,64 @@ const EmailVerification = () => {
           if (res.status === 200 && res.data.user?.message === "User Registration Successfully") {
             toast.success("Registered successfully!");
             
-            navigate("/auth/login-page");
+            // navigate("/auth/login-page");
+            const loadingToastId = toast.loading("Wait...");
+              
+                try {
+                  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+                  if (!SECRET_KEY) {
+                    throw new Error("Encryption key is missing!");
+                  }
+            
+                      const encodedUrl= encryptURL("/users/UserLogin");
+                  
+              
+                  // Encrypt the login credentials before sending them to the backend
+                  const encryptedData = {
+                    UserName: CryptoJS.AES.encrypt(registerDetails.username, SECRET_KEY).toString(),
+                    Password: CryptoJS.AES.encrypt(registerDetails.password, SECRET_KEY).toString(),
+                  };
+              
+                  // Send the encrypted data to the backend without wrapping it in "data"
+                  const res = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, encryptedData);
+                  
+                  toast.dismiss(loadingToastId);
+              
+                  // Check if the login was successful
+                  if (res.status === 200 && res.data?.user?.data) {
+                    const decryptedName = CryptoJS.AES.decrypt(res.data.user.data.p_name, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+                    const decryptedEmail = CryptoJS.AES.decrypt(res.data.user.data.p_email, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+                    const decryptedPhone = CryptoJS.AES.decrypt(res.data.user.data.p_phonenum, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+                    const decryptedUsername = CryptoJS.AES.decrypt(res.data.user.data.p_username, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+                    const decryptedPersonID = CryptoJS.AES.decrypt(res.data.user.data.p_personID, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+                     const decryptedOldPersonID = CryptoJS.AES.decrypt(res.data.user.data.p_OldPersonID, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+              
+                    sessionStorage.setItem("user", JSON.stringify({
+                      name: decryptedName,
+                      email: decryptedEmail,
+                      phone: decryptedPhone,
+                      username: decryptedUsername,
+                      personID: decryptedPersonID,
+                      oldPersonID: decryptedOldPersonID,
+                    }));
+                    sessionStorage.setItem("PersonID", decryptedOldPersonID);
+                 
+                    toast.success("Login successful!", { position: "top-right", autoClose: 1500 });
+                    navigate("/admin/Scheduleshipment", { replace: true });
+                  } else {
+                    throw new Error(res.data?.message || "Invalid credentials");
+                  }
+              
+                } catch (error) {
+                  console.error("Login error:", error);
+              
+                  toast.dismiss(loadingToastId);
+              
+                  toast.error(error.response?.data?.error || error.message || "Something went wrong", {
+                    position: "top-right",
+                    autoClose: 3000,
+                  });
+                }
           } else {
             toast.error(res.data.user?.message || "Registration failed");
           }
@@ -242,6 +316,7 @@ const EmailVerification = () => {
                   onChange={(e) => handleChange(e, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   inputRef={(el) => (inputRefs.current[index] = el)}
+                  onPaste={handlePaste}
                   sx={{
                     width: isMobile ? 40 : 50,
                     height: isMobile ? 40 : 60,

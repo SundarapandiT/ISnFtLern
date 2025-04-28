@@ -1071,10 +1071,10 @@ const Myshipmentnew = ({ setEdit }) => {
 
       {activeTab === "documentation" && (
         <SectionPaper>
-          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-            Documentation
+          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5,textAlign: "center" ,color:"orange"}}>
+            In-Progress
           </ResponsiveTypography>
-          <TableContainer sx={{ overflowX: "auto" }}>
+          {/* <TableContainer sx={{ overflowX: "auto" }}>
             <TableStyled>
               <TableHead>
                 <TableRow>
@@ -1175,8 +1175,8 @@ const Myshipmentnew = ({ setEdit }) => {
                 )}
               </TableBody>
             </TableStyled>
-          </TableContainer>
-          <Box
+          </TableContainer> */}
+          {/* <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
@@ -1185,8 +1185,8 @@ const Myshipmentnew = ({ setEdit }) => {
               flexDirection: isMobile ? "column" : "row",
               gap: isMobile ? 1 : 0,
             }}
-          >
-            <ResponsiveButton
+          > */}
+            {/* <ResponsiveButton
               variant="contained"
               onClick={handlePreviousPage}
               disabled={page === 0}
@@ -1221,8 +1221,8 @@ const Myshipmentnew = ({ setEdit }) => {
                 <MenuItem value={50}>50 rows</MenuItem>
                 <MenuItem value={100}>100 rows</MenuItem>
               </Select>
-            </Box>
-            <ResponsiveButton
+            </Box> */}
+            {/* <ResponsiveButton
               variant="contained"
               onClick={handleNextPage}
               disabled={page >= Math.ceil(documents.length / rowsPerPage) - 1}
@@ -1240,7 +1240,7 @@ const Myshipmentnew = ({ setEdit }) => {
             >
               Next
             </ResponsiveButton>
-          </Box>
+          </Box> */}
         </SectionPaper>
       )}
 

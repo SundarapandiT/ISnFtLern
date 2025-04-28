@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import React from "react";
+import React, {useEffect} from "react";
 import RegisterPage from "./views/pages/RegisterPage";
 import EmailVerification from "./views/pages/EmailVerification";
 import { Toaster } from "react-hot-toast";
@@ -7,10 +7,9 @@ import LoginPage from "./views/pages/LoginPage";
 import ForgotPassword from "./views/pages/ForgetPage";
 import ScheduleShipment from "./views/pages/scheduleshipment/Scheduleshipment";
 import ResetPassword from "./views/pages/ResetPassword";
-// import Cookies from "js-cookie";
 import "./App.css";
 import "./index.css";
-// import ScheduleConfirmation from "./views/pages/scheduleconfirmation/ScheduleConfirmation";
+
 
 // ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
@@ -20,6 +19,33 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+
+  // useEffect(() => {
+  //   const handleContextMenu = (e) => {
+  //     e.preventDefault();
+  //   };
+
+  //   const handleKeyDown = (e) => {
+  //     if (
+  //       e.key === "F12" ||
+  //       (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+  //       (e.ctrlKey && e.key === "U")
+  //     ) {
+  //       e.preventDefault();
+  //       e.stopPropagation();
+  //       return false;
+  //     }
+  //   };
+
+  //   document.addEventListener("contextmenu", handleContextMenu);
+  //   document.addEventListener("keydown", handleKeyDown);
+
+  //   return () => {
+  //     document.removeEventListener("contextmenu", handleContextMenu);
+  //     document.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }, []);
+
   return (
     <Router>
       <div>
@@ -32,9 +58,7 @@ function App() {
         <Route path="/emailverification" element={<EmailVerification />} />
         <Route path="/auth/forgotpassword-page" element={<ForgotPassword />} />
         <Route path="/auth/ResetPassword" element={<ResetPassword />} />
-        {/* <Route path="/scheduleconfirmation" element={<ScheduleConfirmation />} /> */}
     
-        {/*  Public route (accessible to everyone) */}
 
         {/*  Protected route (only accessible if user exists) */}
         <Route

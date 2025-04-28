@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Autocomplete, TextField, FormControl } from "@mui/material";
-import { api } from "../../../utils/api";
+import { api, encryptURL } from "../../../utils/api";
 
 const StateDropdown = ({ country, setState, senderErrors, state: selectedState }) => {
   const [states, setStates] = useState([]);
@@ -13,7 +13,9 @@ const StateDropdown = ({ country, setState, senderErrors, state: selectedState }
     const fetchStates = async () => {
       try {
         setLoading(true);
-        const response = await axios.post(`${api.BackendURL}/locations/getstate`, {
+        const encodedUrl= encryptURL("/locations/getstate");
+        const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
+        // const response = await axios.post(`${api.BackendURL}/locations/getstate`, {
           CountryID: country,
         });
         const stateList = response.data.user?.[0] || [];

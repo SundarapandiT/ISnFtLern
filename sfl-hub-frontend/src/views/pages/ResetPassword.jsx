@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box,Typography, TextField, InputAdornment, IconButton} from "@mui/material";
+import { Box, Typography, TextField, InputAdornment, IconButton } from "@mui/material";
 import { FaLock } from "react-icons/fa";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useLocation, useNavigate } from "react-router-dom"; // for location and navigation
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import logo from "/SFL_logo.png";
-import { api, encryptURL } from "../../utils/api"; 
+import { api, encryptURL } from "../../utils/api";
 import CryptoJS from "crypto-js";
-import { BackgroundContainer,StyledPaper,StyledButton,linkStyle } from "../styles/AuthStyle";
-
+import { BackgroundContainer, StyledPaper, StyledButton, linkStyle } from "../styles/AuthStyle";
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -18,6 +17,7 @@ const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [error, setError] = useState({
     newPasswordErr: false,
@@ -28,18 +28,63 @@ const ResetPassword = () => {
 
   // Extract 'key' from query params
   const queryParams = new URLSearchParams(location.search);
-  const resetKey = queryParams.get('key');  // This is the key passed in the URL
+  const resetKey = queryParams.get("key")
+    ? decodeURIComponent(queryParams.get("key"))
+    : null;
 
   useEffect(() => {
-    if (!resetKey) {
-      toast.error("Invalid or missing reset key.");
-      navigate("/auth/login-page");  // Redirect to login page if key is missing
+    console.log("resetKey:", resetKey); // Debug log
+    if (!resetKey || resetKey.trim() === "") {
+      toast.dismiss();
+      toast.error("Invalid or missing reset key.", { duration: 1000 });
+      navigate("/auth/login-page", { replace: true }); // Immediate redirect
     }
   }, [resetKey, navigate]);
 
+  const validatePassword = (password) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (password.length < minLength) {
+      return {
+        isValid: false,
+        message: `Password must be at least ${minLength} characters long`,
+      };
+    }
+    if (!hasUpperCase) {
+      return {
+        isValid: false,
+        message: "Password must contain at least one uppercase letter",
+      };
+    }
+    if (!hasLowerCase) {
+      return {
+        isValid: false,
+        message: "Password must contain at least one lowercase letter",
+      };
+    }
+    if (!hasNumber) {
+      return {
+        isValid: false,
+        message: "Password must contain at least one number",
+      };
+    }
+    if (!hasSpecialChar) {
+      return {
+        isValid: false,
+        message: "Password must contain at least one special character",
+      };
+    }
+    return { isValid: true, message: "" };
+  };
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
-  
+    setIsSubmitting(true);
+
     // Clear previous error states
     setError({
       newPasswordErr: false,
@@ -47,79 +92,83 @@ const ResetPassword = () => {
       confirmPasswordErr: false,
       confirmPasswordHelperText: "",
     });
-  
-    // Frontend validation
-    if (newPassword.length < 6) {
+
+    // Validate password
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
       setError((prev) => ({
         ...prev,
         newPasswordErr: true,
-        newPasswordHelperText: "Password must be at least 6 characters",
+        newPasswordHelperText: passwordValidation.message,
       }));
+      setIsSubmitting(false);
       return;
     }
-  
+
+    // Validate confirm password
     if (newPassword !== confirmPassword) {
       setError((prev) => ({
         ...prev,
         confirmPasswordErr: true,
         confirmPasswordHelperText: "Passwords do not match",
       }));
+      setIsSubmitting(false);
       return;
     }
-  
+
     try {
       const loadingToast = toast.loading("Resetting password...");
       const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
-    
-      // Check for encryption key
+
       if (!SECRET_KEY) {
         toast.dismiss(loadingToast);
-        throw new Error("Encryption key is missing from environment variables!");
+        throw new Error("Encryption key is missing!");
       }
-    
-      // Validate required fields before making the request
+
       if (!newPassword || !resetKey) {
         toast.dismiss(loadingToast);
-        toast.error("Missing required fields: email or new password.");
+        toast.error("Missing required fields.");
+        setIsSubmitting(false);
         return;
       }
-    
+
       const encodedUrl = encryptURL("/users/resetPassword");
-    
-      // Encrypt the new password
       const encryptedPassword = CryptoJS.AES.encrypt(newPassword, SECRET_KEY).toString();
-    
-      // Send POST request to backend
+
       const res = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, {
         newPassword: encryptedPassword,
-        email: resetKey, // assuming resetKey is the email
+        email: resetKey, // Assuming resetKey is the email
       });
-    
+
       console.log("Response from reset password:", res.data);
-    
-      // Handle success response
+
       if (res.data?.message === "Password updated successfully") {
         toast.dismiss(loadingToast);
-        toast.success("Password has been reset successfully!");
+        toast.success("Password has been reset successfully!", { duration: 3000 });
         setNewPassword("");
         setConfirmPassword("");
-        navigate("/auth/login-page"); 
+        navigate("/auth/login-page", { replace: true });
       } else {
         toast.dismiss(loadingToast);
         toast.error(res.data?.error || res.data?.message || "Something went wrong");
       }
-    
     } catch (err) {
       console.error("Reset error:", err);
       toast.dismiss();
       toast.error(err?.response?.data?.error || err.message || "Failed to reset password");
+    } finally {
+      setIsSubmitting(false);
     }
-  };    
-  
+  };
+
+  // Render nothing or a fallback UI if resetKey is invalid
+  if (!resetKey || resetKey.trim() === "") {
+    return null; // Prevent rendering the form
+  }
 
   return (
     <BackgroundContainer>
-      <StyledPaper elevation={3} >
+      <StyledPaper elevation={3}>
         <img src={logo} alt="Logo" width={150} style={{ marginBottom: 20 }} />
         <Typography variant="h5" fontWeight="bold" gutterBottom>
           Reset Password
@@ -143,7 +192,10 @@ const ResetPassword = () => {
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={() => setShowPassword((prev) => !prev)}>
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
@@ -168,20 +220,26 @@ const ResetPassword = () => {
               ),
             }}
           />
-          <StyledButton type="submit" variant="contained" color="error" fullWidth >
+          <StyledButton
+            type="submit"
+            variant="contained"
+            color="error"
+            fullWidth
+            disabled={isSubmitting}
+          >
             Reset Password
           </StyledButton>
           <Box display="flex" justifyContent="center" mt={2}>
-        <Typography
-          variant="body2"
-          color="primary"
-          component="a"
-          href="/auth/login-page"
-          sx={linkStyle}
-        >
-          Back to Login
-        </Typography>
-      </Box>
+            <Typography
+              variant="body2"
+              color="primary"
+              component="a"
+              href="/auth/login-page"
+              sx={linkStyle}
+            >
+              Back to Login
+            </Typography>
+          </Box>
         </form>
       </StyledPaper>
     </BackgroundContainer>
