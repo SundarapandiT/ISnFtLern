@@ -125,6 +125,11 @@ const ForgotPassword = () => {
           InputProps={{
             startAdornment: <AccountCircleIcon sx={{ mr: 1, color: "gray" }} />,
           }}
+          inputProps={{
+            autoComplete: "off",
+            autoCorrect: "off",
+            autoCapitalize: "none"
+          }}
         />
 
         {/* Dropdown */}

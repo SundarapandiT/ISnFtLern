@@ -37,7 +37,7 @@ import {
 } from "../../styles/myshipmentnew";
 import TabNavigation from "./TabNavigation";
 
-const ResponsiveTable = ({ columns, rows }) => {
+const ResponsiveTable = ({ columns, rows, columnWidths = {} }) => {
   const isMobile = useMediaQuery("(max-width:600px)");
 
   if (isMobile) {
@@ -76,7 +76,9 @@ const ResponsiveTable = ({ columns, rows }) => {
       <TableHead>
         <TableRow>
           {columns.map((col) => (
-            <TableCell key={col}>{col}</TableCell>
+            <TableCell key={col} sx={{ width: columnWidths[col] || "auto" }}>
+              {col}
+            </TableCell>
           ))}
         </TableRow>
       </TableHead>
@@ -84,7 +86,7 @@ const ResponsiveTable = ({ columns, rows }) => {
         {rows.map((row, rowIndex) => (
           <TableRow key={rowIndex}>
             {columns.map((col) => (
-              <TableCell key={col}>
+              <TableCell key={col} sx={{ width: columnWidths[col] || "auto" }}>
                 <TextField
                   fullWidth
                   value={row[col.toLowerCase().replace(/\(|\)/g, "")] || ""}
@@ -106,7 +108,7 @@ const Myshipmentnew = ({ setEdit }) => {
   const [activeTab, setActiveTab] = useState("customer");
   const { shipment } = location.state || {};
   const isMobile = useMediaQuery("(max-width:600px)");
-  
+
   // Pagination states for Documentation tab
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
@@ -120,7 +122,9 @@ const Myshipmentnew = ({ setEdit }) => {
   const packages = shipment?.PACKAGE || [];
   const commercialItems = shipment?.COMMERCIAL || [];
   const trackingDetails = shipment?.TRACKINGDETAILS || [];
-  const accountsDetails = shipment?.ACCOUNTSDETAILS || [];
+  // const accountsDetails = shipment?.ACCOUNTSDETAILS || [];
+  const invoiceData = shipment?.ACCOUNTSDETAILS?.[0]?.InvoiceData || [];
+const paymentData = shipment?.ACCOUNTSDETAILS?.[0]?.PaymentReceivedData || [];
 
   // Check if from and to countries are the same
   const isSameCountry =
@@ -175,8 +179,7 @@ const Myshipmentnew = ({ setEdit }) => {
 
   const handleTabClick = (tab) => {
     // setActiveTab(tab === activeTab ? null : tab);
-    if (tab !== activeTab)
-    {
+    if (tab !== activeTab) {
       setActiveTab(tab)
     }
   };
@@ -397,7 +400,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
             </GridContainer>
             <GridContainer>
-            <TextField
+              <TextField
                 fullWidth
                 label="Country"
                 value={fromAddress.countryname || ""}
@@ -549,7 +552,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 InputProps={{
                   readOnly: true,
                   endAdornment: (
-                    
+
                     <InputAdornment position="end">
                       <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
@@ -808,7 +811,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 "TotalValue",
               ]}
               rows={commercialItems.map((item) => ({
-                packagenumber: item.packagenumber.toString() || "1", 
+                packagenumber: item.packagenumber.toString() || "1",
                 packagecontent: item.contentdescription || "",
                 quantity: item.quantity.toString() || "0",
                 valueperqty: item.valueperquantity || "0.00",
@@ -835,243 +838,250 @@ const Myshipmentnew = ({ setEdit }) => {
 
       {activeTab === "tracking" && (
         <SectionPaper>
-          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-            Tracking
-          </ResponsiveTypography>
-          <TableContainer sx={{ overflowX: "auto" }}>
-            <ResponsiveTable
-              columns={["Date", "Time", "Updates"]}
-              rows={
-                trackingDetails.length > 0
-                  ? trackingDetails.map((track) => ({
-                      date: track.date || "",
-                      time: track.time || "",
-                      updates: track.updates || "",
-                    }))
-                  : [
-                      {
-                        date: "",
-                        time: "",
-                        updates: "No tracking details available",
-                      },
-                    ]
-              }
-            />
-          </TableContainer>
-        </SectionPaper>
+        <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+          Tracking
+        </ResponsiveTypography>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <ResponsiveTable
+            columns={["Date", "Time", "Updates"]}
+            columnWidths={{
+              Date: "20%",
+              Time: "20%",
+              Updates: "60%", 
+            }}
+            rows={
+              trackingDetails.length > 0
+                ? trackingDetails.map((track) => ({
+                    date: track.PickupDate || "",
+                    time: track.PickupTime || "",
+                    updates: track.Updates || "",
+                  }))
+                : [
+                    {
+                      date: "",
+                      time: "",
+                      updates: "No tracking details available",
+                    },
+                  ]
+            }
+          />
+        </TableContainer>
+      </SectionPaper>
       )}
 
       {activeTab === "accounts" && (
         <SectionPaper>
-          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-            Invoice
-          </ResponsiveTypography>
-          <TableContainer sx={{ overflowX: "auto" }}>
-            <TableStyled>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Service</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell>Qty</TableCell>
-                  <TableCell>Cost</TableCell>
-                  <TableCell>Total</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {accountsDetails.length > 0 ? (
-                  accountsDetails.map((invoice, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={invoice.date || ""}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <FormControl fullWidth variant="outlined">
-                          <InputLabel>Service</InputLabel>
-                          <Select
-                            value={invoice.service || ""}
-                            label="Service"
-                          >
-                            <MenuItem value="">Select</MenuItem>
-                            {shipment?.INVENTORY?.map((inv) => (
-                              <MenuItem
-                                key={inv.stringmapid}
-                                value={inv.description}
-                              >
-                                {inv.description}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={invoice.description || ""}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={invoice.quantity || "0"}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={invoice.cost || "0.00"}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={invoice.total || "0.00"}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6}>
+        {/* Invoice Table */}
+        <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+          Invoice
+        </ResponsiveTypography>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <TableStyled>
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell>Service</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Qty</TableCell>
+                <TableCell>Cost</TableCell>
+                <TableCell>Total</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {invoiceData.length > 0 ? (
+                invoiceData.map((invoice, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
                       <TextField
                         fullWidth
-                        value="No invoice details available"
+                        value={invoice.InvoiceDate || ""}
                         variant="outlined"
                         InputProps={{ readOnly: true }}
                       />
                     </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </TableStyled>
-          </TableContainer>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-            <TextField
-              label="Total Cost:"
-              value={accountsDetails
-                .reduce((sum, inv) => sum + parseFloat(inv.total || 0), 0)
-                .toFixed(2)}
-              variant="outlined"
-              InputProps={{ readOnly: true }}
-              sx={{ width: isMobile ? "100%" : "auto" }}
-            />
-          </Box>
-
-          <ResponsiveTypography
-            variant="h6"
-            sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
-          >
-            Payment Made
-          </ResponsiveTypography>
-          <TableContainer sx={{ overflowX: "auto" }}>
-            <TableStyled>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Payment Type</TableCell>
-                  <TableCell>Number</TableCell>
-                  <TableCell>Confirmation</TableCell>
-                  <TableCell>Amount</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {accountsDetails.length > 0 ? (
-                  accountsDetails.map((payment, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={payment.paymentDate || ""}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <FormControl fullWidth variant="outlined">
-                          <InputLabel>Payment Type</InputLabel>
-                          <Select
-                            value={payment.paymenttype || ""}
-                            label="Payment Type"
-                          >
-                            <MenuItem value="">Select</MenuItem>
-                            <MenuItem value="Credit Card">Credit Card</MenuItem>
-                            <MenuItem value="Bank Transfer">
-                              Bank Transfer
+                    <TableCell>
+                      <FormControl fullWidth variant="outlined">
+                        <InputLabel>Service</InputLabel>
+                        <Select
+                          value={invoice.ServiceDescription || ""}
+                          label="Service"
+                          readOnly
+                        >
+                          <MenuItem value="">Select</MenuItem>
+                          {shipment?.INVENTORY?.map((inv) => (
+                            <MenuItem
+                              key={inv.stringmapid}
+                              value={inv.description}
+                            >
+                              {inv.description}
                             </MenuItem>
-                          </Select>
-                        </FormControl>
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={payment.paymentNumber || ""}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={payment.confirmation || ""}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={payment.amount || "0.00"}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5}>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </TableCell>
+                    <TableCell>
                       <TextField
                         fullWidth
-                        value="No payment details available"
+                        value={invoice.Description || ""}
+                        variant="outlined"
+                        InputProps={{ readOnly: true }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        fullWidth
+                        value={invoice.Quantity || "0"}
+                        variant="outlined"
+                        InputProps={{ readOnly: true }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        fullWidth
+                        value={invoice.Amount || "0.00"}
+                        variant="outlined"
+                        InputProps={{ readOnly: true }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        fullWidth
+                        value={invoice.TotalAmount || "0.00"}
                         variant="outlined"
                         InputProps={{ readOnly: true }}
                       />
                     </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </TableStyled>
-          </TableContainer>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-            <TextField
-              label="Total Cost:"
-              value={accountsDetails
-                .reduce((sum, pay) => sum + parseFloat(pay.amount || 0), 0)
-                .toFixed(2)}
-              variant="outlined"
-              InputProps={{ readOnly: true }}
-              sx={{ width: isMobile ? "100%" : "auto" }}
-            />
-          </Box>
-        </SectionPaper>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6}>
+                    <TextField
+                      fullWidth
+                      value="No invoice details available"
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </TableStyled>
+        </TableContainer>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+          <TextField
+            label="Total Cost:"
+            value={invoiceData
+              .reduce((sum, inv) => sum + parseFloat(inv.TotalAmount || 0), 0)
+              .toFixed(2)}
+            variant="outlined"
+            InputProps={{ readOnly: true }}
+            sx={{ width: isMobile ? "100%" : "auto" }}
+          />
+        </Box>
+      
+        {/* Payment Made Table */}
+        <ResponsiveTypography
+          variant="h6"
+          sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
+        >
+          Payment Made
+        </ResponsiveTypography>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <TableStyled>
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell>Payment Type</TableCell>
+                <TableCell>Number</TableCell>
+                <TableCell>Confirmation</TableCell>
+                <TableCell>Amount</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {paymentData.length > 0 ? (
+                paymentData.map((payment, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <TextField
+                        fullWidth
+                        value={payment.PaymentDate || ""}
+                        variant="outlined"
+                        InputProps={{ readOnly: true }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <FormControl fullWidth variant="outlined">
+                        <InputLabel>Payment Type</InputLabel>
+                        <Select
+                          value={payment.PaymentType || ""}
+                          label="Payment Type"
+                          readOnly
+                        >
+                          <MenuItem value="">Select</MenuItem>
+                          <MenuItem value="Credit Card">Credit Card</MenuItem>
+                          <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        fullWidth
+                        value={payment.PaymentNumber || ""}
+                        variant="outlined"
+                        InputProps={{ readOnly: true }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        fullWidth
+                        value={payment.Confirmation || ""}
+                        variant="outlined"
+                        InputProps={{ readOnly: true }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        fullWidth
+                        value={payment.Amount || "0.00"}
+                        variant="outlined"
+                        InputProps={{ readOnly: true }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5}>
+                    <TextField
+                      fullWidth
+                      value="No payment details available"
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </TableStyled>
+        </TableContainer>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+          <TextField
+            label="Total Cost:"
+            value={paymentData
+              .reduce((sum, pay) => sum + parseFloat(pay.Amount || 0), 0)
+              .toFixed(2)}
+            variant="outlined"
+            InputProps={{ readOnly: true }}
+            sx={{ width: isMobile ? "100%" : "auto" }}
+          />
+        </Box>
+      </SectionPaper>
       )}
 
       {activeTab === "documentation" && (
         <SectionPaper>
-          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5,textAlign: "center" ,color:"orange"}}>
+          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5, textAlign: "center", color: "orange" }}>
             In-Progress
           </ResponsiveTypography>
           {/* <TableContainer sx={{ overflowX: "auto" }}>
@@ -1186,7 +1196,7 @@ const Myshipmentnew = ({ setEdit }) => {
               gap: isMobile ? 1 : 0,
             }}
           > */}
-            {/* <ResponsiveButton
+          {/* <ResponsiveButton
               variant="contained"
               onClick={handlePreviousPage}
               disabled={page === 0}
@@ -1222,7 +1232,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 <MenuItem value={100}>100 rows</MenuItem>
               </Select>
             </Box> */}
-            {/* <ResponsiveButton
+          {/* <ResponsiveButton
               variant="contained"
               onClick={handleNextPage}
               disabled={page >= Math.ceil(documents.length / rowsPerPage) - 1}
@@ -1258,4 +1268,4 @@ const Myshipmentnew = ({ setEdit }) => {
   );
 };
 
-export default Myshipmentnew;
+export default Myshipmentnew; 

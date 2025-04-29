@@ -112,6 +112,9 @@ const LoginPage = () => {
             <TextField
               label="Username"
               variant="outlined"
+              autocomplete="off" 
+              autocorrect="off" 
+              autocapitalize="none"
               fullWidth
               margin="normal"
               value={username}
@@ -125,10 +128,18 @@ const LoginPage = () => {
                   </InputAdornment>
                 ),
               }}
+              inputProps={{
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none"
+              }}
             />
             <TextField
               label="Password"
               variant="outlined"
+              autocomplete="new-password" 
+              autocorrect="off" 
+              autocapitalize="none"
               fullWidth
               margin="normal"
               type={showPassword ? "text" : "password"}
@@ -149,6 +160,11 @@ const LoginPage = () => {
                     </IconButton>
                   </InputAdornment>
                 ),
+              }}
+              inputProps={{
+                autoComplete: "new-password",
+                autoCorrect: "off",
+                autoCapitalize: "none"
               }}
             />
             <StyledButton

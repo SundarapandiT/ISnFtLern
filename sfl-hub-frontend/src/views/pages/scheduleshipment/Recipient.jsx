@@ -109,7 +109,7 @@ const Recipient = ({
             }
           } else {
             const res = await axios.get(
-              `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
+             ` https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
             );
 
             const components = res.data.results?.[0]?.address_components || [];
@@ -177,11 +177,17 @@ const Recipient = ({
           <TextField
             label="Country"
             value={recipientCountry}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             onChange={(e) => setRecipientCountry(e.target.value)}
             onFocus={() =>
               setRecipientErrors((prev) => ({
                 ...prev,
                 country: "Can change in Schedule-pickup",
+                
               }))
             }
             onBlur={() =>
@@ -204,6 +210,11 @@ const Recipient = ({
           <TextField
             label="Company Name"
             value={recipientCompanyName}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             onChange={(e) => setRecipientCompanyName(e.target.value)}
             fullWidth
             sx={fieldStyle}
@@ -212,6 +223,11 @@ const Recipient = ({
           <TextField
             label="Contact Name"
             value={recipientContactName}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             onChange={(e) => setRecipientContactName(e.target.value)}
             fullWidth
             required
@@ -227,6 +243,11 @@ const Recipient = ({
           <TextField
             label="Address Line 1"
             value={recipientAddressLine1}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             onChange={(e) => setRecipientAddressLine1(e.target.value)}
             fullWidth
             required
@@ -238,6 +259,11 @@ const Recipient = ({
           <TextField
             label="Address Line 2"
             value={recipientAddressLine2}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             onChange={(e) => setRecipientAddressLine2(e.target.value)}
             fullWidth
             error={!!recipientErrors.addressLine2}
@@ -248,6 +274,11 @@ const Recipient = ({
           <TextField
             label="Address Line 3"
             value={recipientAddressLine3}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             onChange={(e) => setRecipientAddressLine3(e.target.value)}
             fullWidth
             error={!!recipientErrors.addressLine3}
@@ -262,6 +293,11 @@ const Recipient = ({
           <TextField
             label="Zip Code"
             value={recipientZipCode}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             onChange={(e) => setRecipientZipCode(e.target.value)}
             fullWidth
             required
@@ -273,6 +309,11 @@ const Recipient = ({
           <TextField
             label="City"
             value={recipientCity}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             onChange={(e) => setRecipientCity(e.target.value)}
             fullWidth
             required
@@ -301,6 +342,11 @@ const Recipient = ({
           <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
               country={recipientcountrycode}
+              inputProps={{
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none"
+              }}
               value={recipientPhone1}
               onChange={(phone, countryData) => {
                 setRecipientPhone1(phone);
@@ -330,6 +376,11 @@ const Recipient = ({
             <PhoneInput
               country={recipientcountrycode}
               value={recipientPhone2}
+              inputProps={{
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none"
+              }}
               onChange={(phone, countryData) => {
                 setRecipientPhone2(phone);
                 const dialCode = countryData.dialCode; 
@@ -352,6 +403,11 @@ const Recipient = ({
             variant="outlined"
             label="Email Address"
             value={recipientEmail}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             onChange={(e) => setRecipientEmail(e.target.value)}
             fullWidth
             error={!!recipientErrors.email}
@@ -369,6 +425,11 @@ const Recipient = ({
             <InputLabel>Select Location Type</InputLabel>
             <Select
               value={recipientLocationType || ""}
+              inputProps={{
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none"
+              }}
               onChange={(e) => setRecipientLocationType(e.target.value)}
               label="Select Location Type"
             >

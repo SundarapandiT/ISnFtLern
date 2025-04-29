@@ -299,6 +299,9 @@ const RegisterPage = () => {
             name="fullname"
             label="Full Name"
             variant="outlined"
+            autocomplete="off" 
+            autocorrect="off" 
+            autocapitalize="none"
             margin="normal"
             value={registerDetails.fullname}
             onChange={(e) => {
@@ -326,6 +329,11 @@ const RegisterPage = () => {
                 )
               ) : null,
             }}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
           />
           <Box className={classes.usernameContainer}>
             <TextField
@@ -333,6 +341,9 @@ const RegisterPage = () => {
               name="username"
               label="Username"
               variant="outlined"
+              autocomplete="off" 
+              autocorrect="off" 
+              autocapitalize="none"
               margin="normal"
               value={registerDetails.username}
               onChange={(e) => {
@@ -352,7 +363,6 @@ const RegisterPage = () => {
               }}
               error={state.usernameErr}
               helperText={state.usernameHelperText}
-              autoComplete="off"
               slotProps={{
                 input: {
                   autoComplete: "off"
@@ -364,6 +374,11 @@ const RegisterPage = () => {
                     <FaUser color="gray" />
                   </InputAdornment>
                 ),
+              }}
+              inputProps={{
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none"
               }}
             />
             {activeField === "username" && (
@@ -587,6 +602,9 @@ const RegisterPage = () => {
             name="email"
             label="Email Address"
             variant="outlined"
+            autocomplete="off" 
+            autocorrect="off" 
+            autocapitalize="none"
             value={registerDetails.email}
             margin="normal"
             onChange={(e) => {
@@ -610,6 +628,11 @@ const RegisterPage = () => {
                   <MailOutlineIcon color="gray" />
                 </InputAdornment>
               ),
+            }}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
             }}
           />
           <Button

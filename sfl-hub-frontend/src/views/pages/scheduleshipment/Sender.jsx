@@ -216,6 +216,11 @@ const Sender = ({
             onChange={(e) => setCompanyName(e.target.value)}
             fullWidth
             sx={fieldStyle}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             InputProps={{
               startAdornment: <BusinessIcon sx={{ color: "action.active", mr: 1 }} />,
             }}
@@ -229,6 +234,11 @@ const Sender = ({
             error={!!senderErrors.contactName}
             helperText={senderErrors.contactName}
             sx={fieldStyle}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             InputProps={{
               startAdornment: <PersonIcon sx={{ color: "red", mr: 1 }} />,
             }}
@@ -246,6 +256,11 @@ const Sender = ({
             error={!!senderErrors.addressLine1}
             helperText={senderErrors.addressLine1}
             sx={fieldStyle}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             InputProps={{
               startAdornment: <LocationOnIcon sx={{ color: "red", mr: 1 }} />,
             }}
@@ -258,6 +273,11 @@ const Sender = ({
             error={!!senderErrors.addressLine2}
             helperText={senderErrors.addressLine2}
             sx={fieldStyle}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             InputProps={{
               startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} />,
             }}
@@ -270,6 +290,11 @@ const Sender = ({
             error={!!senderErrors.addressLine3}
             helperText={senderErrors.addressLine3}
             sx={fieldStyle}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             InputProps={{
               startAdornment: <LocationOnIcon sx={{ color: "action.active", mr: 1 }} />,
             }}
@@ -287,6 +312,11 @@ const Sender = ({
             error={!!senderErrors.zipCode}
             helperText={senderErrors.zipCode}
             sx={fieldStyle}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             InputProps={{
               startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />,
             }}
@@ -300,6 +330,11 @@ const Sender = ({
             error={!!senderErrors.fromCity}
             helperText={senderErrors.fromCity}
             sx={fieldStyle}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             InputProps={{
               startAdornment: <BusinessIcon sx={{ color: "red", mr: 1 }} />,
             }}
@@ -325,6 +360,11 @@ const Sender = ({
             <PhoneInput
               country={countrycode}
               value={phone1}
+              inputProps={{
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none"
+              }}
               onChange={(phone, countryData) => {
                 setPhone1(phone);
                 const dialCode = countryData.dialCode; 
@@ -354,6 +394,11 @@ const Sender = ({
             <PhoneInput
               country={countrycode}
               value={phone2}
+              inputProps={{
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none"
+              }}
               onChange={(phone, countryData) => {
                 setPhone2(phone);
                 const dialCode = countryData.dialCode; 
@@ -383,6 +428,11 @@ const Sender = ({
             error={!!senderErrors.email}
             helperText={senderErrors.email}
             sx={fieldStyle}
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
             InputProps={{
               startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />,
             }}

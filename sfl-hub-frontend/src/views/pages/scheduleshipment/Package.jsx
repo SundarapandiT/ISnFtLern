@@ -208,6 +208,11 @@ const Package = ({
                         name="noOfPackages"
                         type="number"
                         value={index + 1}
+                        inputProps={{
+                          autoComplete: "off",
+                          autoCorrect: "off",
+                          autoCapitalize: "none"
+                        }}
                         InputProps={{ readOnly: true }}
                         fullWidth
                         variant="outlined"
@@ -228,6 +233,11 @@ const Package = ({
                         size="small"
                         error={!!packageErrors[`weight_${index}`]}
                         helperText={packageErrors[`weight_${index}`]}
+                        inputProps={{
+                          autoComplete: "off",
+                          autoCorrect: "off",
+                          autoCapitalize: "none"
+                        }}
                         InputProps={{
                           endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
                         }}
@@ -246,6 +256,11 @@ const Package = ({
                           sx={{ width: { xs: "100%", sm: "31%" }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`length_${index}`]}
                           helperText={packageErrors[`length_${index}`]}
+                          inputProps={{
+                            autoComplete: "off",
+                            autoCorrect: "off",
+                            autoCapitalize: "none"
+                          }}
                           InputProps={{
                             endAdornment: <InputAdornment position="end">in</InputAdornment>,
                           }}
@@ -259,6 +274,11 @@ const Package = ({
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
+                          inputProps={{
+                            autoComplete: "off",
+                            autoCorrect: "off",
+                            autoCapitalize: "none"
+                          }}
                           sx={{ width: { xs: "100%", sm: "31%" }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`width_${index}`]}
                           helperText={packageErrors[`width_${index}`]}
@@ -275,6 +295,11 @@ const Package = ({
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
+                          inputProps={{
+                            autoComplete: "off",
+                            autoCorrect: "off",
+                            autoCapitalize: "none"
+                          }}
                           sx={{ width: { xs: "100%", sm: "90px" } }}
                           error={!!packageErrors[`height_${index}`]}
                           helperText={packageErrors[`height_${index}`]}
@@ -293,6 +318,11 @@ const Package = ({
                           readOnly: true,
                           endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
                         }}
+                        inputProps={{
+                          autoComplete: "off",
+                          autoCorrect: "off",
+                          autoCapitalize: "none"
+                        }}
                         fullWidth
                         variant="outlined"
                         size="small"
@@ -308,6 +338,11 @@ const Package = ({
                         fullWidth
                         variant="outlined"
                         size="small"
+                        inputProps={{
+                          autoComplete: "off",
+                          autoCorrect: "off",
+                          autoCapitalize: "none"
+                        }}
                         InputProps={{
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                         }}
@@ -407,6 +442,11 @@ const Package = ({
                           name="contentDescription"
                           value={invoice.contentDescription || ""}
                           onChange={(e) => handleInvoiceChange(index, e)}
+                          inputProps={{
+                            autoComplete: "off",
+                            autoCorrect: "off",
+                            autoCapitalize: "none"
+                          }}
                           fullWidth
                           variant="outlined"
                           size="small"
@@ -420,6 +460,11 @@ const Package = ({
                           type="number"
                           value={invoice.quantity || ""}
                           onChange={(e) => handleInvoiceChange(index, e)}
+                          inputProps={{
+                            autoComplete: "off",
+                            autoCorrect: "off",
+                            autoCapitalize: "none"
+                          }}
                           fullWidth
                           variant="outlined"
                           size="small"
@@ -433,6 +478,11 @@ const Package = ({
                           type="number"
                           value={invoice.valuePerQty || ""}
                           onChange={(e) => handleInvoiceChange(index, e)}
+                          inputProps={{
+                            autoComplete: "off",
+                            autoCorrect: "off",
+                            autoCapitalize: "none"
+                          }}
                           fullWidth
                           variant="outlined"
                           size="small"
@@ -450,6 +500,11 @@ const Package = ({
                           fullWidth
                           variant="outlined"
                           size="small"
+                          inputProps={{
+                            autoComplete: "off",
+                            autoCorrect: "off",
+                            autoCapitalize: "none"
+                          }}
                           InputProps={{
                             readOnly: true,
                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
