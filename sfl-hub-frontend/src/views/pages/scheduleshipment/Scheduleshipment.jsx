@@ -506,7 +506,7 @@ const handleSubmit = async () => {
         { data: requestData }
       );
       if (response.data?.error) {
-      toast.dismiss(toastId);
+         toast.dismiss(toastId);
 
         throw new Error(response.data.error);
       }
@@ -546,6 +546,7 @@ const handleSubmit = async () => {
       }
     } catch (error) {
       console.error("Error in handleSubmit:", error);
+      toast.dismiss();
       toast.error("Failed to schedule shipment. Please try again.", {
         position: "top-right",
         autoClose: 3000,
@@ -613,7 +614,7 @@ const handleSubmit = async () => {
     const updatedPackageData = [...packageData];
     
   
-    // If packageType is "Document", enforce default values and skip dimension calculations
+    // If packageType is " ", enforce default values and skip dimension calculations
     if (packageType === "Envelop") {
       updatedPackageData[index] = {
         ...updatedPackageData[index],
@@ -624,6 +625,12 @@ const handleSubmit = async () => {
         chargable_weight: 0.5,
         insured_value: name === "insured_value" ? value : 0, 
       };
+      setCommercialInvoiceData({
+        packageNumber: "1",
+        contentDescription:"Document",
+        quantity: 0,
+        valuePerQty: 0,
+      },);
     } else {
       // Normal package logic
       updatedPackageData[index] = {
@@ -1331,6 +1338,7 @@ const handleSubmit = async () => {
               handleRemovePackage={handleRemovePackage}
               handlePackageSubmit={handlePackageSubmit}
               commercialInvoiceData={commercialInvoiceData}
+              setCommercialInvoiceData={setCommercialInvoiceData}
               handleInvoiceChange={handleInvoiceChange}
               handleAddInvoiceRow={handleAddInvoiceRow}
               handleRemoveInvoiceRow={handleRemoveInvoiceRow}

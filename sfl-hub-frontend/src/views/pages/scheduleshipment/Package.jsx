@@ -37,6 +37,7 @@ const Package = ({
   handleRemovePackage,
   handlePackageSubmit,
   commercialInvoiceData,
+  setCommercialInvoiceData,
   handleInvoiceChange,
   handleAddInvoiceRow,
   handleRemoveInvoiceRow,
@@ -66,21 +67,36 @@ const Package = ({
     if (packageType === "Envelop") {
       setNoOfPackages(1); // Fix number of packages to 1
       updatePackageRows(1); // Ensure only one row is present
-      packageData.forEach((_, index) => {
-        handlePackageChange(index, { target: { name: "weight", value: 0.5 } });
-      });
+      const resetPackageData = Array.from({ length: 1 }, () => ({
+        noOfPackages: 1,
+        weight: 0.5, 
+        length: 10,
+        width: 13,
+        height: 1,
+        chargable_weight: 0.5,
+        insured_value: 0,
+      }));
+      setPackageData(resetPackageData);
+      setCommercialInvoiceData({
+        packageNumber: "1",
+        contentDescription:"Document",
+        quantity: 0,
+        valuePerQty: 0,
+      },);
+     
     } else if (packageType === "Package") {
       // Reset packageData to initial state when switching to Package
       setNoOfPackages(1); // Reset to 1 package
       updatePackageRows(1); // Reset to one row
-      const resetPackageData = [{
+      const resetPackageData = Array.from({ length: 1 }, () => ({
+        noOfPackages: 1,
         weight: 0,
         length: 0,
         width: 0,
         height: 0,
         chargable_weight: 0,
-        insured_value: 0
-      }];
+        insured_value: 0,
+      }));
       setPackageData(resetPackageData);
     }
   }, [packageType, commercialInvoiceData]);
