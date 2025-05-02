@@ -313,7 +313,9 @@ const EmailVerification = () => {
                 <TextField
                   variant="outlined"
                   size={isMobile ? "small" : "medium"}
-                  inputProps={{ maxLength: 1, style: { textAlign: "center", fontSize: "1.5rem" } }}
+                  inputProps={{autoComplete: "off",
+                    autoCorrect: "off",
+                    autoCapitalize: "none", maxLength: 1, style: { textAlign: "center", fontSize: "1.5rem" } }}
                   value={digit}
                   onChange={(e) => handleChange(e, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}

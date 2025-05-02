@@ -110,7 +110,7 @@ const Schedule = () => {
       setLoginname(storedUser.name);
       setContactName(storedUser.name);
       setEmail(storedUser.email);
-      setPhone1(storedUser.phone);
+      // setPhone1(storedUser.phone);
       // setUserId(storedUser.personID);
       setUserId(storedUser.personID);
       setUserName(storedUser.username);

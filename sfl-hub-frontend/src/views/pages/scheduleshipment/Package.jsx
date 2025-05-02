@@ -333,7 +333,7 @@ const Package = ({
                       <TextField
                         name="insured_value"
                         type="number"
-                        value={pkg.insured_value || ""}
+                        value={pkg.insured_value || 0}
                         onChange={(e) => handlePackageChange(index, e)}
                         fullWidth
                         variant="outlined"
