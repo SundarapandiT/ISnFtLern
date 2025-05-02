@@ -173,21 +173,23 @@ const RegisterPage = () => {
           errors.emailHelperText = "";
         }
         break;
-      case "mobile":
-        errors.checkMobile = true;
-        const mobileRegExp = /^\+?[1-9]\d{8,14}$/;
-        if (isEmpty(value)) {
-          errors.mobileErr = true;
-          errors.mobileHelperText = "Please enter Mobile Number";
-        } else if (value.trim() !== value || !value.match(mobileRegExp)) {
-          errors.mobileErr = true;
-          errors.mobileHelperText = "Please enter valid Mobile Number";
-        } else {
-          errors.mobile = value;
-          errors.mobileErr = false;
-          errors.mobileHelperText = "";
-        }
-        break;
+        case "mobile":
+          errors.checkMobile = true;
+          const mobileRegExp = /^\+?[1-9]\d{8,14}$/; // international format, 9–15 digits
+        
+          if (!value || value === "+" || isEmpty(value.trim())) {
+            errors.mobileErr = true;
+            errors.mobileHelperText = "Please enter Mobile Number";
+          } else if (!mobileRegExp.test(value.trim())) {
+            errors.mobileErr = true;
+            errors.mobileHelperText = "Please enter valid Mobile Number";
+          } else {
+            errors.mobile = value.trim();
+            errors.mobileErr = false;
+            errors.mobileHelperText = "";
+          }
+          break;
+        
       case "password":
         errors.checkPassword = true;
         if (isEmpty(value)) {
@@ -239,7 +241,7 @@ const RegisterPage = () => {
       });
       const userMessage = response.data?.message;
       if (userMessage === 'Email is already verified, no need to generate OTP.') {
-        toast.error("Already registered with this email. Please login..", {
+        toast.error("Email already registered. Try another email ID", {
           position: "top-right",
           autoClose: 3000,
         });

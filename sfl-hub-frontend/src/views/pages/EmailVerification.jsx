@@ -252,7 +252,7 @@ const EmailVerification = () => {
       });
       const userMessage = response.data?.message;
       if (userMessage === 'Email is already verified, no need to generate OTP.') {
-        toast.error("Already registered with this email. Please login..", {
+        toast.error("Email already registered. Try another email ID", {
           position: "top-right",
           autoClose: 3000,
         });
