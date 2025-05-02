@@ -175,7 +175,7 @@ const Schedule = () => {
   // Package tab
   const [packageType, setPackageType] = useState("Package");
   const [noOfPackages, setNoOfPackages] = useState(1);
-  const [dutiesPaidBy, setDutiesPaidBy] = useState("Recipient (No Additional Fees)");
+  const [dutiesPaidBy, setDutiesPaidBy] = useState("Recipient");
   const [packageData, setPackageData] = useState(
     Array.from({ length: 1 }, () => ({
       noOfPackages: 1,
