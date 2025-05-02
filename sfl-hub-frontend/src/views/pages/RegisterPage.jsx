@@ -363,11 +363,6 @@ const RegisterPage = () => {
               }}
               error={state.usernameErr}
               helperText={state.usernameHelperText}
-              slotProps={{
-                input: {
-                  autoComplete: "off"
-                }
-              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -457,11 +452,6 @@ const RegisterPage = () => {
                 error={state.passwordErr}
                 helperText={state.passwordHelperText}
                 autoComplete="off"
-                slotProps={{
-                  input: {
-                    autoComplete: "off"
-                  }
-                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
