@@ -123,9 +123,10 @@ const Myshipmentnew = ({ setEdit }) => {
   const commercialItems = shipment?.COMMERCIAL || [];
   const trackingDetails = shipment?.TRACKINGDETAILS || [];
   // const accountsDetails = shipment?.ACCOUNTSDETAILS || [];
-  const invoiceData = shipment?.ACCOUNTSDETAILS?.[0]?.InvoiceData || [];
-const paymentData = shipment?.ACCOUNTSDETAILS?.[0]?.PaymentReceivedData || [];
-
+  //const invoiceData = shipment?.ACCOUNTSDETAILS?.[0]?.InvoiceData || [];
+  //const paymentData = shipment?.ACCOUNTSDETAILS?.[0]?.PaymentReceivedData || [];
+  const invoiceData = shipment?.ACCOUNTSDETAILS || []; 
+  const paymentData = shipment?.ACCOUNTSDETAILS || [];
   // Check if from and to countries are the same
   const isSameCountry =
     fromAddress.countryid && toAddress.countryid
@@ -836,248 +837,271 @@ const paymentData = shipment?.ACCOUNTSDETAILS?.[0]?.PaymentReceivedData || [];
         </SectionPaper>
       )}
 
-      {activeTab === "tracking" && (
-        <SectionPaper>
-        <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-          Tracking
-        </ResponsiveTypography>
-        <TableContainer sx={{ overflowX: "auto" }}>
-          <ResponsiveTable
-            columns={["Date", "Time", "Updates"]}
-            columnWidths={{
-              Date: "20%",
-              Time: "20%",
-              Updates: "60%", 
-            }}
-            rows={
-              trackingDetails.length > 0
-                ? trackingDetails.map((track) => ({
-                    date: track.PickupDate || "",
-                    time: track.PickupTime || "",
-                    updates: track.Updates || "",
-                  }))
-                : [
-                    {
-                      date: "",
-                      time: "",
-                      updates: "No tracking details available",
-                    },
-                  ]
-            }
-          />
-        </TableContainer>
-      </SectionPaper>
-      )}
+{activeTab === "tracking" && (
+  <SectionPaper>
+    <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+      Tracking
+    </ResponsiveTypography>
+    <TableContainer sx={{ overflowX: "auto" }}>
+      <ResponsiveTable
+        columns={["Date", "Time", "Updates"]}
+        columnWidths={{
+          Date: "20%",
+          Time: "20%",
+          Updates: "60%",
+        }}
+        rows={
+          trackingDetails.length > 0
+            ? trackingDetails.map((track) => {
+                // Extract date and time from createdon
+                const dateTime = new Date(track.createdon);
+                const date = dateTime.toLocaleDateString(); // e.g., "4/25/2025"
+                const time = dateTime.toLocaleTimeString(); // e.g., "8:15:40 PM"
+                return {
+                  date: track.trackingdate || date, // Use trackingdate, fallback to date from createdon
+                  time: time, // Extract time from createdon
+                  updates: track.comments || "No updates available", // Map comments to updates
+                };
+              })
+            : [
+                {
+                  date: "",
+                  time: "",
+                  updates: "No tracking details available",
+                },
+              ]
+        }
+      />
+    </TableContainer>
+  </SectionPaper>
+)}
 
-      {activeTab === "accounts" && (
-        <SectionPaper>
-        {/* Invoice Table */}
-        <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-          Invoice
-        </ResponsiveTypography>
-        <TableContainer sx={{ overflowX: "auto" }}>
-          <TableStyled>
-            <TableHead>
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Service</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Qty</TableCell>
-                <TableCell>Cost</TableCell>
-                <TableCell>Total</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {invoiceData.length > 0 ? (
-                invoiceData.map((invoice, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <TextField
-                        fullWidth
-                        value={invoice.InvoiceDate || ""}
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <FormControl fullWidth variant="outlined">
-                        <InputLabel>Service</InputLabel>
-                        <Select
-                          value={invoice.ServiceDescription || ""}
-                          label="Service"
-                          readOnly
+{activeTab === "accounts" && (
+  <SectionPaper>
+    {/* Invoice Table */}
+    <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+      Invoice
+    </ResponsiveTypography>
+    <TableContainer sx={{ overflowX: "auto" }}>
+      <TableStyled>
+        <TableHead>
+          <TableRow>
+            <TableCell>Date</TableCell>
+            <TableCell>Service</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Qty</TableCell>
+            <TableCell>Cost</TableCell>
+            <TableCell>Total</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {invoiceData.length > 0 ? (
+            invoiceData.map((invoice, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    value={invoice.invoicedate || "" }
+                    variant="outlined"
+                    InputProps={{ readOnly: true }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel>Service</InputLabel>
+                    <Select
+                      value={invoice.servicedescription || ""}
+                      label="Service"
+                      readOnly
+                    >
+                      <MenuItem value="">Select</MenuItem>
+                      {shipment?.INVENTORY?.map((inv) => (
+                        <MenuItem
+                          key={inv.stringmapid}
+                          value={inv.description}
                         >
-                          <MenuItem value="">Select</MenuItem>
-                          {shipment?.INVENTORY?.map((inv) => (
-                            <MenuItem
-                              key={inv.stringmapid}
-                              value={inv.description}
-                            >
-                              {inv.description}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        fullWidth
-                        value={invoice.Description || ""}
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        fullWidth
-                        value={invoice.Quantity || "0"}
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        fullWidth
-                        value={invoice.Amount || "0.00"}
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        fullWidth
-                        value={invoice.TotalAmount || "0.00"}
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6}>
+                          {inv.description}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    value={invoice.description || ""}
+                    variant="outlined"
+                    InputProps={{ readOnly: true }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    value={invoice.quantity || "0"}
+                    variant="outlined"
+                    InputProps={{ readOnly: true }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    value={invoice.amount || "0.00"}
+                    variant="outlined"
+                    InputProps={{ readOnly: true }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    value={invoice.totalamount || "0.00"}
+                    variant="outlined"
+                    InputProps={{ readOnly: true }}
+                  />
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6}>
+                <TextField
+                  fullWidth
+                  value="No invoice details available"
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </TableStyled>
+    </TableContainer>
+    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+      <TextField
+        label="Total Cost:"
+        value={
+          invoiceData
+            .reduce((sum, inv) => sum + parseFloat(inv.totalamount || 0), 0)
+            .toFixed(2) || "0.00"
+        }
+        variant="outlined"
+        InputProps={{ readOnly: true }}
+        sx={{ width: isMobile ? "100%" : "auto" }}
+      />
+    </Box>
+
+    {/* Payment Made Table */}
+    <ResponsiveTypography
+      variant="h6"
+      sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
+    >
+      Payment Made
+    </ResponsiveTypography>
+    <TableContainer sx={{ overflowX: "auto" }}>
+      <TableStyled>
+        <TableHead>
+          <TableRow>
+            <TableCell>Date</TableCell>
+            <TableCell>Payment Type</TableCell>
+            <TableCell>Number</TableCell>
+            <TableCell>Confirmation</TableCell>
+            <TableCell>Amount</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {paymentData.length > 0 ? (
+            paymentData.map((account, index) => {
+              // Derive payment details
+              const paymentDate = shipment?.SHIPMENTDETAILS?.[0]?.shipmentdate
+                ? new Date(shipment.SHIPMENTDETAILS[0].shipmentdate).toLocaleDateString()
+                : account.invoicedate || "";
+              const paymentType = shipment?.SHIPMENTDETAILS?.[0]?.paymenttype || "N/A";
+              const paymentNumber = "N/A"; // Not available in response
+              const confirmation = shipment?.SHIPMENTDETAILS?.[0]?.paymentcleared
+                ? "Confirmed"
+                : "Pending";
+              const amount = account.totalamount || "0.00";
+
+              return (
+                <TableRow key={index}>
+                  <TableCell>
                     <TextField
                       fullWidth
-                      value="No invoice details available"
+                      value={paymentDate}
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel>Payment Type</InputLabel>
+                      <Select
+                        value={paymentType}
+                        label="Payment Type"
+                        readOnly
+                      >
+                        <MenuItem value="">Select</MenuItem>
+                        <MenuItem value="Credit Card">Credit Card</MenuItem>
+                        <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value={paymentNumber}
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value={confirmation}
+                      variant="outlined"
+                      InputProps={{ readOnly: true }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value={amount}
                       variant="outlined"
                       InputProps={{ readOnly: true }}
                     />
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </TableStyled>
-        </TableContainer>
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-          <TextField
-            label="Total Cost:"
-            value={invoiceData
-              .reduce((sum, inv) => sum + parseFloat(inv.TotalAmount || 0), 0)
-              .toFixed(2)}
-            variant="outlined"
-            InputProps={{ readOnly: true }}
-            sx={{ width: isMobile ? "100%" : "auto" }}
-          />
-        </Box>
-      
-        {/* Payment Made Table */}
-        <ResponsiveTypography
-          variant="h6"
-          sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
-        >
-          Payment Made
-        </ResponsiveTypography>
-        <TableContainer sx={{ overflowX: "auto" }}>
-          <TableStyled>
-            <TableHead>
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Payment Type</TableCell>
-                <TableCell>Number</TableCell>
-                <TableCell>Confirmation</TableCell>
-                <TableCell>Amount</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paymentData.length > 0 ? (
-                paymentData.map((payment, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <TextField
-                        fullWidth
-                        value={payment.PaymentDate || ""}
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <FormControl fullWidth variant="outlined">
-                        <InputLabel>Payment Type</InputLabel>
-                        <Select
-                          value={payment.PaymentType || ""}
-                          label="Payment Type"
-                          readOnly
-                        >
-                          <MenuItem value="">Select</MenuItem>
-                          <MenuItem value="Credit Card">Credit Card</MenuItem>
-                          <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        fullWidth
-                        value={payment.PaymentNumber || ""}
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        fullWidth
-                        value={payment.Confirmation || ""}
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        fullWidth
-                        value={payment.Amount || "0.00"}
-                        variant="outlined"
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5}>
-                    <TextField
-                      fullWidth
-                      value="No payment details available"
-                      variant="outlined"
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </TableStyled>
-        </TableContainer>
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-          <TextField
-            label="Total Cost:"
-            value={paymentData
-              .reduce((sum, pay) => sum + parseFloat(pay.Amount || 0), 0)
-              .toFixed(2)}
-            variant="outlined"
-            InputProps={{ readOnly: true }}
-            sx={{ width: isMobile ? "100%" : "auto" }}
-          />
-        </Box>
-      </SectionPaper>
-      )}
+              );
+            })
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5}>
+                <TextField
+                  fullWidth
+                  value="No payment details available"
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </TableStyled>
+    </TableContainer>
+    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+      <TextField
+        label="Total Cost:"
+        value={
+          paymentData
+            .reduce((sum, pay) => sum + parseFloat(pay.totalamount || 0), 0)
+            .toFixed(2) || "0.00"
+        }
+        variant="outlined"
+        InputProps={{ readOnly: true }}
+        sx={{ width: isMobile ? "100%" : "auto" }}
+      />
+    </Box>
+  </SectionPaper>
+)}
 
       {activeTab === "documentation" && (
         <SectionPaper>
