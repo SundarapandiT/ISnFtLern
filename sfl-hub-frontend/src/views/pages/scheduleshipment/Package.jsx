@@ -31,6 +31,7 @@ import { ButtonBox, NextButton, PrevButton } from "../../styles/scheduleshipment
 
 const Package = ({
   packageData,
+  setPackageData,
   handlePackageChange,
   handleAddPackage,
   handleRemovePackage,
@@ -61,10 +62,28 @@ const Package = ({
 
   // Update refs when commercialInvoiceData changes (e.g., when rows are added/removed)
   React.useEffect(() => {
-    valuePerQtyRefs.current = commercialInvoiceData.map(
-      (_, i) => valuePerQtyRefs.current[i] || createRef()
-    );
-  }, [commercialInvoiceData.length]);
+    valuePerQtyRefs.current = commercialInvoiceData.map((_, i) => valuePerQtyRefs.current[i] || createRef());
+    if (packageType === "Envelop") {
+      setNoOfPackages(1); // Fix number of packages to 1
+      updatePackageRows(1); // Ensure only one row is present
+      packageData.forEach((_, index) => {
+        handlePackageChange(index, { target: { name: "weight", value: 0.5 } });
+      });
+    } else if (packageType === "Package") {
+      // Reset packageData to initial state when switching to Package
+      setNoOfPackages(1); // Reset to 1 package
+      updatePackageRows(1); // Reset to one row
+      const resetPackageData = [{
+        weight: 0,
+        length: 0,
+        width: 0,
+        height: 0,
+        chargable_weight: 0,
+        insured_value: 0
+      }];
+      setPackageData(resetPackageData);
+    }
+  }, [packageType, commercialInvoiceData]);
 
   function handleNext(e) {
     const totalinsured_value = packageData.reduce(
@@ -76,7 +95,7 @@ const Package = ({
       0
     );
 
-    if (samecountry === false) {
+    if (samecountry === false && packageType !== "Envelop") {
       const isNextEnabled = totalinsured_value <= totalDeclaredValue && totalinsured_value > 0;
       if (isNextEnabled) {
         console.log("different country");
@@ -85,7 +104,7 @@ const Package = ({
         setOpenDialog(true);
       }
     } else {
-      console.log("same country");
+      console.log("same country or document");
       handlePackageSubmit();
     }
   }
@@ -103,6 +122,8 @@ const Package = ({
     }
     setOpenDialog(false);
   };
+
+  const isDocument = packageType === "Envelop";
 
   return (
     <Box className="ss-box">
@@ -144,46 +165,49 @@ const Package = ({
               onChange={(e) => setPackageType(e.target.value)}
             >
               <MenuItem value="Package">Package</MenuItem>
-              <MenuItem value="Document">Document</MenuItem>
+              <MenuItem value="Envelop">Document(Under 0.5Lbs)</MenuItem>
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} sm={4}>
-          <FormControl fullWidth>
-            <InputLabel id="no-of-packages-label">No. of Packages</InputLabel>
-            <Select
-              labelId="no-of-packages-label"
-              value={noOfPackages || 1}
-              label="No. of Packages"
-              onChange={(e) => {
-                const num = parseInt(e.target.value, 10);
-                setNoOfPackages(num);
-                updatePackageRows(num);
-              }}
-            >
-              {[...Array(10).keys()].map((num) => (
-                <MenuItem key={num + 1} value={num + 1}>
-                  {num + 1}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <FormControl fullWidth>
-            <InputLabel id="duties-taxes-label">Duties & Taxes Paid By</InputLabel>
-            <Select
-              labelId="duties-taxes-label"
-              value={dutiesPaidBy || "Recipient"}
-              label="Duties & Taxes Paid By"
-              onChange={(e) => setDutiesPaidBy(e.target.value)}
-              disabled
-            >
-              <MenuItem value="Recipient">Recipient (No Additional Fees)</MenuItem>
-              {/* <MenuItem value="Sender">Sender (Additional $15 Fees Applied)</MenuItem> */}
-            </Select>
-          </FormControl>
-        </Grid>
+        {!isDocument && (
+          <>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <InputLabel id="no-of-packages-label">No. of Packages</InputLabel>
+                <Select
+                  labelId="no-of-packages-label"
+                  value={noOfPackages || 1}
+                  label="No. of Packages"
+                  onChange={(e) => {
+                    const num = parseInt(e.target.value, 10);
+                    setNoOfPackages(num);
+                    updatePackageRows(num);
+                  }}
+                >
+                  {[...Array(10).keys()].map((num) => (
+                    <MenuItem key={num + 1} value={num + 1}>
+                      {num + 1}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <InputLabel id="duties-taxes-label">Duties & Taxes Paid By</InputLabel>
+                <Select
+                  labelId="duties-taxes-label"
+                  value={dutiesPaidBy || "Recipient"}
+                  label="Duties & Taxes Paid By"
+                  onChange={(e) => setDutiesPaidBy(e.target.value)}
+                  disabled
+                >
+                  <MenuItem value="Recipient">Recipient (No Additional Fees)</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </>
+        )}
       </Grid>
 
       <form>
@@ -226,7 +250,7 @@ const Package = ({
                       <TextField
                         name="weight"
                         type="number"
-                        value={pkg.weight || ""}
+                        value={isDocument ? 0.5 : pkg.weight || ""}
                         onChange={(e) => handlePackageChange(index, e)}
                         fullWidth
                         variant="outlined"
@@ -236,11 +260,14 @@ const Package = ({
                         inputProps={{
                           autoComplete: "off",
                           autoCorrect: "off",
-                          autoCapitalize: "none"
+                          autoCapitalize: "none",
+                          readOnly: isDocument
                         }}
                         InputProps={{
                           endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
+                          readOnly: isDocument
                         }}
+                        sx={isDocument ? { backgroundColor: "#f0f0f0" } : {}}
                       />
                     </TableCell>
                     <TableCell>
@@ -249,7 +276,7 @@ const Package = ({
                           name="length"
                           type="number"
                           label="L"
-                          value={pkg.length || ""}
+                          value={isDocument ? 10 : pkg.length || ""}
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
@@ -259,53 +286,62 @@ const Package = ({
                           inputProps={{
                             autoComplete: "off",
                             autoCorrect: "off",
-                            autoCapitalize: "none"
+                            autoCapitalize: "none",
+                            readOnly: isDocument
                           }}
                           InputProps={{
                             endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                            readOnly: isDocument
                           }}
+                          disabled={isDocument}
                         />
                         <Typography sx={{ display: { xs: "none", sm: "block" } }}>+</Typography>
                         <TextField
                           name="width"
                           type="number"
                           label="W"
-                          value={pkg.width || ""}
+                          value={isDocument ? 13 : pkg.width || ""}
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
                           inputProps={{
                             autoComplete: "off",
                             autoCorrect: "off",
-                            autoCapitalize: "none"
+                            autoCapitalize: "none",
+                            readOnly: isDocument
                           }}
                           sx={{ width: { xs: "100%", sm: "31%" }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`width_${index}`]}
                           helperText={packageErrors[`width_${index}`]}
                           InputProps={{
                             endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                            readOnly: isDocument
                           }}
+                          disabled={isDocument}
                         />
                         <Typography sx={{ display: { xs: "none", sm: "block" } }}>+</Typography>
                         <TextField
                           name="height"
                           type="number"
                           label="H"
-                          value={pkg.height || ""}
+                          value={isDocument ? 1 : pkg.height || ""}
                           onChange={(e) => handlePackageChange(index, e)}
                           variant="outlined"
                           size="small"
                           inputProps={{
                             autoComplete: "off",
                             autoCorrect: "off",
-                            autoCapitalize: "none"
+                            autoCapitalize: "none",
+                            readOnly: isDocument
                           }}
                           sx={{ width: { xs: "100%", sm: "90px" } }}
                           error={!!packageErrors[`height_${index}`]}
                           helperText={packageErrors[`height_${index}`]}
                           InputProps={{
                             endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                            readOnly: isDocument
                           }}
+                          disabled={isDocument}
                         />
                       </Box>
                     </TableCell>
@@ -313,7 +349,7 @@ const Package = ({
                       <TextField
                         name="chargable_weight"
                         type="number"
-                        value={pkg.chargable_weight || ""}
+                        value={isDocument ? 0.5 : pkg.chargable_weight || ""}
                         InputProps={{
                           readOnly: true,
                           endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
@@ -330,7 +366,7 @@ const Package = ({
                       />
                     </TableCell>
                     <TableCell>
-                      <TextField
+                    <TextField
                         name="insured_value"
                         type="number"
                         value={pkg.insured_value}
@@ -349,11 +385,10 @@ const Package = ({
                         }}
                         error={!!packageErrors[`insured_value_${index}`]}
                         helperText={packageErrors[`insured_value_${index}`]}
-                      />
+                      />
                     </TableCell>
-
                     <TableCell>
-                      {packageData.length > 1 ? (
+                      {!isDocument && packageData.length > 1 ? (
                         <IconButton
                           onClick={() => handleRemovePackage(index)}
                           sx={{ color: "gray" }}
@@ -370,186 +405,190 @@ const Package = ({
           </TableContainer>
         </Box>
 
-        <Box className="action-row">
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleAddPackage}
-            disabled={packageData.length >= 10}
-          >
-            ADD NEW ROW
-          </Button>
-
-          <Box className="summary-box">
-            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-              Totals:
-            </Typography>
-            <Typography variant="body2">Pkgs: {packageData.length}</Typography>
-            <Typography variant="body2">
-              Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2)} lbs
-            </Typography>
-            <Typography variant="body2">
-              Chrg Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2)} lbs
-            </Typography>
-            <Typography variant="body2">
-              Ins Val: ${packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2)}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ display: samecountry ? "none" : "block" }}>
-          <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
-            Commercial Invoice
-          </Typography>
-          <Box sx={{ overflowX: "auto", mb: 2 }}>
-            <TableContainer component={Paper} sx={{ minWidth: 650 }}>
-              <Table className="common-table">
-                <TableHead>
-                  <TableRow sx={{ bgcolor: "#333" }}>
-                    <TableCell sx={{ width: 100 }}>Pkg No</TableCell>
-                    <TableCell sx={{ width: 889 }}>Content Description*</TableCell>
-                    <TableCell sx={{ minWidth: 100 }}>Quantity*</TableCell>
-                    <TableCell sx={{ minWidth: 150 }}>Value/Qty (USD)*</TableCell>
-                    <TableCell sx={{ minWidth: 150 }}>Total Value (USD)</TableCell>
-                    <TableCell sx={{ width: 60 }}></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {commercialInvoiceData.map((invoice, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <FormControl fullWidth variant="outlined" size="small">
-                          <Select
-                            name="packageNumber"
-                            value={invoice.packageNumber || ""}
-                            onChange={(e) => handleInvoiceChange(index, e)}
-                            displayEmpty
-                            error={!!packageErrors[`packageNumber_${index}`]}
-                          >
-                            {[...Array(packageData.length).keys()].map((_, i) => (
-                              <MenuItem key={i + 1} value={String(i + 1)}>
-                                {i + 1}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                          {packageErrors[`packageNumber_${index}`] && (
-                            <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
-                              {packageErrors[`packageNumber_${index}`]}
-                            </Typography>
-                          )}
-                        </FormControl>
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          name="contentDescription"
-                          value={invoice.contentDescription || ""}
-                          onChange={(e) => handleInvoiceChange(index, e)}
-                          inputProps={{
-                            autoComplete: "off",
-                            autoCorrect: "off",
-                            autoCapitalize: "none"
-                          }}
-                          fullWidth
-                          variant="outlined"
-                          size="small"
-                          error={!!packageErrors[`contentDescription_${index}`]}
-                          helperText={packageErrors[`contentDescription_${index}`]}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          name="quantity"
-                          type="number"
-                          value={invoice.quantity || ""}
-                          onChange={(e) => handleInvoiceChange(index, e)}
-                          inputProps={{
-                            autoComplete: "off",
-                            autoCorrect: "off",
-                            autoCapitalize: "none"
-                          }}
-                          fullWidth
-                          variant="outlined"
-                          size="small"
-                          error={!!packageErrors[`quantity_${index}`]}
-                          helperText={packageErrors[`quantity_${index}`]}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          name="valuePerQty"
-                          type="number"
-                          value={invoice.valuePerQty || ""}
-                          onChange={(e) => handleInvoiceChange(index, e)}
-                          inputProps={{
-                            autoComplete: "off",
-                            autoCorrect: "off",
-                            autoCapitalize: "none"
-                          }}
-                          fullWidth
-                          variant="outlined"
-                          size="small"
-                          inputRef={valuePerQtyRefs.current[index]} // Attach ref to TextField
-                          InputProps={{
-                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                          }}
-                          error={!!packageErrors[`valuePerQty_${index}`]}
-                          helperText={packageErrors[`valuePerQty_${index}`]}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          value={calculateTotalValue(index) || "0.00"}
-                          fullWidth
-                          variant="outlined"
-                          size="small"
-                          inputProps={{
-                            autoComplete: "off",
-                            autoCorrect: "off",
-                            autoCapitalize: "none"
-                          }}
-                          InputProps={{
-                            readOnly: true,
-                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                          }}
-                          sx={{ backgroundColor: "#f0f0f0" }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {commercialInvoiceData.length > 1 ? (
-                          <IconButton
-                            onClick={() => handleRemoveInvoiceRow(index)}
-                            sx={{ color: "gray" }}
-                            aria-label="delete invoice row"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        ) : null}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-
-          <Box className="invoice-action-row">
+        {!isDocument && (
+          <Box className="action-row">
             <Button
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={handleAddInvoiceRow}
-              className="add-button"
+              onClick={handleAddPackage}
+              disabled={packageData.length >= 10}
             >
               ADD NEW ROW
             </Button>
 
-            <Typography variant="body1" className="total-value-text">
-              Total Declared Value: $
-              {commercialInvoiceData
-                .reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0)
-                .toFixed(2)}
-            </Typography>
+            <Box className="summary-box">
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                Totals:
+              </Typography>
+              <Typography variant="body2">Pkgs: {packageData.length}</Typography>
+              <Typography variant="body2">
+                Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2)} lbs
+              </Typography>
+              <Typography variant="body2">
+                Chrg Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2)} lbs
+              </Typography>
+              <Typography variant="body2">
+                Ins Val: ${packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2)}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+        )}
+
+        {!isDocument && (
+          <Box sx={{ display: samecountry ? "none" : "block" }}>
+            <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
+              Commercial Invoice
+            </Typography>
+            <Box sx={{ overflowX: "auto", mb: 2 }}>
+              <TableContainer component={Paper} sx={{ minWidth: 650 }}>
+                <Table className="common-table">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: "#333" }}>
+                      <TableCell sx={{ width: 100 }}>Pkg No</TableCell>
+                      <TableCell sx={{ width: 889 }}>Content Description*</TableCell>
+                      <TableCell sx={{ minWidth: 100 }}>Quantity*</TableCell>
+                      <TableCell sx={{ minWidth: 150 }}>Value/Qty (USD)*</TableCell>
+                      <TableCell sx={{ minWidth: 150 }}>Total Value (USD)</TableCell>
+                      <TableCell sx={{ width: 60 }}></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {commercialInvoiceData.map((invoice, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <FormControl fullWidth variant="outlined" size="small">
+                            <Select
+                              name="packageNumber"
+                              value={invoice.packageNumber || ""}
+                              onChange={(e) => handleInvoiceChange(index, e)}
+                              displayEmpty
+                              error={!!packageErrors[`packageNumber_${index}`]}
+                            >
+                              {[...Array(packageData.length).keys()].map((_, i) => (
+                                <MenuItem key={i + 1} value={String(i + 1)}>
+                                  {i + 1}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                            {packageErrors[`packageNumber_${index}`] && (
+                              <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
+                                {packageErrors[`packageNumber_${index}`]}
+                              </Typography>
+                            )}
+                          </FormControl>
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            name="contentDescription"
+                            value={invoice.contentDescription || ""}
+                            onChange={(e) => handleInvoiceChange(index, e)}
+                            inputProps={{
+                              autoComplete: "off",
+                              autoCorrect: "off",
+                              autoCapitalize: "none"
+                            }}
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                            error={!!packageErrors[`contentDescription_${index}`]}
+                            helperText={packageErrors[`contentDescription_${index}`]}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            name="quantity"
+                            type="number"
+                            value={invoice.quantity || ""}
+                            onChange={(e) => handleInvoiceChange(index, e)}
+                            inputProps={{
+                              autoComplete: "off",
+                              autoCorrect: "off",
+                              autoCapitalize: "none"
+                            }}
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                            error={!!packageErrors[`quantity_${index}`]}
+                            helperText={packageErrors[`quantity_${index}`]}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            name="valuePerQty"
+                            type="number"
+                            value={invoice.valuePerQty || ""}
+                            onChange={(e) => handleInvoiceChange(index, e)}
+                            inputProps={{
+                              autoComplete: "off",
+                              autoCorrect: "off",
+                              autoCapitalize: "none"
+                            }}
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                            inputRef={valuePerQtyRefs.current[index]}
+                            InputProps={{
+                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            }}
+                            error={!!packageErrors[`valuePerQty_${index}`]}
+                            helperText={packageErrors[`valuePerQty_${index}`]}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            value={calculateTotalValue(index) || "0.00"}
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                            inputProps={{
+                              autoComplete: "off",
+                              autoCorrect: "off",
+                              autoCapitalize: "none"
+                            }}
+                            InputProps={{
+                              readOnly: true,
+                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            }}
+                            sx={{ backgroundColor: "#f0f0f0" }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {commercialInvoiceData.length > 1 ? (
+                            <IconButton
+                              onClick={() => handleRemoveInvoiceRow(index)}
+                              sx={{ color: "gray" }}
+                              aria-label="delete invoice row"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          ) : null}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+
+            <Box className="invoice-action-row">
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleAddInvoiceRow}
+                className="add-button"
+              >
+                ADD NEW ROW
+              </Button>
+
+              <Typography variant="body1" className="total-value-text">
+                Total Declared Value: $
+                {commercialInvoiceData
+                  .reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0)
+                  .toFixed(2)}
+              </Typography>
+            </Box>
+          </Box>
+        )}
 
         <ButtonBox>
           <PrevButton

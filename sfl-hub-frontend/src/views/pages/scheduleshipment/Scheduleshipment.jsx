@@ -191,7 +191,7 @@ const Schedule = () => {
   const [commercialInvoiceData, setCommercialInvoiceData] = useState([
     {
       packageNumber: "1",
-      contentDescription: "",
+      contentDescription: packageType==="Envelop"?"Document":"",
       quantity: 0,
       valuePerQty: 0,
     },
@@ -608,29 +608,45 @@ const handleSubmit = async () => {
     }
   };
 
-  const handlePackageChange = (index, event) => {
+  const handlePackageChange = (index, event) => { 
     const { name, value } = event.target;
     const updatedPackageData = [...packageData];
-    updatedPackageData[index] = {
-      ...updatedPackageData[index],
-      [name]: value,
-    };
+    
   
-    if (["weight", "length", "width", "height"].includes(name)) {
-      const pkg = updatedPackageData[index];
-      const weight = parseFloat(pkg.weight) || 0;
-      const length = parseFloat(pkg.length) || 0;
-      const width = parseFloat(pkg.width) || 0;
-      const height = parseFloat(pkg.height) || 0;
+    // If packageType is "Document", enforce default values and skip dimension calculations
+    if (packageType === "Envelop") {
+      updatedPackageData[index] = {
+        ...updatedPackageData[index],
+        weight: 0.5, 
+        length: 10,
+        width: 13,
+        height: 1,
+        chargable_weight: 0.5,
+        insured_value: name === "insured_value" ? value : 0, 
+      };
+    } else {
+      // Normal package logic
+      updatedPackageData[index] = {
+        ...updatedPackageData[index],
+        [name]: value,
+      };
   
-      
-        const dimensionalWeight = fromCountry === toCountry
-          ? (length * width * height) / 166 // Domestic
-          : (length * width * height) / 139; // International;
+      if (["weight", "length", "width", "height"].includes(name)) {
+        const pkg = updatedPackageData[index];
+        const weight = parseFloat(pkg.weight) || 0;
+        const length = parseFloat(pkg.length) || 0;
+        const width = parseFloat(pkg.width) || 0;
+        const height = parseFloat(pkg.height) || 0;
+  
+        const dimensionalWeight =
+          fromCountry === toCountry
+            ? (length * width * height) / 166 // Domestic
+            : (length * width * height) / 139; // International
   
         updatedPackageData[index].chargable_weight = Math.max(weight, dimensionalWeight).toFixed(2);
-      
+      }
     }
+
   
     setPackageData(updatedPackageData);
   };
@@ -1309,6 +1325,7 @@ const handleSubmit = async () => {
           {activeModule === "Schedule Shipment" && activeTab === "package" && shipmentType !== "Ocean" && (
             <Package
               packageData={packageData}
+              setPackageData={setPackageData}
               handlePackageChange={handlePackageChange}
               handleAddPackage={handleAddPackage}
               handleRemovePackage={handleRemovePackage}
