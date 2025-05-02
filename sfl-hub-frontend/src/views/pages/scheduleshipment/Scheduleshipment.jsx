@@ -854,6 +854,7 @@ const handleSubmit = async () => {
     }
   
     // Package data validation
+    if(packageType!=="Envelop"){
     packageData.forEach((pkg, index) => {
       if (!pkg.noOfPackages || pkg.noOfPackages <= 0) {
         newErrors[`noOfPackages_${index}`] = "Number of packages is required and must be greater than 0";
@@ -874,9 +875,10 @@ const handleSubmit = async () => {
         newErrors[`insured_value_${index}`] = "Insured value is required and must be 0 or greater";
       }
     });
+  }
   
     // ✅ Validate commercialInvoiceData only if any field in the invoice is filled
-    if (samecountry === false && Array.isArray(commercialInvoiceData)) {
+    if (samecountry === false && Array.isArray(commercialInvoiceData) && packageType!=="Envelop") {
       commercialInvoiceData.forEach((invoice, index) => {
         const hasAnyField =
           invoice.packageNumber ||

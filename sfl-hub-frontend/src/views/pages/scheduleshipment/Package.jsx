@@ -56,39 +56,39 @@ const Package = ({
   // State to control dialog visibility
   const [openDialog, setOpenDialog] = useState(false);
 
-  // Create an array of refs for valuePerQty TextFields (one ref per row)
-  const valuePerQtyRefs = useRef(
-    commercialInvoiceData.map(() => createRef())
-  );
+  // // Create an array of refs for valuePerQty TextFields (one ref per row)
+  // const valuePerQtyRefs = useRef(
+  //   commercialInvoiceData.map(() => createRef())
+  // );
 
   // Update refs when commercialInvoiceData changes (e.g., when rows are added/removed)
-  React.useEffect(() => {
-    valuePerQtyRefs.current = commercialInvoiceData.map((_, i) => valuePerQtyRefs.current[i] || createRef());
-    if (packageType === "Envelop") {
-      setNoOfPackages(1); // Fix number of packages to 1
-      updatePackageRows(1); // Ensure only one row is present
-      const resetPackageData = Array.from({ length: 1 }, () => ({
+  const handlepkgtype = (e) => {
+    const selectedType = e.target.value;
+    setPackageType(selectedType);
+  
+    if (selectedType === "Envelop") {
+      setNoOfPackages(1);
+      updatePackageRows(1);
+      const resetPackageData = [{
         noOfPackages: 1,
-        weight: 0.5, 
+        weight: 0.5,
         length: 10,
         width: 13,
         height: 1,
         chargable_weight: 0.5,
         insured_value: 0,
-      }));
+      }];
       setPackageData(resetPackageData);
-      setCommercialInvoiceData({
+      setCommercialInvoiceData([{
         packageNumber: "1",
-        contentDescription:"Document",
+        contentDescription: "Document",
         quantity: 0,
         valuePerQty: 0,
-      },);
-     
-    } else if (packageType === "Package") {
-      // Reset packageData to initial state when switching to Package
-      setNoOfPackages(1); // Reset to 1 package
-      updatePackageRows(1); // Reset to one row
-      const resetPackageData = Array.from({ length: 1 }, () => ({
+      }]);
+    } else if (selectedType === "Package") {
+      setNoOfPackages(1);
+      updatePackageRows(1);
+      const resetPackageData = [{
         noOfPackages: 1,
         weight: 0,
         length: 0,
@@ -96,10 +96,17 @@ const Package = ({
         height: 0,
         chargable_weight: 0,
         insured_value: 0,
-      }));
+      }];
       setPackageData(resetPackageData);
+      setCommercialInvoiceData([{
+        packageNumber: "1",
+        contentDescription: "",
+        quantity: 0,
+        valuePerQty: 0,
+      }]);
     }
-  }, [packageType, commercialInvoiceData]);
+  };
+  
 
   function handleNext(e) {
     const totalinsured_value = packageData.reduce(
@@ -133,9 +140,9 @@ const Package = ({
   // Function to handle update action and focus valuePerQty
   const handleUpdateCommercialValue = () => {
     // Focus the valuePerQty TextField in the first row (index 0)
-    if (valuePerQtyRefs.current[0]?.current) {
-      valuePerQtyRefs.current[0].current.focus();
-    }
+    // if (valuePerQtyRefs.current[0]?.current) {
+    //   valuePerQtyRefs.current[0].current.focus();
+    // }
     setOpenDialog(false);
   };
 
@@ -178,7 +185,7 @@ const Package = ({
               labelId="package-type-label"
               value={packageType || "Package"}
               label="Package Type (required)"
-              onChange={(e) => setPackageType(e.target.value)}
+              onChange={(e) => handlepkgtype(e)}
             >
               <MenuItem value="Package">Package</MenuItem>
               <MenuItem value="Envelop">Document(Under 0.5Lbs)</MenuItem>
@@ -542,7 +549,7 @@ const Package = ({
                             fullWidth
                             variant="outlined"
                             size="small"
-                            inputRef={valuePerQtyRefs.current[index]}
+                            // inputRef={valuePerQtyRefs.current[index]}
                             InputProps={{
                               startAdornment: <InputAdornment position="start">$</InputAdornment>,
                             }}
