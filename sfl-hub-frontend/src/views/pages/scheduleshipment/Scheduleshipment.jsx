@@ -509,7 +509,7 @@ const handleSubmit = async () => {
          toast.dismiss(toastId);
 
         throw new Error(response.data.error);
-      }
+      } 
 
       const { shipments, from_address, to_address } = requestData;
       const trackingNumber = response.data?.user?.TrackingNumber;

@@ -255,17 +255,25 @@ const Myshipmentnew = ({ setEdit }) => {
             variant="outlined"
           />
 
-          <FormControl fullWidth variant="outlined">
+          {/* <FormControl fullWidth variant="outlined">
             <InputLabel>Package Type</InputLabel>
             <Select
-              value={fromAddress.packagetype || "Package"}
+              value={packages[0]?.packagetype}
               label="Package Type"
               disabled
             >
               <MenuItem value="Package">Package</MenuItem>
               <MenuItem value="Document">Document</MenuItem>
             </Select>
-          </FormControl>
+          </FormControl> */}
+          <TextField
+            fullWidth
+            label="Package Type"
+            disabled
+            value={packages[0].packagetype || ""}
+            InputProps={{ readOnly: true }}
+            variant="outlined"
+          />
 
           <TextField
             fullWidth
