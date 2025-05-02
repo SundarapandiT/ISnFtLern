@@ -333,7 +333,7 @@ const Package = ({
                       <TextField
                         name="insured_value"
                         type="number"
-                        value={pkg.insured_value || 0}
+                        value={pkg.insured_value}
                         onChange={(e) => handlePackageChange(index, e)}
                         fullWidth
                         variant="outlined"
@@ -341,7 +341,8 @@ const Package = ({
                         inputProps={{
                           autoComplete: "off",
                           autoCorrect: "off",
-                          autoCapitalize: "none"
+                          autoCapitalize: "none",
+                          min: 0
                         }}
                         InputProps={{
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
@@ -350,6 +351,7 @@ const Package = ({
                         helperText={packageErrors[`insured_value_${index}`]}
                       />
                     </TableCell>
+
                     <TableCell>
                       {packageData.length > 1 ? (
                         <IconButton
