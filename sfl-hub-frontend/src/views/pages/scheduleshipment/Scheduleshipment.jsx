@@ -625,12 +625,6 @@ const handleSubmit = async () => {
         chargable_weight: 0.5,
         insured_value: name === "insured_value" ? value : 0, 
       };
-      setCommercialInvoiceData({
-        packageNumber: "1",
-        contentDescription:"Document",
-        quantity: 0,
-        valuePerQty: 0,
-      },);
     } else {
       // Normal package logic
       updatedPackageData[index] = {
