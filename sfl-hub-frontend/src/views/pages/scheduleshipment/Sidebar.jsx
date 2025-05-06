@@ -110,10 +110,17 @@ const Sidebar = ({
               onClick={() => handleModuleClick(module)}
               active={activeModule === module}
             >
-              <ListItemIcon sx={{ color: 'white' }}>
+              <ListItemIcon sx={{ color: 'white', minWidth: '48px'}}>
                 {module === 'Schedule Shipment' ? <LocalShippingIcon /> : <DirectionsBoatIcon />}
               </ListItemIcon>
-              <ListItemText primary={module} sx={{ color: 'white', fontSize: '0.8rem'}} 
+              <ListItemText
+                primary={module}
+                sx={{
+                  '& .MuiTypography-root': {
+                    fontSize: '0.9rem',
+                    color: 'white',
+                  }
+                }}
               />
             </StyledListItem>
           ))}

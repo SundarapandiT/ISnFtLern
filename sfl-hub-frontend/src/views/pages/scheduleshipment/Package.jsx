@@ -119,7 +119,7 @@ const Package = ({
     );
 
     if (samecountry === false && packageType !== "Envelop") {
-      const isNextEnabled = totalinsured_value <= totalDeclaredValue && totalinsured_value > 0;
+      const isNextEnabled = totalinsured_value <= totalDeclaredValue && totalinsured_value >= 0;
       if (isNextEnabled) {
         console.log("different country");
         handlePackageSubmit();

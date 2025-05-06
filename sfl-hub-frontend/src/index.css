@@ -233,7 +233,33 @@ body {
 .card-body {
   width: 100%;
   padding: 15px;
+  overflow-x: auto;
 }
+
+
+.card-body .MuiPaper-root {
+  min-width: 800px; /* Adjust based on your actual table width */
+  border-radius: 0;
+}
+
+/* Optional: prevent full page horizontal scroll */
+body {
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .page-wrap
+  {
+    max-width: 40%;
+  }
+  
+
+  .card-body .MuiPaper-root {
+    min-width: 900px;
+     /* Ensures table scrolls horizontally */
+  }
+}
+
 
 .table-footer {
   display: -webkit-box;
@@ -508,4 +534,9 @@ form .MuiFormHelperText-root {
 #package-type-label {
   font-size: 0.9rem;
   font-family: 'Roboto', sans-serif !important;
+}
+.table-row .MuiTableCell-root {
+  font-size: 0.75rem !important;
+  padding-top: 9px !important;
+  padding-bottom: 9px !important;
 }

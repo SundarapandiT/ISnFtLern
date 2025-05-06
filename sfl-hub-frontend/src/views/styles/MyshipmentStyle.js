@@ -5,7 +5,14 @@ export const useStyles = makeStyles({
     textTransform: "uppercase",
     fontWeight: "bold",
     padding: "8px 16px",
+    fontSize: "0.6rem !important", // base font size
+  
+    '@media (max-width: 768px)': {
+      padding: "6px 12px",
+      fontSize: "0.75rem",
+    },
   },
+  
   menuPaper: {
     width: 250,
     maxHeight: 400,
@@ -30,9 +37,12 @@ export const useStyles = makeStyles({
   },
   tableHead: {
     backgroundColor: "#f8f8f8",
+    fontWeight: "bold !important",
   },
   tableCell: {
-    fontWeight: "bold",
+    fontWeight: "bold !important",
+    padding:"10px !important",
+    fontSize: "12px",
   },
   footerTypography: {
     marginTop: 2,
@@ -48,10 +58,13 @@ export const useStyles = makeStyles({
   iconBox: {
     fontSize: 25,
     color: "white",
+    '@media (max-width: 768px)': {
+      fontSize: 10,
+    },
   },
   editIcon: {
     color: "#1976d2", // Blue color for the edit icon (customize as needed)
-    fontSize: "20px", // Adjust size
+    fontSize: "16px !important", // Adjust size
     "&:hover": {
       color: "#115293", // Darker blue on hover
     },

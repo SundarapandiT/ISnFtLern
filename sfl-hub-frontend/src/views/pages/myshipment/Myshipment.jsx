@@ -37,6 +37,30 @@ const ShipmentDashboard = ({ setEdit }) => {
   const user = JSON.parse(sessionStorage.getItem("user"));
   const Person_ID = user ? user.personID : "cant find PersonID";
   console.log("Person_ID:", Person_ID);
+  useEffect(() => {
+    const originalViewport = document.querySelector("meta[name=viewport]")?.getAttribute("content");
+
+    // Set restricted zoom
+    const meta = document.querySelector("meta[name=viewport]");
+    if (meta) {
+      meta.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
+      );
+    } else {
+      const newMeta = document.createElement("meta");
+      newMeta.name = "viewport";
+      newMeta.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no";
+      document.head.appendChild(newMeta);
+    }
+
+    // Restore original viewport when component unmounts
+    return () => {
+      if (meta && originalViewport) {
+        meta.setAttribute("content", originalViewport);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const fetchShipments = async () => {
@@ -49,7 +73,7 @@ const ShipmentDashboard = ({ setEdit }) => {
         const data = response.data?.user?.[0];
         if (data) {
           setLoading(false);
-          const sortedData = [...data].sort((a, b) => 
+          const sortedData = [...data].sort((a, b) =>
             new Date(b.shipmentdate) - new Date(a.shipmentdate)
           );
           setShipmentsData(sortedData);
@@ -269,17 +293,17 @@ const ShipmentDashboard = ({ setEdit }) => {
                     </TableRow>
                   ) : displayedRows.length > 0 ? (
                     displayedRows.map((row) => (
-                      <TableRow key={row.id}>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{new Date(row.shipmentdate).toLocaleDateString('en-GB')}</TableCell>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{row.trackingnumber}</TableCell>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{row.fromcontactname}</TableCell>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{row.fromcity}</TableCell>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{row.fromstate}</TableCell>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{row.tocontactname}</TableCell>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{row.tocity}</TableCell>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{row.tostate}</TableCell>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{row.shipmenttype}</TableCell>
-                        <TableCell sx={{ fontSize: "0.75rem" }}>{row.shipmentstatus}</TableCell>
+                      <TableRow key={row.id} className="table-row">
+                        <TableCell className="small-cell">{new Date(row.shipmentdate).toLocaleDateString('en-GB')}</TableCell>
+                        <TableCell className="small-cell">{row.trackingnumber}</TableCell>
+                        <TableCell className="small-cell">{row.fromcontactname}</TableCell>
+                        <TableCell className="small-cell">{row.fromcity}</TableCell>
+                        <TableCell className="small-cell">{row.fromstate}</TableCell>
+                        <TableCell className="small-cell">{row.tocontactname}</TableCell>
+                        <TableCell className="small-cell">{row.tocity}</TableCell>
+                        <TableCell className="small-cell">{row.tostate}</TableCell>
+                        <TableCell className="small-cell">{row.shipmenttype}</TableCell>
+                        <TableCell className="small-cell">{row.shipmentstatus}</TableCell>
                         <TableCell>
                           <VisibilityIcon
                             className={classes.editIcon}
@@ -299,43 +323,61 @@ const ShipmentDashboard = ({ setEdit }) => {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Box className="table-footer">
-              <Button
-                variant="outlined"
-                onClick={handlePreviousPage}
-                disabled={page === 0}
-                sx={{ fontSize: "0.75rem" }}
-              >
-                Previous
-              </Button>
-              <Typography sx={{ fontSize: "0.75rem" }}>
-                Total rows: {filteredData.length} of {shipmentsData.length}
-              </Typography>
-              <Select 
-                value={rowsPerPage}
-                onChange={handleRowsPerPageChange}
-                sx={{ fontSize: "0.75rem", height: "2rem" }}
-              >
-                <MenuItem value={5} sx={{ fontSize: "0.75rem" }}>5 rows</MenuItem>
-                <MenuItem value={10} sx={{ fontSize: "0.75rem" }}>10 rows</MenuItem>
-                <MenuItem value={20} sx={{ fontSize: "0.75rem" }}>20 rows</MenuItem>
-                <MenuItem value={25} sx={{ fontSize: "0.75rem" }}>25 rows</MenuItem>
-                <MenuItem value={50} sx={{ fontSize: "0.75rem" }}>50 rows</MenuItem>
-                <MenuItem value={100} sx={{ fontSize: "0.75rem" }}>100 rows</MenuItem>
-              </Select>
-              <Button
-                variant="outlined"
-                onClick={handleNextPage}
-                disabled={page >= Math.ceil(filteredData.length / rowsPerPage) - 1}
-                sx={{ fontSize: "0.75rem" }}
-              >
-                Next
-              </Button>
-            </Box>
+
+
           </div>
+          <Box
+            className="table-footer"
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" }, // Stack vertically on mobile and horizontally on desktop
+              gap: 2,
+              alignItems: "center",
+              padding: 2,
+            }}
+          >
+            {/* Previous Button */}
+            <Button
+              variant="outlined"
+              onClick={handlePreviousPage}
+              disabled={page === 0}
+              sx={{ fontSize: "0.75rem" }}
+            >
+              Previous
+            </Button>
+
+            {/* Total Rows Typography */}
+            <Typography sx={{ fontSize: { sm: "0.75rem", xs: "0.6rem" } }}>
+              Total rows: {filteredData.length} of {shipmentsData.length}
+            </Typography>
+
+            {/* Select Rows per Page */}
+            <Select
+              value={rowsPerPage}
+              onChange={handleRowsPerPageChange}
+              sx={{ fontSize: "0.75rem", height: "2rem" }}
+            >
+              <MenuItem value={5} sx={{ fontSize: "0.75rem" }}>5 rows</MenuItem>
+              <MenuItem value={10} sx={{ fontSize: "0.75rem" }}>10 rows</MenuItem>
+              <MenuItem value={20} sx={{ fontSize: "0.75rem" }}>20 rows</MenuItem>
+              <MenuItem value={25} sx={{ fontSize: "0.75rem" }}>25 rows</MenuItem>
+              <MenuItem value={50} sx={{ fontSize: "0.75rem" }}>50 rows</MenuItem>
+              <MenuItem value={100} sx={{ fontSize: "0.75rem" }}>100 rows</MenuItem>
+            </Select>
+
+            {/* Next Button */}
+            <Button
+              variant="outlined"
+              onClick={handleNextPage}
+              disabled={page >= Math.ceil(filteredData.length / rowsPerPage) - 1}
+              sx={{ fontSize: "0.75rem" }}
+            >
+              Next
+            </Button>
+          </Box>
         </div>
-        {/* <Box className="footer-box">
-          <Typography align="center" className={classes.footerTypography} sx={{ fontSize: "0.75rem" }}>
+        <Box className="footer-box">
+          <Typography className={classes.footerTypography} sx={{ mt: 2, fontSize: "0.75rem", textAlign: { xs: "center", sm: "right" }, }}>
             All Rights Reserved. Site Powered by{" "}
             <span
               className={`${classes.sflLink} sfl-link`}
@@ -344,7 +386,7 @@ const ShipmentDashboard = ({ setEdit }) => {
               SFL Worldwide
             </span>
           </Typography>
-        </Box> */}
+        </Box>
       </div>
     </div>
   );

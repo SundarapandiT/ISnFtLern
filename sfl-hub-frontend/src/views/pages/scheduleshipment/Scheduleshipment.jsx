@@ -1211,7 +1211,7 @@ const handleSubmit = async () => {
         {activeModule === "Schedule Shipment" && !confirmation && (
         <ContentBox >
         
-          <Typography variant="h5" sx={{ mb: 3 }}>
+          <Typography variant="h5" sx={{ mb: 3 ,fontSize:"1.3rem"}}>
             <IconBox className="card-icon">
               <FlightTakeoffIcon className={classes.iconBox} />
             </IconBox>
@@ -1382,13 +1382,14 @@ const handleSubmit = async () => {
         <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} /> } />
         <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
       </Routes>
+      {activeModule !== "My Shipment" && (
       <Box className="footer-box" sx={{
         justifySelf:isMobile?"center":"flex-end",
         marginRight:3,
         marginTop:1,
         marginBottom:1,
       }}>
-                <Typography align="center" className={classes.footerTypography} sx={{fontSize:isMobile?"12px":"15px"}}>
+                <Typography align="center" className={classes.footerTypography} sx={{fontSize:isMobile?"12px":"12px"}}>
                 All Rights Reserved. Site Powered by{" "}
                 <span
                   className={`${classes.sflLink} sfl-link`}
@@ -1398,7 +1399,7 @@ const handleSubmit = async () => {
                 SFL Worldwide
                 </span>
                 </Typography>
-              </Box>
+              </Box>)}
       </MainContent>
       
     </Root>
