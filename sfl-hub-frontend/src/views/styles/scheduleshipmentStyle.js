@@ -86,7 +86,8 @@ export const UsernameButton = styled(Button)(({ theme }) => ({
 export const PhoneInputStyle = {
   width: '100%',
   height: '56px',
-  fontSize: '16px',
+  fontSize: '0.8rem',
+  fontFamily: 'Roboto, sans-serif',
   borderRadius: '4px',
   paddingLeft: '48px' ,
 };
@@ -131,8 +132,11 @@ export const PickupBox = styled(Box)(({ theme }) => ({
   backgroundColor: "white",
   borderRadius: theme.spacing(2),
   margin: theme.spacing(3),
-  width: "65%",
+  width: "55%",
   alignSelf: "center",
   marginLeft: "auto",
   marginRight: "auto",
+  [theme.breakpoints.down("sm")]: {
+    width: "90%", // ⬅ Wider on mobile
+  },
 }));

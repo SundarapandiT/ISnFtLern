@@ -78,7 +78,7 @@ const EmailVerification = () => {
           Password: registerDetails.password,
           Phone: registerDetails.mobile,
           Name: registerDetails.fullname,
-          UserName: registerDetails.username,
+          UserName: registerDetails.username.toLowerCase(),
           Phone2: "",
           UserDetails: {
             AccountNumber: "", ManagedBy: "", CompanyName: "", AddressLine1: "",
@@ -142,7 +142,7 @@ const EmailVerification = () => {
         
           const encryptedData = {
             Name: encrypt(registerDetails.fullname),
-            UserName: encrypt(registerDetails.username),
+            UserName: encrypt(registerDetails.username.toLowerCase()),
             Password: encrypt(registerDetails.password),
             Phone: encrypt(registerDetails.mobile),
             Email: encrypt(registerDetails.email),
@@ -172,7 +172,7 @@ const EmailVerification = () => {
               
                   // Encrypt the login credentials before sending them to the backend
                   const encryptedData = {
-                    UserName: CryptoJS.AES.encrypt(registerDetails.username, SECRET_KEY).toString(),
+                    UserName: CryptoJS.AES.encrypt(registerDetails.username.toLowerCase(), SECRET_KEY).toString(),
                     Password: CryptoJS.AES.encrypt(registerDetails.password, SECRET_KEY).toString(),
                   };
               

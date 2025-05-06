@@ -55,7 +55,7 @@ const LoginPage = () => {
   
       // Encrypt the login credentials before sending them to the backend
       const encryptedData = {
-        UserName: CryptoJS.AES.encrypt(username, SECRET_KEY).toString(),
+        UserName: CryptoJS.AES.encrypt(username.toLowerCase(), SECRET_KEY).toString(),
         Password: CryptoJS.AES.encrypt(password, SECRET_KEY).toString(),
       };
   

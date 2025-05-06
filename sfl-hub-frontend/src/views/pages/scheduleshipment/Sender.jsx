@@ -72,7 +72,7 @@ const Sender = ({
 
       try {
         // Step 1: Try custom backend API
-        const encodedUrl= encryptURL("/locations/getstateCitybyPostalCode");
+        const encodedUrl = encryptURL("/locations/getstateCitybyPostalCode");
         const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
           CountryID: countryId,
           PostalCode: zipCode,
@@ -367,15 +367,17 @@ const Sender = ({
               }}
               onChange={(phone, countryData) => {
                 setPhone1(phone);
-                const dialCode = countryData.dialCode; 
+                const dialCode = countryData.dialCode;
                 setoldphone1(phone.replace(`${dialCode}`, '').trim());
                 console.log(phone.replace(`${dialCode}`, '').trim())
 
               }}
               inputStyle={{
-                PhoneInputStyle,
+                ...PhoneInputStyle, 
                 width: '100%',
                 borderColor: senderErrors.phone1 ? 'red' : '#c4c4c4',
+                fontSize: '0.9rem', 
+                fontFamily: 'Roboto, sans-serif',
 
               }}
               containerStyle={{ width: '100%' }}
@@ -401,14 +403,16 @@ const Sender = ({
               }}
               onChange={(phone, countryData) => {
                 setPhone2(phone);
-                const dialCode = countryData.dialCode; 
+                const dialCode = countryData.dialCode;
                 setoldphone2(phone.replace(`${dialCode}`, '').trim());
                 console.log(phone.replace(`${dialCode}`, '').trim())
               }}
               inputStyle={{
-                PhoneInputStyle,
+                ...PhoneInputStyle, 
                 width: '100%',
                 borderColor: '#c4c4c4',
+                fontSize: '0.9rem', 
+                fontFamily: 'Roboto, sans-serif',
 
               }}
               containerStyle={{ width: '100%' }}

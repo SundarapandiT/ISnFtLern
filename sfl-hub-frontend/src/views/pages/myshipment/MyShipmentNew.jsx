@@ -2,22 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import {
-  TextField,
   MenuItem,
   Select,
   InputLabel,
   FormControl,
   InputAdornment,
-  Button,
   Box,
   Typography,
-  Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
   useMediaQuery,
+  TextField,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -37,6 +35,18 @@ import {
 } from "../../styles/myshipmentnew";
 import TabNavigation from "./TabNavigation";
 
+// Define StyledTextField if not already defined in styles
+const StyledTextField = ({ sx, ...props }) => (
+  <TextField
+    {...props}
+    sx={{
+      ...sx,
+      "& .MuiInputBase-input": { fontSize: "0.875rem" },
+      "& .MuiInputLabel-root": { fontSize: "0.875rem" },
+    }}
+  />
+);
+
 const ResponsiveTable = ({ columns, rows, columnWidths = {} }) => {
   const isMobile = useMediaQuery("(max-width:600px)");
 
@@ -52,11 +62,11 @@ const ResponsiveTable = ({ columns, rows, columnWidths = {} }) => {
               >
                 <Typography
                   variant="caption"
-                  sx={{ minWidth: 120, fontWeight: "bold" }}
+                  sx={{ minWidth: 120, fontWeight: "bold", fontSize: "0.75rem" }}
                 >
                   {col}:
                 </Typography>
-                <TextField
+                <StyledTextField
                   fullWidth
                   value={row[col.toLowerCase().replace(/\(|\)/g, "")] || ""}
                   variant="outlined"
@@ -76,7 +86,7 @@ const ResponsiveTable = ({ columns, rows, columnWidths = {} }) => {
       <TableHead>
         <TableRow>
           {columns.map((col) => (
-            <TableCell key={col} sx={{ width: columnWidths[col] || "auto" }}>
+            <TableCell key={col} sx={{ width: columnWidths[col] || "auto", fontSize: "0.75rem" }}>
               {col}
             </TableCell>
           ))}
@@ -86,8 +96,8 @@ const ResponsiveTable = ({ columns, rows, columnWidths = {} }) => {
         {rows.map((row, rowIndex) => (
           <TableRow key={rowIndex}>
             {columns.map((col) => (
-              <TableCell key={col} sx={{ width: columnWidths[col] || "auto" }}>
-                <TextField
+              <TableCell key={col} sx={{ width: columnWidths[col] || "auto", fontSize: "0.75rem" }}>
+                <StyledTextField
                   fullWidth
                   value={row[col.toLowerCase().replace(/\(|\)/g, "")] || ""}
                   variant="outlined"
@@ -109,7 +119,6 @@ const Myshipmentnew = ({ setEdit }) => {
   const { shipment } = location.state || {};
   const isMobile = useMediaQuery("(max-width:600px)");
 
-  // Pagination states for Documentation tab
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
 
@@ -122,25 +131,20 @@ const Myshipmentnew = ({ setEdit }) => {
   const packages = shipment?.PACKAGE || [];
   const commercialItems = shipment?.COMMERCIAL || [];
   const trackingDetails = shipment?.TRACKINGDETAILS || [];
-  // const accountsDetails = shipment?.ACCOUNTSDETAILS || [];
-  //const invoiceData = shipment?.ACCOUNTSDETAILS?.[0]?.InvoiceData || [];
-  //const paymentData = shipment?.ACCOUNTSDETAILS?.[0]?.PaymentReceivedData || [];
-  const invoiceData = shipment?.ACCOUNTSDETAILS || []; 
-  const paymentData = shipment?.ACCOUNTSDETAILS || [];
-  // Check if from and to countries are the same
+  const invoiceData = shipment?.ACCOUNTSDETAILS?.[0]?.InvoiceData || [];
+  const paymentData = shipment?.ACCOUNTSDETAILS?.[0]?.PaymentReceivedData || [];
+
   const isSameCountry =
     fromAddress.countryid && toAddress.countryid
       ? fromAddress.countryid === toAddress.countryid
       : false;
 
-  // Reset activeTab if "commercial" is selected but hidden
   useEffect(() => {
     if (isSameCountry && activeTab === "commercial") {
       setActiveTab("customer");
     }
   }, [isSameCountry, activeTab]);
 
-  // Sample documents data (replace with API data if applicable)
   const documents = [
     {
       type: "Commercial Invoice",
@@ -167,7 +171,7 @@ const Myshipmentnew = ({ setEdit }) => {
 
   if (!shipment || !shipmentInfo) {
     return (
-      <Box sx={{ p: isMobile ? 1.5 : 2.5, color: "error.main" }}>
+      <Box sx={{ p: isMobile ? 1.5 : 2.5, color: "error.main", fontSize: "0.75rem" }}>
         No shipment data available.
       </Box>
     );
@@ -179,16 +183,14 @@ const Myshipmentnew = ({ setEdit }) => {
   };
 
   const handleTabClick = (tab) => {
-    // setActiveTab(tab === activeTab ? null : tab);
     if (tab !== activeTab) {
-      setActiveTab(tab)
+      setActiveTab(tab);
     }
   };
 
-  // Pagination handlers
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); // Reset to first page when changing rows per page
+    setPage(0);
   };
 
   const handlePreviousPage = () => {
@@ -199,7 +201,6 @@ const Myshipmentnew = ({ setEdit }) => {
     setPage((prev) => Math.min(prev + 1, Math.ceil(documents.length / rowsPerPage) - 1));
   };
 
-  // Calculate displayed rows for Documentation tab
   const displayedRows = documents.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
@@ -232,21 +233,22 @@ const Myshipmentnew = ({ setEdit }) => {
 
         <GridContainer>
           <FormControl fullWidth variant="outlined">
-            <InputLabel>Shipment Status</InputLabel>
+            <InputLabel sx={{ fontSize: "0.875rem" }}>Shipment Status</InputLabel>
             <Select
               value={shipmentInfo.shipmentstatus || ""}
               label="Shipment Status"
               disabled
+              sx={{ "& .MuiSelect-select": { fontSize: "0.875rem" } }}
             >
               {shipment?.SHIPMENTSTATUS?.map((status) => (
-                <MenuItem key={status.stringmapid} value={status.description}>
+                <MenuItem key={status.stringmapid} value={status.description} sx={{ fontSize: "0.75rem" }}>
                   {status.description}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
 
-          <TextField
+          <StyledTextField
             fullWidth
             label="Tracking Number"
             disabled
@@ -256,26 +258,29 @@ const Myshipmentnew = ({ setEdit }) => {
           />
 
           {/* <FormControl fullWidth variant="outlined">
-            <InputLabel>Package Type</InputLabel>
+            <InputLabel sx={{ fontSize: "0.875rem" }}>Package Type</InputLabel>
             <Select
-              value={packages[0]?.packagetype}
+              value={fromAddress.packagetype || "Package"}
               label="Package Type"
               disabled
+              sx={{ "& .MuiSelect-select": { fontSize: "0.875rem" } }}
             >
-              <MenuItem value="Package">Package</MenuItem>
-              <MenuItem value="Document">Document</MenuItem>
+              <MenuItem value="Package" sx={{ fontSize: "0.75rem" }}>Package</MenuItem>
+              <MenuItem value="Document" sx={{ fontSize: "0.75rem" }}>Document</MenuItem>
             </Select>
           </FormControl> */}
           <TextField
             fullWidth
             label="Package Type"
             disabled
-            value={packages[0].packagetype || ""}
+            value={packages && packages.length > 0 ? packages[0].packagetype || "" : ""}
             InputProps={{ readOnly: true }}
             variant="outlined"
+            sx={{ fontSize: "0.875rem" }} // You can adjust the overall font size here if needed
+            InputLabelProps={{ style: { fontSize: "0.875rem" } }} // Style the label
+            inputProps={{ style: { fontSize: "0.875rem" } }} // Style the input text
           />
-
-          <TextField
+          <StyledTextField
             fullWidth
             label="No. of Packages"
             disabled
@@ -285,7 +290,7 @@ const Myshipmentnew = ({ setEdit }) => {
           />
         </GridContainer>
         <GridContainer>
-          <TextField
+          <StyledTextField
             fullWidth
             disabled
             label="Managed By"
@@ -295,14 +300,15 @@ const Myshipmentnew = ({ setEdit }) => {
           />
 
           <FormControl fullWidth variant="outlined">
-            <InputLabel>Shipment Type</InputLabel>
+            <InputLabel sx={{ fontSize: "0.875rem" }}>Shipment Type</InputLabel>
             <Select
               disabled
               value={shipmentInfo.shipmenttype || "Ocean"}
               label="Shipment Type"
+              sx={{ "& .MuiSelect-select": { fontSize: "0.875rem" } }}
             >
               {shipment?.SHIPMENTTYPE?.map((type) => (
-                <MenuItem key={type.stringmapid} value={type.description}>
+                <MenuItem key={type.stringmapid} value={type.description} sx={{ fontSize: "0.75rem" }}>
                   {type.description}
                 </MenuItem>
               ))}
@@ -310,26 +316,28 @@ const Myshipmentnew = ({ setEdit }) => {
           </FormControl>
 
           <FormControl fullWidth variant="outlined">
-            <InputLabel>Service Type</InputLabel>
+            <InputLabel sx={{ fontSize: "0.875rem" }}>Service Type</InputLabel>
             <Select
               value={fromAddress.servicename || ""}
               label="Service Type"
               disabled
+              sx={{ "& .MuiSelect-select": { fontSize: "0.875rem" } }}
             >
-              <MenuItem value="">Select</MenuItem>
-              <MenuItem value="Standard">Standard</MenuItem>
-              <MenuItem value="Express">Express</MenuItem>
+              <MenuItem value="" sx={{ fontSize: "0.75rem" }}>Select</MenuItem>
+              <MenuItem value="Standard" sx={{ fontSize: "0.75rem" }}>Standard</MenuItem>
+              <MenuItem value="Express" sx={{ fontSize: "0.75rem" }}>Express</MenuItem>
             </Select>
           </FormControl>
 
           <FormControl fullWidth variant="outlined">
-            <InputLabel>Sub Service Type</InputLabel>
+            <InputLabel sx={{ fontSize: "0.875rem" }}>Sub Service Type</InputLabel>
             <Select
               value={fromAddress.subservicename || ""}
               label="Sub Service Type"
               disabled
+              sx={{ "& .MuiSelect-select": { fontSize: "0.875rem" } }}
             >
-              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="" sx={{ fontSize: "0.75rem" }}>Select</MenuItem>
             </Select>
           </FormControl>
         </GridContainer>
@@ -351,7 +359,7 @@ const Myshipmentnew = ({ setEdit }) => {
               Sender Information
             </ResponsiveTypography>
             <GridContainer>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Contact Name"
                 value={fromAddress.contactname || ""}
@@ -359,13 +367,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <PersonIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <PersonIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Address Line 1"
                 value={fromAddress.addressline1 || ""}
@@ -373,13 +381,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Address Line 2"
                 value={fromAddress.addressline2 || ""}
@@ -387,13 +395,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Address Line 3"
                 value={fromAddress.addressline3 || ""}
@@ -401,7 +409,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <PublicIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <PublicIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -409,7 +417,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
             </GridContainer>
             <GridContainer>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Country"
                 value={fromAddress.countryname || ""}
@@ -418,7 +426,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Zip"
                 value={fromAddress.zipcode || ""}
@@ -426,13 +434,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <EmailIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="City"
                 value={fromAddress.city || ""}
@@ -440,13 +448,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <BusinessIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <BusinessIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="State"
                 value={fromAddress.state || ""}
@@ -457,7 +465,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
             </GridContainer>
             <GridContainer>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Company Name"
                 value={fromAddress.companyname}
@@ -465,15 +473,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <BusinessCenterIcon
-                        sx={{ fontSize: isMobile ? 18 : 24 }}
-                      />
+                      <BusinessCenterIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Phone 1"
                 value={fromAddress.phone1 || ""}
@@ -481,13 +487,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Phone 2"
                 value={fromAddress.phone2 || ""}
@@ -495,13 +501,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Email"
                 value={fromAddress.email || ""}
@@ -509,7 +515,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <EmailIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -526,7 +532,7 @@ const Myshipmentnew = ({ setEdit }) => {
               Recipient Details
             </ResponsiveTypography>
             <GridContainer>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Contact Name"
                 value={toAddress.contactname || ""}
@@ -534,13 +540,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <PersonIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <PersonIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Address Line 1"
                 value={toAddress.addressline1 || ""}
@@ -548,28 +554,27 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Address Line 2"
                 value={toAddress.addressline2 || ""}
                 InputProps={{
                   readOnly: true,
                   endAdornment: (
-
                     <InputAdornment position="end">
-                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Address Line 3"
                 value={toAddress.addressline3 || ""}
@@ -577,7 +582,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <PublicIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <PublicIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -585,7 +590,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
             </GridContainer>
             <GridContainer>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Country"
                 value={toAddress.countryname || ""}
@@ -594,7 +599,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Zip"
                 value={toAddress.zipcode || ""}
@@ -602,13 +607,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <EmailIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="City"
                 value={toAddress.city || ""}
@@ -616,13 +621,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <BusinessIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <BusinessIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="State"
                 value={toAddress.state || ""}
@@ -633,7 +638,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
             </GridContainer>
             <GridContainer>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Company Name"
                 value={toAddress.companyname || ""}
@@ -641,15 +646,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <BusinessCenterIcon
-                        sx={{ fontSize: isMobile ? 18 : 24 }}
-                      />
+                      <BusinessCenterIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Phone 1"
                 value={toAddress.phone1 || ""}
@@ -657,13 +660,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Phone 2"
                 value={toAddress.phone2 || ""}
@@ -671,13 +674,13 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
                 variant="outlined"
               />
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Email"
                 value={toAddress.email || ""}
@@ -685,7 +688,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
+                      <EmailIcon sx={{ fontSize: isMobile ? 18:24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -702,7 +705,7 @@ const Myshipmentnew = ({ setEdit }) => {
               Additional Details
             </ResponsiveTypography>
             <GridContainer>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Ship Date"
                 value={shipmentInfo.shipmentdate || ""}
@@ -717,29 +720,31 @@ const Myshipmentnew = ({ setEdit }) => {
                 variant="outlined"
               />
               <FormControl fullWidth variant="outlined">
-                <InputLabel>Location Type</InputLabel>
+                <InputLabel sx={{ fontSize: "0.875rem" }}>Location Type</InputLabel>
                 <Select
                   disabled
                   value={fromAddress.locationtype || ""}
                   label="Location Type"
+                  sx={{ "& .MuiSelect-select": { fontSize: "0.875rem" } }}
                 >
-                  <MenuItem value="Residential">Residential</MenuItem>
-                  <MenuItem value="Commercial">Commercial</MenuItem>
+                  <MenuItem value="Residential" sx={{ fontSize: "0.75rem" }}>Residential</MenuItem>
+                  <MenuItem value="Commercial" sx={{ fontSize: "0.75rem" }}>Commercial</MenuItem>
                 </Select>
               </FormControl>
               <FormControl fullWidth variant="outlined">
-                <InputLabel>Duties & Taxes Paid By</InputLabel>
+                <InputLabel sx={{ fontSize: "0.875rem" }}>Duties & Taxes Paid By</InputLabel>
                 <Select
                   disabled
                   value={fromAddress.dutiespaidby || "Recipient"}
                   label="Duties & Taxes Paid By"
+                  sx={{ "& .MuiSelect-select": { fontSize: "0.875rem" } }}
                 >
-                  <MenuItem value="">Select</MenuItem>
-                  <MenuItem value="Recipient">Recipient</MenuItem>
-                  <MenuItem value="Sender">Sender</MenuItem>
+                  <MenuItem value="" sx={{ fontSize: "0.75rem" }}>Select</MenuItem>
+                  <MenuItem value="Recipient" sx={{ fontSize: "0.75rem" }}>Recipient</MenuItem>
+                  <MenuItem value="Sender" sx={{ fontSize: "0.75rem" }}>Sender</MenuItem>
                 </Select>
               </FormControl>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label="Username"
                 value={shipmentInfo.createdbyname || ""}
@@ -787,14 +792,14 @@ const Myshipmentnew = ({ setEdit }) => {
               gap: isMobile ? 1 : 2.5,
             }}
           >
-            <TextField
+            <StyledTextField
               label="Total Packages"
               value={fromAddress.totalpackages || "0"}
               variant="outlined"
               InputProps={{ readOnly: true }}
               sx={{ width: isMobile ? "100%" : "auto" }}
             />
-            <TextField
+            <StyledTextField
               label="Total Insured Value"
               value={fromAddress.totalinsuredvalue || "0.00"}
               variant="outlined"
@@ -829,7 +834,7 @@ const Myshipmentnew = ({ setEdit }) => {
             />
           </TableContainer>
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-            <TextField
+            <StyledTextField
               label="Total Cost:"
               value={commercialItems
                 .reduce(
@@ -845,271 +850,142 @@ const Myshipmentnew = ({ setEdit }) => {
         </SectionPaper>
       )}
 
-{activeTab === "tracking" && (
-  <SectionPaper>
-    <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-      Tracking
-    </ResponsiveTypography>
-    <TableContainer sx={{ overflowX: "auto" }}>
-      <ResponsiveTable
-        columns={["Date", "Time", "Updates"]}
-        columnWidths={{
-          Date: "20%",
-          Time: "20%",
-          Updates: "60%",
-        }}
-        rows={
-          trackingDetails.length > 0
-            ? trackingDetails.map((track) => {
-                // Extract date and time from createdon
-                const dateTime = new Date(track.createdon);
-                const date = dateTime.toLocaleDateString(); // e.g., "4/25/2025"
-                const time = dateTime.toLocaleTimeString(); // e.g., "8:15:40 PM"
-                return {
-                  date: track.trackingdate || date, // Use trackingdate, fallback to date from createdon
-                  time: time, // Extract time from createdon
-                  updates: track.comments || "No updates available", // Map comments to updates
-                };
-              })
-            : [
-                {
-                  date: "",
-                  time: "",
-                  updates: "No tracking details available",
-                },
-              ]
-        }
-      />
-    </TableContainer>
-  </SectionPaper>
-)}
+      {activeTab === "tracking" && (
+        <SectionPaper>
+          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+            Tracking
+          </ResponsiveTypography>
+          <TableContainer sx={{ overflowX: "auto" }}>
+            <ResponsiveTable
+              columns={["Date", "Time", "Updates"]}
+              columnWidths={{
+                Date: "15%",
+                Time: "15%",
+                Updates: "70%", 
+              }}
+              rows={
+                trackingDetails.length > 0
+                  ? trackingDetails.map((track) => ({
+                      date: track.PickupDate || "",
+                      time: track.PickupTime || "",
+                      updates: track.Updates || "",
+                    }))
+                  : [
+                      {
+                        date: "",
+                        time: "",
+                        updates: "No tracking details available",
+                      },
+                    ]
+              }
+            />
+          </TableContainer>
+        </SectionPaper>
+      )}
 
-{activeTab === "accounts" && (
-  <SectionPaper>
-    {/* Invoice Table */}
-    <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-      Invoice
-    </ResponsiveTypography>
-    <TableContainer sx={{ overflowX: "auto" }}>
-      <TableStyled>
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Service</TableCell>
-            <TableCell>Description</TableCell>
-            <TableCell>Qty</TableCell>
-            <TableCell>Cost</TableCell>
-            <TableCell>Total</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {invoiceData.length > 0 ? (
-            invoiceData.map((invoice, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <TextField
-                    fullWidth
-                    value={invoice.invoicedate || "" }
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel>Service</InputLabel>
-                    <Select
-                      value={invoice.servicedescription || ""}
-                      label="Service"
-                      readOnly
-                    >
-                      <MenuItem value="">Select</MenuItem>
-                      {shipment?.INVENTORY?.map((inv) => (
-                        <MenuItem
-                          key={inv.stringmapid}
-                          value={inv.description}
-                        >
-                          {inv.description}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    fullWidth
-                    value={invoice.description || ""}
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    fullWidth
-                    value={invoice.quantity || "0"}
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    fullWidth
-                    value={invoice.amount || "0.00"}
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    fullWidth
-                    value={invoice.totalamount || "0.00"}
-                    variant="outlined"
-                    InputProps={{ readOnly: true }}
-                  />
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={6}>
-                <TextField
-                  fullWidth
-                  value="No invoice details available"
-                  variant="outlined"
-                  InputProps={{ readOnly: true }}
-                />
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </TableStyled>
-    </TableContainer>
-    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-      <TextField
-        label="Total Cost:"
-        value={
-          invoiceData
-            .reduce((sum, inv) => sum + parseFloat(inv.totalamount || 0), 0)
-            .toFixed(2) || "0.00"
-        }
-        variant="outlined"
-        InputProps={{ readOnly: true }}
-        sx={{ width: isMobile ? "100%" : "auto" }}
-      />
-    </Box>
+      {activeTab === "accounts" && (
+        <SectionPaper>
+  <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+    Invoice
+  </ResponsiveTypography>
+  <TableContainer sx={{ overflowX: "auto" }}>
+    <ResponsiveTable
+      columns={["Date", "Service", "Description", "Qty", "Cost", "Total"]}
+      columnWidths={{
+        Date: "11%",
+        Service: "25%",
+        Description: "30%",
+        Qty: "9%",
+        Cost: "10%",
+        Total: "15%",
+      }}
+      rows={
+        invoiceData.length > 0
+          ? invoiceData.map((inv) => ({
+              date: inv.InvoiceDate || "",
+              service: inv.ServiceDescription || "",
+              description: inv.Description || "",
+              qty: inv.Quantity || "0",
+              cost: inv.Amount || "0.00",
+              total: inv.TotalAmount || "0.00",
+            }))
+          : [
+              {
+                date: "",
+                service: "",
+                description: "",
+                qty: "",
+                cost: "",
+                total: "No invoice ",
+              },
+            ]
+      }
+    />
+  </TableContainer>
 
-    {/* Payment Made Table */}
-    <ResponsiveTypography
-      variant="h6"
-      sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
-    >
-      Payment Made
-    </ResponsiveTypography>
-    <TableContainer sx={{ overflowX: "auto" }}>
-      <TableStyled>
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Payment Type</TableCell>
-            <TableCell>Number</TableCell>
-            <TableCell>Confirmation</TableCell>
-            <TableCell>Amount</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {paymentData.length > 0 ? (
-            paymentData.map((account, index) => {
-              // Derive payment details
-              const paymentDate = shipment?.SHIPMENTDETAILS?.[0]?.shipmentdate
-                ? new Date(shipment.SHIPMENTDETAILS[0].shipmentdate).toLocaleDateString()
-                : account.invoicedate || "";
-              const paymentType = shipment?.SHIPMENTDETAILS?.[0]?.paymenttype || "N/A";
-              const paymentNumber = "N/A"; // Not available in response
-              const confirmation = shipment?.SHIPMENTDETAILS?.[0]?.paymentcleared
-                ? "Confirmed"
-                : "Pending";
-              const amount = account.totalamount || "0.00";
+  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+    <StyledTextField
+      label="Total Cost:"
+      value={invoiceData
+        .reduce((sum, inv) => sum + parseFloat(inv.TotalAmount || 0), 0)
+        .toFixed(2)}
+      variant="outlined"
+      InputProps={{ readOnly: true }}
+      sx={{ width: isMobile ? "100%" : "auto" }}
+    />
+  </Box>
+  <ResponsiveTypography
+    variant="h6"
+    sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
+  >
+    Payment Made
+  </ResponsiveTypography>
+  <TableContainer sx={{ overflowX: "auto" }}>
+    <ResponsiveTable
+      columns={["Date", "Payment Type", "Number", "Confirmation", "Amount"]}
+      columnWidths={{
+        Date: "11%",
+        "Payment Type": "29%",
+        Number: "20%",
+        Confirmation: "20%",
+        Amount: "20%",
+      }}
+      rows={
+        paymentData.length > 0
+          ? paymentData.map((pay) => ({
+              date: pay.PaymentDate || "05-06-2025",
+              "payment type": pay.PaymentType || "",
+              number: pay.PaymentNumber || "",
+              confirmation: pay.Confirmation || "",
+              amount: pay.Amount || "0.00",
+            }))
+          : [
+              {
+                date: "",
+                "payment type": "",
+                number: "",
+                confirmation: "",
+                amount: "No payment",
+              },
+            ]
+      }
+    />
+  </TableContainer>
 
-              return (
-                <TableRow key={index}>
-                  <TableCell>
-                    <TextField
-                      fullWidth
-                      value={paymentDate}
-                      variant="outlined"
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <FormControl fullWidth variant="outlined">
-                      <InputLabel>Payment Type</InputLabel>
-                      <Select
-                        value={paymentType}
-                        label="Payment Type"
-                        readOnly
-                      >
-                        <MenuItem value="">Select</MenuItem>
-                        <MenuItem value="Credit Card">Credit Card</MenuItem>
-                        <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      fullWidth
-                      value={paymentNumber}
-                      variant="outlined"
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      fullWidth
-                      value={confirmation}
-                      variant="outlined"
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      fullWidth
-                      value={amount}
-                      variant="outlined"
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })
-          ) : (
-            <TableRow>
-              <TableCell colSpan={5}>
-                <TextField
-                  fullWidth
-                  value="No payment details available"
-                  variant="outlined"
-                  InputProps={{ readOnly: true }}
-                />
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </TableStyled>
-    </TableContainer>
-    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-      <TextField
-        label="Total Cost:"
-        value={
-          paymentData
-            .reduce((sum, pay) => sum + parseFloat(pay.totalamount || 0), 0)
-            .toFixed(2) || "0.00"
-        }
-        variant="outlined"
-        InputProps={{ readOnly: true }}
-        sx={{ width: isMobile ? "100%" : "auto" }}
-      />
-    </Box>
-  </SectionPaper>
-)}
+  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+    <StyledTextField
+      label="Total Cost:"
+      value={paymentData
+        .reduce((sum, pay) => sum + parseFloat(pay.Amount || 0), 0)
+        .toFixed(2)}
+      variant="outlined"
+      InputProps={{ readOnly: true }}
+      sx={{ width: isMobile ? "100%" : "auto" }}
+    />
+  </Box>
+</SectionPaper>
+
+      )}
 
       {activeTab === "documentation" && (
         <SectionPaper>
@@ -1300,4 +1176,4 @@ const Myshipmentnew = ({ setEdit }) => {
   );
 };
 
-export default Myshipmentnew; 
+export default Myshipmentnew;

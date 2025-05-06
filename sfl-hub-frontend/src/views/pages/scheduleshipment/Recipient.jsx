@@ -70,7 +70,7 @@ const Recipient = ({
     debounceRef.current = setTimeout(async () => {
       try {
         // Step 1: Try backend API
-        const encodedUrl= encryptURL("/locations/getstateCitybyPostalCode");
+        const encodedUrl = encryptURL("/locations/getstateCitybyPostalCode");
         const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
           CountryID: recipientCountryId,
           PostalCode: recipientZipCode,
@@ -109,7 +109,7 @@ const Recipient = ({
             }
           } else {
             const res = await axios.get(
-             ` https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
+              ` https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
             );
 
             const components = res.data.results?.[0]?.address_components || [];
@@ -187,7 +187,7 @@ const Recipient = ({
               setRecipientErrors((prev) => ({
                 ...prev,
                 country: "Can change in Schedule-pickup",
-                
+
               }))
             }
             onBlur={() =>
@@ -350,12 +350,14 @@ const Recipient = ({
               value={recipientPhone1}
               onChange={(phone, countryData) => {
                 setRecipientPhone1(phone);
-                const dialCode = countryData.dialCode; 
+                const dialCode = countryData.dialCode;
                 setoldrecipientphone1(phone.replace(`${dialCode}`, '').trim());
               }}
               inputStyle={{
+                ...PhoneInputStyle,
                 width: '100%',
-                PhoneInputStyle,
+                fontSize: '0.9rem',
+                fontFamily: 'Roboto, sans-serif',
                 borderColor: recipientErrors.phone1 ? 'red' : '#c4c4c4',
 
               }}
@@ -383,12 +385,14 @@ const Recipient = ({
               }}
               onChange={(phone, countryData) => {
                 setRecipientPhone2(phone);
-                const dialCode = countryData.dialCode; 
+                const dialCode = countryData.dialCode;
                 setoldrecipientphone2(phone.replace(`${dialCode}`, '').trim());
               }}
               inputStyle={{
+                ...PhoneInputStyle,
                 width: '100%',
-                PhoneInputStyle,
+                fontSize: '0.9rem',
+                fontFamily: 'Roboto, sans-serif',
                 borderColor: recipientErrors.phone2 ? 'red' : '#c4c4c4',
               }}
               containerStyle={{ width: '100%' }}

@@ -485,3 +485,27 @@ body {
     bottom: -30px;
   }
 }
+
+/* PickupForm.css */
+form .MuiInputBase-input {
+  font-size: 0.9rem;
+  font-family: 'Roboto', sans-serif !important; /* Disable inheritance */
+}
+
+form .MuiInputLabel-root {
+  font-size: 0.9rem;
+  font-family: 'Roboto', sans-serif !important;
+}
+
+form .MuiFormHelperText-root {
+  font-size: 0.8rem;
+}
+
+#no-of-packages-label {
+  font-size: 0.9rem;
+  font-family: 'Roboto', sans-serif !important;
+}
+#package-type-label {
+  font-size: 0.9rem;
+  font-family: 'Roboto', sans-serif !important;
+}

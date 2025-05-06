@@ -55,7 +55,6 @@ export const UsernameButton = styled(Button)(({ theme }) => ({
 export const StyledListItem = styled(ListItem, {
   shouldForwardProp: (prop) => prop !== 'active',
 })(({ theme, active }) => ({
-    
   backgroundColor: active ? '#00ACC1' : 'transparent',
   color: active ? 'white' : 'inherit',
   borderRadius: theme.shape.borderRadius,

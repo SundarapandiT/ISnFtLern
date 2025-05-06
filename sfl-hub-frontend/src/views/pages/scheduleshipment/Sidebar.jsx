@@ -113,7 +113,8 @@ const Sidebar = ({
               <ListItemIcon sx={{ color: 'white' }}>
                 {module === 'Schedule Shipment' ? <LocalShippingIcon /> : <DirectionsBoatIcon />}
               </ListItemIcon>
-              <ListItemText primary={module} sx={{ color: 'white' }} />
+              <ListItemText primary={module} sx={{ color: 'white', fontSize: '0.8rem'}} 
+              />
             </StyledListItem>
           ))}
         </List>

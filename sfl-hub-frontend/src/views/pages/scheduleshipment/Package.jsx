@@ -186,15 +186,16 @@ const Package = ({
               value={packageType || "Package"}
               label="Package Type (required)"
               onChange={(e) => handlepkgtype(e)}
+              className="custom-select"
             >
-              <MenuItem value="Package">Package</MenuItem>
+              <MenuItem value="Package" >Package</MenuItem>
               <MenuItem value="Envelop">Document(Under 0.5Lbs)</MenuItem>
             </Select>
           </FormControl>
         </Grid>
         {!isDocument && (
           <>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={4}> 
               <FormControl fullWidth>
                 <InputLabel id="no-of-packages-label">No. of Packages</InputLabel>
                 <Select
