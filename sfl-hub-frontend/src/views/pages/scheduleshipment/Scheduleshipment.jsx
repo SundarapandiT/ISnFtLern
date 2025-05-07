@@ -436,7 +436,7 @@ const handleSubmit = async () => {
           total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toString(),
           total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toString(),
           duties_paid_by: dutiesPaidBy,
-          total_declared_value: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toString() : "",
+          total_declared_value: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2) : "",
           userName: userName,
           ServiceName: "",
           SubServiceName: "",
@@ -492,7 +492,7 @@ const handleSubmit = async () => {
         packages: packageData,
         commercial: commercialInvoiceData ? commercialInvoiceData : [],
         invoiceData: [],
-        TotalCommercialvalue: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toString() : "",
+        TotalCommercialvalue: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2) : "",
         TotalWeight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toString(),
       };
 
@@ -708,7 +708,7 @@ const handleSubmit = async () => {
 
   const calculateTotalValue = (index) => {
     const invoice = commercialInvoiceData[index];
-    return ((invoice.quantity || 0) * (invoice.valuePerQty || 0)).toString();
+    return ((invoice.quantity || 0) * (invoice.valuePerQty || 0)).toFixed(2);
   };
 
   // Validation for Schedule Pickup tab

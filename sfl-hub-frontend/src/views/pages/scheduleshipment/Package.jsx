@@ -110,11 +110,11 @@ const Package = ({
 
   function handleNext(e) {
     const totalinsured_value = packageData.reduce(
-      (sum, pkg) => sum + Number(pkg.insured_value || 0),
+      (sum, pkg) => sum + Number(pkg.insured_value || 0).toFixed(2),
       0
     );
     const totalDeclaredValue = commercialInvoiceData.reduce(
-      (sum, _, index) => sum + Number(calculateTotalValue(index) || 0),
+      (sum, _, index) => sum + Number(calculateTotalValue(index) || 0).toFixed(2),
       0
     );
 
@@ -412,11 +412,9 @@ const Package = ({
                         name="insured_value"
                         type="number"
                         value={pkg.insured_value}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (!/^\d*$/.test(value)) return;
-                          handlePackageChange(index, e);
-                        }}
+                        onChange={(e) =>
+                          handlePackageChange(index, e)
+                        }
                         fullWidth
                         variant="outlined"
                         size="small"
@@ -474,7 +472,7 @@ const Package = ({
                 Chrg Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toString()} lbs
               </Typography>
               <Typography variant="body2">
-                Ins Val: ${packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toString()}
+                Ins Val: ${packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2)}
               </Typography>
             </Box>
           </Box>
@@ -566,10 +564,8 @@ const Package = ({
                             name="valuePerQty"
                             type="number"
                             value={invoice.valuePerQty || ""}
-                            onChange={(e) =>{ 
-                              const value = e.target.value;
-                              if (!/^\d*$/.test(value)) return;
-                              handleInvoiceChange(index, e)}}
+                            onChange={(e) =>
+                              handleInvoiceChange(index, e)}
                             inputProps={{
                               autoComplete: "off",
                               autoCorrect: "off",
