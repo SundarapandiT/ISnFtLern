@@ -65,7 +65,7 @@ const Package = ({
   const handlepkgtype = (e) => {
     const selectedType = e.target.value;
     setPackageType(selectedType);
-  
+
     if (selectedType === "Envelop") {
       setNoOfPackages(1);
       updatePackageRows(1);
@@ -106,7 +106,7 @@ const Package = ({
       }]);
     }
   };
-  
+
 
   function handleNext(e) {
     const totalinsured_value = packageData.reduce(
@@ -195,7 +195,7 @@ const Package = ({
         </Grid>
         {!isDocument && (
           <>
-            <Grid item xs={12} sm={4}> 
+            <Grid item xs={12} sm={4}>
               <FormControl fullWidth>
                 <InputLabel id="no-of-packages-label">No. of Packages</InputLabel>
                 <Select
@@ -275,7 +275,11 @@ const Package = ({
                         name="weight"
                         type="number"
                         value={isDocument ? 0.5 : pkg.weight || ""}
-                        onChange={(e) => handlePackageChange(index, e)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (!/^\d*$/.test(value)) return;
+                          handlePackageChange(index, e);
+                        }}
                         fullWidth
                         variant="outlined"
                         size="small"
@@ -285,14 +289,16 @@ const Package = ({
                           autoComplete: "off",
                           autoCorrect: "off",
                           autoCapitalize: "none",
-                          readOnly: isDocument
+                          readOnly: isDocument,
+                          step: 1,
                         }}
                         InputProps={{
                           endAdornment: <InputAdornment position="end">lbs</InputAdornment>,
-                          readOnly: isDocument
+                          readOnly: isDocument,
                         }}
                         sx={isDocument ? { backgroundColor: "#f0f0f0" } : {}}
                       />
+
                     </TableCell>
                     <TableCell>
                       <Box className="dimensions">
@@ -301,7 +307,11 @@ const Package = ({
                           type="number"
                           label="L"
                           value={isDocument ? 10 : pkg.length || ""}
-                          onChange={(e) => handlePackageChange(index, e)}
+                          onChange={(e) =>  {
+                            const value = e.target.value;
+                            if (!/^\d*$/.test(value)) return;
+                            handlePackageChange(index, e);
+                          }}
                           variant="outlined"
                           size="small"
                           sx={{ width: { xs: "100%", sm: "31%" }, mb: { xs: 1, sm: 0 } }}
@@ -325,7 +335,11 @@ const Package = ({
                           type="number"
                           label="W"
                           value={isDocument ? 13 : pkg.width || ""}
-                          onChange={(e) => handlePackageChange(index, e)}
+                          onChange={(e) =>  {
+                            const value = e.target.value;
+                            if (!/^\d*$/.test(value)) return;
+                            handlePackageChange(index, e);
+                          }}
                           variant="outlined"
                           size="small"
                           inputProps={{
@@ -349,7 +363,11 @@ const Package = ({
                           type="number"
                           label="H"
                           value={isDocument ? 1 : pkg.height || ""}
-                          onChange={(e) => handlePackageChange(index, e)}
+                          onChange={(e) =>  {
+                            const value = e.target.value;
+                            if (!/^\d*$/.test(value)) return;
+                            handlePackageChange(index, e);
+                          }}
                           variant="outlined"
                           size="small"
                           inputProps={{
@@ -390,11 +408,15 @@ const Package = ({
                       />
                     </TableCell>
                     <TableCell>
-                    <TextField
+                      <TextField
                         name="insured_value"
                         type="number"
                         value={pkg.insured_value}
-                        onChange={(e) => handlePackageChange(index, e)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (!/^\d*$/.test(value)) return;
+                          handlePackageChange(index, e);
+                        }}
                         fullWidth
                         variant="outlined"
                         size="small"
@@ -409,7 +431,7 @@ const Package = ({
                         }}
                         error={!!packageErrors[`insured_value_${index}`]}
                         helperText={packageErrors[`insured_value_${index}`]}
-                      />
+                      />
                     </TableCell>
                     <TableCell>
                       {!isDocument && packageData.length > 1 ? (
@@ -446,13 +468,13 @@ const Package = ({
               </Typography>
               <Typography variant="body2">Pkgs: {packageData.length}</Typography>
               <Typography variant="body2">
-                Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2)} lbs
+                Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toString()} lbs
               </Typography>
               <Typography variant="body2">
-                Chrg Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2)} lbs
+                Chrg Wt: {packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toString()} lbs
               </Typography>
               <Typography variant="body2">
-                Ins Val: ${packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2)}
+                Ins Val: ${packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toString()}
               </Typography>
             </Box>
           </Box>
@@ -523,7 +545,10 @@ const Package = ({
                             name="quantity"
                             type="number"
                             value={invoice.quantity || ""}
-                            onChange={(e) => handleInvoiceChange(index, e)}
+                            onChange={(e) =>{ 
+                              const value = e.target.value;
+                              if (!/^\d*$/.test(value)) return;
+                              handleInvoiceChange(index, e)}}
                             inputProps={{
                               autoComplete: "off",
                               autoCorrect: "off",
@@ -541,7 +566,10 @@ const Package = ({
                             name="valuePerQty"
                             type="number"
                             value={invoice.valuePerQty || ""}
-                            onChange={(e) => handleInvoiceChange(index, e)}
+                            onChange={(e) =>{ 
+                              const value = e.target.value;
+                              if (!/^\d*$/.test(value)) return;
+                              handleInvoiceChange(index, e)}}
                             inputProps={{
                               autoComplete: "off",
                               autoCorrect: "off",
@@ -608,7 +636,7 @@ const Package = ({
                 Total Declared Value: $
                 {commercialInvoiceData
                   .reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0)
-                  .toFixed(2)}
+                  .toString()}
               </Typography>
             </Box>
           </Box>

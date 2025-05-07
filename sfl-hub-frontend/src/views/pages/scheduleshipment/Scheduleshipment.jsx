@@ -246,17 +246,17 @@ const SendOldDb = async (trackingNumber,managedByResult) => {
       const transformedPackages = packageData.map((pkg, index) => ({
         shipments_tracking_number: trackingNumber || "",
         PackageNumber: index + 1,
-        weight: Number(pkg.weight || 0).toFixed(2),
+        weight: Number(pkg.weight || 0).toString(),
         unit_of_weight: "LBS",
-        length: Number(pkg.length || 0).toFixed(2),
-        width: Number(pkg.width || 0).toFixed(2),
-        height: Number(pkg.height || 0).toFixed(2),
+        length: Number(pkg.length || 0).toString(),
+        width: Number(pkg.width || 0).toString(),
+        height: Number(pkg.height || 0).toString(),
         TV: false,
         Crating: false,
         Repack: false,
         Stretch: false,
-        chargable_weight: Number(pkg.chargable_weight || 0).toFixed(2),
-        insured_value: Number(pkg.insured_value || 0).toFixed(2),
+        chargable_weight: Number(pkg.chargable_weight || 0).toString(),
+        insured_value: Number(pkg.insured_value || 0).toString(),
       }));
 
       const transformedCommercial = commercialInvoiceData.map((item) => ({
@@ -264,8 +264,8 @@ const SendOldDb = async (trackingNumber,managedByResult) => {
         package_number: Number(item.packageNumber || 1),
         content_description: item.contentDescription || "",
         quantity: String(item.quantity || 0),
-        value_per_qty: Number(item.valuePerQty || 0).toFixed(2),
-        total_value: (Number(item.quantity || 0) * Number(item.valuePerQty || 0)).toFixed(2),
+        value_per_qty: Number(item.valuePerQty || 0).toString(),
+        total_value: (Number(item.quantity || 0) * Number(item.valuePerQty || 0)).toString(),
         CommercialInvoiceID: null,
       }));
 
@@ -288,17 +288,17 @@ const SendOldDb = async (trackingNumber,managedByResult) => {
           is_agree: "",
           total_weight: transformedPackages
             .reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0)
-            .toFixed(2),
+            .toString(),
           total_chargable_weight: transformedPackages
             .reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0)
-            .toFixed(2),
+            .toString(),
           total_insured_value: transformedPackages
             .reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0)
-            .toFixed(2),
+            .toString(),
           duties_paid_by: dutiesPaidBy,
           total_declared_value: transformedCommercial
             .reduce((sum, item) => sum + Number(item.total_value || 0), 0)
-            .toFixed(2),
+            .toString(),
           userName: userName,
           ServiceName: "",
           SubServiceName: "",
@@ -356,10 +356,10 @@ const SendOldDb = async (trackingNumber,managedByResult) => {
         PaymentData: [],
         TotalCommercialvalue: transformedCommercial
           .reduce((sum, item) => sum + Number(item.total_value || 0), 0)
-          .toFixed(2),
+          .toString(),
         TotalWeight: transformedPackages
           .reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0)
-          .toFixed(2),
+          .toString(),
       };
 
       const response = await axios.post(
@@ -432,11 +432,11 @@ const handleSubmit = async () => {
           is_pay_bank: 0,
           promo_code: "",
           is_agree: "",
-          total_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
-          total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toFixed(2),
-          total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toFixed(2),
+          total_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toString(),
+          total_chargable_weight: packageData.reduce((sum, pkg) => sum + Number(pkg.chargable_weight || 0), 0).toString(),
+          total_insured_value: packageData.reduce((sum, pkg) => sum + Number(pkg.insured_value || 0), 0).toString(),
           duties_paid_by: dutiesPaidBy,
-          total_declared_value: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2) : "",
+          total_declared_value: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toString() : "",
           userName: userName,
           ServiceName: "",
           SubServiceName: "",
@@ -492,8 +492,8 @@ const handleSubmit = async () => {
         packages: packageData,
         commercial: commercialInvoiceData ? commercialInvoiceData : [],
         invoiceData: [],
-        TotalCommercialvalue: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2) : "",
-        TotalWeight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toFixed(2),
+        TotalCommercialvalue: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toString() : "",
+        TotalWeight: packageData.reduce((sum, pkg) => sum + Number(pkg.weight || 0), 0).toString(),
       };
 
       console.log(requestData);
@@ -634,18 +634,20 @@ const handleSubmit = async () => {
   
       if (["weight", "length", "width", "height"].includes(name)) {
         const pkg = updatedPackageData[index];
-        const weight = parseFloat(pkg.weight) || 0;
-        const length = parseFloat(pkg.length) || 0;
-        const width = parseFloat(pkg.width) || 0;
-        const height = parseFloat(pkg.height) || 0;
-  
-        const dimensionalWeight =
+        const weight = parseInt(pkg.weight) || 0;
+        const length = parseInt(pkg.length) || 0;
+        const width = parseInt(pkg.width) || 0;
+        const height = parseInt(pkg.height) || 0;
+      
+        const dimensionalWeight = Math.floor(
           fromCountry === toCountry
             ? (length * width * height) / 166 // Domestic
-            : (length * width * height) / 139; // International
-  
-        updatedPackageData[index].chargable_weight = Math.max(weight, dimensionalWeight).toFixed(2);
+            : (length * width * height) / 139 // International
+        );
+      
+        updatedPackageData[index].chargable_weight = Math.max(weight, dimensionalWeight);
       }
+      
     }
 
   
@@ -706,7 +708,7 @@ const handleSubmit = async () => {
 
   const calculateTotalValue = (index) => {
     const invoice = commercialInvoiceData[index];
-    return ((invoice.quantity || 0) * (invoice.valuePerQty || 0)).toFixed(2);
+    return ((invoice.quantity || 0) * (invoice.valuePerQty || 0)).toString();
   };
 
   // Validation for Schedule Pickup tab
