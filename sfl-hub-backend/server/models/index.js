@@ -1,17 +1,26 @@
 const createSequelizeInstance = require('../config/dbConnection');
-const User = require('./User');
+const UserModel = require('./User');
+
+const db = {};
 
 const initDB = async () => {
-  try {
-    const sequelize = await createSequelizeInstance(); 
-    console.log('Database connected successfully.');
+    if (db.sequelize) {
+        console.log("Database already initialized.");
+        return db;
+    }
+    try {
+        const sequelize = await createSequelizeInstance();
 
-    await sequelize.sync({ alter: true });
-    console.log('Database synced.');
+        db.sequelize = sequelize;
+        db.Sequelize = require('sequelize').Sequelize;
+        db.User = UserModel(sequelize);
+        console.log("All models initialized successfully.");
 
-  } catch (error) {
-    console.error('Database connection failed:', error);
-  }
+        return db;
+    } catch (error) {
+        console.error("Failed to initialize database and models:", error);
+        throw error;
+    }
 };
 
-module.exports = { initDB, User };
+module.exports = { initDB, db };

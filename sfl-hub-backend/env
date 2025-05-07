@@ -1,0 +1,7 @@
+GOOGLE_APPLICATION_CREDENTIALS=./server/config/tough-bearing-450518-f8-be272d75f65d.json
+GCP_PROJECT_ID=285749978113
+DB_CONFIG_SECRET_NAME=backend
+VITE_SECRET_KEY=DynamicSecretKey
+MailGunapi_key = "key-5fcd699ed08d64c949aad51eae331f85"
+MailGundomain = "sflworldwide.net"
+JWT_SECRET = "6AF1CE2b2340Sa{E71^DB914AD53U(@7!Wf33A6982A63B"

@@ -1,8 +1,12 @@
 const { Sequelize } = require('sequelize');
 const createSequelizeInstance = require('../config/dbConnection'); 
 const SECRET_KEY = process.env.VITE_SECRET_KEY;
+var moment = require("moment");
 var nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
 const mg = require("nodemailer-mailgun-transport");
+var CryptoJS = require("crypto-js");
+// import CryptoJS from "crypto-js";
 const auth = {
   auth: {
     api_key: process.env.MailGunapi_key,
@@ -28,31 +32,114 @@ const getUserById = async (userId) => {
   }
 };
 
-
-const UserRegisteration = async (Userdata) => {
+const UserLogin = async (Userdata) => {
   try {
-    const sequelize = await createSequelizeInstance();  
+    const sequelize = await createSequelizeInstance();
+
     if (Userdata) {
-      console.log("here = ",Userdata);
-      const result = await sequelize.query('SELECT NOW()', {
-        replacements: { Userdata }, 
-        type: Sequelize.QueryTypes.RAW,  
+      const Password = CryptoJS.AES.decrypt(Userdata.Password, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+      console.log("Pass = ", Password);
+      const UserName = CryptoJS.AES.decrypt(Userdata.UserName, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+
+      const comparePass = `CALL spgetpassword(:p_loginid, :p_password);`;
+      const resultPass = await sequelize.query(comparePass, {
+        replacements: { p_loginid: UserName, p_password: null },
+        type: Sequelize.QueryTypes.RAW,
       });
-  
-      return result;
-    }else{
 
-      var message = "Something went wrong"
-      return message
+      const resultsP = resultPass[0];
+      const p_password = resultsP[0]?.p_password || '';
 
+      // Use async/await for bcrypt comparison
+      const isMatch = await bcrypt.compare(Password, p_password);
+
+      if (isMatch) {
+        const Loginquery = `CALL spgetuserdetails(:p_loginid,:p_name,:p_email,:p_phonenum,:p_username);`;
+        const result = await sequelize.query(Loginquery, {
+          replacements: { p_loginid: UserName, p_name: null, p_email: null, p_phonenum: null, p_username: null },
+          type: Sequelize.QueryTypes.RAW,
+        });
+
+        const results = result[0];
+        const p_name = results[0]?.p_name || '';
+
+        if (p_name) {
+          var data = {
+            p_name: CryptoJS.AES.encrypt(p_name, SECRET_KEY).toString(),
+            p_email: CryptoJS.AES.encrypt(results[0].p_email, SECRET_KEY).toString(),
+            p_phonenum: CryptoJS.AES.encrypt(results[0].p_phonenum, SECRET_KEY).toString(),
+            p_username: CryptoJS.AES.encrypt(results[0].p_username, SECRET_KEY).toString(),
+            Messages: "Login Successfully"
+          };
+          return { data: data };
+        } else {
+          console.error("Error: Person details not found.");
+          return { message: "Something went wrong, User not found" };
+        }
+      } else {
+        return { message: "Username or Password does not match." };
+      }
+    } else {
+      return { message: "User data missing" };
     }
-      
   } catch (error) {
-    console.error('Error calling stored procedure:', error);
-    throw error;
+    console.error('Error during user login:', error);
+    return { message: "Something went wrong, please try again." };
   }
 };
 
+const UserRegisteration = async (Userdata) => {
+  try {
+    const sequelize = await createSequelizeInstance();
+    
+    if (Userdata) {
+      console.log("res = ",Userdata);
+      const salt = await bcrypt.genSalt(10); // Use async/await for bcrypt salt generation
+      const Password = CryptoJS.AES.decrypt(Userdata.Password, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+      console.log("Pass = ",Password);
+      
+      const newPass = await bcrypt.hash(Password, salt); // Hash the password using async/await
+      console.log("newPass = ",newPass)
+
+      const Name = CryptoJS.AES.decrypt(Userdata.Name, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+      const UserName = CryptoJS.AES.decrypt(Userdata.UserName, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+      const Phone = CryptoJS.AES.decrypt(Userdata.Phone, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+      const Email = CryptoJS.AES.decrypt(Userdata.Email, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+
+      var datajson = {
+        Name: Name,
+        UserName:UserName,
+        Phone:Phone,
+        Email:Email,
+        Password: newPass
+      }
+
+      // Insert into the Person table
+      const Personquery = `CALL spregisteruser(:data,:personid,:getmessage);`;
+      const result = await sequelize.query(Personquery, {
+        replacements: { data: JSON.stringify(datajson),personid:null,getmessage:null},
+        type: Sequelize.QueryTypes.RAW,
+      });
+
+      const results = result[0];
+      const personID_receive = results[0]?.personid || '';
+      console.log("res = ",results);
+      
+
+      if (personID_receive) {
+        console.log("User Registration Success");
+        return { message: "User Registration Successfully" }; // Return success message
+      }else{
+        return { message: results[0].result };
+      }
+    } else {
+      return { message: "User Registration data missing" };
+    }
+  } catch (error) {
+
+    return { message: "Something went wrong, please try again." };
+  }
+};
 // For Email generate OTP to Store in db
 
 const EmailVerifyOtp = async (Userdata) => {
@@ -170,4 +257,4 @@ const VerifyOtp = async (email, otp_code) => {
   }
 };
 
-module.exports = { getUserById,UserRegisteration,EmailVerifyOtp,VerifyOtp};
+module.exports = { getUserById,UserRegisteration,EmailVerifyOtp,VerifyOtp,UserLogin};
