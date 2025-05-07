@@ -147,7 +147,6 @@ const Package = ({
   };
 
   const isDocument = packageType === "Envelop";
-
   return (
     <Box className="ss-box">
       {/* Dialog for Insured Value Error */}
@@ -425,6 +424,7 @@ const Package = ({
                           min: 0
                         }}
                         InputProps={{
+                          readOnly: isDocument,
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                         }}
                         error={!!packageErrors[`insured_value_${index}`]}
