@@ -198,6 +198,7 @@ const Sender = ({
               setSenderErrors((prev) => ({ ...prev, country: "" }));
             }}
             fullWidth
+            className="custom-textfield"
             sx={fieldStyle}
             InputProps={{
               readOnly: true,
@@ -215,6 +216,7 @@ const Sender = ({
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
             fullWidth
+            className="custom-textfield"
             sx={fieldStyle}
             inputProps={{
               autoComplete: "off",
@@ -231,6 +233,7 @@ const Sender = ({
             onChange={(e) => setContactName(e.target.value)}
             fullWidth
             required
+            className="custom-textfield"
             error={!!senderErrors.contactName}
             helperText={senderErrors.contactName}
             sx={fieldStyle}
@@ -253,6 +256,7 @@ const Sender = ({
             onChange={(e) => setAddressLine1(e.target.value)}
             fullWidth
             required
+            className="custom-textfield"
             error={!!senderErrors.addressLine1}
             helperText={senderErrors.addressLine1}
             sx={fieldStyle}
@@ -270,6 +274,7 @@ const Sender = ({
             value={addressLine2}
             onChange={(e) => setAddressLine2(e.target.value)}
             fullWidth
+            className="custom-textfield"
             error={!!senderErrors.addressLine2}
             helperText={senderErrors.addressLine2}
             sx={fieldStyle}
@@ -287,6 +292,7 @@ const Sender = ({
             value={addressLine3}
             onChange={(e) => setAddressLine3(e.target.value)}
             fullWidth
+            className="custom-textfield"
             error={!!senderErrors.addressLine3}
             helperText={senderErrors.addressLine3}
             sx={fieldStyle}
@@ -309,6 +315,7 @@ const Sender = ({
             onChange={(e) => setZipCode(e.target.value)}
             fullWidth
             required
+            className="custom-textfield"
             error={!!senderErrors.zipCode}
             helperText={senderErrors.zipCode}
             sx={fieldStyle}
@@ -327,6 +334,7 @@ const Sender = ({
             onChange={(e) => setFromCity(e.target.value)}
             fullWidth
             required
+            className="custom-textfield"
             error={!!senderErrors.fromCity}
             helperText={senderErrors.fromCity}
             sx={fieldStyle}
@@ -358,6 +366,7 @@ const Sender = ({
           {/* Phone 1 */}
           <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
+              className="custom-textfield"
               country={countrycode}
               value={phone1}
               inputProps={{
@@ -394,6 +403,7 @@ const Sender = ({
           {/* Phone 2 */}
           <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
+              className="custom-textfield"
               country={countrycode}
               value={phone2}
               inputProps={{
@@ -426,6 +436,7 @@ const Sender = ({
             variant="outlined"
             label="Email Address"
             value={email}
+            className="custom-textfield"
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
             required
@@ -445,7 +456,7 @@ const Sender = ({
 
         {/* Row 5: Needs Pickup, Pickup Date */}
         <Box sx={rowStyle}>
-          <FormControl fullWidth sx={fieldStyle}>
+          <FormControl fullWidth sx={fieldStyle} className="small-textfield">
             <InputLabel>Do You Need Pickup?</InputLabel>
             <Select
               value={needsPickup || ""}
@@ -460,6 +471,7 @@ const Sender = ({
           {needsPickup === "Yes - I Need Pickup Service" ? (
             <TextField
               label="Pickup Date"
+              className="custom-textfield"
               type="date"
               value={pickupDate || ""}
               onChange={(e) => setPickupDate(e.target.value)}

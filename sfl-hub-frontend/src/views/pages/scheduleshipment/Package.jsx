@@ -29,6 +29,33 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ButtonBox, NextButton, PrevButton } from "../../styles/scheduleshipmentStyle";
 
+const StyledTableTextField = ({ sx, ...props }) => (
+  <TextField
+    {...props}
+    sx={{
+      ...sx,
+      "& .MuiInputBase-root": {
+        height: 36, // Reduced height
+        fontSize: "0.8rem", // Smaller font size
+      },
+      "& .MuiInputBase-input": {
+        padding: "6px", // Tighter padding
+        fontSize: "0.8rem", // Match font size
+      },
+      "& .MuiInputLabel-root": {
+        fontSize: "0.8rem", // Smaller label font size
+        transform: "translate(14px, 9px) scale(1)", // Adjust label position
+      },
+      "& .MuiInputLabel-shrink": {
+        transform: "translate(14px, -6px) scale(0.75)", // Adjust label when shrunk
+      },
+      "& .MuiFormHelperText-root": {
+        marginTop: "2px", // Smaller gap for helper text
+      },
+    }}
+  />
+);
+
 const Package = ({
   packageData,
   setPackageData,
@@ -178,7 +205,7 @@ const Package = ({
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} sm={4}>
-          <FormControl fullWidth>
+          <FormControl fullWidth className="small-textfield">
             <InputLabel id="package-type-label">Package Type (required)</InputLabel>
             <Select
               labelId="package-type-label"
@@ -195,7 +222,7 @@ const Package = ({
         {!isDocument && (
           <>
             <Grid item xs={12} sm={4}>
-              <FormControl fullWidth>
+              <FormControl fullWidth className="small-textfield">
                 <InputLabel id="no-of-packages-label">No. of Packages</InputLabel>
                 <Select
                   labelId="no-of-packages-label"
@@ -216,7 +243,7 @@ const Package = ({
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={4}>
-              <FormControl fullWidth>
+              <FormControl fullWidth className="small-textfield">
                 <InputLabel id="duties-taxes-label">Duties & Taxes Paid By</InputLabel>
                 <Select
                   labelId="duties-taxes-label"
@@ -251,7 +278,7 @@ const Package = ({
                 {packageData.map((pkg, index) => (
                   <TableRow key={index}>
                     <TableCell>
-                      <TextField
+                      <StyledTableTextField
                         name="noOfPackages"
                         type="number"
                         value={index + 1}
@@ -270,7 +297,7 @@ const Package = ({
                       />
                     </TableCell>
                     <TableCell>
-                      <TextField
+                      <StyledTableTextField
                         name="weight"
                         type="number"
                         value={isDocument ? 0.5 : pkg.weight || ""}
@@ -301,7 +328,7 @@ const Package = ({
                     </TableCell>
                     <TableCell>
                       <Box className="dimensions">
-                        <TextField
+                        <StyledTableTextField
                           name="length"
                           type="number"
                           label="L"
@@ -329,7 +356,7 @@ const Package = ({
                           disabled={isDocument}
                         />
                         <Typography sx={{ display: { xs: "none", sm: "block" } }}>+</Typography>
-                        <TextField
+                        <StyledTableTextField
                           name="width"
                           type="number"
                           label="W"
@@ -357,7 +384,7 @@ const Package = ({
                           disabled={isDocument}
                         />
                         <Typography sx={{ display: { xs: "none", sm: "block" } }}>+</Typography>
-                        <TextField
+                        <StyledTableTextField
                           name="height"
                           type="number"
                           label="H"
@@ -387,7 +414,7 @@ const Package = ({
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <TextField
+                      <StyledTableTextField
                         name="chargable_weight"
                         type="number"
                         value={isDocument ? 0.5 : pkg.chargable_weight || ""}
@@ -407,7 +434,7 @@ const Package = ({
                       />
                     </TableCell>
                     <TableCell>
-                      <TextField
+                      <StyledTableTextField
                         name="insured_value"
                         type="number"
                         value={pkg.insured_value}
@@ -500,7 +527,7 @@ const Package = ({
                     {commercialInvoiceData.map((invoice, index) => (
                       <TableRow key={index}>
                         <TableCell>
-                          <FormControl fullWidth variant="outlined" size="small">
+                          <FormControl fullWidth variant="outlined" size="small" className="small-textfield">
                             <Select
                               name="packageNumber"
                               value={invoice.packageNumber || ""}
@@ -522,7 +549,7 @@ const Package = ({
                           </FormControl>
                         </TableCell>
                         <TableCell>
-                          <TextField
+                          <StyledTableTextField
                             name="contentDescription"
                             value={invoice.contentDescription || ""}
                             onChange={(e) => handleInvoiceChange(index, e)}
@@ -539,7 +566,7 @@ const Package = ({
                           />
                         </TableCell>
                         <TableCell>
-                          <TextField
+                          <StyledTableTextField
                             name="quantity"
                             type="number"
                             value={invoice.quantity || ""}
@@ -560,7 +587,7 @@ const Package = ({
                           />
                         </TableCell>
                         <TableCell>
-                          <TextField
+                          <StyledTableTextField
                             name="valuePerQty"
                             type="number"
                             value={invoice.valuePerQty || ""}
@@ -583,7 +610,7 @@ const Package = ({
                           />
                         </TableCell>
                         <TableCell>
-                          <TextField
+                          <StyledTableTextField
                             value={calculateTotalValue(index) || "0.00"}
                             fullWidth
                             variant="outlined"

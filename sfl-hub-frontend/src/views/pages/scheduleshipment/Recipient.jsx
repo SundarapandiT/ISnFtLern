@@ -176,6 +176,7 @@ const Recipient = ({
         <Box sx={rowStyle}>
           <TextField
             label="Country"
+            className="custom-textfield"
             value={recipientCountry}
             inputProps={{
               autoComplete: "off",
@@ -210,6 +211,7 @@ const Recipient = ({
           <TextField
             label="Company Name"
             value={recipientCompanyName}
+            className="custom-textfield"
             inputProps={{
               autoComplete: "off",
               autoCorrect: "off",
@@ -222,6 +224,7 @@ const Recipient = ({
           />
           <TextField
             label="Contact Name"
+            className="custom-textfield"
             value={recipientContactName}
             inputProps={{
               autoComplete: "off",
@@ -242,6 +245,7 @@ const Recipient = ({
         <Box sx={rowStyle}>
           <TextField
             label="Address Line 1"
+            className="custom-textfield"
             value={recipientAddressLine1}
             inputProps={{
               autoComplete: "off",
@@ -258,6 +262,7 @@ const Recipient = ({
           />
           <TextField
             label="Address Line 2"
+            className="custom-textfield"
             value={recipientAddressLine2}
             inputProps={{
               autoComplete: "off",
@@ -273,6 +278,7 @@ const Recipient = ({
           />
           <TextField
             label="Address Line 3"
+            className="custom-textfield"
             value={recipientAddressLine3}
             inputProps={{
               autoComplete: "off",
@@ -293,6 +299,7 @@ const Recipient = ({
           <TextField
             label="Zip Code"
             value={recipientZipCode}
+            className="custom-textfield"
             inputProps={{
               autoComplete: "off",
               autoCorrect: "off",
@@ -308,6 +315,7 @@ const Recipient = ({
           />
           <TextField
             label="City"
+            className="custom-textfield"
             value={recipientCity}
             inputProps={{
               autoComplete: "off",
@@ -341,6 +349,7 @@ const Recipient = ({
           {/* Phone 1 */}
           <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
+              className="custom-textfield"
               country={recipientcountrycode}
               inputProps={{
                 autoComplete: "off",
@@ -376,6 +385,7 @@ const Recipient = ({
           {/* Phone 2 */}
           <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
+              className="custom-textfield"
               country={recipientcountrycode}
               value={recipientPhone2}
               inputProps={{
@@ -407,6 +417,7 @@ const Recipient = ({
             variant="outlined"
             label="Email Address"
             value={recipientEmail}
+            className="custom-textfield"
             inputProps={{
               autoComplete: "off",
               autoCorrect: "off",
@@ -425,7 +436,7 @@ const Recipient = ({
 
         {/* Row 5: Location Type */}
         <Box sx={rowStyle}>
-          <FormControl fullWidth sx={fieldStyle}>
+          <FormControl fullWidth sx={fieldStyle} className="custom-textfield">
             <InputLabel>Select Location Type</InputLabel>
             <Select
               value={recipientLocationType || ""}

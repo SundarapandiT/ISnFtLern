@@ -347,7 +347,7 @@ const ShipmentDashboard = ({ setEdit }) => {
             </Button>
 
             {/* Total Rows Typography */}
-            <Typography sx={{ fontSize: { sm: "0.75rem", xs: "0.6rem" } }}>
+            <Typography sx={{ fontSize: { sm: "0.75rem", xs: "0.6rem", fontWeight:"bold" } }}>
               Total rows: {filteredData.length} of {shipmentsData.length}
             </Typography>
 
@@ -355,7 +355,7 @@ const ShipmentDashboard = ({ setEdit }) => {
             <Select
               value={rowsPerPage}
               onChange={handleRowsPerPageChange}
-              sx={{ fontSize: "0.75rem", height: "2rem" }}
+              sx={{ fontSize: "0.75rem", height: "2rem",fontWeight:"bold" }}
             >
               <MenuItem value={5} sx={{ fontSize: "0.75rem" }}>5 rows</MenuItem>
               <MenuItem value={10} sx={{ fontSize: "0.75rem" }}>10 rows</MenuItem>

@@ -540,3 +540,64 @@ form .MuiFormHelperText-root {
   padding-top: 9px !important;
   padding-bottom: 9px !important;
 }
+
+/*Field Size*/
+.custom-textfield .MuiInputBase-root {
+  height: 40px;
+}
+
+.custom-textfield input {
+  padding: 10px 14px;
+  font-size: 13px;
+}
+.custom-textfield .MuiInputLabel-root {
+  font-size: 0.9rem;
+  font-family: sans-serif;
+  transform: translate(14px, 50%) scale(1); 
+  transform-origin: top left; 
+  padding: 0; 
+  &.MuiInputLabel-shrink {
+    transform: translate(14px, -6px) scale(0.75); 
+  }
+}
+.custom-textfield .MuiPaper-root {
+  font-size: 0.75rem;
+}
+.custom-textfield .MuiOutlinedInput-notchedOutline {
+  border-width: 1px;
+  border-color: #bdbdbd;
+}
+.custom-textfield .special-label {
+  font-size: 0.7rem !important;
+}
+
+
+.small-textfield {
+  width: 100px; 
+}
+.small-textfield .MuiInputBase-root {
+  height: 42px; 
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.small-textfield .MuiInputLabel-root {
+  font-size: 0.9rem;
+  font-family: sans-serif;
+  transform: translate(14px, 50%) scale(1); 
+  transform-origin: top left; 
+  padding: 0; 
+  &.MuiInputLabel-shrink {
+    transform: translate(14px, -6px) scale(0.75); 
+  }
+}
+
+
+.small-textfield .MuiInputBase-input {
+  font-size: 0.75rem; 
+    padding: 6px 8px;
+  font-family: "Open Sans", sans-serif;   
+}
+.MuiAutocomplete-popper li {
+  font-size: 0.75rem;
+}

@@ -36,6 +36,7 @@ const PickupForm = ({
             renderInput={(params) => (
               <TextField
                 {...params}
+                className="small-textfield"
                 label="Select Shipment Type"
                 error={!!pickupErrors.shipmentType}
                 helperText={pickupErrors.shipmentType}
@@ -54,6 +55,7 @@ const PickupForm = ({
             renderInput={(params) => (
               <TextField
                 {...params}
+                className="small-textfield"
                 label="From Country"
                 error={!!pickupErrors.fromCountry}
                 helperText={pickupErrors.fromCountry}
@@ -70,7 +72,8 @@ const PickupForm = ({
             onChange={(event, newValue) => setToCountry(newValue?.value || "")}
             renderInput={(params) => (
               <TextField
-                {...params}
+                {...params} 
+                className="small-textfield"
                 label="To Country"
                 error={!!pickupErrors.toCountry}
                 helperText={pickupErrors.toCountry}

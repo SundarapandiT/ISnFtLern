@@ -36,6 +36,33 @@ import {
 import TabNavigation from "./TabNavigation";
 
 // Define StyledTextField if not already defined in styles
+const StyledTableTextField = ({ sx, ...props }) => (
+  <TextField
+    {...props}
+    sx={{
+      ...sx,
+      "& .MuiInputBase-root": {
+        height: 36,
+        fontSize: "0.8rem",
+      },
+      "& .MuiInputBase-input": {
+        padding: "6px",
+        fontSize: "0.8rem",
+ 
+      },
+      "& .MuiInputLabel-root": {
+        fontSize: "0.8rem",
+        transform: "translate(14px, 9px) scale(1)",
+      },
+      "& .MuiInputLabel-shrink": {
+        transform: "translate(14px, -6px) scale(0.75)",
+      },
+      "& .MuiFormHelperText-root": {
+        marginTop: "2px",
+      },
+    }}
+  />
+);
 const StyledTextField = ({ sx, ...props }) => (
   <TextField
     {...props}
@@ -66,7 +93,7 @@ const ResponsiveTable = ({ columns, rows, columnWidths = {} }) => {
                 >
                   {col}:
                 </Typography>
-                <StyledTextField
+                <StyledTableTextField
                   fullWidth
                   value={row[col.toLowerCase().replace(/\(|\)/g, "")] || ""}
                   variant="outlined"
@@ -97,7 +124,7 @@ const ResponsiveTable = ({ columns, rows, columnWidths = {} }) => {
           <TableRow key={rowIndex}>
             {columns.map((col) => (
               <TableCell key={col} sx={{ width: columnWidths[col] || "auto", fontSize: "0.75rem" }}>
-                <StyledTextField
+                <StyledTableTextField
                   fullWidth
                   value={row[col.toLowerCase().replace(/\(|\)/g, "")] || ""}
                   variant="outlined"
@@ -234,7 +261,7 @@ const Myshipmentnew = ({ setEdit }) => {
         </Box>
 
         <GridContainer>
-          <FormControl fullWidth variant="outlined">
+          <FormControl fullWidth variant="outlined" className="small-textfield">
             <InputLabel sx={{ fontSize: "0.875rem" }}>Shipment Status</InputLabel>
             <Select
               value={shipmentInfo.shipmentstatus || ""}
@@ -252,6 +279,7 @@ const Myshipmentnew = ({ setEdit }) => {
 
           <StyledTextField
             fullWidth
+            className="custom-textfield"
             label="Tracking Number"
             disabled
             value={shipmentInfo.trackingnumber || ""}
@@ -275,6 +303,7 @@ const Myshipmentnew = ({ setEdit }) => {
             fullWidth
             label="Package Type"
             disabled
+            className="custom-textfield"
             value={packages && packages.length > 0 ? packages[0].packagetype || "" : ""}
             InputProps={{ readOnly: true }}
             variant="outlined"
@@ -285,6 +314,7 @@ const Myshipmentnew = ({ setEdit }) => {
           <StyledTextField
             fullWidth
             label="No. of Packages"
+            className="custom-textfield"
             disabled
             value={fromAddress.totalpackages || "0"}
             InputProps={{ readOnly: true }}
@@ -295,13 +325,14 @@ const Myshipmentnew = ({ setEdit }) => {
           <StyledTextField
             fullWidth
             disabled
+            className="custom-textfield"
             label="Managed By"
             value={shipmentInfo.managedbyname || ""}
             InputProps={{ readOnly: true }}
             variant="outlined"
           />
 
-          <FormControl fullWidth variant="outlined">
+          <FormControl fullWidth variant="outlined" className="small-textfield">
             <InputLabel sx={{ fontSize: "0.875rem" }}>Shipment Type</InputLabel>
             <Select
               disabled
@@ -317,7 +348,7 @@ const Myshipmentnew = ({ setEdit }) => {
             </Select>
           </FormControl>
 
-          <FormControl fullWidth variant="outlined">
+          <FormControl fullWidth variant="outlined" className="small-textfield" >
             <InputLabel sx={{ fontSize: "0.875rem" }}>Service Type</InputLabel>
             <Select
               value={fromAddress.servicename || ""}
@@ -331,7 +362,7 @@ const Myshipmentnew = ({ setEdit }) => {
             </Select>
           </FormControl>
 
-          <FormControl fullWidth variant="outlined">
+          <FormControl fullWidth variant="outlined" className="small-textfield">
             <InputLabel sx={{ fontSize: "0.875rem" }}>Sub Service Type</InputLabel>
             <Select
               value={fromAddress.subservicename || ""}
@@ -363,6 +394,7 @@ const Myshipmentnew = ({ setEdit }) => {
             <GridContainer>
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="Contact Name"
                 value={fromAddress.contactname || ""}
                 InputProps={{
@@ -377,6 +409,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="Address Line 1"
                 value={fromAddress.addressline1 || ""}
                 InputProps={{
@@ -392,6 +425,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Address Line 2"
+                className="custom-textfield"
                 value={fromAddress.addressline2 || ""}
                 InputProps={{
                   readOnly: true,
@@ -406,6 +440,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Address Line 3"
+                className="custom-textfield"
                 value={fromAddress.addressline3 || ""}
                 InputProps={{
                   readOnly: true,
@@ -422,6 +457,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Country"
+                className="custom-textfield"
                 value={fromAddress.countryname || ""}
                 InputProps={{
                   readOnly: true,
@@ -430,6 +466,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="Zip"
                 value={fromAddress.zipcode || ""}
                 InputProps={{
@@ -444,6 +481,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="City"
                 value={fromAddress.city || ""}
                 InputProps={{
@@ -458,6 +496,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="State"
                 value={fromAddress.state || ""}
                 InputProps={{
@@ -469,6 +508,7 @@ const Myshipmentnew = ({ setEdit }) => {
             <GridContainer>
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="Company Name"
                 value={fromAddress.companyname}
                 InputProps={{
@@ -484,6 +524,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Phone 1"
+                className="custom-textfield"
                 value={fromAddress.phone1 || ""}
                 InputProps={{
                   readOnly: true,
@@ -498,6 +539,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Phone 2"
+                className="custom-textfield"
                 value={fromAddress.phone2 || ""}
                 InputProps={{
                   readOnly: true,
@@ -511,6 +553,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="Email"
                 value={fromAddress.email || ""}
                 InputProps={{
@@ -537,6 +580,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Contact Name"
+                className="custom-textfield"
                 value={toAddress.contactname || ""}
                 InputProps={{
                   readOnly: true,
@@ -551,6 +595,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Address Line 1"
+                className="custom-textfield"
                 value={toAddress.addressline1 || ""}
                 InputProps={{
                   readOnly: true,
@@ -565,6 +610,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Address Line 2"
+                className="custom-textfield"
                 value={toAddress.addressline2 || ""}
                 InputProps={{
                   readOnly: true,
@@ -579,6 +625,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Address Line 3"
+                className="custom-textfield"
                 value={toAddress.addressline3 || ""}
                 InputProps={{
                   readOnly: true,
@@ -595,6 +642,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Country"
+                className="custom-textfield"
                 value={toAddress.countryname || ""}
                 InputProps={{
                   readOnly: true,
@@ -603,6 +651,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="Zip"
                 value={toAddress.zipcode || ""}
                 InputProps={{
@@ -617,6 +666,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="City"
                 value={toAddress.city || ""}
                 InputProps={{
@@ -632,6 +682,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="State"
+                className="custom-textfield"
                 value={toAddress.state || ""}
                 InputProps={{
                   readOnly: true,
@@ -642,6 +693,7 @@ const Myshipmentnew = ({ setEdit }) => {
             <GridContainer>
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="Company Name"
                 value={toAddress.companyname || ""}
                 InputProps={{
@@ -656,6 +708,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="Phone 1"
                 value={toAddress.phone1 || ""}
                 InputProps={{
@@ -670,6 +723,7 @@ const Myshipmentnew = ({ setEdit }) => {
               />
               <StyledTextField
                 fullWidth
+                className="custom-textfield"
                 label="Phone 2"
                 value={toAddress.phone2 || ""}
                 InputProps={{
@@ -685,6 +739,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Email"
+                className="custom-textfield"
                 value={toAddress.email || ""}
                 InputProps={{
                   readOnly: true,
@@ -710,6 +765,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Ship Date"
+                className="custom-textfield"
                 value={shipmentInfo.shipmentdate || ""}
                 InputProps={{
                   readOnly: true,
@@ -721,7 +777,7 @@ const Myshipmentnew = ({ setEdit }) => {
                 }}
                 variant="outlined"
               />
-              <FormControl fullWidth variant="outlined">
+              <FormControl fullWidth variant="outlined" className="small-textfield">
                 <InputLabel sx={{ fontSize: "0.875rem" }}>Location Type</InputLabel>
                 <Select
                   disabled
@@ -733,7 +789,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   <MenuItem value="Commercial" sx={{ fontSize: "0.75rem" }}>Commercial</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl fullWidth variant="outlined">
+              <FormControl fullWidth variant="outlined" className="small-textfield">
                 <InputLabel sx={{ fontSize: "0.875rem" }}>Duties & Taxes Paid By</InputLabel>
                 <Select
                   disabled
@@ -749,6 +805,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <StyledTextField
                 fullWidth
                 label="Username"
+                className="custom-textfield"
                 value={shipmentInfo.createdbyname || ""}
                 InputProps={{ readOnly: true }}
                 variant="outlined"
@@ -795,6 +852,7 @@ const Myshipmentnew = ({ setEdit }) => {
             }}
           >
             <StyledTextField
+              className="custom-textfield"  
               label="Total Packages"
               value={fromAddress.totalpackages || "0"}
               variant="outlined"
@@ -802,6 +860,7 @@ const Myshipmentnew = ({ setEdit }) => {
               sx={{ width: isMobile ? "100%" : "auto" }}
             />
             <StyledTextField
+              className="custom-textfield"
               label="Total Insured Value"
               value={fromAddress.totalinsuredvalue || "0.00"}
               variant="outlined"
@@ -837,6 +896,7 @@ const Myshipmentnew = ({ setEdit }) => {
           </TableContainer>
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
             <StyledTextField
+              className="custom-textfield"
               label="Total Cost:"
               value={commercialItems
                 .reduce(
@@ -927,6 +987,7 @@ const Myshipmentnew = ({ setEdit }) => {
 
   <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
     <StyledTextField
+      className="custom-textfield"
       label="Total Cost:"
       value={invoiceData
         .reduce((sum, inv) => sum + parseFloat(inv.TotalAmount || 0), 0)
@@ -976,6 +1037,7 @@ const Myshipmentnew = ({ setEdit }) => {
 
   <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
     <StyledTextField
+      className="custom-textfield"
       label="Total Cost:"
       value={paymentData
         .reduce((sum, pay) => sum + parseFloat(pay.Amount || 0), 0)
