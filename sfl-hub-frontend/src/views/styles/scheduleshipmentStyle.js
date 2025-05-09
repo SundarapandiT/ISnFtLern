@@ -43,7 +43,7 @@ export const ContentBox = styled(Box)(({ theme }) => ({
   width: '90%',
   alignSelf: 'center',
   justifyContent: 'center',
-  margin: '5rem auto',
+  margin: '5.2rem auto',
   backgroundColor: 'white',
   padding: '10px',
   boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)',
@@ -84,8 +84,8 @@ export const UsernameButton = styled(Button)(({ theme }) => ({
 
 //phoneInput
 export const PhoneInputStyle = {
-  width: '100%',
-  height: '56px',
+  padding: '6px 8px',
+  height: '40px',
   fontSize: '0.8rem',
   fontFamily: 'Roboto, sans-serif',
   borderRadius: '4px',

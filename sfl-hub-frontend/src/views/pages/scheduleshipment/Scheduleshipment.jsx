@@ -1,4 +1,5 @@
 import { useState, useEffect, use } from "react";
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate, Routes, Route } from "react-router-dom";
 
 import axios from "axios";
@@ -56,28 +57,26 @@ const Schedule = () => {
   const [confirmation,setConfirmation]=useState(false);
   const classes = useStyles();
 
-  const [countries, setCountries] = useState([]);
 
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const res = await axios.get(`${api.BackendURL}/locations/getCountry`);
-        const countryData = res.data?.user?.[0] || [];
-
-        const formattedCountries = countryData.map(country => ({
-          value: country.countrycode.toLowerCase(),
-          label: country.countryname,
-          countryid: country.countryid,
-        }));
-
-        setCountries(formattedCountries);
-      } catch (error) {
-        console.error('Failed to fetch countries:', error);
-      }
-    };
-
-    fetchCountries();
-  }, []);
+  const { data: countries = [], isLoading: isCountriesLoading, isError: isCountriesError } = useQuery({
+    queryKey: ['countries'],
+    queryFn: async () => {
+      const res = await axios.get(`${api.BackendURL}/locations/getCountry`);
+      const countryData = res.data?.user?.[0] || [];
+      
+      return countryData.map(country => ({
+        value: country.countrycode.toLowerCase(),
+        label: country.countryname,
+        countryid: country.countryid,
+      }));
+    },
+    staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours since country data rarely changes
+    retry: 2,
+    onError: (error) => {
+      console.error('Failed to fetch countries:', error);
+      toast.error("Failed to load countries.");
+    }
+  });
 
   // Profile
   const [anchorEl, setAnchorEl] = useState(null);

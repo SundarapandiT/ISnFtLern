@@ -50,6 +50,7 @@ const StateDropdown = ({ country, setState, senderErrors, state: selectedState }
         renderInput={(params) => (
           <TextField
             {...params}
+            className="custom-textfield"
             label="Select State"
             error={!!senderErrors.state}
             helperText={senderErrors.state}

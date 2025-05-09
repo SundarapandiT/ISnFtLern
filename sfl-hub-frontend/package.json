@@ -17,6 +17,7 @@
     "@mui/material": "^6.4.7",
     "@mui/styles": "^6.4.10",
     "@tailwindcss/vite": "^4.0.14",
+    "@tanstack/react-query": "^5.75.5",
     "axios": "^1.8.4",
     "classnames": "^2.5.1",
     "crypto-js": "^4.2.0",
