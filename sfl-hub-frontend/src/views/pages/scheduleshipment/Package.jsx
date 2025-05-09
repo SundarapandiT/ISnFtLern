@@ -137,13 +137,15 @@ const Package = ({
 
   function handleNext(e) {
     const totalinsured_value = packageData.reduce(
-      (sum, pkg) => sum + Number(pkg.insured_value || 0).toFixed(2),
+      (sum, pkg) => sum + Number(pkg.insured_value || 0),
       0
     );
+    console.log("totalinsured_value", totalinsured_value);
     const totalDeclaredValue = commercialInvoiceData.reduce(
-      (sum, _, index) => sum + Number(calculateTotalValue(index) || 0).toFixed(2),
+      (sum, _, index) => sum + Number(calculateTotalValue(index) || 0),
       0
     );
+    console.log("totalDeclaredValue", totalDeclaredValue);
 
     if (samecountry === false && packageType !== "Envelop") {
       const isNextEnabled = totalinsured_value <= totalDeclaredValue && totalinsured_value >= 0;
