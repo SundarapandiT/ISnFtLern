@@ -13,7 +13,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import logo from "/SFL_logo.png";
 
 import { BackgroundContainer, StyledPaper, StyledButton, linkStyle } from "../styles/AuthStyle";
-import "../styles/ForgetPage.css";
+import "../styles/Forgetpage.css";
 import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {

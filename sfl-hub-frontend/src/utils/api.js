@@ -3,8 +3,8 @@ import axios from 'axios';
 
 export const api = {
        
-  BackendURL: "http://localhost:5000",
-  // BackendURL: "https://sfl-bk.trysimmer.com", 
+  // BackendURL: "http://localhost:5000",
+  BackendURL: "https://sfl-bk.trysimmer.com", 
   // BackendURL: "https://hub-bk.sflworldwide.com",
   OldDatabaseURL: "https://hubapi.sflworldwide.com",
 }
