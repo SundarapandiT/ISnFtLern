@@ -11,6 +11,7 @@ import {
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 import {
   SidebarWrapper,
@@ -35,7 +36,11 @@ const Sidebar = ({
   handleModuleClick,
   setDrawerOpen,
 }) => {
-  const modules = ['Schedule Shipment', 'My Shipment'];
+  const modules = ['Getrate', 'Schedule Shipment', 'My Shipment'];
+  const iconMap = {
+    'Schedule Shipment': <LocalShippingIcon />,
+    'My Shipment': <DirectionsBoatIcon />,
+  };
 
   return (
     <>
@@ -67,21 +72,35 @@ const Sidebar = ({
           </Box>
 
           <List>
-            {modules.map((module) => (
-              <StyledListItem
-                key={module}
-                component="button"
-                selected={activeModule === module}
-                onClick={() => handleModuleClick(module)}
-                active={activeModule === module}
-              >
-                <ListItemIcon sx={{ color: 'white' }}>
-                  {module === 'Schedule Shipment' ? <LocalShippingIcon /> : <DirectionsBoatIcon />}
-                </ListItemIcon>
-                <ListItemText primary={module} sx={{ color: 'white' }} />
-              </StyledListItem>
-            ))}
+            {modules.map((module) => {
+              const getIcon = () => {
+                switch (module) {
+                  case 'Schedule Shipment':
+                    return <LocalShippingIcon />;
+                  case 'My Shipment':
+                    return <DirectionsBoatIcon />;
+                  default:
+                    return <AttachMoneyIcon />;
+                }
+              };
+
+              return (
+                <StyledListItem
+                  key={module}
+                  component="button"
+                  selected={activeModule === module}
+                  onClick={() => handleModuleClick(module)}
+                  active={activeModule === module}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    {getIcon()}
+                  </ListItemIcon>
+                  <ListItemText primary={module} sx={{ color: 'white' }} />
+                </StyledListItem>
+              );
+            })}
           </List>
+
         </ProfileBox>
       </MobileDrawer>
 
@@ -101,6 +120,8 @@ const Sidebar = ({
           />
         </LogoBox>
 
+
+
         <List>
           {modules.map((module) => (
             <StyledListItem
@@ -108,10 +129,9 @@ const Sidebar = ({
               component="button"
               selected={activeModule === module}
               onClick={() => handleModuleClick(module)}
-              active={activeModule === module}
             >
-              <ListItemIcon sx={{ color: 'white', minWidth: '48px'}}>
-                {module === 'Schedule Shipment' ? <LocalShippingIcon /> : <DirectionsBoatIcon />}
+              <ListItemIcon sx={{ color: 'white', minWidth: '48px' }}>
+                {iconMap[module] || <AttachMoneyIcon />}
               </ListItemIcon>
               <ListItemText
                 primary={module}
@@ -125,6 +145,7 @@ const Sidebar = ({
             </StyledListItem>
           ))}
         </List>
+
       </SidebarWrapper>
     </>
   );

@@ -48,6 +48,7 @@ import {
 import Myshipmentnew from "../myshipment/MyShipmentNew";
 import CryptoJS from "crypto-js";
 import ScheduleConfirmation from "../scheduleconfirmation/ScheduleConfirmation";
+import GetRate from "../getrate/GetRate";
 
 
 const Schedule = () => {
@@ -1118,6 +1119,10 @@ const handleSubmit = async () => {
       setActiveTab("my-shipment");
       navigate("/admin/ShipmentList", { replace: true });
     }
+    else if (module === "Getrate")
+    {
+      navigate("/admin/GetRate", { replace: true });
+    }
     setDrawerOpen(false);
   };
 
@@ -1382,6 +1387,7 @@ const handleSubmit = async () => {
         <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit}/>} />
         <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} /> } />
         <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
+        <Route path="getrate" element={<GetRate />} />
       </Routes>
       {activeModule !== "My Shipment" && (
       <Box className="footer-box" sx={{
