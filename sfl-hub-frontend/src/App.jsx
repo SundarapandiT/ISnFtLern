@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import React, {useEffect} from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import React, { useEffect, useRef } from "react";
 import RegisterPage from "./views/pages/RegisterPage";
 import EmailVerification from "./views/pages/EmailVerification";
 import { Toaster } from "react-hot-toast";
@@ -10,16 +10,40 @@ import ResetPassword from "./views/pages/ResetPassword";
 import "./App.css";
 import "./index.css";
 
-
 // ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
-  const authToken = sessionStorage.getItem("user"); 
- 
+  const authToken = sessionStorage.getItem("user");
   return authToken ? children : <Navigate to="/auth/login-page" replace />;
 };
 
-function App() {
+// Inactivity handler component
+const InactivityHandler = ({ children }) => {
+  const timeoutRef = useRef(null);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const resetTimer = () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        sessionStorage.removeItem("user");
+        navigate("/auth/login-page", { replace: true }); 
+      }, 15 * 60 * 1000); // 15 minutes
+    };
+
+    const events = ["mousemove", "mousedown", "keydown", "touchstart"];
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer(); 
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+    };
+  }, [navigate]);
+
+  return children;
+};
+
+function App() {
   // useEffect(() => {
   //   const handleContextMenu = (e) => {
   //     e.preventDefault();
@@ -48,30 +72,28 @@ function App() {
 
   return (
     <Router>
-      <div>
-        <Toaster position="top-right" reverseOrder={false} />
-      </div>
-      <Routes>
-        <Route path="/" element={<Navigate replace to="/auth/login-page" />} />
-        <Route path="/auth/login-page" element={<LoginPage />} />
-        <Route path="/auth/register-page" element={<RegisterPage />} />
-        <Route path="/emailverification" element={<EmailVerification />} />
-        <Route path="/auth/forgotpassword-page" element={<ForgotPassword />} />
-        <Route path="/auth/ResetPassword" element={<ResetPassword />} />
-    
-
-        {/*  Protected route (only accessible if user exists) */}
-        <Route
-          path="/admin/*"
-          element={
-            <ProtectedRoute>
-              <ScheduleShipment />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to="/auth/login-page" replace />} />
-
-      </Routes>
+      <InactivityHandler>
+        <div>
+          <Toaster position="top-right" reverseOrder={false} />
+        </div>
+        <Routes>
+          <Route path="/" element={<Navigate replace to="/auth/login-page" />} />
+          <Route path="/auth/login-page" element={<LoginPage />} />
+          <Route path="/auth/register-page" element={<RegisterPage />} />
+          <Route path="/emailverification" element={<EmailVerification />} />
+          <Route path="/auth/forgotpassword-page" element={<ForgotPassword />} />
+          <Route path="/auth/ResetPassword" element={<ResetPassword />} />
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedRoute>
+                <ScheduleShipment />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/auth/login-page" replace />} />
+        </Routes>
+      </InactivityHandler>
     </Router>
   );
 }
