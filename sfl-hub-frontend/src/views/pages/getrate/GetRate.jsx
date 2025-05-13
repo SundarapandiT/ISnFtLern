@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import axios from "axios";
+import { api } from "../../../utils/api";
+import { toast } from "react-hot-toast";
 import {
   Box,
+  Autocomplete, 
+  CircularProgress,
+  FormControl, 
   Card,
   CardHeader,
   CardContent,
@@ -18,9 +25,33 @@ import {
   Paper,
   ToggleButton,
   ToggleButtonGroup,
+  IconButton,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const GetRate = () => {
+
+  // Fetch countries data
+  const { data: countries = [], isLoading: isCountriesLoading, isError: isCountriesError } = useQuery({
+    queryKey: ['countries'],
+    queryFn: async () => {
+      const res = await axios.get(`${api.BackendURL}/locations/getCountry`);
+      const countryData = res.data?.user?.[0] || [];
+      
+      return countryData.map(country => ({
+        value: country.countrycode.toLowerCase(),
+        label: country.countryname,
+        countryid: country.countryid,
+      }));
+    },
+    staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours since country data rarely changes
+    retry: 2,
+    onError: (error) => {
+      console.error('Failed to fetch countries:', error);
+      toast.error("Failed to load countries.");
+    }
+  });
+
   const [shipmentType, setShipmentType] = useState('AIR');
   const [rates, setRates] = useState([]);
   const [showRates, setShowRates] = useState(false);
@@ -43,16 +74,76 @@ const GetRate = () => {
     insuredValue: '',
   });
 
+  // State for package rows (without per-row units)
+  const [packageRows, setPackageRows] = useState([
+    {
+      packageNumber: '',
+      weight: '',
+      length: '',
+      width: '',
+      height: '',
+      chargeableWeight: '',
+      insuredValue: '',
+    },
+  ]);
+
+  // Global unit states
+  const [weightUnit, setWeightUnit] = useState('LB');
+  const [dimensionUnit, setDimensionUnit] = useState('INCHES');
+  const [chargeableUnit, setChargeableUnit] = useState('LB');
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePackageRowChange = (index, field, value) => {
+    setPackageRows((prevRows) => {
+      const updatedRows = [...prevRows];
+      updatedRows[index] = { ...updatedRows[index], [field]: value };
+      return updatedRows;
+    });
+  };
+
+  const handleWeightUnitChange = (value) => {
+    setWeightUnit(value);
+    if (value === 'KG') {
+      setDimensionUnit('CM');
+      setChargeableUnit('KG');
+    } else if (value === 'LB') {
+      setDimensionUnit('INCHES');
+      setChargeableUnit('LB');
+    }
+  };
+
+  const handleAddRow = () => {
+    setPackageRows((prevRows) => [
+      ...prevRows,
+      {
+        packageNumber: '',
+        weight: '',
+        length: '',
+        width: '',
+        height: '',
+        chargeableWeight: '',
+        insuredValue: '',
+      },
+    ]);
+  };
+
+  const handleDeleteRow = (index) => {
+    setPackageRows((prevRows) => {
+      const updatedRows = [...prevRows];
+      updatedRows.splice(index, 1);
+      return updatedRows;
+    });
   };
 
   const handleGetRate = async () => {
     const payload = {
       quoteData: {
         PackageType: formData.packageType,
-        WeightType: 'LB',
+        WeightType: weightUnit,
         UpsData: {
           FromCountry: JSON.stringify({
             CountryID: 202,
@@ -87,41 +178,39 @@ const GetRate = () => {
           ToZipCode: formData.toZipCode,
           ToStateProvinceCode: '',
         },
-        PackageNumber: [formData.packageNumber || '1'],
-        Weight: [formData.weight || '0.5'],
-        DimeL: [formData.length || '10'],
-        DimeW: [formData.width || '13'],
-        DimeH: [formData.height || '1'],
-        TotalLength: parseFloat(formData.length) || 10,
-        TotalWidth: parseFloat(formData.width) || 13,
-        TotalInsuredValues: parseFloat(formData.insuredValue) || 0,
-        TotalHeight: parseFloat(formData.height) || 1,
-        ChargableWeight: [formData.chargeableWeight || '1'],
-        InsuredValues: [formData.insuredValue || '0'],
-        SelectedWeightType: 'LB',
-        TotalWeight: parseFloat(formData.weight) || 1,
+        PackageNumber: packageRows.map(row => row.packageNumber || '1'),
+        Weight: packageRows.map(row => row.weight || '0.5'),
+        DimeL: packageRows.map(row => row.length || '10'),
+        DimeW: packageRows.map(row => row.width || '13'),
+        DimeH: packageRows.map(row => row.height || '1'),
+        TotalLength: parseFloat(packageRows[0]?.length) || 10,
+        TotalWidth: parseFloat(packageRows[0]?.width) || 13,
+        TotalInsuredValues: parseFloat(packageRows[0]?.insuredValue) || 0,
+        TotalHeight: parseFloat(packageRows[0]?.height) || 1,
+        ChargableWeight: packageRows.map(row => row.chargeableWeight || '1'),
+        InsuredValues: packageRows.map(row => row.insuredValue || '0'),
+        SelectedWeightType: weightUnit,
+        TotalWeight: parseFloat(packageRows[0]?.weight) || 1,
         IsResidencial: formData.residential === 'Yes',
         IsPickUp: false,
-        WeightCount: 1,
-        LengthCount: 1,
-        WidthCount: 1,
-        HeightCount: 1,
-        PackCount: formData.packageNumber || '1',
-        PackageDetailsCount: 1,
-        PackageDetailsText: '1',
-        EnvelopeWeightLBSText: parseFloat(formData.weight) || 1,
+        WeightCount: packageRows.length,
+        LengthCount: packageRows.length,
+        WidthCount: packageRows.length,
+        HeightCount: packageRows.length,
+        PackCount: packageRows.length.toString(),
+        PackageDetailsCount: packageRows.length,
+        PackageDetailsText: packageRows.length.toString(),
+        EnvelopeWeightLBSText: parseFloat(packageRows[0]?.weight) || 1,
         ShipDate: formData.shipDate ? new Date(formData.shipDate).toISOString() : new Date().toISOString(),
-        PackageDetails: [
-          {
-            PackageNumber: parseInt(formData.packageNumber) || 1,
-            PackageWeight: parseFloat(formData.weight) || 0.5,
-            PackageWidth: parseFloat(formData.width) || 13,
-            PackageLength: parseFloat(formData.length) || 10,
-            PackageHeight: parseFloat(formData.height) || 1,
-            PackageChargableWeight: parseFloat(formData.chargeableWeight) || 1,
-            PackageInsuredValue: formData.insuredValue || '0',
-          },
-        ],
+        PackageDetails: packageRows.map(row => ({
+          PackageNumber: parseInt(row.packageNumber) || 1,
+          PackageWeight: parseFloat(row.weight) || 0.5,
+          PackageWidth: parseFloat(row.width) || 13,
+          PackageLength: parseFloat(row.length) || 10,
+          PackageHeight: parseFloat(row.height) || 1,
+          PackageChargableWeight: parseFloat(row.chargeableWeight) || 1,
+          PackageInsuredValue: row.insuredValue || '0',
+        })),
         AgentCode: 12122,
       },
     };
@@ -171,8 +260,22 @@ const GetRate = () => {
       chargeableWeight: '',
       insuredValue: '',
     });
+    setPackageRows([
+      {
+        packageNumber: '',
+        weight: '',
+        length: '',
+        width: '',
+        height: '',
+        chargeableWeight: '',
+        insuredValue: '',
+      },
+    ]);
     setRates([]);
     setShowRates(false);
+    setWeightUnit('LB');
+    setDimensionUnit('INCHES');
+    setChargeableUnit('LB');
   };
 
   const handleBook = (service) => {
@@ -224,42 +327,57 @@ const GetRate = () => {
 
         {/* Shipment Details Form */}
         <CardContent sx={{ padding: '16px' }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: '16px', marginBottom: '16px' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: '16px', marginBottom: '16px' }}>
             {/* From Section */}
+           <Box>
+        <FormControl fullWidth>
+          <Autocomplete
+            options={countries}
+            getOptionLabel={(option) => option.label}
+            value={formData.fromCountry ? countries.find((c) => c.value === formData.fromCountry) || null : null}
+            onChange={(event, newValue) => handleInputChange({
+              target: { name: 'fromCountry', value: newValue?.value || '' }
+            })}
+            disabled={isCountriesLoading || isCountriesError}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                className="small-textfield"
+                label="From Country"
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {isCountriesLoading && <CircularProgress size={20} />}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+            noOptionsText={isCountriesError ? "Error loading countries" : "No countries found"}
+            sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
+          />
+        </FormControl>
+      </Box>
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'medium', marginBottom: '4px' }}>
-                From Country
-              </Typography>
-              <Select
-                fullWidth
-                name="fromCountry"
-                value={formData.fromCountry}
-                onChange={handleInputChange}
-                sx={{ height: '40px' }}
-              >
-                <MenuItem value="United States">United States</MenuItem>
-              </Select>
-            </Box>
-            <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'medium', marginBottom: '4px' }}>
-                From Zip Code
-              </Typography>
               <TextField
                 fullWidth
+                label="From Zip Code"
                 name="fromZipCode"
                 value={formData.fromZipCode}
                 onChange={handleInputChange}
                 variant="outlined"
                 size="small"
+                className="custom-textfield"
               />
             </Box>
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'medium', marginBottom: '4px' }}>
-                From City
-              </Typography>
               <TextField
                 fullWidth
+                label="From City"
                 name="fromCity"
+                className="custom-textfield"
                 value={formData.fromCity}
                 onChange={handleInputChange}
                 variant="outlined"
@@ -267,25 +385,41 @@ const GetRate = () => {
               />
             </Box>
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'medium', marginBottom: '4px' }}>
-                To Country
-              </Typography>
-              <Select
-                fullWidth
-                name="toCountry"
-                value={formData.toCountry}
-                onChange={handleInputChange}
-                sx={{ height: '40px' }}
-              >
-                <MenuItem value="United States">United States</MenuItem>
-              </Select>
-            </Box>
+       <FormControl fullWidth>
+          <Autocomplete
+            options={countries}
+            getOptionLabel={(option) => option.label}
+            value={formData.toCountry ? countries.find((c) => c.value === formData.toCountry) || null : null}
+            onChange={(event, newValue) => handleInputChange({
+              target: { name: 'toCountry', value: newValue?.value || '' }
+            })}
+            disabled={isCountriesLoading || isCountriesError}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                className="small-textfield"
+                label="To Country"
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {isCountriesLoading && <CircularProgress size={20} />}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+            noOptionsText={isCountriesError ? "Error loading countries" : "No countries found"}
+            sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
+          />
+        </FormControl>
+      </Box>
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'medium', marginBottom: '4px' }}>
-                To Zip Code
-              </Typography>
               <TextField
                 fullWidth
+                label="To Zip Code"
+                className="custom-textfield"
                 name="toZipCode"
                 value={formData.toZipCode}
                 onChange={handleInputChange}
@@ -294,61 +428,75 @@ const GetRate = () => {
               />
             </Box>
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'medium', marginBottom: '4px' }}>
-                To City
-              </Typography>
               <TextField
                 fullWidth
                 name="toCity"
+                label="To City"
+                className="custom-textfield"
                 value={formData.toCity}
                 onChange={handleInputChange}
                 variant="outlined"
                 size="small"
               />
             </Box>
+      
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'medium', marginBottom: '4px' }}>
-                Ship Date
-              </Typography>
+              <FormControl fullWidth>
+          <Autocomplete
+            options={[{ value: 'No', label: 'No' }, { value: 'Yes', label: 'Yes' }]}
+            getOptionLabel={(option) => option.label}
+            value={formData.residential ? { value: formData.residential, label: formData.residential } : null}
+            onChange={(event, newValue) => handleInputChange({
+              target: { name: 'residential', value: newValue?.value || '' }
+            })}
+            renderInput={(params) => (
               <TextField
-                fullWidth
-                type="date"
-                name="shipDate"
-                value={formData.shipDate}
-                onChange={handleInputChange}
-                variant="outlined"
-                size="small"
+                {...params}
+                className="small-textfield"
+                label="Residential"
               />
+            )}
+            sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
+          />
+        </FormControl>
             </Box>
             <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'medium', marginBottom: '4px' }}>
-                Residential
-              </Typography>
-              <Select
-                fullWidth
-                name="residential"
-                value={formData.residential}
-                onChange={handleInputChange}
-                sx={{ height: '40px' }}
-              >
-                <MenuItem value="No">No</MenuItem>
-                <MenuItem value="Yes">Yes</MenuItem>
-              </Select>
+             <FormControl fullWidth>
+          <Autocomplete
+            options={[{ value: 'Envelope', label: 'Envelope' }, { value: 'Package', label: 'Package' }]}
+            getOptionLabel={(option) => option.label}
+            value={formData.packageType ? { value: formData.packageType, label: formData.packageType } : null}
+            onChange={(event, newValue) => handleInputChange({
+              target: { name: 'packageType', value: newValue?.value || '' }
+            })}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                className="small-textfield"
+                label="Package Type"
+              />
+            )}
+            sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
+          />
+        </FormControl>
             </Box>
-            <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'medium', marginBottom: '4px' }}>
-                Package Type
-              </Typography>
-              <Select
-                fullWidth
-                name="packageType"
-                value={formData.packageType}
-                onChange={handleInputChange}
-                sx={{ height: '40px' }}
-              >
-                <MenuItem value="Envelope">Envelope</MenuItem>
-                <MenuItem value="Package">Package</MenuItem>
-              </Select>
+                  <Box>
+
+        <TextField
+          fullWidth
+          type="date"
+          label="Ship Date"
+          name="shipDate"
+          value={formData.shipDate || ''}
+          onChange={handleInputChange}
+          variant="outlined"
+          size="small"
+          className="small-textfield"
+          InputLabelProps={{
+            shrink: true, // Ensures the label floats above the input
+          }}
+          placeholder="" // Explicitly set to empty to avoid default placeholder
+        />
             </Box>
           </Box>
 
@@ -360,95 +508,228 @@ const GetRate = () => {
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: '#e0e0e0' }}>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px' }}>No of Package</TableCell>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px' }}>Weight (LB)</TableCell>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px' }}>Dimension (L * W * H")</TableCell>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px' }}>Chargeable Weight (LB)</TableCell>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px' }}>Insured Value (USD)</TableCell>
+                  <TableRow sx={{ backgroundColor: '#000' }}>
+                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>No of Packages</TableCell>
+                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>
+                      Weight
+                      <Select
+                        value={weightUnit}
+                        onChange={(e) => handleWeightUnitChange(e.target.value)}
+                        sx={{
+                          height: '24px',
+                          width: '70px',
+                          fontSize: '12px',
+                          color: '#fff',
+                          marginLeft: '8px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          '& .MuiSelect-select': {
+                            padding: '4px 24px 4px 8px',
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            border: 'none',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            border: 'none',
+                          },
+                          '& .MuiSvgIcon-root': {
+                            color: '#fff',
+                          },
+                        }}
+                      >
+                        <MenuItem value="LB">LB</MenuItem>
+                        <MenuItem value="KG">KG</MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>
+                      Dimension (L * W * H")
+                      <Select
+                        value={dimensionUnit}
+                        onChange={(e) => setDimensionUnit(e.target.value)}
+                        sx={{
+                          height: '24px',
+                          width: '90px',
+                          fontSize: '12px',
+                          color: '#fff',
+                          marginLeft: '8px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          '& .MuiSelect-select': {
+                            padding: '4px 24px 4px 8px',
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            border: 'none',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            border: 'none',
+                          },
+                          '&.Mui-disabled': {
+                            '& .MuiSelect-select': {
+                              color: '#fff',
+                              '-webkit-text-fill-color': '#fff',
+                            },
+                          },
+                          '& .MuiSvgIcon-root': {
+                            color: '#fff',
+                          },
+                        }}
+                        disabled
+                      >
+                        <MenuItem value="INCHES">INCHES</MenuItem>
+                        <MenuItem value="CM">CM</MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>
+                      Chargeable Weight
+                      <Select
+                        value={chargeableUnit}
+                        onChange={(e) => setChargeableUnit(e.target.value)}
+                        sx={{
+                          height: '24px',
+                          width: '70px',
+                          fontSize: '12px',
+                          color: '#fff',
+                          marginLeft: '8px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          '& .MuiSelect-select': {
+                            padding: '4px 24px 4px 8px',
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            border: 'none',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            border: 'none',
+                          },
+                          '&.Mui-disabled': {
+                            '& .MuiSelect-select': {
+                              color: '#fff',
+                              '-webkit-text-fill-color': '#fff',
+                            },
+                          },
+                          '& .MuiSvgIcon-root': {
+                            color: '#fff',
+                          },
+                        }}
+                        disabled
+                      >
+                        <MenuItem value="LB">LB</MenuItem>
+                        <MenuItem value="KG">KG</MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>Insured Value (USD)</TableCell>
+                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow>
-                    <TableCell sx={{ padding: '8px' }}>
-                      <TextField
-                        type="number"
-                        name="packageNumber"
-                        value={formData.packageNumber}
-                        onChange={handleInputChange}
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    </TableCell>
-                    <TableCell sx={{ padding: '8px' }}>
-                      <TextField
-                        type="number"
-                        name="weight"
-                        value={formData.weight}
-                        onChange={handleInputChange}
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    </TableCell>
-                    <TableCell sx={{ padding: '8px' }}>
-                      <Box sx={{ display: 'flex', gap: '8px' }}>
+                  {packageRows.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell sx={{ padding: '8px' }}>
                         <TextField
                           type="number"
-                          name="length"
-                          value={formData.length}
-                          onChange={handleInputChange}
+                          value={row.packageNumber}
+                          onChange={(e) => handlePackageRowChange(index, 'packageNumber', e.target.value)}
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      </TableCell>
+                      <TableCell sx={{ padding: '8px' }}>
+                        <TextField
+                          type="number"
+                          value={row.weight}
+                          onChange={(e) => handlePackageRowChange(index, 'weight', e.target.value)}
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      </TableCell>
+                      <TableCell sx={{ padding: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
+                        <TextField
+                          type="number"
+                          value={row.length}
+                          onChange={(e) => handlePackageRowChange(index, 'length', e.target.value)}
                           variant="outlined"
                           size="small"
                           sx={{ flex: 1 }}
                         />
                         <TextField
                           type="number"
-                          name="width"
-                          value={formData.width}
-                          onChange={handleInputChange}
+                          value={row.width}
+                          onChange={(e) => handlePackageRowChange(index, 'width', e.target.value)}
                           variant="outlined"
                           size="small"
                           sx={{ flex: 1 }}
                         />
                         <TextField
                           type="number"
-                          name="height"
-                          value={formData.height}
-                          onChange={handleInputChange}
+                          value={row.height}
+                          onChange={(e) => handlePackageRowChange(index, 'height', e.target.value)}
                           variant="outlined"
                           size="small"
                           sx={{ flex: 1 }}
                         />
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ padding: '8px' }}>
-                      <TextField
-                        type="number"
-                        name="chargeableWeight"
-                        value={formData.chargeableWeight}
-                        onChange={handleInputChange}
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    </TableCell>
-                    <TableCell sx={{ padding: '8px' }}>
-                      <TextField
-                        type="number"
-                        name="insuredValue"
-                        value={formData.insuredValue}
-                        onChange={handleInputChange}
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                      <TableCell sx={{ padding: '8px' }}>
+                        <TextField
+                          type="number"
+                          value={row.chargeableWeight}
+                          onChange={(e) => handlePackageRowChange(index, 'chargeableWeight', e.target.value)}
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      </TableCell>
+                      <TableCell sx={{ padding: '8px' }}>
+                        <TextField
+                          type="number"
+                          value={row.insuredValue}
+                          onChange={(e) => handlePackageRowChange(index, 'insuredValue', e.target.value)}
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      </TableCell>
+                      <TableCell sx={{ padding: '8px' }}>
+                        {packageRows.length > 1 && (
+                          <IconButton
+                            onClick={() => handleDeleteRow(index)}
+                            sx={{ color: '#f44336' }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
+            <Button
+              onClick={handleAddRow}
+              variant="contained"
+              sx={{
+                marginTop: '8px',
+                backgroundColor: '#e0e0e0',
+                color: '#424242',
+                textTransform: 'uppercase',
+                '&:hover': { backgroundColor: '#bdbdbd' },
+              }}
+            >
+              ADD NEW ROW
+            </Button>
           </Box>
 
           {/* Action Buttons */}
