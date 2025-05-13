@@ -59,11 +59,11 @@ const GetRate = () => {
   const [rates, setRates] = useState([]);
   const [showRates, setShowRates] = useState(false);
   const [formData, setFormData] = useState({
-    fromCountry: 'United States',
+    fromCountry: '',
     fromZipCode: '',
     fromCity: '',
     fromState: '',
-    toCountry: 'United States',
+    toCountry: '',
     toZipCode: '',
     toCity: '',
     toState: '',
@@ -113,7 +113,7 @@ const GetRate = () => {
             length: '10',
             width: '13',
             height: '1',
-            chargeableWeight: '0.5',
+            chargeableWeight: '1',
             insuredValue: '0',
           },
         ]);
@@ -288,16 +288,24 @@ const GetRate = () => {
       return updatedRows;
     });
   };
+
   const handleGetRate = async () => {
+    // Find country objects for fromCountry and toCountry
+    console.log('countries:', countries);
+     const fromCountryObj = countries.find((c) => c.value === formData.fromCountry)
+    const toCountryObj = countries.find(c => c.value === formData.toCountry) 
+    console.log('From Country:', fromCountryObj);
+    console.log('To Country:', toCountryObj);
+
     const payload = {
       quoteData: {
         PackageType: formData.packageType,
         WeightType: weightUnit,
         UpsData: {
           FromCountry: JSON.stringify({
-            CountryID: 202,
-            CountryName: 'United States',
-            CountryCode: 'US',
+            CountryID: fromCountryObj.countryid,
+            CountryName: fromCountryObj.label,
+            CountryCode: fromCountryObj.value.toUpperCase(),
             IsFedexCity: 0,
             IsUpsCity: 0,
             IsDhlCity: 0,
@@ -309,11 +317,11 @@ const GetRate = () => {
           FromUPSCity: null,
           FromFedExCity: null,
           FromZipCode: formData.fromZipCode,
-          FromStateProvinceCode: formData.fromState,
+          FromStateProvinceCode: "",
           ToCountry: JSON.stringify({
-            CountryID: 202,
-            CountryName: 'United States',
-            CountryCode: 'US',
+            CountryID: toCountryObj.countryid,
+            CountryName: toCountryObj.label,
+            CountryCode: toCountryObj.value.toUpperCase(),
             IsFedexCity: 0,
             IsUpsCity: 0,
             IsDhlCity: 0,
@@ -325,7 +333,7 @@ const GetRate = () => {
           ToUPSCity: '',
           ToFedExCity: '',
           ToZipCode: formData.toZipCode,
-          ToStateProvinceCode: formData.toState,
+          ToStateProvinceCode: "",
         },
         PackageNumber: packageRows.map(row => row.packageNumber || '1'),
         Weight: packageRows.map(row => row.weight || '0.5'),
@@ -392,11 +400,11 @@ const GetRate = () => {
 
   const handleReset = () => {
     setFormData({
-      fromCountry: 'United States',
+      fromCountry: '',
       fromZipCode: '',
       fromCity: '',
       fromState: '',
-      toCountry: 'United States',
+      toCountry: '',
       toZipCode: '',
       toCity: '',
       toState: '',
@@ -442,7 +450,6 @@ const GetRate = () => {
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
       <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
         {/* Header */}
-
         <div className="card-title">
           <h2 style={{ fontSize: "1rem" }}>
             <IconBox className="card-icon">
