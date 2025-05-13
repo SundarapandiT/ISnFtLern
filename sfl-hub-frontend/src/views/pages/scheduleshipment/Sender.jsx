@@ -219,6 +219,7 @@ const Sender = ({
             className="custom-textfield"
             sx={fieldStyle}
             inputProps={{
+              maxLength:50,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -238,6 +239,7 @@ const Sender = ({
             helperText={senderErrors.contactName}
             sx={fieldStyle}
             inputProps={{
+              maxLength: 50,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -261,6 +263,7 @@ const Sender = ({
             helperText={senderErrors.addressLine1}
             sx={fieldStyle}
             inputProps={{
+              maxLength: 60,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -279,6 +282,7 @@ const Sender = ({
             helperText={senderErrors.addressLine2}
             sx={fieldStyle}
             inputProps={{
+              maxLength: 60,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -297,6 +301,7 @@ const Sender = ({
             helperText={senderErrors.addressLine3}
             sx={fieldStyle}
             inputProps={{
+              maxLength: 60,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -320,6 +325,7 @@ const Sender = ({
             helperText={senderErrors.zipCode}
             sx={fieldStyle}
             inputProps={{
+              maxLength: 15,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -339,6 +345,7 @@ const Sender = ({
             helperText={senderErrors.fromCity}
             sx={fieldStyle}
             inputProps={{
+              maxLength: 35,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -387,6 +394,7 @@ const Sender = ({
                 borderColor: senderErrors.phone1 ? 'red' : '#c4c4c4',
                 fontSize: '0.9rem', 
                 fontFamily: 'Roboto, sans-serif',
+                maxLength:15,
 
               }}
               containerStyle={{ width: '100%' }}
@@ -409,7 +417,8 @@ const Sender = ({
               inputProps={{
                 autoComplete: "off",
                 autoCorrect: "off",
-                autoCapitalize: "none"
+                autoCapitalize: "none",
+                maxLength:15
               }}
               onChange={(phone, countryData) => {
                 setPhone2(phone);
@@ -444,6 +453,7 @@ const Sender = ({
             helperText={senderErrors.email}
             sx={fieldStyle}
             inputProps={{
+              maxLength:100,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"

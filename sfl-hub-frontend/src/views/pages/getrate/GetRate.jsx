@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from "axios";
-import { api } from "../../../utils/api";
+import { api, encryptURL } from "../../../utils/api";
 import { toast } from "react-hot-toast";
 import {
   Box,
-  Autocomplete, 
+  Autocomplete,
   CircularProgress,
-  FormControl, 
+  FormControl,
   Card,
   CardHeader,
   CardContent,
@@ -23,21 +23,24 @@ import {
   TableHead,
   TableRow,
   Paper,
-  ToggleButton,
-  ToggleButtonGroup,
+  Tabs,
+  Tab,
   IconButton,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { IconBox } from '../../styles/scheduleshipmentStyle';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import { useStyles } from '../../styles/MyshipmentStyle';
 
 const GetRate = () => {
-
+  const classes = useStyles();
   // Fetch countries data
   const { data: countries = [], isLoading: isCountriesLoading, isError: isCountriesError } = useQuery({
     queryKey: ['countries'],
     queryFn: async () => {
       const res = await axios.get(`${api.BackendURL}/locations/getCountry`);
       const countryData = res.data?.user?.[0] || [];
-      
+
       return countryData.map(country => ({
         value: country.countrycode.toLowerCase(),
         label: country.countryname,
@@ -59,12 +62,14 @@ const GetRate = () => {
     fromCountry: 'United States',
     fromZipCode: '',
     fromCity: '',
+    fromState: '',
     toCountry: 'United States',
     toZipCode: '',
     toCity: '',
+    toState: '',
     shipDate: '',
     residential: 'No',
-    packageType: 'Envelope',
+    packageType: 'Package',
     packageNumber: '',
     weight: '',
     length: '',
@@ -72,6 +77,10 @@ const GetRate = () => {
     height: '',
     chargeableWeight: '',
     insuredValue: '',
+  });
+  const [pickupErrors, setPickupErrors] = useState({
+    fromZipCode: '',
+    toZipCode: '',
   });
 
   // State for package rows (without per-row units)
@@ -91,13 +100,151 @@ const GetRate = () => {
   const [weightUnit, setWeightUnit] = useState('LB');
   const [dimensionUnit, setDimensionUnit] = useState('INCHES');
   const [chargeableUnit, setChargeableUnit] = useState('LB');
+  const isEnvelope = formData.packageType === 'Envelope';
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'packageType') {
+      if (value === 'Envelope') {
+        setPackageRows([
+          {
+            packageNumber: '1',
+            weight: '0.5',
+            length: '10',
+            width: '13',
+            height: '1',
+            chargeableWeight: '0.5',
+            insuredValue: '0',
+          },
+        ]);
+        setWeightUnit('LB');
+        setDimensionUnit('INCHES');
+        setChargeableUnit('LB');
+      } else {
+        setPackageRows([
+          {
+            packageNumber: '',
+            weight: '',
+            length: '',
+            width: '',
+            height: '',
+            chargeableWeight: '',
+            insuredValue: '',
+          },
+        ]);
+      }
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Debounce refs for fromZipCode and toZipCode
+  const fromDebounceRef = useRef(null);
+  const toDebounceRef = useRef(null);
+
+  // Zip code lookup function
+  const fetchCityState = async (zipCode, countryValue, isFrom) => {
+    if (!zipCode || zipCode.length < 3) {
+      handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: '' } });
+      handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: '' } });
+      setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+      return;
+    }
+
+    try {
+      // Step 1: Try custom backend API
+      const country = countries.find(c => c.value === countryValue);
+      if (!country) {
+        throw new Error("Country not selected or invalid");
+      }
+
+      const encodedUrl = encryptURL("/locations/getstateCitybyPostalCode");
+      const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
+        CountryID: country.countryid,
+        PostalCode: zipCode,
+      });
+
+      const userData = response.data?.user?.[0] || [];
+      if (userData.length > 0) {
+        const place = userData[0];
+        handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: place.city || '' } });
+        handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: place.state || '' } });
+        setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+        return;
+      }
+
+      // Step 2: Fallback to India API if country is India
+      if (countryValue === "in") {
+        const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
+        const data = res.data[0];
+        if (data.Status === "Success" && data.PostOffice?.length > 0) {
+          const place = data.PostOffice[0];
+          handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: place.Block || place.District || '' } });
+          handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: place.State || '' } });
+          setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+          return;
+        }
+      }
+
+      // Step 3: Fallback to Google API
+      const res = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countryValue}|postal_code:${zipCode}`
+      );
+      const components = res.data.results?.[0]?.address_components || [];
+      let city = '';
+      let state = '';
+
+      components.forEach(component => {
+        if (component.types.includes('locality') || component.types.includes('postal_town')) {
+          city = component.long_name;
+        }
+        if (component.types.includes('administrative_area_level_1')) {
+          state = component.long_name;
+        }
+      });
+
+      if (city || state) {
+        handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: city } });
+        handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: state } });
+        setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+        return;
+      }
+
+      throw new Error("No valid data found");
+    } catch (err) {
+      console.error(`Failed to fetch city/state for ${isFrom ? 'fromZipCode' : 'toZipCode'}:`, err.message);
+      handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: '' } });
+      handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: '' } });
+      setPickupErrors(prev => ({
+        ...prev,
+        [isFrom ? 'fromZipCode' : 'toZipCode']: "Invalid or unsupported zip code.",
+      }));
+    }
+  };
+
+  // Zip code lookup for fromZipCode
+  useEffect(() => {
+    if (fromDebounceRef.current) clearTimeout(fromDebounceRef.current);
+
+    fromDebounceRef.current = setTimeout(() => {
+      fetchCityState(formData.fromZipCode, formData.fromCountry, true);
+    }, 500);
+
+    return () => clearTimeout(fromDebounceRef.current);
+  }, [formData.fromZipCode, formData.fromCountry, countries]);
+
+  // Zip code lookup for toZipCode
+  useEffect(() => {
+    if (toDebounceRef.current) clearTimeout(toDebounceRef.current);
+
+    toDebounceRef.current = setTimeout(() => {
+      fetchCityState(formData.toZipCode, formData.toCountry, false);
+    }, 500);
+
+    return () => clearTimeout(toDebounceRef.current);
+  }, [formData.toZipCode, formData.toCountry, countries]);
+
   const handlePackageRowChange = (index, field, value) => {
+    if (isEnvelope) return;
     setPackageRows((prevRows) => {
       const updatedRows = [...prevRows];
       updatedRows[index] = { ...updatedRows[index], [field]: value };
@@ -106,6 +253,7 @@ const GetRate = () => {
   };
 
   const handleWeightUnitChange = (value) => {
+    if (isEnvelope) return;
     setWeightUnit(value);
     if (value === 'KG') {
       setDimensionUnit('CM');
@@ -117,6 +265,7 @@ const GetRate = () => {
   };
 
   const handleAddRow = () => {
+    if (isEnvelope) return;
     setPackageRows((prevRows) => [
       ...prevRows,
       {
@@ -132,13 +281,13 @@ const GetRate = () => {
   };
 
   const handleDeleteRow = (index) => {
+    if (isEnvelope) return;
     setPackageRows((prevRows) => {
       const updatedRows = [...prevRows];
       updatedRows.splice(index, 1);
       return updatedRows;
     });
   };
-
   const handleGetRate = async () => {
     const payload = {
       quoteData: {
@@ -160,7 +309,7 @@ const GetRate = () => {
           FromUPSCity: null,
           FromFedExCity: null,
           FromZipCode: formData.fromZipCode,
-          FromStateProvinceCode: "",
+          FromStateProvinceCode: formData.fromState,
           ToCountry: JSON.stringify({
             CountryID: 202,
             CountryName: 'United States',
@@ -176,7 +325,7 @@ const GetRate = () => {
           ToUPSCity: '',
           ToFedExCity: '',
           ToZipCode: formData.toZipCode,
-          ToStateProvinceCode: '',
+          ToStateProvinceCode: formData.toState,
         },
         PackageNumber: packageRows.map(row => row.packageNumber || '1'),
         Weight: packageRows.map(row => row.weight || '0.5'),
@@ -246,12 +395,14 @@ const GetRate = () => {
       fromCountry: 'United States',
       fromZipCode: '',
       fromCity: '',
+      fromState: '',
       toCountry: 'United States',
       toZipCode: '',
       toCity: '',
+      toState: '',
       shipDate: '',
       residential: 'No',
-      packageType: 'Envelope',
+      packageType: 'Package',
       packageNumber: '',
       weight: '',
       length: '',
@@ -276,6 +427,7 @@ const GetRate = () => {
     setWeightUnit('LB');
     setDimensionUnit('INCHES');
     setChargeableUnit('LB');
+    setPickupErrors({ fromZipCode: '', toZipCode: '' });
   };
 
   const handleBook = (service) => {
@@ -288,78 +440,101 @@ const GetRate = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
-      <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1 }}>
+      <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
         {/* Header */}
-        <CardHeader
-          title={
-            <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
-              Get Rate
-            </Typography>
-          }
-          action={
-            <ToggleButtonGroup
-              value={shipmentType}
-              exclusive
-              onChange={(e, newType) => newType && setShipmentType(newType)}
-              sx={{ marginRight: '8px' }}
-            >
-              {['AIR', 'GROUND', 'OCEAN'].map((type) => (
-                <ToggleButton
-                  key={type}
-                  value={type}
-                  sx={{
-                    padding: '8px 16px',
-                    fontWeight: 'medium',
-                    backgroundColor: shipmentType === type ? '#f06292' : '#e0e0e0',
-                    color: shipmentType === type ? '#fff' : '#424242',
-                    '&:hover': {
-                      backgroundColor: shipmentType === type ? '#ec407a' : '#bdbdbd',
-                    },
-                  }}
-                >
-                  {type}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-          }
-          sx={{ borderBottom: '1px solid #e0e0e0', padding: '16px' }}
-        />
+
+        <div className="card-title">
+          <h2 style={{ fontSize: "1rem" }}>
+            <IconBox className="card-icon">
+              <FlightTakeoffIcon className={classes.iconBox} />
+            </IconBox>
+            <span>Get Rate</span>
+          </h2>
+        </div>
+
+        <Tabs
+          value={shipmentType === 'AIR' || shipmentType === 'GROUND' ? 'AIR' : 'OCEAN'}
+          indicatorColor="transparent"
+          variant="fullWidth"
+          onChange={(e, newValue) => setShipmentType(newValue)}
+          sx={{
+            marginRight: '8px',
+            marginTop: '14px',
+          }}
+        >
+          <Tab
+            label="Air/Ground"
+            value="AIR"
+            sx={{
+              padding: '12px 16px',
+              fontWeight: 'medium',
+              backgroundColor: (shipmentType === 'AIR' || shipmentType === 'GROUND') ? '#E91E63' : '#e0e0e0',
+              "&.Mui-selected": {
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+                color: "white",
+              },
+              '&:hover': {
+                backgroundColor: (shipmentType === 'AIR' || shipmentType === 'GROUND') ? '#ec407a' : '#bdbdbd',
+              },
+              textTransform: 'uppercase',
+              minHeight: '36px',
+            }}
+          />
+          <Tab
+            label="Ocean"
+            value="OCEAN"
+            sx={{
+              padding: '10px 16px',
+              fontWeight: 'medium',
+              backgroundColor: shipmentType === 'OCEAN' ? '#E91E63' : '#e0e0e0',
+              "&.Mui-selected": {
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+                color: "white",
+              },
+              '&:hover': {
+                backgroundColor: shipmentType === 'OCEAN' ? '#ec407a' : '#bdbdbd',
+              },
+              textTransform: 'uppercase',
+              minHeight: '36px',
+            }}
+          />
+        </Tabs>
 
         {/* Shipment Details Form */}
         <CardContent sx={{ padding: '16px' }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: '16px', marginBottom: '16px' }}>
             {/* From Section */}
-           <Box>
-        <FormControl fullWidth>
-          <Autocomplete
-            options={countries}
-            getOptionLabel={(option) => option.label}
-            value={formData.fromCountry ? countries.find((c) => c.value === formData.fromCountry) || null : null}
-            onChange={(event, newValue) => handleInputChange({
-              target: { name: 'fromCountry', value: newValue?.value || '' }
-            })}
-            disabled={isCountriesLoading || isCountriesError}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                className="small-textfield"
-                label="From Country"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {isCountriesLoading && <CircularProgress size={20} />}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-            noOptionsText={isCountriesError ? "Error loading countries" : "No countries found"}
-            sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
-          />
-        </FormControl>
-      </Box>
+            <Box>
+              <FormControl fullWidth>
+                <Autocomplete
+                  options={countries}
+                  getOptionLabel={(option) => option.label}
+                  value={formData.fromCountry ? countries.find((c) => c.value === formData.fromCountry) || null : null}
+                  onChange={(event, newValue) => handleInputChange({
+                    target: { name: 'fromCountry', value: newValue?.value || '' }
+                  })}
+                  disabled={isCountriesLoading || isCountriesError}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      className="small-textfield"
+                      label="From Country"
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {isCountriesLoading && <CircularProgress size={20} />}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
+                  noOptionsText={isCountriesError ? "Error loading countries" : "No countries found"}
+                  sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
+                />
+              </FormControl>
+            </Box>
             <Box>
               <TextField
                 fullWidth
@@ -367,9 +542,10 @@ const GetRate = () => {
                 name="fromZipCode"
                 value={formData.fromZipCode}
                 onChange={handleInputChange}
-                variant="outlined"
                 size="small"
                 className="custom-textfield"
+                error={!!pickupErrors.fromZipCode}
+                helperText={pickupErrors.fromZipCode}
               />
             </Box>
             <Box>
@@ -380,41 +556,40 @@ const GetRate = () => {
                 className="custom-textfield"
                 value={formData.fromCity}
                 onChange={handleInputChange}
-                variant="outlined"
                 size="small"
               />
             </Box>
             <Box>
-       <FormControl fullWidth>
-          <Autocomplete
-            options={countries}
-            getOptionLabel={(option) => option.label}
-            value={formData.toCountry ? countries.find((c) => c.value === formData.toCountry) || null : null}
-            onChange={(event, newValue) => handleInputChange({
-              target: { name: 'toCountry', value: newValue?.value || '' }
-            })}
-            disabled={isCountriesLoading || isCountriesError}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                className="small-textfield"
-                label="To Country"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {isCountriesLoading && <CircularProgress size={20} />}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-            noOptionsText={isCountriesError ? "Error loading countries" : "No countries found"}
-            sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
-          />
-        </FormControl>
-      </Box>
+              <FormControl fullWidth>
+                <Autocomplete
+                  options={countries}
+                  getOptionLabel={(option) => option.label}
+                  value={formData.toCountry ? countries.find((c) => c.value === formData.toCountry) || null : null}
+                  onChange={(event, newValue) => handleInputChange({
+                    target: { name: 'toCountry', value: newValue?.value || '' }
+                  })}
+                  disabled={isCountriesLoading || isCountriesError}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      className="small-textfield"
+                      label="To Country"
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {isCountriesLoading && <CircularProgress size={20} />}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
+                  noOptionsText={isCountriesError ? "Error loading countries" : "No countries found"}
+                  sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
+                />
+              </FormControl>
+            </Box>
             <Box>
               <TextField
                 fullWidth
@@ -423,8 +598,9 @@ const GetRate = () => {
                 name="toZipCode"
                 value={formData.toZipCode}
                 onChange={handleInputChange}
-                variant="outlined"
                 size="small"
+                error={!!pickupErrors.toZipCode}
+                helperText={pickupErrors.toZipCode}
               />
             </Box>
             <Box>
@@ -435,68 +611,64 @@ const GetRate = () => {
                 className="custom-textfield"
                 value={formData.toCity}
                 onChange={handleInputChange}
-                variant="outlined"
                 size="small"
               />
             </Box>
-      
             <Box>
               <FormControl fullWidth>
-          <Autocomplete
-            options={[{ value: 'No', label: 'No' }, { value: 'Yes', label: 'Yes' }]}
-            getOptionLabel={(option) => option.label}
-            value={formData.residential ? { value: formData.residential, label: formData.residential } : null}
-            onChange={(event, newValue) => handleInputChange({
-              target: { name: 'residential', value: newValue?.value || '' }
-            })}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                className="small-textfield"
-                label="Residential"
-              />
-            )}
-            sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
-          />
-        </FormControl>
+                <Autocomplete
+                  options={[{ value: 'No', label: 'No' }, { value: 'Yes', label: 'Yes' }]}
+                  getOptionLabel={(option) => option.label}
+                  value={formData.residential ? { value: formData.residential, label: formData.residential } : null}
+                  onChange={(event, newValue) => handleInputChange({
+                    target: { name: 'residential', value: newValue?.value || '' }
+                  })}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      className="small-textfield"
+                      label="Residential"
+                    />
+                  )}
+                  sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
+                />
+              </FormControl>
             </Box>
             <Box>
-             <FormControl fullWidth>
-          <Autocomplete
-            options={[{ value: 'Envelope', label: 'Envelope' }, { value: 'Package', label: 'Package' }]}
-            getOptionLabel={(option) => option.label}
-            value={formData.packageType ? { value: formData.packageType, label: formData.packageType } : null}
-            onChange={(event, newValue) => handleInputChange({
-              target: { name: 'packageType', value: newValue?.value || '' }
-            })}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                className="small-textfield"
-                label="Package Type"
-              />
-            )}
-            sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
-          />
-        </FormControl>
+              <FormControl fullWidth>
+                <Autocomplete
+                  options={[{ value: 'Package', label: 'Package' }, { value: 'Envelope', label: 'Envelope' }]}
+                  getOptionLabel={(option) => option.label}
+                  value={formData.packageType ? { value: formData.packageType, label: formData.packageType } : null}
+                  onChange={(event, newValue) => handleInputChange({
+                    target: { name: 'packageType', value: newValue?.value || '' }
+                  })}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      className="small-textfield"
+                      label="Package Type"
+                    />
+                  )}
+                  sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
+                />
+              </FormControl>
             </Box>
-                  <Box>
-
-        <TextField
-          fullWidth
-          type="date"
-          label="Ship Date"
-          name="shipDate"
-          value={formData.shipDate || ''}
-          onChange={handleInputChange}
-          variant="outlined"
-          size="small"
-          className="small-textfield"
-          InputLabelProps={{
-            shrink: true, // Ensures the label floats above the input
-          }}
-          placeholder="" // Explicitly set to empty to avoid default placeholder
-        />
+            <Box>
+              <TextField
+                fullWidth
+                type="date"
+                label="Ship Date"
+                name="shipDate"
+                value={formData.shipDate || ''}
+                onChange={handleInputChange}
+                size="small"
+                className="small-textfield"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                placeholder=""
+              />
             </Box>
           </Box>
 
@@ -722,8 +894,8 @@ const GetRate = () => {
               variant="contained"
               sx={{
                 marginTop: '8px',
-                backgroundColor: '#e0e0e0',
-                color: '#424242',
+                backgroundColor: isEnvelope ? '#e0e0e0' : 'paleblue',
+                color: 'white',
                 textTransform: 'uppercase',
                 '&:hover': { backgroundColor: '#bdbdbd' },
               }}

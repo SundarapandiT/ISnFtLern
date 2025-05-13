@@ -215,7 +215,8 @@ const Recipient = ({
             inputProps={{
               autoComplete: "off",
               autoCorrect: "off",
-              autoCapitalize: "none"
+              autoCapitalize: "none",
+              maxLength:50
             }}
             onChange={(e) => setRecipientCompanyName(e.target.value)}
             fullWidth
@@ -229,7 +230,8 @@ const Recipient = ({
             inputProps={{
               autoComplete: "off",
               autoCorrect: "off",
-              autoCapitalize: "none"
+              autoCapitalize: "none",
+              maxLength:50
             }}
             onChange={(e) => setRecipientContactName(e.target.value)}
             fullWidth
@@ -250,7 +252,8 @@ const Recipient = ({
             inputProps={{
               autoComplete: "off",
               autoCorrect: "off",
-              autoCapitalize: "none"
+              autoCapitalize: "none",
+              maxLength:60
             }}
             onChange={(e) => setRecipientAddressLine1(e.target.value)}
             fullWidth
@@ -267,7 +270,8 @@ const Recipient = ({
             inputProps={{
               autoComplete: "off",
               autoCorrect: "off",
-              autoCapitalize: "none"
+              autoCapitalize: "none",
+              maxLength:60
             }}
             onChange={(e) => setRecipientAddressLine2(e.target.value)}
             fullWidth
@@ -283,7 +287,8 @@ const Recipient = ({
             inputProps={{
               autoComplete: "off",
               autoCorrect: "off",
-              autoCapitalize: "none"
+              autoCapitalize: "none",
+              maxLength:60
             }}
             onChange={(e) => setRecipientAddressLine3(e.target.value)}
             fullWidth
@@ -303,7 +308,8 @@ const Recipient = ({
             inputProps={{
               autoComplete: "off",
               autoCorrect: "off",
-              autoCapitalize: "none"
+              autoCapitalize: "none",
+              maxLength:15
             }}
             onChange={(e) => setRecipientZipCode(e.target.value)}
             fullWidth
@@ -318,9 +324,10 @@ const Recipient = ({
             className="custom-textfield"
             value={recipientCity}
             inputProps={{
+              maxLength: 35,  
               autoComplete: "off",
               autoCorrect: "off",
-              autoCapitalize: "none"
+              autoCapitalize: "none",
             }}
             onChange={(e) => setRecipientCity(e.target.value)}
             fullWidth
@@ -354,7 +361,8 @@ const Recipient = ({
               inputProps={{
                 autoComplete: "off",
                 autoCorrect: "off",
-                autoCapitalize: "none"
+                autoCapitalize: "none",
+                maxLength:15
               }}
               value={recipientPhone1}
               onChange={(phone, countryData) => {
@@ -368,7 +376,7 @@ const Recipient = ({
                 fontSize: '0.9rem',
                 fontFamily: 'Roboto, sans-serif',
                 borderColor: recipientErrors.phone1 ? 'red' : '#c4c4c4',
-
+                maxLength:15,
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
@@ -391,7 +399,8 @@ const Recipient = ({
               inputProps={{
                 autoComplete: "off",
                 autoCorrect: "off",
-                autoCapitalize: "none"
+                autoCapitalize: "none",
+                maxLength:15,
               }}
               onChange={(phone, countryData) => {
                 setRecipientPhone2(phone);
@@ -419,6 +428,7 @@ const Recipient = ({
             value={recipientEmail}
             className="custom-textfield"
             inputProps={{
+              maxLength:100,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
