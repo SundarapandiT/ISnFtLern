@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import axios from "axios";
-import { Box, TextField, Typography, MenuItem, FormControl, InputLabel, Select } from "@mui/material";
+import { useQuery } from '@tanstack/react-query';
+import { Box, TextField, Typography, MenuItem, FormControl, InputLabel, Select,Autocomplete } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import PublicIcon from "@mui/icons-material/Public";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -8,16 +9,15 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import CircularProgress from '@mui/material/CircularProgress';
 import StateDropdown from "./Statedropdown";
 import { api, encryptURL } from "../../../utils/api";
-import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle"
-
-
+import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 const Sender = ({
   country,
@@ -59,6 +59,143 @@ const Sender = ({
 }) => {
   const debounceRef = useRef(null);
 
+  const isRepeatedDigits = (number) => /^(\d)\1+$/.test(number);
+  const isFakePattern = (number) => {
+    const fakeNumbers = [
+      '1234567890',
+      '0987654321',
+      '0123456789',
+      '0000000000',
+      '9876543210',
+    ];
+    return fakeNumbers.includes(number);
+  };
+
+  const validatePhoneNumber = (phone, countryCode = 'US') => {
+    try {
+      const parsed = parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase());
+      if (!parsed || !parsed.isValid()) return false;
+
+      const nationalNumber = parsed.nationalNumber;
+      if (isRepeatedDigits(nationalNumber) || isFakePattern(nationalNumber)) {
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  const validateContactName = (name) => {
+    const isValid = /^[A-Za-z\s'-]+$/.test(name) && /[A-Za-z]/.test(name);
+    return isValid;
+  };
+
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const handleContactNameChange = (e) => {
+    const value = e.target.value;
+    setContactName(value);
+
+    if (!value) {
+      setSenderErrors(prev => ({ ...prev, contactName: "Contact name is required" }));
+    } else if (!validateContactName(value)) {
+      setSenderErrors(prev => ({ ...prev, contactName: "Enter a valid name (letters only)" }));
+    } else {
+      setSenderErrors(prev => ({ ...prev, contactName: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+
+    // Validate contact name
+    if (!contactName) {
+      errors.contactName = "Contact name is required";
+    } else if (!validateContactName(contactName)) {
+      errors.contactName = "Enter a valid name (letters only)";
+    } else {
+      errors.contactName = "";
+    }
+
+    // Validate phone1
+    if (!phone1) {
+      errors.phone1 = "Phone number is required";
+    } else if (!validatePhoneNumber(phone1, countrycode)) {
+      errors.phone1 = "Invalid phone number";
+    } else {
+      errors.phone1 = "";
+    }
+
+    // Validate phone2 (only if provided)
+    if (phone2 && !validatePhoneNumber(phone2, countrycode)) {
+      errors.phone2 = "Invalid phone number";
+    } else {
+      errors.phone2 = ""; // Explicitly clear phone2 error
+    }
+
+    // Validate addressLine1
+    if (!addressLine1) {
+      errors.addressLine1 = "Address Line 1 is required";
+    } else {
+      errors.addressLine1 = "";
+    }
+
+    // Validate zipCode
+    if (!zipCode) {
+      errors.zipCode = "Zip code is required";
+    } else {
+      errors.zipCode = "";
+    }
+
+    // Validate fromCity
+    if (!fromCity) {
+      errors.fromCity = "City is required";
+    } else {
+      errors.fromCity = "";
+    }
+
+    // Validate email
+    if (!email) {
+      errors.email = "Email is required";
+    } else if (!validateEmail(email)) {
+      errors.email = "Invalid email format";
+    } else {
+      errors.email = "";
+    }
+
+    // Validate needsPickup
+    if (!needsPickup) {
+      errors.needsPickup = "Please select whether pickup is needed";
+    } else {
+      errors.needsPickup = "";
+    }
+
+    // Validate pickupDate if needsPickup is "Yes"
+    if (needsPickup === "Yes - I Need Pickup Service" && !pickupDate) {
+      errors.pickupDate = "Pickup date is required";
+    } else {
+      errors.pickupDate = "";
+    }
+
+    setSenderErrors(prev => ({ ...prev, ...errors }));
+    console.log("Validation errors:", errors);
+    return Object.keys(errors).every(key => !errors[key]);
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      console.log("Form is valid, submitting...");
+      handleSenderSubmit(e);
+    } else {
+      console.log("Form validation failed");
+    }
+  };
+
   useEffect(() => {
     if (!zipCode || zipCode.length < 3) {
       setFromCity("");
@@ -71,7 +208,6 @@ const Sender = ({
       console.log("Fetching city for zip code:", zipCode, countrycode);
 
       try {
-        // Step 1: Try custom backend API
         const encodedUrl = encryptURL("/locations/getstateCitybyPostalCode");
         const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
           CountryID: countryId,
@@ -94,7 +230,6 @@ const Sender = ({
         console.warn("Custom API failed or returned no data. Falling back...", err.message);
 
         try {
-          // Step 2: Fallback to public APIs
           if (countrycode === "in") {
             const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
             const data = res.data[0];
@@ -119,7 +254,6 @@ const Sender = ({
             let city = '';
             let state = '';
 
-            // Loop through the components to extract city and state
             components.forEach(component => {
               if (component.types.includes('locality') || component.types.includes('postal_town')) {
                 city = component.long_name;
@@ -129,13 +263,9 @@ const Sender = ({
               }
             });
 
-            // Update the state
             setFromCity(city);
             setState(state);
-
-            // Clear zipCode error if it's valid
             setSenderErrors(prev => ({ ...prev, zipCode: "" }));
-
           }
         } catch (fallbackErr) {
           console.error("All APIs failed:", fallbackErr.message);
@@ -148,26 +278,23 @@ const Sender = ({
       }
     }, 500);
 
-
     return () => clearTimeout(debounceRef.current);
-  }, [zipCode, countrycode, countryId]);
+  }, [zipCode, countrycode, countryId, setFromCity, setState, setSenderErrors]);
 
   useEffect(() => {
     if (phone1 && countrycode) {
       const input = document.querySelector(".react-tel-input input");
-      const dialCode = input?.value.match(/^\+(\d{1,4})/); // fallback
+      const dialCode = input?.value.match(/^\+(\d{1,4})/);
       const rawDialCode = dialCode ? dialCode[1] : "";
       if (rawDialCode && phone1.startsWith(`+${rawDialCode}`)) {
         setoldphone1(phone1.replace(`+${rawDialCode}`, '').trim());
-        console.log(phone1.replace(`+${rawDialCode}`, '').trim())
+        console.log(phone1.replace(`+${rawDialCode}`, '').trim());
       }
     }
-  }, [phone1, countrycode]);
-
+  }, [phone1, countrycode, setoldphone1]);
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Common styles for all rows
   const rowStyle = {
     display: "flex",
     flexDirection: { xs: "column", sm: "row" },
@@ -181,10 +308,33 @@ const Sender = ({
     minWidth: 0,
   };
 
+  const fetchCityList = async () => {
+  const response = await axios.post('https://sfl-bk.trysimmer.com/locations/getFedexCityList', {
+    countryID: countryId,
+    cityType: 'FedEx',
+  });
+  // Extract city names from the response
+  return response.data.user[0].map(city => city.cityname);
+};
+const { data: cities, isLoading, error } = useQuery({
+    queryKey: ['cityList'],
+    queryFn: fetchCityList,
+  });
+
+
+  const handleCityChange = (event, newValue) => {
+    setFromCity(newValue || '');
+    // Validate city selection
+    if (!newValue) {
+      setSenderErrors({ fromCity: 'Please select a city' });
+    } else {
+      setSenderErrors({ fromCity: '' });
+    }
+  };
+
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
-
-      <form onSubmit={handleSenderSubmit}>
+      <form onSubmit={onSubmit}>
         {/* Row 1: Country, Company Name, Contact Name */}
         <Box sx={rowStyle}>
           <TextField
@@ -209,8 +359,12 @@ const Sender = ({
                 <span style={{ color: "grey" }}>{senderErrors.country}</span>
               ) : null
             }
+            inputProps={{
+              autoComplete: "off",
+              autoCorrect: "off",
+              autoCapitalize: "none"
+            }}
           />
-
           <TextField
             label="Company Name"
             value={companyName}
@@ -219,7 +373,7 @@ const Sender = ({
             className="custom-textfield"
             sx={fieldStyle}
             inputProps={{
-              maxLength:50,
+              maxLength: 50,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -231,7 +385,7 @@ const Sender = ({
           <TextField
             label="Contact Name"
             value={contactName}
-            onChange={(e) => setContactName(e.target.value)}
+            onChange={handleContactNameChange}
             fullWidth
             required
             className="custom-textfield"
@@ -334,26 +488,50 @@ const Sender = ({
               startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />,
             }}
           />
-          <TextField
-            label="From City"
-            value={fromCity}
-            onChange={(e) => setFromCity(e.target.value)}
-            fullWidth
-            required
-            className="custom-textfield"
-            error={!!senderErrors.fromCity}
-            helperText={senderErrors.fromCity}
-            sx={fieldStyle}
-            inputProps={{
-              maxLength: 35,
-              autoComplete: "off",
-              autoCorrect: "off",
-              autoCapitalize: "none"
-            }}
-            InputProps={{
-              startAdornment: <BusinessIcon sx={{ color: "red", mr: 1 }} />,
-            }}
-          />
+          <Autocomplete
+          freeSolo
+        disablePortal 
+          
+      options={cities || []}
+      loading={isLoading}
+      value={fromCity}
+      onChange={handleCityChange}
+      sx={fieldStyle}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="From City"
+          fullWidth
+          required
+          className="custom-textfield"
+          error={!!senderErrors.fromCity}
+          helperText={senderErrors.fromCity}
+          sx={fieldStyle}
+          InputProps={{
+            ...params.InputProps,
+            startAdornment: (
+              <>
+                <BusinessIcon sx={{ color: 'red', mr: 1 }} />
+                {params.InputProps.startAdornment}
+              </>
+            ),
+            endAdornment: (
+              <>
+                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+          inputProps={{
+            ...params.inputProps,
+            maxLength: 35,
+            autoComplete: 'off',
+            autoCorrect: 'off',
+            autoCapitalize: 'none',
+          }}
+        />
+      )}
+    />
           {country ? (
             <Box sx={fieldStyle}>
               <StateDropdown
@@ -379,23 +557,29 @@ const Sender = ({
               inputProps={{
                 autoComplete: "off",
                 autoCorrect: "off",
-                autoCapitalize: "none"
+                autoCapitalize: "none",
+                maxLength: 15
               }}
               onChange={(phone, countryData) => {
                 setPhone1(phone);
                 const dialCode = countryData.dialCode;
-                setoldphone1(phone.replace(`${dialCode}`, '').trim());
-                console.log(phone.replace(`${dialCode}`, '').trim())
+                const trimmed = phone.replace(`${dialCode}`, '').trim();
+                setoldphone1(trimmed);
 
+                if (!phone) {
+                  setSenderErrors(prev => ({ ...prev, phone1: "Phone number is required" }));
+                } else if (!validatePhoneNumber(phone, countryData.iso2)) {
+                  setSenderErrors(prev => ({ ...prev, phone1: "Invalid phone number" }));
+                } else {
+                  setSenderErrors(prev => ({ ...prev, phone1: "" }));
+                }
               }}
               inputStyle={{
-                ...PhoneInputStyle, 
+                ...PhoneInputStyle,
                 width: '100%',
                 borderColor: senderErrors.phone1 ? 'red' : '#c4c4c4',
-                fontSize: '0.9rem', 
+                fontSize: '0.9rem',
                 fontFamily: 'Roboto, sans-serif',
-                maxLength:15,
-
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
@@ -409,36 +593,76 @@ const Sender = ({
           </Box>
 
           {/* Phone 2 */}
-          <Box sx={{ ...fieldStyle, width: '100%' }}>
-            <PhoneInput
-              className="custom-textfield"
-              country={countrycode}
-              value={phone2}
-              inputProps={{
-                autoComplete: "off",
-                autoCorrect: "off",
-                autoCapitalize: "none",
-                maxLength:15
-              }}
-              onChange={(phone, countryData) => {
-                setPhone2(phone);
-                const dialCode = countryData.dialCode;
-                setoldphone2(phone.replace(`${dialCode}`, '').trim());
-                console.log(phone.replace(`${dialCode}`, '').trim())
-              }}
-              inputStyle={{
-                ...PhoneInputStyle, 
-                width: '100%',
-                borderColor: '#c4c4c4',
-                fontSize: '0.9rem', 
-                fontFamily: 'Roboto, sans-serif',
+          {/* Phone 2 */}
+<Box sx={{ ...fieldStyle, width: '100%' }}>
+  <PhoneInput
+    className="custom-textfield"
+    country={countrycode}
+    value={phone2}
+    inputProps={{
+      autoComplete: "off",
+      autoCorrect: "off",
+      autoCapitalize: "none",
+      maxLength: 15
+    }}
+    onChange={(phone, countryData) => {
+      const dialCode = `+${countryData.dialCode}`;
+      const trimmedPhone = phone ? phone.replace(dialCode, '').trim() : '';
 
-              }}
-              containerStyle={{ width: '100%' }}
-              enableSearch
-              specialLabel="Phone 2"
-            />
-          </Box>
+      console.log('phone2 onChange:', {
+        phone,
+        dialCode,
+        trimmedPhone,
+        hasDigits: /\d/.test(trimmedPhone)
+      });
+
+      // Clear phone2 if input is empty, only dial code, or has no digits
+      if (!phone || phone === dialCode || trimmedPhone === '' || !/\d/.test(trimmedPhone)) {
+        console.log('Clearing phone2: Input is empty or only dial code');
+        setPhone2('');
+        setoldphone2('');
+        setSenderErrors(prev => ({ ...prev, phone2: '' }));
+        return;
+      }
+
+      console.log('Setting phone2:', phone);
+      setPhone2(phone);
+      setoldphone2(trimmedPhone);
+
+      // Validate phone2 only if it has meaningful content
+      if (!validatePhoneNumber(phone, countryData.iso2)) {
+        setSenderErrors(prev => ({ ...prev, phone2: 'Invalid phone number' }));
+      } else {
+        setSenderErrors(prev => ({ ...prev, phone2: '' }));
+      }
+    }}
+    onBlur={() => {
+      const dialCode = `+${countrycode}`; // Note: This assumes countrycode is the dial code; adjust if needed
+      const trimmedPhone = phone2 ? phone2.replace(dialCode, '').trim() : '';
+      if (!phone2 || phone2 === dialCode || trimmedPhone === '' || !/\d/.test(trimmedPhone)) {
+        console.log('onBlur: Clearing phone2 as it’s empty or only dial code');
+        setPhone2('');
+        setoldphone2('');
+        setSenderErrors(prev => ({ ...prev, phone2: '' }));
+      }
+    }}
+    inputStyle={{
+      ...PhoneInputStyle,
+      width: '100%',
+      borderColor: senderErrors.phone2 ? 'red' : '#c4c4c4',
+      fontSize: '0.9rem',
+      fontFamily: 'Roboto, sans-serif',
+    }}
+    containerStyle={{ width: '100%' }}
+    enableSearch
+    specialLabel="Phone 2"
+  />
+  {senderErrors.phone2 && (
+    <Typography variant="caption" color="error">
+      {senderErrors.phone2}
+    </Typography>
+  )}
+</Box>
 
           {/* Email Address */}
           <TextField
@@ -453,7 +677,7 @@ const Sender = ({
             helperText={senderErrors.email}
             sx={fieldStyle}
             inputProps={{
-              maxLength:100,
+              maxLength: 100,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -472,11 +696,22 @@ const Sender = ({
               value={needsPickup || ""}
               onChange={(e) => setNeedsPickup(e.target.value)}
               label="Do You Need Pickup?"
+              inputProps={{
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none"
+              }}
               startAdornment={<LocalShippingIcon sx={{ color: "action.active", mr: 1 }} />}
+              error={!!senderErrors.needsPickup}
             >
               <MenuItem value="No - I Will Drop Off My Package">No - I Will Drop Off My Package</MenuItem>
               <MenuItem value="Yes - I Need Pickup Service">Yes - I Need Pickup Service</MenuItem>
             </Select>
+            {senderErrors.needsPickup && (
+              <Typography variant="caption" color="error">
+                {senderErrors.needsPickup}
+              </Typography>
+            )}
           </FormControl>
           {needsPickup === "Yes - I Need Pickup Service" ? (
             <TextField
@@ -495,13 +730,16 @@ const Sender = ({
                 startAdornment: <CalendarTodayIcon sx={{ color: "red", mr: 1 }} />,
               }}
               inputProps={{
-                min: today, // Restrict past dates
+                min: today,
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none"
               }}
             />
           ) : (
             <Box sx={fieldStyle} />
           )}
-          <Box sx={fieldStyle} /> {/* Placeholder for 3-column layout */}
+          <Box sx={fieldStyle} />
         </Box>
 
         {/* Buttons */}
@@ -513,7 +751,6 @@ const Sender = ({
           >
             Previous
           </PrevButton>
-
           <NextButton
             type="submit"
             variant="contained"

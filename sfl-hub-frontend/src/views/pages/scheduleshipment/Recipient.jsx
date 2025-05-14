@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import axios from "axios";
+import { useQuery } from '@tanstack/react-query';
 import StateDropdown from "./Statedropdown";
 import {
   Box,
@@ -9,6 +10,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Autocomplete
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import PublicIcon from "@mui/icons-material/Public";
@@ -19,10 +21,10 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import CircularProgress from '@mui/material/CircularProgress';
 import { api, encryptURL } from "../../../utils/api";
-
-import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle"
-
+import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 const Recipient = ({
   recipientCountry,
@@ -63,14 +65,93 @@ const Recipient = ({
 }) => {
   const debounceRef = useRef(null);
 
+  const isRepeatedDigits = (number) => /^(\d)\1+$/.test(number);
+  const isFakePattern = (number) => {
+    const fakeNumbers = [
+      '1234567890',
+      '0987654321',
+      '0123456789',
+      '0000000000',
+      '9876543210',
+    ];
+    return fakeNumbers.includes(number);
+  };
+
+  const validatePhoneNumber = (phone, countryCode = 'US') => {
+    try {
+      const parsed = parsePhoneNumberFromString(`+${phone}`, countryCode.toUpperCase());
+      if (!parsed || !parsed.isValid()) return false;
+
+      const nationalNumber = parsed.nationalNumber;
+      if (isRepeatedDigits(nationalNumber) || isFakePattern(nationalNumber)) {
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  const validateContactName = (name) => {
+    const isValid = /^[A-Za-z\s'-]+$/.test(name) && /[A-Za-z]/.test(name);
+    return isValid;
+  };
+
+  const handleContactNameChange = (e) => {
+    const value = e.target.value;
+    setRecipientContactName(value);
+
+    if (!value) {
+      setRecipientErrors(prev => ({ ...prev, contactName: "Contact name is required" }));
+    } else if (!validateContactName(value)) {
+      setRecipientErrors(prev => ({ ...prev, contactName: "Enter a valid name (letters only)" }));
+    } else {
+      setRecipientErrors(prev => ({ ...prev, contactName: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+
+    // Validate contact name
+    if (!recipientContactName) {
+      errors.contactName = "Contact name is required";
+    } else if (!validateContactName(recipientContactName)) {
+      errors.contactName = "Enter a valid name (letters only)";
+    }
+
+    // Validate phone1
+    if (!recipientPhone1) {
+      errors.phone1 = "Phone number is required";
+    } else if (!validatePhoneNumber(recipientPhone1, recipientcountrycode)) {
+      errors.phone1 = "Invalid phone number";
+    }
+
+    // Validate phone2 (only if provided)
+    if (recipientPhone2 && !validatePhoneNumber(recipientPhone2, recipientcountrycode)) {
+      errors.phone2 = "Invalid phone number";
+    } else {
+      errors.phone2 = ""; // Explicitly clear phone2 error if empty or valid
+    }
+
+    setRecipientErrors(prev => ({ ...prev, ...errors }));
+    return Object.keys(errors).every(key => !errors[key]);
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      handleRecipientSubmit(e);
+    }
+  };
+
   useEffect(() => {
     if (recipientZipCode.length < 4) return;
-
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(async () => {
       try {
-        // Step 1: Try backend API
         const encodedUrl = encryptURL("/locations/getstateCitybyPostalCode");
         const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
           CountryID: recipientCountryId,
@@ -78,10 +159,8 @@ const Recipient = ({
         });
 
         const userData = response.data?.user?.[0] || [];
-
         if (userData.length > 0) {
           const place = userData[0];
-          console.log("Recipient location from backend:", place);
           setRecipientCity(place.city);
           setRecipientState(place.state);
           setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
@@ -91,16 +170,12 @@ const Recipient = ({
         throw new Error("No data from backend");
       } catch (err) {
         console.warn("Recipient API fallback triggered:", err.message);
-
         try {
-          // Step 2: Fallback to external APIs
           if (recipientcountrycode === "in") {
             const res = await axios.get(`https://api.postalpincode.in/pincode/${recipientZipCode}`);
             const data = res.data[0];
-
             if (data.Status === "Success" && data.PostOffice?.length > 0) {
               const place = data.PostOffice[0];
-              console.log("Recipient data from India API:", place);
               setRecipientCity(place.District);
               setRecipientState(place.State);
               setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
@@ -110,14 +185,11 @@ const Recipient = ({
             }
           } else {
             const res = await axios.get(
-              ` https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
+              `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${recipientcountrycode}|postal_code:${recipientZipCode}`
             );
-
             const components = res.data.results?.[0]?.address_components || [];
-
             let city = "";
             let state = "";
-
             components.forEach(component => {
               if (component.types.includes('locality') || component.types.includes('postal_town')) {
                 city = component.long_name;
@@ -126,9 +198,6 @@ const Recipient = ({
                 state = component.long_name;
               }
             });
-
-            console.log("Recipient data from Google API:", { city, state });
-
             setRecipientCity(city);
             setRecipientState(state);
             setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
@@ -142,7 +211,7 @@ const Recipient = ({
           }));
         }
       }
-    }, 500); // ⏳ 500ms debounce
+    }, 500);
 
     return () => clearTimeout(debounceRef.current);
   }, [
@@ -154,8 +223,6 @@ const Recipient = ({
     setRecipientErrors,
   ]);
 
-
-  // Common styles for all rows
   const rowStyle = {
     display: "flex",
     flexDirection: { xs: "column", sm: "row" },
@@ -169,10 +236,32 @@ const Recipient = ({
     minWidth: 0,
   };
 
+const fetchCityList = async () => {
+  const response = await axios.post('https://sfl-bk.trysimmer.com/locations/getFedexCityList', {
+    countryID: recipientCountryId,
+    cityType: 'FedEx',
+  });
+  // Extract city names from the response
+  return response.data.user[0].map(city => city.cityname);
+};
+const { data: cities, isLoading, error } = useQuery({
+    queryKey: ['cityList'],
+    queryFn: fetchCityList,
+  });
+
+  const handleCityChange = (event, newValue) => {
+    setRecipientCity(newValue || '');
+    // Validate city selection
+    if (!newValue) {
+      setRecipientErrors({ recipientCity: 'Please select a city' });
+    } else {
+      setRecipientErrors({ recipientCity: '' });
+    }
+  };
+
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
-
-      <form onSubmit={handleRecipientSubmit}>
+      <form onSubmit={onSubmit}>
         {/* Row 1: Country, Company Name, Contact Name */}
         <Box sx={rowStyle}>
           <TextField
@@ -189,7 +278,6 @@ const Recipient = ({
               setRecipientErrors((prev) => ({
                 ...prev,
                 country: "Can change in Schedule-pickup",
-
               }))
             }
             onBlur={() =>
@@ -217,7 +305,7 @@ const Recipient = ({
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none",
-              maxLength:50
+              maxLength: 50
             }}
             onChange={(e) => setRecipientCompanyName(e.target.value)}
             fullWidth
@@ -232,9 +320,9 @@ const Recipient = ({
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none",
-              maxLength:50
+              maxLength: 50
             }}
-            onChange={(e) => setRecipientContactName(e.target.value)}
+            onChange={handleContactNameChange}
             fullWidth
             required
             error={!!recipientErrors.contactName}
@@ -254,7 +342,7 @@ const Recipient = ({
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none",
-              maxLength:60
+              maxLength: 60
             }}
             onChange={(e) => setRecipientAddressLine1(e.target.value)}
             fullWidth
@@ -272,7 +360,7 @@ const Recipient = ({
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none",
-              maxLength:60
+              maxLength: 60
             }}
             onChange={(e) => setRecipientAddressLine2(e.target.value)}
             fullWidth
@@ -289,7 +377,7 @@ const Recipient = ({
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none",
-              maxLength:60
+              maxLength: 60
             }}
             onChange={(e) => setRecipientAddressLine3(e.target.value)}
             fullWidth
@@ -310,7 +398,7 @@ const Recipient = ({
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none",
-              maxLength:15
+              maxLength: 15
             }}
             onChange={(e) => setRecipientZipCode(e.target.value)}
             fullWidth
@@ -320,24 +408,49 @@ const Recipient = ({
             sx={fieldStyle}
             InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
           />
-          <TextField
-            label="City"
-            className="custom-textfield"
-            value={recipientCity}
-            inputProps={{
-              maxLength: 35,  
-              autoComplete: "off",
-              autoCorrect: "off",
-              autoCapitalize: "none",
-            }}
-            onChange={(e) => setRecipientCity(e.target.value)}
-            fullWidth
-            required
-            error={!!recipientErrors.recipientCity}
-            helperText={recipientErrors.recipientCity}
-            sx={fieldStyle}
-            InputProps={{ startAdornment: <BusinessIcon sx={{ color: "red", mr: 1 }} /> }}
-          />
+          <Autocomplete
+          freeSolo
+      disablePortal
+      options={cities || []}
+      loading={isLoading}
+      value={recipientCity}
+      sx={fieldStyle}
+      onChange={handleCityChange}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="City"
+          fullWidth
+          required
+          className="custom-textfield"
+          error={!!recipientErrors.recipientCity}
+          helperText={recipientErrors.recipientCity}
+          sx={fieldStyle}
+          InputProps={{
+            ...params.InputProps,
+            startAdornment: (
+              <>
+                <BusinessIcon sx={{ color: 'red', mr: 1 }} />
+                {params.InputProps.startAdornment}
+              </>
+            ),
+            endAdornment: (
+              <>
+                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+          inputProps={{
+            ...params.inputProps,
+            maxLength: 35,
+            autoComplete: 'off',
+            autoCorrect: 'off',
+            autoCapitalize: 'none',
+          }}
+        />
+      )}
+    />
           {recipientCountry ? (
             <Box sx={fieldStyle}>
               <StateDropdown
@@ -363,13 +476,22 @@ const Recipient = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                maxLength:15
+                maxLength: 15
               }}
               value={recipientPhone1}
               onChange={(phone, countryData) => {
                 setRecipientPhone1(phone);
                 const dialCode = countryData.dialCode;
-                setoldrecipientphone1(phone.replace(`${dialCode}`, '').trim());
+                const trimmed = phone.replace(`${dialCode}`, '').trim();
+                setoldrecipientphone1(trimmed);
+
+                if (!phone) {
+                  setRecipientErrors(prev => ({ ...prev, phone1: "Phone number is required" }));
+                } else if (!validatePhoneNumber(phone, countryData.iso2)) {
+                  setRecipientErrors(prev => ({ ...prev, phone1: "Invalid phone number" }));
+                } else {
+                  setRecipientErrors(prev => ({ ...prev, phone1: "" }));
+                }
               }}
               inputStyle={{
                 ...PhoneInputStyle,
@@ -377,7 +499,6 @@ const Recipient = ({
                 fontSize: '0.9rem',
                 fontFamily: 'Roboto, sans-serif',
                 borderColor: recipientErrors.phone1 ? 'red' : '#c4c4c4',
-                maxLength:15,
               }}
               containerStyle={{ width: '100%' }}
               enableSearch
@@ -401,12 +522,21 @@ const Recipient = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                maxLength:15,
+                maxLength: 15,
               }}
               onChange={(phone, countryData) => {
                 setRecipientPhone2(phone);
                 const dialCode = countryData.dialCode;
-                setoldrecipientphone2(phone.replace(`${dialCode}`, '').trim());
+                const trimmed = phone.replace(`${dialCode}`, '').trim();
+                setoldrecipientphone2(trimmed);
+
+                if (!phone) {
+                  setRecipientErrors(prev => ({ ...prev, phone2: "" }));
+                } else if (!validatePhoneNumber(phone, countryData.iso2)) {
+                  setRecipientErrors(prev => ({ ...prev, phone2: "Invalid phone number" }));
+                } else {
+                  setRecipientErrors(prev => ({ ...prev, phone2: "" }));
+                }
               }}
               inputStyle={{
                 ...PhoneInputStyle,
@@ -420,6 +550,11 @@ const Recipient = ({
               specialLabel="Phone 2"
               placeholder="Phone 2"
             />
+            {recipientErrors.phone2 && (
+              <Typography variant="caption" color="error">
+                {recipientErrors.phone2}
+              </Typography>
+            )}
           </Box>
 
           {/* Email Address */}
@@ -429,7 +564,7 @@ const Recipient = ({
             value={recipientEmail}
             className="custom-textfield"
             inputProps={{
-              maxLength:100,
+              maxLength: 100,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -468,7 +603,7 @@ const Recipient = ({
         </Box>
 
         {/* Buttons */}
-        <ButtonBox >
+        <ButtonBox>
           <PrevButton
             variant="contained"
             startIcon={<ArrowBackIcon />}
@@ -481,7 +616,7 @@ const Recipient = ({
             variant="contained"
             endIcon={<ArrowForwardIcon />}
           >
-            {shipmentType === "Ocean" ?"Submit" : "Next"}
+            {shipmentType === "Ocean" ? "Submit" : "Next"}
           </NextButton>
         </ButtonBox>
       </form>
