@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import logo from "/SFL_logo.png";
-import { api, encryptURL } from "../../utils/api";
+import { api, encryptURL, getUserIP } from "../../utils/api";
 import CryptoJS from "crypto-js";
 import { BackgroundContainer, StyledPaper, StyledButton, linkStyle } from "../styles/AuthStyle";
 
@@ -132,12 +132,14 @@ const ResetPassword = () => {
         return;
       }
 
+      const userIP = await getUserIP();
       const encodedUrl = encryptURL("/users/resetPassword");
       const encryptedPassword = CryptoJS.AES.encrypt(newPassword, SECRET_KEY).toString();
 
       const res = await axios.post(`${api.BackendURL}/users/${encodedUrl}`, {
         newPassword: encryptedPassword,
         email: resetKey, // Assuming resetKey is the email
+        userIP: userIP,
       });
 
       console.log("Response from reset password:", res.data);

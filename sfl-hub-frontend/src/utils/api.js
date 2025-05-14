@@ -58,3 +58,21 @@ export const encryptURL = (url) => {
       return null;
     }
   };
+
+export const getUserIP = async () => {
+      try {
+        const res = await fetch('https://ipv4.icanhazip.com');
+        return (await res.text()).trim();
+      } catch {
+        return "::1";
+      }
+};
+
+export const getUserDetails = () => {
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+  const user = JSON.parse(sessionStorage.getItem('user')); 
+  const username = user?.username;  
+  const useremail = user?.email;  
+  const email = useremail ? CryptoJS.AES.encrypt(useremail, SECRET_KEY).toString() : "";   
+  return { username, email };
+};

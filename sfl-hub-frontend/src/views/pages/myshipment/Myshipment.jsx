@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { api, encryptURL } from "../../../utils/api";
+import { api, encryptURL, getUserIP, getUserDetails} from "../../../utils/api";
 import { toast } from "react-hot-toast";
 import {
   Typography,
@@ -97,20 +97,29 @@ const ShipmentDashboard = ({ setEdit }) => {
   }, []);
 
   // Fetch shipments using React Query
-  const { data: shipmentsData = [], isLoading, isError } = useQuery({
+ const { data: shipmentsData = [], isLoading, isError } = useQuery({
     queryKey: ['shipments', personId],
     queryFn: async () => {
       if (!personId) throw new Error("Person ID not found");
       
-      const encodedUrl = encryptURL("/shipment/myShipments");
+      const { username, email } = getUserDetails(); 
+      const userIP = await getUserIP(); 
+
+      const encodedUrl = encryptURL("/shipment/myShipments");  
       const response = await axios.post(`${api.BackendURL}/shipment/${encodedUrl}`, {
-        data: { Person_ID: personId }
+        data: { 
+          Person_ID: personId,
+          username: username,   
+          email: email,     
+          ip: userIP,      
+        }
       });
-      
       const data = response.data?.user?.[0];
       if (!data) throw new Error("No shipment data");
-      
+      console.log("Shipment data:", data);
       return data.sort((a, b) => new Date(b.shipmentdate) - new Date(a.shipmentdate));
+      
+
     },
     enabled: !!personId,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -120,6 +129,7 @@ const ShipmentDashboard = ({ setEdit }) => {
       toast.error("Failed to load shipments. Please try again.");
     }
   });
+
 
   // Update filtered data when shipmentsData or searchInputs change
   useEffect(() => {
@@ -182,9 +192,17 @@ const ShipmentDashboard = ({ setEdit }) => {
 
   const handleEdit = async (row) => {
     try {
+      const { username, email } = getUserDetails();  
+      const userIP = await getUserIP(); 
+
       const encodedUrl = encryptURL("/shipment/getmyShipments");
       const response = await axios.post(`${api.BackendURL}/shipment/${encodedUrl}`, {
-        data: { Shipping_ID: row.shippingid },
+        data: { 
+          Shipping_ID: row.shippingid,  
+          username: username,         
+          email: email,                 
+          ip: userIP,                  
+        }
       });
 
       if (response.status === 200 && response.data?.user) {

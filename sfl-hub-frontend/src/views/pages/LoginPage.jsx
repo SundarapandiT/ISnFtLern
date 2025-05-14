@@ -4,7 +4,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import logo from "/SFL_logo.png";
 import { toast } from "react-hot-toast";
 import axios from "axios";
-import { api, encryptURL } from "../../utils/api";
+import { api, encryptURL, getUserIP } from "../../utils/api";
 
 import { PersonOutline as FaUser, LockOutlined as FaLock } from "@mui/icons-material";
 import { BackgroundContainer,StyledPaper,StyledButton, linkStyle } from "../styles/AuthStyle";
@@ -26,6 +26,7 @@ const LoginPage = () => {
     passwordHelperText: "",
   });
 
+
   const handleLogin = async (event) => {
     event.preventDefault();
   
@@ -46,6 +47,7 @@ const LoginPage = () => {
   
     try {
       const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+      const ip = await getUserIP();
       if (!SECRET_KEY) {
         throw new Error("Encryption key is missing!");
       }
@@ -57,6 +59,7 @@ const LoginPage = () => {
       const encryptedData = {
         UserName: CryptoJS.AES.encrypt(username.toLowerCase(), SECRET_KEY).toString(),
         Password: CryptoJS.AES.encrypt(password, SECRET_KEY).toString(),
+         userIP: ip,
       };
   
       // Send the encrypted data to the backend without wrapping it in "data"

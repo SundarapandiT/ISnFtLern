@@ -59,6 +59,7 @@ const Recipient = ({
   handleRecipientPrevious,
   setoldrecipientphone1,
   setoldrecipientphone2,
+  shipmentType
 }) => {
   const debounceRef = useRef(null);
 
@@ -480,7 +481,7 @@ const Recipient = ({
             variant="contained"
             endIcon={<ArrowForwardIcon />}
           >
-            Next
+            {shipmentType === "Ocean" ?"Submit" : "Next"}
           </NextButton>
         </ButtonBox>
       </form>

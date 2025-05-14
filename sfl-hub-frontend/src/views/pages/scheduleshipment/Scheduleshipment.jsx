@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, Routes, Route } from "react-router-dom";
 
 import axios from "axios";
-import { api, encryptURL, getStateID } from '../../../utils/api'
+import { api, encryptURL, getStateID, getUserIP, getUserDetails } from '../../../utils/api'
 import { toast } from "react-hot-toast";
 import Myshipment from "../myshipment/Myshipment";
 import { useStyles } from "../../styles/MyshipmentStyle";
@@ -397,6 +397,8 @@ const SendOldDb = async (trackingNumber,managedByResult) => {
 };
 
 const handleSubmit = async () => {
+    const { username, email } = getUserDetails();
+    const userIP = await getUserIP();
     console.log("Submitting data...");
     const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
     if (!SECRET_KEY) {
@@ -419,6 +421,9 @@ const handleSubmit = async () => {
       const requestData = {
         UserID: userId,
         ipAddress: "",
+        ip: userIP, 
+        username: username,
+        emailLogger: email,
         TrackingNumber: null,
         shipments: {
           tracking_number: "",
@@ -1327,6 +1332,7 @@ const handleSubmit = async () => {
                 handleRecipientPrevious,
                 setoldrecipientphone1,
                 setoldrecipientphone2,
+                shipmentType
               }}
             />
           )}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import CryptoJS from "crypto-js";
 import axios from "axios";
-import { api, encryptURL } from "../../utils/api";
+import { api, encryptURL, getUserIP } from "../../utils/api";
 import {
   Box,
   TextField,
@@ -13,7 +13,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import logo from "/SFL_logo.png";
 
 import { BackgroundContainer, StyledPaper, StyledButton, linkStyle } from "../styles/AuthStyle";
-import "../styles/Forgetpage.css";
+import "../styles/ForgetPage.css";
 import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
@@ -59,9 +59,11 @@ const ForgotPassword = () => {
       return;
     }
 
+    const userIP = await getUserIP();
     const payload = {
       email: CryptoJS.AES.encrypt(formData.email, SECRET_KEY).toString(),
       selectedEmailMy: CryptoJS.AES.encrypt(formData.requestType, SECRET_KEY).toString(),
+      userIP: userIP
     };
      const encodedUrl= encryptURL("/users/forgotPassword");
     

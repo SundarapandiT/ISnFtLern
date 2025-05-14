@@ -680,7 +680,7 @@ const Package = ({
             endIcon={<ArrowForwardIcon />}
             onClick={handleNext}
           >
-            Next
+            Submit
           </NextButton>
         </ButtonBox>
       </form>

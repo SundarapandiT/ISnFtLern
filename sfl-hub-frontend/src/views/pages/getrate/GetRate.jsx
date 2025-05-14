@@ -290,6 +290,8 @@ const GetRate = () => {
   };
 
   const handleGetRate = async () => {
+    toast.dismiss();
+    const loading = toast.loading("Getting Rate...");
     // Find country objects for fromCountry and toCountry
     console.log('countries:', countries);
      const fromCountryObj = countries.find((c) => c.value === formData.fromCountry)
@@ -298,6 +300,7 @@ const GetRate = () => {
     console.log('To Country:', toCountryObj);
 
     const payload = {
+      
       quoteData: {
         PackageType: formData.packageType,
         WeightType: weightUnit,
@@ -382,7 +385,9 @@ const GetRate = () => {
       });
 
       const result = await response.json();
+      toast.dismiss();
       if (result.success) {
+        toast.success("Rates fetched successfully");
         const updatedRates = result.data.map((item) => ({
           service: item.ServiceDisplayName,
           deliveryDate: item.Delivery_Date,
@@ -391,9 +396,13 @@ const GetRate = () => {
         setRates(updatedRates);
         setShowRates(true);
       } else {
+      toast.dismiss();
+        toast.error("Failed to fetch rates");
         console.error('API error:', result);
       }
     } catch (error) {
+      toast.dismiss();
+      toast.error("Error fetching rates",error);
       console.error('Error fetching rates:', error);
     }
   };
