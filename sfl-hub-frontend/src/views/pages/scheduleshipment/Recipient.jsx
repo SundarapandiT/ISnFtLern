@@ -61,7 +61,8 @@ const Recipient = ({
   handleRecipientPrevious,
   setoldrecipientphone1,
   setoldrecipientphone2,
-  shipmentType
+  shipmentType,
+  resiszip
 }) => {
   const debounceRef = useRef(null);
 
@@ -129,11 +130,11 @@ const Recipient = ({
     }
 
     // Validate phone2 (only if provided)
-    if (recipientPhone2 && !validatePhoneNumber(recipientPhone2, recipientcountrycode)) {
-      errors.phone2 = "Invalid phone number";
-    } else {
-      errors.phone2 = ""; // Explicitly clear phone2 error if empty or valid
-    }
+    // if (recipientPhone2 && !validatePhoneNumber(recipientPhone2, recipientcountrycode)) {
+    //   errors.phone2 = "Invalid phone number";
+    // } else {
+    //   errors.phone2 = ""; // Explicitly clear phone2 error if empty or valid
+    // }
 
     setRecipientErrors(prev => ({ ...prev, ...errors }));
     return Object.keys(errors).every(key => !errors[key]);
@@ -236,15 +237,15 @@ const Recipient = ({
     minWidth: 0,
   };
 
-const fetchCityList = async () => {
-  const response = await axios.post('https://sfl-bk.trysimmer.com/locations/getFedexCityList', {
-    countryID: recipientCountryId,
-    cityType: 'FedEx',
-  });
-  // Extract city names from the response
-  return response.data.user[0].map(city => city.cityname);
-};
-const { data: cities, isLoading, error } = useQuery({
+  const fetchCityList = async () => {
+    const response = await axios.post('https://sfl-bk.trysimmer.com/locations/getFedexCityList', {
+      countryID: recipientCountryId,
+      cityType: 'FedEx',
+    });
+    // Extract city names from the response
+    return response.data.user[0].map(city => city.cityname);
+  };
+  const { data: cities, isLoading, error } = useQuery({
     queryKey: ['cityList'],
     queryFn: fetchCityList,
   });
@@ -393,6 +394,7 @@ const { data: cities, isLoading, error } = useQuery({
           <TextField
             label="Zip Code"
             value={recipientZipCode}
+            placeholder={resiszip === 0 ? "Not required" : undefined}
             className="custom-textfield"
             inputProps={{
               autoComplete: "off",
@@ -402,55 +404,58 @@ const { data: cities, isLoading, error } = useQuery({
             }}
             onChange={(e) => setRecipientZipCode(e.target.value)}
             fullWidth
-            required
+            required={resiszip !== 0}
             error={!!recipientErrors.recipientZipCode}
             helperText={recipientErrors.recipientZipCode}
             sx={fieldStyle}
-            InputProps={{ startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} /> }}
+            InputProps={{
+              readOnly: resiszip === 0,
+              startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />
+            }}
           />
           <Autocomplete
-          freeSolo
-      disablePortal
-      options={cities || []}
-      loading={isLoading}
-      value={recipientCity}
-      sx={fieldStyle}
-      onChange={handleCityChange}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="City"
-          fullWidth
-          required
-          className="custom-textfield"
-          error={!!recipientErrors.recipientCity}
-          helperText={recipientErrors.recipientCity}
-          sx={fieldStyle}
-          InputProps={{
-            ...params.InputProps,
-            startAdornment: (
-              <>
-                <BusinessIcon sx={{ color: 'red', mr: 1 }} />
-                {params.InputProps.startAdornment}
-              </>
-            ),
-            endAdornment: (
-              <>
-                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}
-          inputProps={{
-            ...params.inputProps,
-            maxLength: 35,
-            autoComplete: 'off',
-            autoCorrect: 'off',
-            autoCapitalize: 'none',
-          }}
-        />
-      )}
-    />
+            freeSolo
+            disablePortal
+            options={cities || []}
+            loading={isLoading}
+            value={recipientCity}
+            sx={fieldStyle}
+            onChange={handleCityChange}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="City"
+                fullWidth
+                required
+                className="custom-textfield"
+                error={!!recipientErrors.recipientCity}
+                helperText={recipientErrors.recipientCity}
+                sx={fieldStyle}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <>
+                      <BusinessIcon sx={{ color: 'red', mr: 1 }} />
+                      {params.InputProps.startAdornment}
+                    </>
+                  ),
+                  endAdornment: (
+                    <>
+                      {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+                inputProps={{
+                  ...params.inputProps,
+                  maxLength: 35,
+                  autoComplete: 'off',
+                  autoCorrect: 'off',
+                  autoCapitalize: 'none',
+                }}
+              />
+            )}
+          />
           {recipientCountry ? (
             <Box sx={fieldStyle}>
               <StateDropdown

@@ -44,7 +44,7 @@ import {
   ContentBox,
   IconBox,
   UsernameButton,
-  } from '../../styles/scheduleshipmentStyle';
+} from '../../styles/scheduleshipmentStyle';
 import Myshipmentnew from "../myshipment/MyShipmentNew";
 import CryptoJS from "crypto-js";
 import ScheduleConfirmation from "../scheduleconfirmation/ScheduleConfirmation";
@@ -55,7 +55,7 @@ const Schedule = () => {
 
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
-  const [confirmation,setConfirmation]=useState(false);
+  const [confirmation, setConfirmation] = useState(false);
   const classes = useStyles();
 
 
@@ -64,11 +64,12 @@ const Schedule = () => {
     queryFn: async () => {
       const res = await axios.get(`${api.BackendURL}/locations/getCountry`);
       const countryData = res.data?.user?.[0] || [];
-      
+
       return countryData.map(country => ({
         value: country.countrycode.toLowerCase(),
         label: country.countryname,
         countryid: country.countryid,
+        iszipavailable: country.iszipavailable,
       }));
     },
     staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours since country data rarely changes
@@ -132,6 +133,7 @@ const Schedule = () => {
   const [country, setCountry] = useState("");
   const [countrycode, setcountrycode] = useState("");
   const [countryId, setCountryId] = useState("");
+  const [iszip, setisZip] = useState(1);
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
@@ -151,6 +153,7 @@ const Schedule = () => {
   const [recipientCountry, setRecipientCountry] = useState("");
   const [recipientcountrycode, setrecipientcountrycode] = useState("");
   const [recipientCountryId, setRecipientCountryId] = useState("");
+  const [resiszip, setresisZip] = useState(1);
   const [recipientCompanyName, setRecipientCompanyName] = useState("");
   const [recipientContactName, setRecipientContactName] = useState("");
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
@@ -191,7 +194,7 @@ const Schedule = () => {
   const [commercialInvoiceData, setCommercialInvoiceData] = useState([
     {
       packageNumber: "1",
-      contentDescription: packageType==="Envelop"?"Document":"",
+      contentDescription: packageType === "Envelop" ? "Document" : "",
       quantity: 0,
       valuePerQty: 0,
     },
@@ -220,7 +223,7 @@ const Schedule = () => {
           ToPhone2: oldrecipientphone2,
         }
       );
-  
+
       const managedby = response.data?.data?.[0]?.ManagedBy || "";
       setManagedBy(managedby);
       console.log("ManagedBy fetched successfully", {
@@ -237,12 +240,12 @@ const Schedule = () => {
       });
       throw error;
     }
-};
+  };
 
-const SendOldDb = async (trackingNumber,managedByResult) => {
-  const loadingToast = toast.loading("Sending shipment...");
+  const SendOldDb = async (trackingNumber, managedByResult) => {
+    const loadingToast = toast.loading("Sending shipment...");
     try {
-      
+
       const transformedPackages = packageData.map((pkg, index) => ({
         shipments_tracking_number: trackingNumber || "",
         PackageNumber: index + 1,
@@ -272,8 +275,8 @@ const SendOldDb = async (trackingNumber,managedByResult) => {
       const payload = {
         UserID: userOldid,
         ipAddress: "",
-        TrackingNumber:  null,
-        NewTrackingNumber:trackingNumber || null,
+        TrackingNumber: null,
+        NewTrackingNumber: trackingNumber || null,
         shipments: {
           tracking_number: "",
           shipment_type: shipmentType,
@@ -394,9 +397,9 @@ const SendOldDb = async (trackingNumber,managedByResult) => {
       });
       throw error;
     }
-};
+  };
 
-const handleSubmit = async () => {
+  const handleSubmit = async () => {
     const { username, email } = getUserDetails();
     const userIP = await getUserIP();
     console.log("Submitting data...");
@@ -407,21 +410,21 @@ const handleSubmit = async () => {
     }
 
     try {
-    
+
       const managedByResult = await getManagedBy();
       console.log("managedByResult:", managedByResult);
       // if (!managedByResult) {
       //   throw new Error("ManagedBy is empty or not fetched");
       // }
 
-      
+
       const encrypt = (value) =>
         value ? CryptoJS.AES.encrypt(value, SECRET_KEY).toString() : "";
 
       const requestData = {
         UserID: userId,
         ipAddress: "",
-        ip: userIP, 
+        ip: userIP,
         username: username,
         emailLogger: email,
         TrackingNumber: null,
@@ -446,7 +449,7 @@ const handleSubmit = async () => {
           ServiceName: "",
           SubServiceName: "",
           managed_by: "",
-          Old_managed_by:managedByResult || "0",
+          Old_managed_by: managedByResult || "0",
           ShippingID: null,
           InvoiceDueDate: null,
         },
@@ -511,41 +514,41 @@ const handleSubmit = async () => {
         { data: requestData }
       );
       if (response.data?.error) {
-         toast.dismiss(toastId);
+        toast.dismiss(toastId);
 
         throw new Error(response.data.error);
-      } 
+      }
 
       const { shipments, from_address, to_address } = requestData;
       const trackingNumber = response.data?.user?.TrackingNumber;
 
-      
-        console.log("Tracking Number:", trackingNumber);
 
-        // Call SendOldDb with the tracking number
-        const shippingId = await SendOldDb(trackingNumber,managedByResult);
-        if (!shippingId) {
-          throw new Error("Failed to obtain ShippingID");
-        }
-        if (trackingNumber) {
-          toast.success(
-            `Shipment scheduled successfully! Tracking Number: ${trackingNumber}`,
-            { id: toastId }
-          );
-          setConfirmation(true);
-          navigate("/admin/ScheduleConfirmation", {
-            replace: true,
-            state: {
-              trackingNumber: trackingNumber,
-              shipment: shipments,
-              sender: from_address,
-              recipient: to_address,
-              packageData: packageData,
-              commercialInvoiceData: commercialInvoiceData,
-            },
-          });
+      console.log("Tracking Number:", trackingNumber);
+
+      // Call SendOldDb with the tracking number
+      const shippingId = await SendOldDb(trackingNumber, managedByResult);
+      if (!shippingId) {
+        throw new Error("Failed to obtain ShippingID");
+      }
+      if (trackingNumber) {
+        toast.success(
+          `Shipment scheduled successfully! Tracking Number: ${trackingNumber}`,
+          { id: toastId }
+        );
+        setConfirmation(true);
+        navigate("/admin/ScheduleConfirmation", {
+          replace: true,
+          state: {
+            trackingNumber: trackingNumber,
+            shipment: shipments,
+            sender: from_address,
+            recipient: to_address,
+            packageData: packageData,
+            commercialInvoiceData: commercialInvoiceData,
+          },
+        });
       } else {
-      toast.dismiss(toastId);
+        toast.dismiss(toastId);
 
         throw new Error("Failed to obtain TrackingNumber");
       }
@@ -558,15 +561,15 @@ const handleSubmit = async () => {
       });
       throw error;
     }
-};
-  
+  };
+
 
 
   const [completedTabs, setCompletedTabs] = useState({
-    "schedule-pickup": false, 
+    "schedule-pickup": false,
     sender: false,
     recipient: false,
-    package: shipmentType !== "Ocean", 
+    package: shipmentType !== "Ocean",
     payment: false,
   });
 
@@ -577,11 +580,11 @@ const handleSubmit = async () => {
   useEffect(() => {
     if (
       activeModule === "My Shipment" &&
-      activeTab === "my-shipment" && edit===false &&
+      activeTab === "my-shipment" && edit === false &&
       !location.pathname.endsWith("/ShipmentList")
     ) {
       navigate("/admin/ShipmentList", { replace: true });
-     
+
     }
     else if (activeModule === "Schedule Shipment") {
       if (activeTab === "schedule-pickup") {
@@ -591,7 +594,7 @@ const handleSubmit = async () => {
     }
   }, [activeModule, activeTab, navigate]);
 
-  
+
 
   // Function to update the number of rows in packageData based on noOfPackages
   const updatePackageRows = (num) => {
@@ -614,21 +617,21 @@ const handleSubmit = async () => {
     }
   };
 
-  const handlePackageChange = (index, event) => { 
+  const handlePackageChange = (index, event) => {
     const { name, value } = event.target;
     const updatedPackageData = [...packageData];
-    
-  
+
+
     // If packageType is " ", enforce default values and skip dimension calculations
     if (packageType === "Envelop") {
       updatedPackageData[index] = {
         ...updatedPackageData[index],
-        weight: 0.5, 
+        weight: 0.5,
         length: 10,
         width: 13,
         height: 1,
         chargable_weight: 0.5,
-        insured_value: name === "insured_value" ? value : 0, 
+        insured_value: name === "insured_value" ? value : 0,
       };
     } else {
       // Normal package logic
@@ -636,29 +639,29 @@ const handleSubmit = async () => {
         ...updatedPackageData[index],
         [name]: value,
       };
-  
+
       if (["weight", "length", "width", "height"].includes(name)) {
         const pkg = updatedPackageData[index];
         const weight = parseInt(pkg.weight) || 0;
         const length = parseInt(pkg.length) || 0;
         const width = parseInt(pkg.width) || 0;
         const height = parseInt(pkg.height) || 0;
-      
+
         const dimensionalWeight = Math.floor(
           fromCountry === toCountry
             ? (length * width * height) / 166 // Domestic
             : (length * width * height) / 139 // International
         );
-      
+
         updatedPackageData[index].chargable_weight = Math.max(weight, dimensionalWeight);
       }
-      
+
     }
 
-  
+
     setPackageData(updatedPackageData);
   };
-  
+
 
   const handleAddPackage = () => {
     const newData = [
@@ -729,170 +732,233 @@ const handleSubmit = async () => {
   // Validation for Sender tab
   const validateSenderForm = () => {
     const newErrors = {};
-  
-    if (!country?.trim()) newErrors.country = "Country name is required";
-  
-    if (!contactName?.trim()) newErrors.contactName = "Contact name is required";
-  
+
+
+    if (!country?.trim()) {
+      newErrors.country = "Country name is required";
+    }
+    if (!contactName?.trim()) {
+      newErrors.contactName = "Contact name is required";
+    }
+
+    const addressRegex = /^[\u0400-\u04FFa-zA-Z0-9\s.,\-\/()#'&]+$/;
+
+    const hasAlphanumeric = /[a-zA-Z0-9]/;
+
     if (!addressLine1?.trim()) {
       newErrors.addressLine1 = "Address Line 1 is required";
-    } else if (!/^[a-zA-Z0-9\s.,-/()#]+$/.test(addressLine1.trim())) {
-      newErrors.addressLine1 = "Address Line 1 should not contain special characters";
+    } else if (!addressRegex.test(addressLine1.trim())) {
+      newErrors.addressLine1 = "Address Line 1 contains unsupported characters";
+    } else if (!hasAlphanumeric.test(addressLine1.trim())) {
+      newErrors.addressLine1 = "Address Line 1 must include at least one letter or number";
+    } else if (addressLine1.trim().length > 60) {
+      newErrors.addressLine1 = "Address Line 1 must be 60 characters or fewer";
     }
-    if (addressLine2?.trim() && !/^[a-zA-Z0-9\s.,-/()#]+$/.test(addressLine2.trim())) {
-      newErrors.addressLine2 = "Address Line 2 should not contain special characters";
+    if (addressLine2?.trim()) {
+      if (!addressRegex.test(addressLine2.trim())) {
+        newErrors.addressLine2 = "Address Line 2 contains unsupported characters";
+      } else if (addressLine2.trim().length > 60) {
+        newErrors.addressLine2 = "Address Line 2 must be 60 characters or fewer";
+      }
     }
-  
-    if (addressLine3?.trim() && !/^[a-zA-Z0-9\s.,-/()#]+$/.test(addressLine3.trim())) {
-      newErrors.addressLine3 = "Address Line 3 should not contain special characters";
+    if (addressLine3?.trim()) {
+      if (!addressRegex.test(addressLine3.trim())) {
+        newErrors.addressLine3 = "Address Line 3 contains unsupported characters";
+      } else if (addressLine3.trim().length > 60) {
+        newErrors.addressLine3 = "Address Line 3 must be 60 characters or fewer";
+      }
     }
-  
-    if (!zipCode?.trim()) {
-      newErrors.zipCode = "Zip Code is required";
-    } 
-    // else if (!/^[a-zA-Z0-9\s]+$/.test(zipCode.trim())) {
-    //   newErrors.zipCode = "Zip Code should only contain numbers";
-    // }
-  
-    if (!fromCity?.trim()) newErrors.fromCity = "City is required";
-  
-    if (!state?.trim()) newErrors.state = "State is required";
-  
+    if (iszip !== 0) {
+      if (!zipCode?.trim()) {
+        newErrors.zipCode = "Zip Code is required";
+      } else if (!/^[A-Za-z0-9\- ]+$/.test(zipCode.trim())) {
+        newErrors.zipCode = "Zip Code should contain only letters, numbers, hyphens, and spaces";
+      } else if (zipCode.trim().length > 15) {
+        newErrors.zipCode = "Zip Code should not exceed 15 characters";
+      }
+    }
+
+    if (!fromCity?.trim()) {
+      newErrors.fromCity = "City is required";
+    } else if (fromCity.trim().length > 35) {
+      newErrors.fromCity = "City name must be 35 characters or fewer";
+    }
+
+    if (!state?.trim()) {
+      newErrors.state = "State is required";
+    } else if (state.trim().length > 35) {
+      newErrors.state = "State name must be 35 characters or fewer";
+    }
     if (!phone1?.trim()) {
       newErrors.phone1 = "Phone 1 is required";
     } else if (!/^\+?[1-9]\d{8,14}$/.test(phone1.trim())) {
       newErrors.phone1 = "Please enter a valid phone number";
     }
-  
+
     if (!email?.trim()) {
       newErrors.email = "Email address is required";
     } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())) {
       newErrors.email = "Please enter a valid email address";
+    } else if (email.trim().length > 100) {
+      newErrors.email = "Email address must be 100 characters or fewer";
     }
-  
+
     if (needsPickup === "Yes - I Need Pickup Service" && !pickupDate) {
       newErrors.pickupDate = "Pickup Date is required";
     }
-  
     setSenderErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
+
 
 
   // Validation for Recipient tab
   const validateRecipientForm = () => {
-  const newErrors = {};
+    const newErrors = {};
 
-  // Existing recipient validations
-  if (!recipientContactName?.trim()) {
-    newErrors.contactName = "Contact Name is required";
-  }
+    const addressRegex = /^[\u0400-\u04FFa-zA-Z0-9\s.,\-\/()#'&]+$/;
 
-  if (!recipientAddressLine1?.trim()) {
-    newErrors.addressLine1 = "Address Line 1 is required";
-  } else if (!/^[a-zA-Z0-9\s.,-/()#]+$/.test(recipientAddressLine1.trim())) {
-    newErrors.addressLine1 = "Address Line 1 should not contain special characters";
-  }
+    const hasAlphanumeric = /[a-zA-Z0-9]/;
+    const zipCodeRegex = /^[A-Za-z0-9\- ]+$/;
 
-  if (recipientAddressLine2?.trim() && !/^[a-zA-Z0-9\s.,-/()#]+$/.test(recipientAddressLine2.trim())) {
-    newErrors.addressLine2 = "Address Line 2 should not contain special characters";
-  }
 
-  if (recipientAddressLine3?.trim() && !/^[a-zA-Z0-9\s.,-/()#]+$/.test(recipientAddressLine3.trim())) {
-    newErrors.addressLine3 = "Address Line 3 should not contain special characters";
-  }
-
-  if (!recipientZipCode?.trim()) {
-    newErrors.recipientZipCode = "Zip Code is required";
-  }
-
-  if (!recipientCity?.trim()) {
-    newErrors.recipientCity = "City is required";
-  }
-
-  if (!recipientState?.trim()) {
-    newErrors.state = "State is required";
-  }
-
-  if (!recipientPhone1?.trim()) {
-    newErrors.phone1 = "Phone 1 is required";
-  } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1.trim())) {
-    newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
-  }
-
-  if (recipientEmail?.trim()) {
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(recipientEmail.trim())) {
-      newErrors.email = "Please enter a valid email address";
+    if (!recipientContactName?.trim()) {
+      newErrors.contactName = "Contact Name is required";
     }
-  }
 
-  // New validation: Ensure recipient address is not the same as sender address
-  // if (
-  //   recipientAddressLine1?.trim().toLowerCase() === addressLine1?.trim().toLowerCase() &&
-  //   recipientCity?.trim().toLowerCase() === fromCity?.trim().toLowerCase() &&
-  //   recipientState?.trim().toLowerCase() === state?.trim().toLowerCase() &&
-  //   recipientZipCode?.trim().toLowerCase() === zipCode?.trim().toLowerCase() &&
-  //   recipientCountry?.trim().toLowerCase() === country?.trim().toLowerCase()
-  // ) {
-  //   newErrors.addressLine1 = "Recipient address cannot be the same as the sender address";
-  // }
 
-  setRecipientErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+    if (!recipientAddressLine1?.trim()) {
+      newErrors.addressLine1 = "Address Line 1 is required";
+    } else if (!addressRegex.test(recipientAddressLine1.trim())) {
+      newErrors.addressLine1 = "Address Line 1 contains unsupported characters";
+    } else if (!hasAlphanumeric.test(recipientAddressLine1.trim())) {
+      newErrors.addressLine1 = "Address Line 1 must include at least one letter or number";
+    } else if (recipientAddressLine1.trim().length > 60) {
+      newErrors.addressLine1 = "Address Line 1 must be 60 characters or fewer";
+    }
+
+
+
+    if (recipientAddressLine2?.trim()) {
+      if (!addressRegex.test(recipientAddressLine2.trim())) {
+        newErrors.addressLine2 = "Address Line 2 contains unsupported characters";
+      } else if (recipientAddressLine2.trim().length > 60) {
+        newErrors.addressLine2 = "Address Line 2 must be 60 characters or fewer";
+      }
+    }
+
+
+    if (recipientAddressLine3?.trim()) {
+      if (!addressRegex.test(recipientAddressLine3.trim())) {
+        newErrors.addressLine3 = "Address Line 3 contains unsupported characters";
+      } else if (recipientAddressLine3.trim().length > 60) {
+        newErrors.addressLine3 = "Address Line 3 must be 60 characters or fewer";
+      }
+    }
+
+    if (resiszip !== 0) {
+      if (!recipientZipCode?.trim()) {
+        newErrors.recipientZipCode = "Zip Code is required";
+      } else if (!zipCodeRegex.test(recipientZipCode.trim())) {
+        newErrors.recipientZipCode = "Zip Code should contain only letters, numbers, hyphens, and spaces";
+      } else if (recipientZipCode.trim().length > 15) {
+        newErrors.recipientZipCode = "Zip Code must be 15 characters or fewer";
+      }
+    }
+
+
+    if (!recipientCity?.trim()) {
+      newErrors.recipientCity = "City is required";
+    } else if (recipientCity.trim().length > 35) {
+      newErrors.recipientCity = "City must be 35 characters or fewer";
+    }
+
+
+    if (!recipientState?.trim()) {
+      newErrors.state = "State is required";
+    } else if (recipientState.trim().length > 35) {
+      newErrors.state = "State must be 35 characters or fewer";
+    }
+
+    if (!recipientPhone1?.trim()) {
+      newErrors.phone1 = "Phone 1 is required";
+    } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1.trim())) {
+      newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
+    }
+
+    if (recipientEmail?.trim()) {
+      if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(recipientEmail.trim())) {
+        newErrors.email = "Please enter a valid email address";
+      }
+    }
+
+    // New validation: Ensure recipient address is not the same as sender address
+    // if (
+    //   recipientAddressLine1?.trim().toLowerCase() === addressLine1?.trim().toLowerCase() &&
+    //   recipientCity?.trim().toLowerCase() === fromCity?.trim().toLowerCase() &&
+    //   recipientState?.trim().toLowerCase() === state?.trim().toLowerCase() &&
+    //   recipientZipCode?.trim().toLowerCase() === zipCode?.trim().toLowerCase() &&
+    //   recipientCountry?.trim().toLowerCase() === country?.trim().toLowerCase()
+    // ) {
+    //   newErrors.addressLine1 = "Recipient address cannot be the same as the sender address";
+    // }
+
+    setRecipientErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   // Validation for Package tab
   const validatePackageForm = () => {
     console.log("starting to validate")
     const newErrors = {};
-  
+
     // Main form validations
     if (!packageType) {
       newErrors.packageType = "Package Type is required";
     }
-  
+
     if (!noOfPackages || noOfPackages < 1) {
       newErrors.noOfPackages = "Number of packages must be at least 1";
     }
-  
+
     if (!dutiesPaidBy) {
       newErrors.dutiesPaidBy = "Duties & Taxes Paid By is required";
     }
-  
+
     // Package data validation
-    if(packageType!=="Envelop"){
-    packageData.forEach((pkg, index) => {
-      if (!pkg.noOfPackages || pkg.noOfPackages <= 0) {
-        newErrors[`noOfPackages_${index}`] = "Number of packages is required and must be greater than 0";
-      }
-      if (!pkg.weight || pkg.weight <= 0) {
-        newErrors[`weight_${index}`] = "Weight is required and must be greater than 0";
-      }
-      if (!pkg.length || pkg.length <= 0) {
-        newErrors[`length_${index}`] = "Length is required and must be greater than 0";
-      }
-      if (!pkg.width || pkg.width <= 0) {
-        newErrors[`width_${index}`] = "Width is required and must be greater than 0";
-      }
-      if (!pkg.height || pkg.height <= 0) {
-        newErrors[`height_${index}`] = "Height is required and must be greater than 0";
-      }
-      if (pkg.insured_value === undefined || pkg.insured_value < 0) {
-        newErrors[`insured_value_${index}`] = "Insured value is required and must be 0 or greater";
-      }
-    });
-  }
-  
+    if (packageType !== "Envelop") {
+      packageData.forEach((pkg, index) => {
+        if (!pkg.noOfPackages || pkg.noOfPackages <= 0) {
+          newErrors[`noOfPackages_${index}`] = "Number of packages is required and must be greater than 0";
+        }
+        if (!pkg.weight || pkg.weight <= 0) {
+          newErrors[`weight_${index}`] = "Weight is required and must be greater than 0";
+        }
+        if (!pkg.length || pkg.length <= 0) {
+          newErrors[`length_${index}`] = "Length is required and must be greater than 0";
+        }
+        if (!pkg.width || pkg.width <= 0) {
+          newErrors[`width_${index}`] = "Width is required and must be greater than 0";
+        }
+        if (!pkg.height || pkg.height <= 0) {
+          newErrors[`height_${index}`] = "Height is required and must be greater than 0";
+        }
+        if (pkg.insured_value === undefined || pkg.insured_value < 0) {
+          newErrors[`insured_value_${index}`] = "Insured value is required and must be 0 or greater";
+        }
+      });
+    }
+
     // ✅ Validate commercialInvoiceData only if any field in the invoice is filled
-    if (samecountry === false && Array.isArray(commercialInvoiceData) && packageType!=="Envelop") {
+    if (samecountry === false && Array.isArray(commercialInvoiceData) && packageType !== "Envelop") {
       commercialInvoiceData.forEach((invoice, index) => {
         const hasAnyField =
           invoice.packageNumber ||
           invoice.contentDescription ||
           invoice.quantity ||
           invoice.valuePerQty;
-    
+
         if (hasAnyField) {
           if (!invoice.packageNumber) {
             newErrors[`packageNumber_${index}`] = "Package number is required";
@@ -909,12 +975,12 @@ const handleSubmit = async () => {
         }
       });
     }
-    
-  
+
+
     setPackageErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
   // Handle form submission for Schedule Pickup tab
   const handlePickupSubmit = (e) => {
     e.preventDefault();
@@ -932,10 +998,11 @@ const handleSubmit = async () => {
       setActiveTab("sender");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    else{
+    else {
       toast.error("Please fill with Valid Information", {
         position: "top-right",
-        autoClose: 3000,}
+        autoClose: 3000,
+      }
       )
     }
   };
@@ -961,16 +1028,18 @@ const handleSubmit = async () => {
         pickupDate,
       });
       setCompletedTabs((prev) => ({
-         ...prev,
-         sender: true,
-         package: shipmentType !== "Ocean" }));
+        ...prev,
+        sender: true,
+        package: shipmentType !== "Ocean"
+      }));
       setActiveTab("recipient");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    else{
+    else {
       toast.error("Please fill with Valid Information", {
         position: "top-right",
-        autoClose: 3000,}
+        autoClose: 3000,
+      }
       )
     }
   };
@@ -1006,14 +1075,15 @@ const handleSubmit = async () => {
         setActiveTab(nextTab);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
-      const oldobj=getStateID(country,state,setfromoldcountryid,setfromoldstateid)
-    const oldobj1=getStateID(recipientCountry,recipientState,setrecipientoldcountryid,setrecipientoldstateid);
-    
+      const oldobj = getStateID(country, state, setfromoldcountryid, setfromoldstateid)
+      const oldobj1 = getStateID(recipientCountry, recipientState, setrecipientoldcountryid, setrecipientoldstateid);
+
     }
-    else{
+    else {
       toast.error("Please fill with Valid Information", {
         position: "top-right",
-        autoClose: 3000,}
+        autoClose: 3000,
+      }
       )
     }
   };
@@ -1028,7 +1098,7 @@ const handleSubmit = async () => {
       setCompletedTabs((prev) => ({ ...prev, package: true }));
       // setActiveTab("payment");
       window.scrollTo({ top: 0, behavior: "smooth" });
-      handleSubmit(); 
+      handleSubmit();
       // navigate("/admin/ScheduleConfirmation", { replace: true });
 
     }
@@ -1108,7 +1178,7 @@ const handleSubmit = async () => {
       navigate("/admin/Scheduleshipment", { replace: true });
       window.location.reload();
       setConfirmation(false);
-      
+
       setActiveTab("schedule-pickup");
       setCompletedTabs({
         "schedule-pickup": false,
@@ -1117,15 +1187,14 @@ const handleSubmit = async () => {
         package: shipmentType !== "Ocean",
         payment: false,
       });
-      
-      
+
+
     } else if (module === "My Shipment") {
       setEdit(false)
       setActiveTab("my-shipment");
       navigate("/admin/ShipmentList", { replace: true });
     }
-    else if (module === "Getrate")
-    {
+    else if (module === "Getrate") {
       navigate("/admin/GetRate", { replace: true });
     }
     setDrawerOpen(false);
@@ -1146,7 +1215,7 @@ const handleSubmit = async () => {
 
     setSamecountry(fromCountryObj && toCountryObj && fromCountryObj.value === toCountryObj.value);
 
-  }, [fromCountry, toCountry,countrycode,countryId,recipientCountryId,recipientcountrycode]);
+  }, [fromCountry, toCountry, countrycode, countryId, recipientCountryId, recipientcountrycode]);
 
   return (
     <Root>
@@ -1175,7 +1244,7 @@ const handleSubmit = async () => {
                 color="primary"
                 onClick={halfopen}
               >
-                {drawerwidth ===70 ? <ListIcon /> : <MoreVertIcon />}
+                {drawerwidth === 70 ? <ListIcon /> : <MoreVertIcon />}
               </IconButton>
             </DesktopToggleBtn>
 
@@ -1220,157 +1289,168 @@ const handleSubmit = async () => {
           </AppBarBox>
         </AppBar>
         {activeModule === "Schedule Shipment" && !confirmation && (
-        <ContentBox >
-        
-          <Typography variant="h5" sx={{ mb: 3 ,fontSize:"1.3rem"}}>
-            <IconBox className="card-icon">
-              <FlightTakeoffIcon className={classes.iconBox} />
-            </IconBox>
-            Schedule Shipment
-          </Typography>
+          <ContentBox >
 
-          {activeModule === "Schedule Shipment" && (
-            <SectionTabs
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
-              isMobile={isMobile}
-              completedTabs={completedTabs}
-              shipmentType={shipmentType}
-            />
-          )}
+            <Typography variant="h5" sx={{ mb: 3, fontSize: "1.3rem" }}>
+              <IconBox className="card-icon">
+                <FlightTakeoffIcon className={classes.iconBox} />
+              </IconBox>
+              Schedule Shipment
+            </Typography>
 
-          {/* Schedule Pickup Tab */}
-          {activeModule === "Schedule Shipment" && activeTab === "schedule-pickup" && (
-            <PickupForm
-              shipmentType={shipmentType}
-              setShipmentType={setShipmentType}
-              fromCountry={fromCountry}
-              setFromCountry={setFromCountry}
-              toCountry={toCountry}
-              setToCountry={setToCountry}
-              pickupErrors={pickupErrors}
-              countries={countries}
-              handlePickupSubmit={handlePickupSubmit}
-            />
-          )}
+            {activeModule === "Schedule Shipment" && (
+              <SectionTabs
+                activeTab={activeTab}
+                setActiveTab={handleTabChange}
+                isMobile={isMobile}
+                completedTabs={completedTabs}
+                shipmentType={shipmentType}
+              />
+            )}
 
-          {/* Sender Tab */}
-          {activeModule === "Schedule Shipment" && activeTab === "sender" && (
-            <Sender
-              country={country}
-              countrycode={countrycode}
-              countryId={countryId}
-              setCountry={setCountry}
-              companyName={companyName}
-              setCompanyName={setCompanyName}
-              contactName={contactName}
-              setContactName={setContactName}
-              addressLine1={addressLine1}
-              setAddressLine1={setAddressLine1}
-              addressLine2={addressLine2}
-              setAddressLine2={setAddressLine2}
-              addressLine3={addressLine3}
-              setAddressLine3={setAddressLine3}
-              zipCode={zipCode}
-              setZipCode={setZipCode}
-              fromCity={fromCity}
-              setFromCity={setFromCity}
-              state={state}
-              setState={setState}
-              phone1={phone1}
-              setPhone1={setPhone1}
-              phone2={phone2}
-              setPhone2={setPhone2}
-              email={email}
-              setEmail={setEmail}
-              needsPickup={needsPickup}
-              setNeedsPickup={setNeedsPickup}
-              pickupDate={pickupDate}
-              setPickupDate={setPickupDate}
-              senderErrors={senderErrors}
-              setSenderErrors={setSenderErrors}
-              handleSenderSubmit={handleSenderSubmit}
-              handlePrevious={handlePrevious}
-              setoldphone1={setoldphone1}
-              setoldphone2={setoldphone2}
-            />
-          )}
-          {activeModule === "Schedule Shipment" && activeTab === "recipient" && (
-            <Recipient
-              {...{
-                recipientCountry,
-                recipientcountrycode,
-                recipientCountryId,
-                setRecipientCountry,
-                recipientCompanyName,
-                setRecipientCompanyName,
-                recipientContactName,
-                setRecipientContactName,
-                recipientAddressLine1,
-                setRecipientAddressLine1,
-                recipientAddressLine2,
-                setRecipientAddressLine2,
-                recipientAddressLine3,
-                setRecipientAddressLine3,
-                recipientZipCode,
-                setRecipientZipCode,
-                recipientCity,
-                setRecipientCity,
-                recipientState,
-                setRecipientState,
-                recipientPhone1,
-                setRecipientPhone1,
-                recipientPhone2,
-                setRecipientPhone2,
-                recipientEmail,
-                setRecipientEmail,
-                recipientLocationType,
-                setRecipientLocationType,
-                recipientErrors,
-                setRecipientErrors,
-                handleRecipientSubmit,
-                handleRecipientPrevious,
-                setoldrecipientphone1,
-                setoldrecipientphone2,
-                shipmentType
-              }}
-            />
-          )}
-          {/* Package Tab - Only render if shipmentType is not "Ocean" */}
-          {activeModule === "Schedule Shipment" && activeTab === "package" && shipmentType !== "Ocean" && (
-            <Package
-              packageData={packageData}
-              setPackageData={setPackageData}
-              handlePackageChange={handlePackageChange}
-              handleAddPackage={handleAddPackage}
-              handleRemovePackage={handleRemovePackage}
-              handlePackageSubmit={handlePackageSubmit}
-              commercialInvoiceData={commercialInvoiceData}
-              setCommercialInvoiceData={setCommercialInvoiceData}
-              handleInvoiceChange={handleInvoiceChange}
-              handleAddInvoiceRow={handleAddInvoiceRow}
-              handleRemoveInvoiceRow={handleRemoveInvoiceRow}
-              calculateTotalValue={calculateTotalValue}
-              handlepackagePrevious={handlepackagePrevious}
-              packageErrors={packageErrors}
-              packageType={packageType}
-              setPackageType={setPackageType}
-              noOfPackages={noOfPackages}
-              setNoOfPackages={setNoOfPackages}
-              dutiesPaidBy={dutiesPaidBy}
-              setDutiesPaidBy={setDutiesPaidBy}
-              updatePackageRows={updatePackageRows}
-              samecountry={samecountry}
-            />
-          )}
+            {/* Schedule Pickup Tab */}
+            {activeModule === "Schedule Shipment" && activeTab === "schedule-pickup" && (
+              <PickupForm
+                shipmentType={shipmentType}
+                setShipmentType={setShipmentType}
+                fromCountry={fromCountry}
+                setFromCountry={setFromCountry}
+                toCountry={toCountry}
+                setToCountry={setToCountry}
+                pickupErrors={pickupErrors}
+                countries={countries}
+                handlePickupSubmit={handlePickupSubmit}
+                iszip={iszip}
+                setisZip={setisZip}
+                resiszip={resiszip}
+                setresisZip={setresisZip}
+                setZipCode={setZipCode}
+                setRecipientZipCode={setRecipientZipCode}
 
-          {/* {activeModule === "Schedule Shipment" && activeTab === "payment" && (
+              />
+            )}
+
+            {/* Sender Tab */}
+            {activeModule === "Schedule Shipment" && activeTab === "sender" && (
+              <Sender
+                country={country}
+                countrycode={countrycode}
+                countryId={countryId}
+                setCountry={setCountry}
+                companyName={companyName}
+                setCompanyName={setCompanyName}
+                contactName={contactName}
+                setContactName={setContactName}
+                addressLine1={addressLine1}
+                setAddressLine1={setAddressLine1}
+                addressLine2={addressLine2}
+                setAddressLine2={setAddressLine2}
+                addressLine3={addressLine3}
+                setAddressLine3={setAddressLine3}
+                zipCode={zipCode}
+                setZipCode={setZipCode}
+                fromCity={fromCity}
+                setFromCity={setFromCity}
+                state={state}
+                setState={setState}
+                phone1={phone1}
+                setPhone1={setPhone1}
+                phone2={phone2}
+                setPhone2={setPhone2}
+                email={email}
+                setEmail={setEmail}
+                needsPickup={needsPickup}
+                setNeedsPickup={setNeedsPickup}
+                pickupDate={pickupDate}
+                setPickupDate={setPickupDate}
+                senderErrors={senderErrors}
+                setSenderErrors={setSenderErrors}
+                handleSenderSubmit={handleSenderSubmit}
+                handlePrevious={handlePrevious}
+                setoldphone1={setoldphone1}
+                setoldphone2={setoldphone2}
+                iszip={iszip}
+                setisZip={setisZip}
+              />
+            )}
+            {activeModule === "Schedule Shipment" && activeTab === "recipient" && (
+              <Recipient
+                {...{
+                  recipientCountry,
+                  recipientcountrycode,
+                  recipientCountryId,
+                  setRecipientCountry,
+                  recipientCompanyName,
+                  setRecipientCompanyName,
+                  recipientContactName,
+                  setRecipientContactName,
+                  recipientAddressLine1,
+                  setRecipientAddressLine1,
+                  recipientAddressLine2,
+                  setRecipientAddressLine2,
+                  recipientAddressLine3,
+                  setRecipientAddressLine3,
+                  recipientZipCode,
+                  setRecipientZipCode,
+                  recipientCity,
+                  setRecipientCity,
+                  recipientState,
+                  setRecipientState,
+                  recipientPhone1,
+                  setRecipientPhone1,
+                  recipientPhone2,
+                  setRecipientPhone2,
+                  recipientEmail,
+                  setRecipientEmail,
+                  recipientLocationType,
+                  setRecipientLocationType,
+                  recipientErrors,
+                  setRecipientErrors,
+                  handleRecipientSubmit,
+                  handleRecipientPrevious,
+                  setoldrecipientphone1,
+                  setoldrecipientphone2,
+                  shipmentType,
+                  resiszip,
+                  setresisZip
+                }}
+              />
+            )}
+            {/* Package Tab - Only render if shipmentType is not "Ocean" */}
+            {activeModule === "Schedule Shipment" && activeTab === "package" && shipmentType !== "Ocean" && (
+              <Package
+                packageData={packageData}
+                setPackageData={setPackageData}
+                handlePackageChange={handlePackageChange}
+                handleAddPackage={handleAddPackage}
+                handleRemovePackage={handleRemovePackage}
+                handlePackageSubmit={handlePackageSubmit}
+                commercialInvoiceData={commercialInvoiceData}
+                setCommercialInvoiceData={setCommercialInvoiceData}
+                handleInvoiceChange={handleInvoiceChange}
+                handleAddInvoiceRow={handleAddInvoiceRow}
+                handleRemoveInvoiceRow={handleRemoveInvoiceRow}
+                calculateTotalValue={calculateTotalValue}
+                handlepackagePrevious={handlepackagePrevious}
+                packageErrors={packageErrors}
+                packageType={packageType}
+                setPackageType={setPackageType}
+                noOfPackages={noOfPackages}
+                setNoOfPackages={setNoOfPackages}
+                dutiesPaidBy={dutiesPaidBy}
+                setDutiesPaidBy={setDutiesPaidBy}
+                updatePackageRows={updatePackageRows}
+                samecountry={samecountry}
+              />
+            )}
+
+            {/* {activeModule === "Schedule Shipment" && activeTab === "payment" && (
             <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
               <Typography variant="h5">Payment Form</Typography>
               <Typography>Form for payment details will go here.</Typography>
             </Box>
           )} */}
-        </ContentBox>)}
+          </ContentBox>)}
 
         {/* Placeholder for other modules */}
         {/* {activeModule === "My Shipment" && activeTab === "my-shipment" && (
@@ -1390,31 +1470,31 @@ const handleSubmit = async () => {
           </Box>
         )} */}
         <Routes>
-        <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit}/>} />
-        <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} /> } />
-        <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
-        <Route path="getrate" element={<GetRate />} />
-      </Routes>
-      {activeModule !== "My Shipment" && (
-      <Box className="footer-box" sx={{
-        justifySelf:isMobile?"center":"flex-end",
-        marginRight:3,
-        marginTop:1,
-        marginBottom:1,
-      }}>
-                <Typography align="center" className={classes.footerTypography} sx={{fontSize:isMobile?"12px":"12px"}}>
-                All Rights Reserved. Site Powered by{" "}
-                <span
-                  className={`${classes.sflLink} sfl-link`}
-                  onClick={() => window.open("https://sflworldwide.com/", "_blank")}
-                >
-      
+          <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit} />} />
+          <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} />} />
+          <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
+          <Route path="getrate" element={<GetRate />} />
+        </Routes>
+        {activeModule !== "My Shipment" && (
+          <Box className="footer-box" sx={{
+            justifySelf: isMobile ? "center" : "flex-end",
+            marginRight: 3,
+            marginTop: 1,
+            marginBottom: 1,
+          }}>
+            <Typography align="center" className={classes.footerTypography} sx={{ fontSize: isMobile ? "12px" : "12px" }}>
+              All Rights Reserved. Site Powered by{" "}
+              <span
+                className={`${classes.sflLink} sfl-link`}
+                onClick={() => window.open("https://sflworldwide.com/", "_blank")}
+              >
+
                 SFL Worldwide
-                </span>
-                </Typography>
-              </Box>)}
+              </span>
+            </Typography>
+          </Box>)}
       </MainContent>
-      
+
     </Root>
   );
 };

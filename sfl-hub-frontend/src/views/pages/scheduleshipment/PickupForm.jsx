@@ -7,7 +7,7 @@ import {
   Button,
 } from "@mui/material";
 
-import {NextButton,PickupBox} from "../../styles/scheduleshipmentStyle";
+import { NextButton, PickupBox } from "../../styles/scheduleshipmentStyle";
 
 const PickupForm = ({
   shipmentType,
@@ -19,6 +19,12 @@ const PickupForm = ({
   pickupErrors,
   countries,
   handlePickupSubmit,
+  iszip,
+  setisZip,
+  resiszip,
+  setresisZip,
+  setZipCode,
+  setRecipientZipCode,
 }) => {
   return (
     <PickupBox>
@@ -51,7 +57,12 @@ const PickupForm = ({
             options={countries}
             getOptionLabel={(option) => option.label}
             value={fromCountry ? countries.find((c) => c.value === fromCountry) : null}
-            onChange={(event, newValue) => setFromCountry(newValue?.value || "")}
+            onChange={(event, newValue) => {
+              setFromCountry(newValue?.value || "");
+              setisZip(newValue?.iszipavailable ?? 0);
+              setZipCode("");
+            }}
+
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -69,10 +80,10 @@ const PickupForm = ({
             options={countries}
             getOptionLabel={(option) => option.label}
             value={toCountry ? countries.find((c) => c.value === toCountry) : null}
-            onChange={(event, newValue) => setToCountry(newValue?.value || "")}
+            onChange={(event, newValue) => { setToCountry(newValue?.value || ""); setresisZip(newValue?.iszipavailable ?? 0); setRecipientZipCode("") }}
             renderInput={(params) => (
               <TextField
-                {...params} 
+                {...params}
                 className="small-textfield"
                 label="To Country"
                 error={!!pickupErrors.toCountry}

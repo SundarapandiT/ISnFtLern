@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { api, encryptURL, getUserIP, getUserDetails} from "../../../utils/api";
+import { api, encryptURL, getUserIP, getUserDetails } from "../../../utils/api";
 import { toast } from "react-hot-toast";
 import {
   Typography,
@@ -79,7 +79,7 @@ const ShipmentDashboard = ({ setEdit }) => {
     const originalViewport = meta?.getAttribute("content");
 
     const viewportContent = "width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no";
-    
+
     if (meta) {
       meta.setAttribute("content", viewportContent);
     } else {
@@ -97,28 +97,28 @@ const ShipmentDashboard = ({ setEdit }) => {
   }, []);
 
   // Fetch shipments using React Query
- const { data: shipmentsData = [], isLoading, isError } = useQuery({
+  const { data: shipmentsData = [], isLoading, isError } = useQuery({
     queryKey: ['shipments', personId],
     queryFn: async () => {
       if (!personId) throw new Error("Person ID not found");
-      
-      const { username, email } = getUserDetails(); 
-      const userIP = await getUserIP(); 
 
-      const encodedUrl = encryptURL("/shipment/myShipments");  
+      const { username, email } = getUserDetails();
+      const userIP = await getUserIP();
+
+      const encodedUrl = encryptURL("/shipment/myShipments");
       const response = await axios.post(`${api.BackendURL}/shipment/${encodedUrl}`, {
-        data: { 
+        data: {
           Person_ID: personId,
-          username: username,   
-          email: email,     
-          ip: userIP,      
+          username: username,
+          email: email,
+          ip: userIP,
         }
       });
       const data = response.data?.user?.[0];
       if (!data) throw new Error("No shipment data");
       console.log("Shipment data:", data);
       return data.sort((a, b) => new Date(b.shipmentdate) - new Date(a.shipmentdate));
-      
+
 
     },
     enabled: !!personId,
@@ -145,7 +145,7 @@ const ShipmentDashboard = ({ setEdit }) => {
       const dateStr = new Date(row.shipmentdate).toLocaleDateString('en-GB').toLowerCase();
       return (
         (!searchInputs.shipmentdate || dateStr.includes(searchInputs.shipmentdate.toLowerCase())) &&
-     (!searchInputs.trackingnumber || (row.trackingnumber ? row.trackingnumber.toLowerCase().includes(searchInputs.trackingnumber.toLowerCase()) : false)) &&
+        (!searchInputs.trackingnumber || (row.trackingnumber ? row.trackingnumber.toLowerCase().includes(searchInputs.trackingnumber.toLowerCase()) : false)) &&
         (!searchInputs.fromcontactname || row.fromcontactname.toLowerCase().includes(searchInputs.fromcontactname.toLowerCase())) &&
         (!searchInputs.fromcity || row.fromcity.toLowerCase().includes(searchInputs.fromcity.toLowerCase())) &&
         (!searchInputs.fromstate || row.fromstate.toLowerCase().includes(searchInputs.fromstate.toLowerCase())) &&
@@ -192,16 +192,16 @@ const ShipmentDashboard = ({ setEdit }) => {
 
   const handleEdit = async (row) => {
     try {
-      const { username, email } = getUserDetails();  
-      const userIP = await getUserIP(); 
+      const { username, email } = getUserDetails();
+      const userIP = await getUserIP();
 
       const encodedUrl = encryptURL("/shipment/getmyShipments");
       const response = await axios.post(`${api.BackendURL}/shipment/${encodedUrl}`, {
-        data: { 
-          Shipping_ID: row.shippingid,  
-          username: username,         
-          email: email,                 
-          ip: userIP,                  
+        data: {
+          Shipping_ID: row.shippingid,
+          username: username,
+          email: email,
+          ip: userIP,
         }
       });
 
@@ -256,7 +256,7 @@ const ShipmentDashboard = ({ setEdit }) => {
               endIcon={<ArrowDropDownIcon />}
               onClick={handleClick}
               className={classes.mainButton}
-              sx={{ fontSize: "0.75rem" }}
+              sx={{ fontSize: "0.65rem", py: 0.3, px: 1.2, minHeight: "28px" }}
             >
               Search Shipment Status
             </Button>
@@ -264,40 +264,60 @@ const ShipmentDashboard = ({ setEdit }) => {
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
-              PaperProps={{ className: classes.menuPaper }}
+              PaperProps={{
+                className: classes.menuPaper,
+                sx: {
+                  maxHeight: 260,
+                  padding: 0,
+                  mt: 0.5,
+                },
+              }}
+              MenuListProps={{ dense: true }}
             >
               <MenuItem
                 onClick={() => handleSelect("All")}
                 className={classes.menuItem}
-                sx={{ fontSize: "0.75rem" }}
+                sx={{ fontSize: "0.65rem", py: 0.3, minHeight: "28px" }}
               >
-                <Checkbox checked={isAllSelected} />
-                <ListItemText 
-                  primary="All" 
-                  sx={{ "& .MuiListItemText-primary": { fontSize: "0.75rem" } }} 
+                <Checkbox checked={isAllSelected} size="small" sx={{ p: 0.5 }} />
+                <ListItemText
+                  primary="All"
+                  sx={{ "& .MuiListItemText-primary": { fontSize: "0.65rem" } }}
                 />
               </MenuItem>
-              {STATUSES.map(status => (
+              {STATUSES.map((status) => (
                 <MenuItem
                   key={status}
                   onClick={() => handleSelect(status)}
                   className={classes.menuItem}
-                  sx={{ fontSize: "0.75rem" }}
+                  sx={{ fontSize: "0.65rem", py: 0.3, minHeight: "12px" }}
                 >
-                  <Checkbox checked={selectedStatuses.includes(status)} />
-                  <ListItemText 
-                    primary={status} 
-                    sx={{ "& .MuiListItemText-primary": { fontSize: "0.75rem" } }} 
+                  <Checkbox
+                    checked={selectedStatuses.includes(status)}
+                    size="small"
+                    sx={{ p: 0.5 }}
+                  />
+                  <ListItemText
+                    primary={status}
+                    sx={{ "& .MuiListItemText-primary": { fontSize: "0.65rem" } }}
                   />
                 </MenuItem>
               ))}
-              <Box className={classes.searchButtonContainer}>
+              <Box
+                className={classes.searchButtonContainer}
+                sx={{ px: 1, py: 0.5 }}
+              >
                 <Button
                   variant="contained"
                   color="secondary"
                   onClick={handleSearch}
                   className={classes.searchButton}
-                  sx={{ fontSize: "0.75rem" }}
+                  sx={{
+                    fontSize: "0.65rem",
+                    py: 0.4,
+                    minHeight: "28px",
+                    width: "100%",
+                  }}
                 >
                   Search
                 </Button>
@@ -323,9 +343,9 @@ const ShipmentDashboard = ({ setEdit }) => {
                     "Status",
                     "Actions",
                   ].map((heading) => (
-                    <TableCell 
-                      key={heading} 
-                      className={classes.tableCell} 
+                    <TableCell
+                      key={heading}
+                      className={classes.tableCell}
                       sx={{ fontSize: "0.75rem" }}
                     >
                       {heading}
@@ -352,7 +372,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                     variant="standard"
                     value={searchInputs.trackingnumber}
                     onChange={handleSearchInputChange("trackingnumber")}
-                     InputProps={{
+                    InputProps={{
                       style: { fontSize: "0.75rem" },
                     }}
                   />
@@ -363,7 +383,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                     variant="standard"
                     value={searchInputs.fromcontactname}
                     onChange={handleSearchInputChange("fromcontactname")}
-                     InputProps={{
+                    InputProps={{
                       style: { fontSize: "0.75rem" },
                     }}
                   />
@@ -374,7 +394,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                     variant="standard"
                     value={searchInputs.fromcity}
                     onChange={handleSearchInputChange("fromcity")}
-                     InputProps={{
+                    InputProps={{
                       style: { fontSize: "0.75rem" },
                     }}
                   />
@@ -385,7 +405,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                     variant="standard"
                     value={searchInputs.fromstate}
                     onChange={handleSearchInputChange("fromstate")}
-                     InputProps={{
+                    InputProps={{
                       style: { fontSize: "0.75rem" },
                     }}
                   />
@@ -396,7 +416,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                     variant="standard"
                     value={searchInputs.tocontactname}
                     onChange={handleSearchInputChange("tocontactname")}
-                     InputProps={{
+                    InputProps={{
                       style: { fontSize: "0.75rem" },
                     }}
                   />
@@ -407,7 +427,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                     variant="standard"
                     value={searchInputs.tocity}
                     onChange={handleSearchInputChange("tocity")}
-                     InputProps={{
+                    InputProps={{
                       style: { fontSize: "0.75rem" },
                     }}
                   />
@@ -418,7 +438,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                     variant="standard"
                     value={searchInputs.tostate}
                     onChange={handleSearchInputChange("tostate")}
-                     InputProps={{
+                    InputProps={{
                       style: { fontSize: "0.75rem" },
                     }}
                   />
@@ -429,7 +449,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                     variant="standard"
                     value={searchInputs.shipmenttype}
                     onChange={handleSearchInputChange("shipmenttype")}
-                     InputProps={{
+                    InputProps={{
                       style: { fontSize: "0.75rem" },
                     }}
                   />
@@ -440,7 +460,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                     variant="standard"
                     value={searchInputs.shipmentstatus}
                     onChange={handleSearchInputChange("shipmentstatus")}
-                     InputProps={{
+                    InputProps={{
                       style: { fontSize: "0.75rem" },
                     }}
                   />
@@ -538,8 +558,8 @@ const ShipmentDashboard = ({ setEdit }) => {
         </Box>
       </div>
       <Box className="footer-box">
-        <Typography 
-          className={classes.footerTypography} 
+        <Typography
+          className={classes.footerTypography}
           sx={{ mt: 2, fontSize: "0.75rem", textAlign: { xs: "center", sm: "right" } }}
         >
           All Rights Reserved. Site Powered by{" "}

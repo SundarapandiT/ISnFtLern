@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
-import { Box, TextField, Typography, MenuItem, FormControl, InputLabel, Select,Autocomplete } from "@mui/material";
+import { Box, TextField, Typography, MenuItem, FormControl, InputLabel, Select, Autocomplete } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import PublicIcon from "@mui/icons-material/Public";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -56,6 +56,7 @@ const Sender = ({
   handlePrevious,
   setoldphone1,
   setoldphone2,
+  iszip,
 }) => {
   const debounceRef = useRef(null);
 
@@ -131,11 +132,11 @@ const Sender = ({
     }
 
     // Validate phone2 (only if provided)
-    if (phone2 && !validatePhoneNumber(phone2, countrycode)) {
-      errors.phone2 = "Invalid phone number";
-    } else {
-      errors.phone2 = ""; // Explicitly clear phone2 error
-    }
+    // if (phone2 && !validatePhoneNumber(phone2, countrycode)) {
+    //   errors.phone2 = "Invalid phone number";
+    // } else {
+    //   errors.phone2 = ""; // Explicitly clear phone2 error
+    // }
 
     // Validate addressLine1
     if (!addressLine1) {
@@ -145,11 +146,11 @@ const Sender = ({
     }
 
     // Validate zipCode
-    if (!zipCode) {
-      errors.zipCode = "Zip code is required";
-    } else {
-      errors.zipCode = "";
-    }
+    // if (!zipCode) {
+    //   errors.zipCode = "Zip code is required";
+    // } else {
+    //   errors.zipCode = "";
+    // }
 
     // Validate fromCity
     if (!fromCity) {
@@ -309,14 +310,14 @@ const Sender = ({
   };
 
   const fetchCityList = async () => {
-  const response = await axios.post('https://sfl-bk.trysimmer.com/locations/getFedexCityList', {
-    countryID: countryId,
-    cityType: 'FedEx',
-  });
-  // Extract city names from the response
-  return response.data.user[0].map(city => city.cityname);
-};
-const { data: cities, isLoading, error } = useQuery({
+    const response = await axios.post('https://sfl-bk.trysimmer.com/locations/getFedexCityList', {
+      countryID: countryId,
+      cityType: 'FedEx',
+    });
+    // Extract city names from the response
+    return response.data.user[0].map(city => city.cityname);
+  };
+  const { data: cities, isLoading, error } = useQuery({
     queryKey: ['cityList'],
     queryFn: fetchCityList,
   });
@@ -331,6 +332,7 @@ const { data: cities, isLoading, error } = useQuery({
       setSenderErrors({ fromCity: '' });
     }
   };
+  console.log(iszip)
 
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
@@ -471,9 +473,10 @@ const { data: cities, isLoading, error } = useQuery({
           <TextField
             label="Zip Code"
             value={zipCode}
+            placeholder={iszip === 0 ? "Not required" : undefined}
             onChange={(e) => setZipCode(e.target.value)}
             fullWidth
-            required
+            required={iszip !== 0}
             className="custom-textfield"
             error={!!senderErrors.zipCode}
             helperText={senderErrors.zipCode}
@@ -482,56 +485,58 @@ const { data: cities, isLoading, error } = useQuery({
               maxLength: 15,
               autoComplete: "off",
               autoCorrect: "off",
-              autoCapitalize: "none"
+              autoCapitalize: "none",
             }}
             InputProps={{
+              readOnly: iszip === 0,
               startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />,
             }}
           />
+
           <Autocomplete
-          freeSolo
-        disablePortal 
-          
-      options={cities || []}
-      loading={isLoading}
-      value={fromCity}
-      onChange={handleCityChange}
-      sx={fieldStyle}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="From City"
-          fullWidth
-          required
-          className="custom-textfield"
-          error={!!senderErrors.fromCity}
-          helperText={senderErrors.fromCity}
-          sx={fieldStyle}
-          InputProps={{
-            ...params.InputProps,
-            startAdornment: (
-              <>
-                <BusinessIcon sx={{ color: 'red', mr: 1 }} />
-                {params.InputProps.startAdornment}
-              </>
-            ),
-            endAdornment: (
-              <>
-                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}
-          inputProps={{
-            ...params.inputProps,
-            maxLength: 35,
-            autoComplete: 'off',
-            autoCorrect: 'off',
-            autoCapitalize: 'none',
-          }}
-        />
-      )}
-    />
+            freeSolo
+            disablePortal
+
+            options={cities || []}
+            loading={isLoading}
+            value={fromCity}
+            onChange={handleCityChange}
+            sx={fieldStyle}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="From City"
+                fullWidth
+                required
+                className="custom-textfield"
+                error={!!senderErrors.fromCity}
+                helperText={senderErrors.fromCity}
+                sx={fieldStyle}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <>
+                      <BusinessIcon sx={{ color: 'red', mr: 1 }} />
+                      {params.InputProps.startAdornment}
+                    </>
+                  ),
+                  endAdornment: (
+                    <>
+                      {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+                inputProps={{
+                  ...params.inputProps,
+                  maxLength: 35,
+                  autoComplete: 'off',
+                  autoCorrect: 'off',
+                  autoCapitalize: 'none',
+                }}
+              />
+            )}
+          />
           {country ? (
             <Box sx={fieldStyle}>
               <StateDropdown
@@ -594,75 +599,75 @@ const { data: cities, isLoading, error } = useQuery({
 
           {/* Phone 2 */}
           {/* Phone 2 */}
-<Box sx={{ ...fieldStyle, width: '100%' }}>
-  <PhoneInput
-    className="custom-textfield"
-    country={countrycode}
-    value={phone2}
-    inputProps={{
-      autoComplete: "off",
-      autoCorrect: "off",
-      autoCapitalize: "none",
-      maxLength: 15
-    }}
-    onChange={(phone, countryData) => {
-      const dialCode = `+${countryData.dialCode}`;
-      const trimmedPhone = phone ? phone.replace(dialCode, '').trim() : '';
+          <Box sx={{ ...fieldStyle, width: '100%' }}>
+            <PhoneInput
+              className="custom-textfield"
+              country={countrycode}
+              value={phone2}
+              inputProps={{
+                autoComplete: "off",
+                autoCorrect: "off",
+                autoCapitalize: "none",
+                maxLength: 15
+              }}
+              onChange={(phone, countryData) => {
+                const dialCode = `+${countryData.dialCode}`;
+                const trimmedPhone = phone ? phone.replace(dialCode, '').trim() : '';
 
-      console.log('phone2 onChange:', {
-        phone,
-        dialCode,
-        trimmedPhone,
-        hasDigits: /\d/.test(trimmedPhone)
-      });
+                console.log('phone2 onChange:', {
+                  phone,
+                  dialCode,
+                  trimmedPhone,
+                  hasDigits: /\d/.test(trimmedPhone)
+                });
 
-      // Clear phone2 if input is empty, only dial code, or has no digits
-      if (!phone || phone === dialCode || trimmedPhone === '' || !/\d/.test(trimmedPhone)) {
-        console.log('Clearing phone2: Input is empty or only dial code');
-        setPhone2('');
-        setoldphone2('');
-        setSenderErrors(prev => ({ ...prev, phone2: '' }));
-        return;
-      }
+                // Clear phone2 if input is empty, only dial code, or has no digits
+                if (!phone || phone === dialCode || trimmedPhone === '' || !/\d/.test(trimmedPhone)) {
+                  console.log('Clearing phone2: Input is empty or only dial code');
+                  setPhone2('');
+                  setoldphone2('');
+                  setSenderErrors(prev => ({ ...prev, phone2: '' }));
+                  return;
+                }
 
-      console.log('Setting phone2:', phone);
-      setPhone2(phone);
-      setoldphone2(trimmedPhone);
+                console.log('Setting phone2:', phone);
+                setPhone2(phone);
+                setoldphone2(trimmedPhone);
 
-      // Validate phone2 only if it has meaningful content
-      if (!validatePhoneNumber(phone, countryData.iso2)) {
-        setSenderErrors(prev => ({ ...prev, phone2: 'Invalid phone number' }));
-      } else {
-        setSenderErrors(prev => ({ ...prev, phone2: '' }));
-      }
-    }}
-    onBlur={() => {
-      const dialCode = `+${countrycode}`; // Note: This assumes countrycode is the dial code; adjust if needed
-      const trimmedPhone = phone2 ? phone2.replace(dialCode, '').trim() : '';
-      if (!phone2 || phone2 === dialCode || trimmedPhone === '' || !/\d/.test(trimmedPhone)) {
-        console.log('onBlur: Clearing phone2 as it’s empty or only dial code');
-        setPhone2('');
-        setoldphone2('');
-        setSenderErrors(prev => ({ ...prev, phone2: '' }));
-      }
-    }}
-    inputStyle={{
-      ...PhoneInputStyle,
-      width: '100%',
-      borderColor: senderErrors.phone2 ? 'red' : '#c4c4c4',
-      fontSize: '0.9rem',
-      fontFamily: 'Roboto, sans-serif',
-    }}
-    containerStyle={{ width: '100%' }}
-    enableSearch
-    specialLabel="Phone 2"
-  />
-  {senderErrors.phone2 && (
-    <Typography variant="caption" color="error">
-      {senderErrors.phone2}
-    </Typography>
-  )}
-</Box>
+                // Validate phone2 only if it has meaningful content
+                if (!validatePhoneNumber(phone, countryData.iso2)) {
+                  setSenderErrors(prev => ({ ...prev, phone2: 'Invalid phone number' }));
+                } else {
+                  setSenderErrors(prev => ({ ...prev, phone2: '' }));
+                }
+              }}
+              onBlur={() => {
+                const dialCode = `+${countrycode}`; // Note: This assumes countrycode is the dial code; adjust if needed
+                const trimmedPhone = phone2 ? phone2.replace(dialCode, '').trim() : '';
+                if (!phone2 || phone2 === dialCode || trimmedPhone === '' || !/\d/.test(trimmedPhone)) {
+                  console.log('onBlur: Clearing phone2 as it’s empty or only dial code');
+                  setPhone2('');
+                  setoldphone2('');
+                  setSenderErrors(prev => ({ ...prev, phone2: '' }));
+                }
+              }}
+              inputStyle={{
+                ...PhoneInputStyle,
+                width: '100%',
+                borderColor: senderErrors.phone2 ? 'red' : '#c4c4c4',
+                fontSize: '0.9rem',
+                fontFamily: 'Roboto, sans-serif',
+              }}
+              containerStyle={{ width: '100%' }}
+              enableSearch
+              specialLabel="Phone 2"
+            />
+            {senderErrors.phone2 && (
+              <Typography variant="caption" color="error">
+                {senderErrors.phone2}
+              </Typography>
+            )}
+          </Box>
 
           {/* Email Address */}
           <TextField
