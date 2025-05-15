@@ -28,8 +28,8 @@ import {
   IconButton,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { IconBox } from '../../styles/scheduleshipmentStyle';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import { IconBox } from '../../styles/scheduleshipmentStyle';
 import { useStyles } from '../../styles/MyshipmentStyle';
 
 const GetRate = () => {
@@ -70,20 +70,23 @@ const GetRate = () => {
     shipDate: '',
     residential: 'No',
     packageType: 'Package',
-    packageNumber: '',
-    weight: '',
-    length: '',
-    width: '',
-    height: '',
-    chargeableWeight: '',
-    insuredValue: '',
   });
   const [pickupErrors, setPickupErrors] = useState({
     fromZipCode: '',
     toZipCode: '',
   });
+  const [formErrors, setFormErrors] = useState({
+    fromCountry: '',
+    toCountry: '',
+    fromZipCode: '',
+    toZipCode: '',
+    fromCity: '',
+    toCity: '',
+    shipDate: '',
+    packageRows: [],
+  });
 
-  // State for package rows (without per-row units)
+  // State for package rows
   const [packageRows, setPackageRows] = useState([
     {
       packageNumber: '',
@@ -101,6 +104,119 @@ const GetRate = () => {
   const [dimensionUnit, setDimensionUnit] = useState('INCHES');
   const [chargeableUnit, setChargeableUnit] = useState('LB');
   const isEnvelope = formData.packageType === 'Envelope';
+
+  // Validation function
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      fromCountry: '',
+      toCountry: '',
+      fromZipCode: '',
+      toZipCode: '',
+      fromCity: '',
+      toCity: '',
+      shipDate: '',
+      packageRows: packageRows.map(() => ({
+        packageNumber: '',
+        weight: '',
+        length: '',
+        width: '',
+        height: '',
+        chargeableWeight: '',
+        insuredValue: '',
+      })),
+    };
+
+    // Validate form fields
+    if (!formData.fromCountry) {
+      newErrors.fromCountry = 'From Country is required';
+      isValid = false;
+    }
+    if (!formData.toCountry) {
+      newErrors.toCountry = 'To Country is required';
+      isValid = false;
+    }
+    if (!formData.fromZipCode) {
+      newErrors.fromZipCode = 'From Zip Code is required';
+      isValid = false;
+    }
+    if (!formData.toZipCode) {
+      newErrors.toZipCode = 'To Zip Code is required';
+      isValid = false;
+    }
+    if (!formData.fromCity) {
+      newErrors.fromCity = 'From City is required';
+      isValid = false;
+    }
+    if (!formData.toCity) {
+      newErrors.toCity = 'To City is required';
+      isValid = false;
+    }
+    if (!formData.shipDate) {
+      newErrors.shipDate = 'Ship Date is required';
+      isValid = false;
+    }
+
+    // Validate package rows
+    packageRows.forEach((row, index) => {
+      if (!row.packageNumber || isNaN(row.packageNumber) || parseInt(row.packageNumber) <= 0) {
+        newErrors.packageRows[index].packageNumber = 'Valid number of packages is required';
+        isValid = false;
+      }
+      if (!row.weight || isNaN(row.weight) || parseFloat(row.weight) <= 0) {
+        newErrors.packageRows[index].weight = 'Valid weight is required';
+        isValid = false;
+      }
+      if (!isEnvelope) {
+        if (!row.length || isNaN(row.length) || parseFloat(row.length) <= 0) {
+          newErrors.packageRows[index].length = 'Valid length is required';
+          isValid = false;
+        }
+        if (!row.width || isNaN(row.width) || parseFloat(row.width) <= 0) {
+          newErrors.packageRows[index].width = 'Valid width is required';
+          isValid = false;
+        }
+        if (!row.height || isNaN(row.height) || parseFloat(row.height) <= 0) {
+          newErrors.packageRows[index].height = 'Valid height is required';
+          isValid = false;
+        }
+      }
+      if (row.insuredValue && (isNaN(row.insuredValue) || parseFloat(row.insuredValue) < 0)) {
+        newErrors.packageRows[index].insuredValue = 'Valid insured value is required';
+        isValid = false;
+      }
+    });
+
+    setFormErrors(newErrors);
+    return isValid;
+  };
+
+  // Calculate chargeable weight
+  const calculateChargeableWeight = (pkg, fromCountry, toCountry) => {
+    const weight = parseFloat(pkg.weight) || 0;
+    const length = parseFloat(pkg.length) || 0;
+    const width = parseFloat(pkg.width) || 0;
+    const height = parseFloat(pkg.height) || 0;
+
+    const dimensionalWeight = Math.floor(
+      fromCountry === toCountry
+        ? (length * width * height) / 166 // Domestic
+        : (length * width * height) / 139 // International
+    );
+
+    return Math.max(weight, dimensionalWeight).toString();
+  };
+
+  // Update chargeable weight when package details change
+  useEffect(() => {
+    if (isEnvelope) return;
+    setPackageRows(prevRows =>
+      prevRows.map(row => ({
+        ...row,
+        chargeableWeight: calculateChargeableWeight(row, formData.fromCountry, formData.toCountry),
+      }))
+    );
+  }, [formData.fromCountry, formData.toCountry, packageRows, isEnvelope]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -135,6 +251,7 @@ const GetRate = () => {
       }
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   // Debounce refs for fromZipCode and toZipCode
@@ -169,6 +286,7 @@ const GetRate = () => {
         handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: place.city || '' } });
         handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: place.state || '' } });
         setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+        setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
         return;
       }
 
@@ -181,6 +299,7 @@ const GetRate = () => {
           handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: place.Block || place.District || '' } });
           handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: place.State || '' } });
           setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+          setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
           return;
         }
       }
@@ -206,6 +325,7 @@ const GetRate = () => {
         handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: city } });
         handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: state } });
         setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+        setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
         return;
       }
 
@@ -217,6 +337,10 @@ const GetRate = () => {
       setPickupErrors(prev => ({
         ...prev,
         [isFrom ? 'fromZipCode' : 'toZipCode']: "Invalid or unsupported zip code.",
+      }));
+      setFormErrors(prev => ({
+        ...prev,
+        [isFrom ? 'fromCity' : 'toCity']: "Invalid city due to invalid zip code.",
       }));
     }
   };
@@ -250,6 +374,11 @@ const GetRate = () => {
       updatedRows[index] = { ...updatedRows[index], [field]: value };
       return updatedRows;
     });
+    setFormErrors(prev => {
+      const newPackageErrors = [...prev.packageRows];
+      newPackageErrors[index] = { ...newPackageErrors[index], [field]: '' };
+      return { ...prev, packageRows: newPackageErrors };
+    });
   };
 
   const handleWeightUnitChange = (value) => {
@@ -278,6 +407,21 @@ const GetRate = () => {
         insuredValue: '',
       },
     ]);
+    setFormErrors(prev => ({
+      ...prev,
+      packageRows: [
+        ...prev.packageRows,
+        {
+          packageNumber: '',
+          weight: '',
+          length: '',
+          width: '',
+          height: '',
+          chargeableWeight: '',
+          insuredValue: '',
+        },
+      ],
+    }));
   };
 
   const handleDeleteRow = (index) => {
@@ -287,20 +431,25 @@ const GetRate = () => {
       updatedRows.splice(index, 1);
       return updatedRows;
     });
+    setFormErrors(prev => {
+      const newPackageErrors = [...prev.packageRows];
+      newPackageErrors.splice(index, 1);
+      return { ...prev, packageRows: newPackageErrors };
+    });
   };
 
   const handleGetRate = async () => {
+    if (!validateForm()) {
+      toast.error("Please fill all required fields correctly");
+      return;
+    }
+
     toast.dismiss();
     const loading = toast.loading("Getting Rate...");
-    // Find country objects for fromCountry and toCountry
-    console.log('countries:', countries);
-     const fromCountryObj = countries.find((c) => c.value === formData.fromCountry)
-    const toCountryObj = countries.find(c => c.value === formData.toCountry) 
-    console.log('From Country:', fromCountryObj);
-    console.log('To Country:', toCountryObj);
+    const fromCountryObj = countries.find((c) => c.value === formData.fromCountry);
+    const toCountryObj = countries.find(c => c.value === formData.toCountry);
 
     const payload = {
-      
       quoteData: {
         PackageType: formData.packageType,
         WeightType: weightUnit,
@@ -396,13 +545,12 @@ const GetRate = () => {
         setRates(updatedRates);
         setShowRates(true);
       } else {
-      toast.dismiss();
         toast.error("Failed to fetch rates");
         console.error('API error:', result);
       }
     } catch (error) {
       toast.dismiss();
-      toast.error("Error fetching rates",error);
+      toast.error("Error fetching rates", error);
       console.error('Error fetching rates:', error);
     }
   };
@@ -420,13 +568,6 @@ const GetRate = () => {
       shipDate: '',
       residential: 'No',
       packageType: 'Package',
-      packageNumber: '',
-      weight: '',
-      length: '',
-      width: '',
-      height: '',
-      chargeableWeight: '',
-      insuredValue: '',
     });
     setPackageRows([
       {
@@ -445,6 +586,25 @@ const GetRate = () => {
     setDimensionUnit('INCHES');
     setChargeableUnit('LB');
     setPickupErrors({ fromZipCode: '', toZipCode: '' });
+    setFormErrors({
+      fromCountry: '',
+      toCountry: '',
+      fromZipCode: '',
+      toZipCode: '',
+      fromCity: '',
+      toCity: '',
+      shipDate: '',
+      packageRows: [{
+        packageNumber: '',
+        weight: '',
+        length: '',
+        width: '',
+        height: '',
+        chargeableWeight: '',
+        insuredValue: '',
+      }],
+    });
+    toast.dismiss();
   };
 
   const handleBook = (service) => {
@@ -535,6 +695,8 @@ const GetRate = () => {
                       {...params}
                       className="small-textfield"
                       label="From Country"
+                      error={!!formErrors.fromCountry}
+                      helperText={formErrors.fromCountry}
                       InputProps={{
                         ...params.InputProps,
                         endAdornment: (
@@ -560,8 +722,8 @@ const GetRate = () => {
                 onChange={handleInputChange}
                 size="small"
                 className="custom-textfield"
-                error={!!pickupErrors.fromZipCode}
-                helperText={pickupErrors.fromZipCode}
+                error={!!pickupErrors.fromZipCode || !!formErrors.fromZipCode}
+                helperText={pickupErrors.fromZipCode || formErrors.fromZipCode}
               />
             </Box>
             <Box>
@@ -573,6 +735,8 @@ const GetRate = () => {
                 value={formData.fromCity}
                 onChange={handleInputChange}
                 size="small"
+                error={!!formErrors.fromCity}
+                helperText={formErrors.fromCity}
               />
             </Box>
             <Box>
@@ -590,6 +754,8 @@ const GetRate = () => {
                       {...params}
                       className="small-textfield"
                       label="To Country"
+                      error={!!formErrors.toCountry}
+                      helperText={formErrors.toCountry}
                       InputProps={{
                         ...params.InputProps,
                         endAdornment: (
@@ -615,8 +781,8 @@ const GetRate = () => {
                 value={formData.toZipCode}
                 onChange={handleInputChange}
                 size="small"
-                error={!!pickupErrors.toZipCode}
-                helperText={pickupErrors.toZipCode}
+                error={!!pickupErrors.toZipCode || !!formErrors.toZipCode}
+                helperText={pickupErrors.toZipCode || formErrors.toZipCode}
               />
             </Box>
             <Box>
@@ -628,6 +794,8 @@ const GetRate = () => {
                 value={formData.toCity}
                 onChange={handleInputChange}
                 size="small"
+                error={!!formErrors.toCity}
+                helperText={formErrors.toCity}
               />
             </Box>
             <Box>
@@ -684,6 +852,8 @@ const GetRate = () => {
                   shrink: true,
                 }}
                 placeholder=""
+                error={!!formErrors.shipDate}
+                helperText={formErrors.shipDate}
               />
             </Box>
           </Box>
@@ -832,6 +1002,9 @@ const GetRate = () => {
                           variant="outlined"
                           size="small"
                           fullWidth
+                          error={!!formErrors.packageRows[index]?.packageNumber}
+                          helperText={formErrors.packageRows[index]?.packageNumber}
+                          disabled={isEnvelope}
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px' }}>
@@ -842,6 +1015,9 @@ const GetRate = () => {
                           variant="outlined"
                           size="small"
                           fullWidth
+                          error={!!formErrors.packageRows[index]?.weight}
+                          helperText={formErrors.packageRows[index]?.weight}
+                          disabled={isEnvelope}
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
@@ -852,6 +1028,9 @@ const GetRate = () => {
                           variant="outlined"
                           size="small"
                           sx={{ flex: 1 }}
+                          error={!!formErrors.packageRows[index]?.length}
+                          helperText={formErrors.packageRows[index]?.length}
+                          disabled={isEnvelope}
                         />
                         <TextField
                           type="number"
@@ -860,6 +1039,9 @@ const GetRate = () => {
                           variant="outlined"
                           size="small"
                           sx={{ flex: 1 }}
+                          error={!!formErrors.packageRows[index]?.width}
+                          helperText={formErrors.packageRows[index]?.width}
+                          disabled={isEnvelope}
                         />
                         <TextField
                           type="number"
@@ -868,16 +1050,19 @@ const GetRate = () => {
                           variant="outlined"
                           size="small"
                           sx={{ flex: 1 }}
+                          error={!!formErrors.packageRows[index]?.height}
+                          helperText={formErrors.packageRows[index]?.height}
+                          disabled={isEnvelope}
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px' }}>
                         <TextField
                           type="number"
                           value={row.chargeableWeight}
-                          onChange={(e) => handlePackageRowChange(index, 'chargeableWeight', e.target.value)}
                           variant="outlined"
                           size="small"
                           fullWidth
+                          disabled
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px' }}>
@@ -888,6 +1073,8 @@ const GetRate = () => {
                           variant="outlined"
                           size="small"
                           fullWidth
+                          error={!!formErrors.packageRows[index]?.insuredValue}
+                          helperText={formErrors.packageRows[index]?.insuredValue}
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px' }}>
@@ -895,6 +1082,7 @@ const GetRate = () => {
                           <IconButton
                             onClick={() => handleDeleteRow(index)}
                             sx={{ color: '#f44336' }}
+                            disabled={isEnvelope}
                           >
                             <DeleteIcon />
                           </IconButton>
@@ -915,6 +1103,7 @@ const GetRate = () => {
                 textTransform: 'uppercase',
                 '&:hover': { backgroundColor: '#bdbdbd' },
               }}
+              disabled={isEnvelope}
             >
               ADD NEW ROW
             </Button>
