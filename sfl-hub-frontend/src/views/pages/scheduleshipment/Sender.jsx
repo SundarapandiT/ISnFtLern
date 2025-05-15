@@ -419,7 +419,7 @@ const Sender = ({
             helperText={senderErrors.addressLine1}
             sx={fieldStyle}
             inputProps={{
-              maxLength: 60,
+              maxLength: 50,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -438,7 +438,7 @@ const Sender = ({
             helperText={senderErrors.addressLine2}
             sx={fieldStyle}
             inputProps={{
-              maxLength: 60,
+              maxLength: 50,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -457,7 +457,7 @@ const Sender = ({
             helperText={senderErrors.addressLine3}
             sx={fieldStyle}
             inputProps={{
-              maxLength: 60,
+              maxLength: 50,
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none"
@@ -537,7 +537,7 @@ const Sender = ({
               />
             )}
           />
-          {country ? (
+          {country && iszip !== 0 ? (
             <Box sx={fieldStyle}>
               <StateDropdown
                 country={countryId}
@@ -547,7 +547,9 @@ const Sender = ({
               />
             </Box>
           ) : (
-            <Box sx={fieldStyle} />
+            <Box sx={fieldStyle}>
+              <TextField placeholder="Not required" value={""} fullWidth inputProps={{ readOnly: true }} sx={fieldStyle} className="custom-textfield" />
+            </Box>
           )}
         </Box>
 

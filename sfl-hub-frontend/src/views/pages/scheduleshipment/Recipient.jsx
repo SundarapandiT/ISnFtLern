@@ -343,7 +343,7 @@ const Recipient = ({
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none",
-              maxLength: 60
+              maxLength: 50
             }}
             onChange={(e) => setRecipientAddressLine1(e.target.value)}
             fullWidth
@@ -361,7 +361,7 @@ const Recipient = ({
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none",
-              maxLength: 60
+              maxLength: 50
             }}
             onChange={(e) => setRecipientAddressLine2(e.target.value)}
             fullWidth
@@ -378,7 +378,7 @@ const Recipient = ({
               autoComplete: "off",
               autoCorrect: "off",
               autoCapitalize: "none",
-              maxLength: 60
+              maxLength: 50
             }}
             onChange={(e) => setRecipientAddressLine3(e.target.value)}
             fullWidth
@@ -456,7 +456,7 @@ const Recipient = ({
               />
             )}
           />
-          {recipientCountry ? (
+          {recipientCountry && resiszip!==0? (
             <Box sx={fieldStyle}>
               <StateDropdown
                 country={recipientCountryId}
@@ -466,7 +466,9 @@ const Recipient = ({
               />
             </Box>
           ) : (
-            <Box sx={fieldStyle} />
+            <Box sx={fieldStyle}>
+              <TextField placeholder="Not required" value={""} fullWidth inputProps={{ readOnly: true }} sx={fieldStyle} className="custom-textfield" />
+            </Box>
           )}
         </Box>
 

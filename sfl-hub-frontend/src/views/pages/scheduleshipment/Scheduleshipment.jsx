@@ -784,10 +784,12 @@ const Schedule = () => {
       newErrors.fromCity = "City name must be 35 characters or fewer";
     }
 
+    if (iszip !== 0) {
     if (!state?.trim()) {
       newErrors.state = "State is required";
     } else if (state.trim().length > 35) {
       newErrors.state = "State name must be 35 characters or fewer";
+    }
     }
     if (!phone1?.trim()) {
       newErrors.phone1 = "Phone 1 is required";
@@ -874,13 +876,13 @@ const Schedule = () => {
       newErrors.recipientCity = "City must be 35 characters or fewer";
     }
 
-
+   if(resiszip !== 0) {
     if (!recipientState?.trim()) {
       newErrors.state = "State is required";
     } else if (recipientState.trim().length > 35) {
       newErrors.state = "State must be 35 characters or fewer";
     }
-
+  }
     if (!recipientPhone1?.trim()) {
       newErrors.phone1 = "Phone 1 is required";
     } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1.trim())) {
