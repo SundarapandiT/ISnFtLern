@@ -566,7 +566,7 @@ const Sender = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                maxLength: 15
+                // maxLength: 15
               }}
               onChange={(phone, countryData) => {
                 setPhone1(phone);
@@ -599,8 +599,6 @@ const Sender = ({
               </Typography>
             )}
           </Box>
-
-          {/* Phone 2 */}
           {/* Phone 2 */}
           <Box sx={{ ...fieldStyle, width: '100%' }}>
             <PhoneInput
@@ -611,7 +609,7 @@ const Sender = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                maxLength: 15
+                // maxLength: 15
               }}
               onChange={(phone, countryData) => {
                 const dialCode = `+${countryData.dialCode}`;

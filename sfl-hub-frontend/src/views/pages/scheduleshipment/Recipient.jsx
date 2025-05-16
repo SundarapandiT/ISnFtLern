@@ -483,7 +483,7 @@ const Recipient = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                maxLength: 15
+                // maxLength: 15
               }}
               value={recipientPhone1}
               onChange={(phone, countryData) => {
@@ -529,7 +529,7 @@ const Recipient = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                maxLength: 15,
+                // maxLength: 15,
               }}
               onChange={(phone, countryData) => {
                 setRecipientPhone2(phone);
