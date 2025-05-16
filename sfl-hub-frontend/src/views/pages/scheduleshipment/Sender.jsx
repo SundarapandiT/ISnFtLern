@@ -199,7 +199,9 @@ const Sender = ({
 
   useEffect(() => {
     if (!zipCode || zipCode.length < 3) {
+      if(iszip !== 0) {
       setFromCity("");
+      }
       return;
     }
 
@@ -332,7 +334,6 @@ const Sender = ({
       setSenderErrors({ fromCity: '' });
     }
   };
-  console.log(iszip)
 
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
