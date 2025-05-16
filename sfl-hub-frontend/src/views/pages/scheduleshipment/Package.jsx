@@ -246,8 +246,15 @@ const Package = ({
             </Grid>
             <Grid item xs={12} sm={4}>
               <FormControl fullWidth className="small-textfield">
-                <InputLabel id="duties-taxes-label">Duties & Taxes Paid By</InputLabel>
-                <Select
+                {/* <InputLabel id="duties-taxes-label">Duties & Taxes Paid By</InputLabel> */}
+                <TextField
+                  labelId="duties-taxes-label"
+                  value="Recipient (No Additional Fees)"
+                  label="Duties & Taxes Paid By"
+                  onChange={(e) => setDutiesPaidBy(e.target.value)}
+                  disabled
+                />
+                {/* <Select
                   labelId="duties-taxes-label"
                   value={dutiesPaidBy || "Recipient"}
                   label="Duties & Taxes Paid By"
@@ -255,7 +262,7 @@ const Package = ({
                   disabled
                 >
                   <MenuItem value="Recipient">Recipient (No Additional Fees)</MenuItem>
-                </Select>
+                </Select> */}
               </FormControl>
             </Grid>
           </>

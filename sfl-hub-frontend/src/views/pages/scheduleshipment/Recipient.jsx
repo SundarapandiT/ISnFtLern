@@ -238,7 +238,7 @@ const Recipient = ({
   };
 
   const fetchCityList = async () => {
-    const response = await axios.post('https://sfl-bk.trysimmer.com/locations/getFedexCityList', {
+    const response = await axios.post(`${api.BackendURL}/locations/getFedexCityList`, {
       countryID: recipientCountryId,
       cityType: 'FedEx',
     });
@@ -494,7 +494,7 @@ const Recipient = ({
 
                 if (!phone) {
                   setRecipientErrors(prev => ({ ...prev, phone1: "Phone number is required" }));
-                } else if (!validatePhoneNumber(phone, countryData.iso2)) {
+                } else if (phone.length>=3 &&!validatePhoneNumber(phone, countryData.iso2)) {
                   setRecipientErrors(prev => ({ ...prev, phone1: "Invalid phone number" }));
                 } else {
                   setRecipientErrors(prev => ({ ...prev, phone1: "" }));
@@ -539,7 +539,7 @@ const Recipient = ({
 
                 if (!phone) {
                   setRecipientErrors(prev => ({ ...prev, phone2: "" }));
-                } else if (!validatePhoneNumber(phone, countryData.iso2)) {
+                } else if (phone.length>=3 && !validatePhoneNumber(phone, countryData.iso2)) {
                   setRecipientErrors(prev => ({ ...prev, phone2: "Invalid phone number" }));
                 } else {
                   setRecipientErrors(prev => ({ ...prev, phone2: "" }));

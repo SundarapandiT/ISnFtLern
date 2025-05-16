@@ -95,6 +95,7 @@ const Schedule = () => {
   const handleLogout = () => {
     navigate("/auth/login-page");
     sessionStorage.removeItem("user");
+    sessionStorage.removeItem("PersonID");
     handleMenuClose();
   }
 
