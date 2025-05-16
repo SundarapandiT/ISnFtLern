@@ -25,6 +25,10 @@ const PickupForm = ({
   setresisZip,
   setZipCode,
   setRecipientZipCode,
+  setPhone1,
+  setPhone2,
+  setRecipientPhone1,
+  setRecipientPhone2,
 }) => {
   return (
     <PickupBox>
@@ -61,6 +65,7 @@ const PickupForm = ({
               setFromCountry(newValue?.value || "");
               setisZip(newValue?.iszipavailable ?? 0);
               setZipCode("");
+              setPhone1("");setPhone2("");
             }}
 
             renderInput={(params) => (
@@ -80,7 +85,7 @@ const PickupForm = ({
             options={countries}
             getOptionLabel={(option) => option.label}
             value={toCountry ? countries.find((c) => c.value === toCountry) : null}
-            onChange={(event, newValue) => { setToCountry(newValue?.value || ""); setresisZip(newValue?.iszipavailable ?? 0); setRecipientZipCode("") }}
+            onChange={(event, newValue) => { setToCountry(newValue?.value || ""); setresisZip(newValue?.iszipavailable ?? 0); setRecipientZipCode("");setRecipientPhone1("");setRecipientPhone2(""); }}
             renderInput={(params) => (
               <TextField
                 {...params}

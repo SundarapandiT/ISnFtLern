@@ -1328,6 +1328,10 @@ const Schedule = () => {
                 setresisZip={setresisZip}
                 setZipCode={setZipCode}
                 setRecipientZipCode={setRecipientZipCode}
+                setPhone1={setPhone1}
+                setPhone2={setPhone2}
+                setRecipientPhone1={setRecipientPhone1}
+                setRecipientPhone2={setRecipientPhone2}
 
               />
             )}
