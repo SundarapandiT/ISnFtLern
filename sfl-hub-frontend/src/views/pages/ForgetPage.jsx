@@ -67,37 +67,36 @@ const ForgotPassword = () => {
     };
      const encodedUrl= encryptURL("/users/forgotPassword");
     
-  
-    await toast.promise(
-      axios.post(`${api.BackendURL}/users/${encodedUrl}`, { data: payload }),
-      {
-        loading: "Sending Mail...",
-        success: (res) => {
-          const msg = res.data?.message;
-          console.log("Response message:", msg); 
-  
-          if (msg === "Reset password link sent successfully over email") {
-            setTimeout(() => navigate("/auth/login-page"), 1500);
-            return msg;
-          } else if (msg === "Username sent successfully over email") {
-            setTimeout(() => navigate("/auth/login-page"), 1500);
-            return msg;
-          } else if (msg === "Could not retrieve necessary user details.") {
-            throw new Error("Could not retrieve necessary user details. Give Valid Email ID or Signup!!");
-          } else {
-            throw new Error(msg || "Cannot send email");
-          }
-        },
-        error: (err) => {
-          console.error("verification send error:", err);
-          if (err.response.data.message==="Could not retrieve necessary user details.") {
-            return ("Could not retrieve necessary user details. Give Valid Email ID or Signup!!");
-            
-          }
-          return err.response.data.message || "Something went wrong";
-        }
+    toast.dismiss();
+   await toast.promise(
+  axios.post(`${api.BackendURL}/users/${encodedUrl}`, { data: payload }),
+  {
+    loading: "Sending Mail...",
+    success: (res) => {
+      const msg = res.data?.message;
+      console.log("Response message:", msg); 
+
+      if (
+        msg === "Reset password link sent successfully over email" ||
+        msg === "Username sent successfully over email"
+      ) {
+        setTimeout(() => navigate("/auth/login-page"), 1500);
+        return msg;
+      } else if (msg === "Could not retrieve necessary user details.") {
+        toast.error("Could not retrieve user details. Please provide a valid email or sign up.");
+        return;
+      } else {
+        toast.error(msg || "Cannot send email");
+        return;
       }
-    );
+    },
+    error: (err) => {
+      console.log(err);
+      return err || "Something went wrong";
+    }
+  }
+);
+
   };
   
 

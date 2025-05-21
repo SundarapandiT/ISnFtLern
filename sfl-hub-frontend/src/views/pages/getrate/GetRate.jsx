@@ -438,70 +438,131 @@ const GetRate = () => {
     });
   };
 
-  const handleGetRate = async () => {
-    if (!validateForm()) {
-      toast.error("Please fill all required fields correctly");
-      return;
-    }
+const handleGetRate = async () => {
+  if (!validateForm()) {
+    toast.error("Please fill all required fields correctly");
+    return;
+  }
 
-    toast.dismiss();
-    const loading = toast.loading("Getting Rate...");
-    const fromCountryObj = countries.find((c) => c.value === formData.fromCountry);
-    const toCountryObj = countries.find(c => c.value === formData.toCountry);
+  toast.dismiss();
+  const loading = toast.loading("Getting Rate...");
+  const fromCountryObj = countries.find((c) => c.value === formData.fromCountry);
+  const toCountryObj = countries.find((c) => c.value === formData.toCountry);
 
-    const payload = {
+
+  const basePayload = {
+    quoteData: {
+      PackageType: formData.packageType,
+      WeightType: weightUnit,
+      UpsData: {
+        FromCountry: JSON.stringify({
+          CountryID: fromCountryObj.countryid,
+          CountryName: fromCountryObj.label,
+          CountryCode: fromCountryObj.value.toUpperCase(),
+          IsFedexCity: 0,
+          IsUpsCity: 0,
+          IsDhlCity: 0,
+          IsZipAvailable: 1,
+          FromZipCodeOptional: false,
+          ToZipCodeOptional: false,
+        }),
+        FromCity: formData.fromCity,
+        FromUPSCity: null,
+        FromFedExCity: null,
+        FromZipCode: formData.fromZipCode,
+        FromStateProvinceCode: "",
+        ToCountry: JSON.stringify({
+          CountryID: toCountryObj.countryid,
+          CountryName: toCountryObj.label,
+          CountryCode: toCountryObj.value.toUpperCase(),
+          IsFedexCity: 0,
+          IsUpsCity: 0,
+          IsDhlCity: 0,
+          IsZipAvailable: 1,
+          FromZipCodeOptional: false,
+          ToZipCodeOptional: false,
+        }),
+        ToCity: formData.toCity,
+        ToUPSCity: "",
+        ToFedExCity: "",
+        ToZipCode: formData.toZipCode,
+        ToStateProvinceCode: "",
+      },
+      IsResidencial: formData.residential === "Yes",
+      IsPickUp: false,
+      ShipDate: formData.shipDate ? new Date(formData.shipDate).toISOString() : new Date().toISOString(),
+      AgentCode: 12122,
+    },
+  };
+
+  let payload;
+
+  if (formData.packageType === "Envelope") {
+    payload = {
+      ...basePayload,
       quoteData: {
-        PackageType: formData.packageType,
-        WeightType: weightUnit,
-        UpsData: {
-          FromCountry: JSON.stringify({
-            CountryID: fromCountryObj.countryid,
-            CountryName: fromCountryObj.label,
-            CountryCode: fromCountryObj.value.toUpperCase(),
-            IsFedexCity: 0,
-            IsUpsCity: 0,
-            IsDhlCity: 0,
-            IsZipAvailable: 1,
-            FromZipCodeOptional: false,
-            ToZipCodeOptional: false,
-          }),
-          FromCity: formData.fromCity,
-          FromUPSCity: null,
-          FromFedExCity: null,
-          FromZipCode: formData.fromZipCode,
-          FromStateProvinceCode: "",
-          ToCountry: JSON.stringify({
-            CountryID: toCountryObj.countryid,
-            CountryName: toCountryObj.label,
-            CountryCode: toCountryObj.value.toUpperCase(),
-            IsFedexCity: 0,
-            IsUpsCity: 0,
-            IsDhlCity: 0,
-            IsZipAvailable: 1,
-            FromZipCodeOptional: false,
-            ToZipCodeOptional: false,
-          }),
-          ToCity: formData.toCity,
-          ToUPSCity: '',
-          ToFedExCity: '',
-          ToZipCode: formData.toZipCode,
-          ToStateProvinceCode: "",
-        },
-        PackageNumber: packageRows.map(row => row.packageNumber || '1'),
-        Weight: packageRows.map(row => row.weight || '0.5'),
-        DimeL: packageRows.map(row => row.length || '10'),
-        DimeW: packageRows.map(row => row.width || '13'),
-        DimeH: packageRows.map(row => row.height || '1'),
-        TotalLength: parseFloat(packageRows[0]?.length) || 10,
-        TotalWidth: parseFloat(packageRows[0]?.width) || 13,
-        TotalInsuredValues: parseFloat(packageRows[0]?.insuredValue) || 0,
-        TotalHeight: parseFloat(packageRows[0]?.height) || 1,
-        ChargableWeight: packageRows.map(row => row.chargeableWeight || '1'),
-        InsuredValues: packageRows.map(row => row.insuredValue || '0'),
+        ...basePayload.quoteData,
+        PackageNumber: ["1"],
+        Weight: ["0.5"],
+        DimeL: ["10"],
+        DimeW: ["13"],
+        DimeH: ["1"],
+        TotalLength: 10,
+        TotalWidth: 13,
+        TotalHeight: 1,
+        TotalInsuredValues: 0,
+        ChargableWeight: ["0.5"],
+        InsuredValues: ["0"],
+        SelectedWeightType: "LB",
+        TotalWeight: 1,
+        WeightCount: 1,
+        LengthCount: 1,
+        WidthCount: 1,
+        HeightCount: 1,
+        PackCount: "1",
+        PackageDetailsCount: 1,
+        PackageDetailsText: "1",
+        EnvelopeWeightLBSText: 1,
+        PackageDetails: [
+          {
+            PackageNumber: 1,
+            PackageWeight: 0.5,
+            PackageWidth: 13,
+            PackageLength: 10,
+            PackageHeight: 1,
+            PackageChargableWeight: 1,
+            PackageInsuredValue: "0",
+          },
+        ],
+      },
+    };
+  } else {
+    const totalWeight = packageRows.reduce((sum, row) => sum + (parseFloat(row.weight) || 0), 0);
+    const totalLength = packageRows.reduce((sum, row) => sum + (parseFloat(row.length) || 0), 0);
+    const totalWidth = packageRows.reduce((sum, row) => sum + (parseFloat(row.width) || 0), 0);
+    const totalHeight = packageRows.reduce((sum, row) => sum + (parseFloat(row.height) || 0), 0);
+    const totalInsuredValues = packageRows.reduce(
+      (sum, row) => sum + (parseFloat(row.insuredValue) || 0),
+      0
+    );
+
+    payload = {
+      ...basePayload,
+      quoteData: {
+        ...basePayload.quoteData,
+        PackageNumber: packageRows.map((row) => row.packageNumber || "1"),
+        Weight: packageRows.map((row) => row.weight || "0"),
+        DimeL: packageRows.map((row) => row.length || "0"),
+        DimeW: packageRows.map((row) => row.width || "0"),
+        DimeH: packageRows.map((row) => row.height || "0"),
+        TotalLength: totalLength || 0,
+        TotalWidth: totalWidth || 0,
+        TotalHeight: totalHeight || 0,
+        TotalInsuredValues: totalInsuredValues || 0,
+        ChargableWeight: packageRows.map((row) => row.chargeableWeight || "0"),
+        InsuredValues: packageRows.map((row) => row.insuredValue || "0"),
         SelectedWeightType: weightUnit,
-        TotalWeight: parseFloat(packageRows[0]?.weight) || 1,
-        IsResidencial: formData.residential === 'Yes',
-        IsPickUp: false,
+        TotalWeight: totalWeight || 0,
         WeightCount: packageRows.length,
         LengthCount: packageRows.length,
         WidthCount: packageRows.length,
@@ -509,51 +570,50 @@ const GetRate = () => {
         PackCount: packageRows.length.toString(),
         PackageDetailsCount: packageRows.length,
         PackageDetailsText: packageRows.length.toString(),
-        EnvelopeWeightLBSText: parseFloat(packageRows[0]?.weight) || 1,
-        ShipDate: formData.shipDate ? new Date(formData.shipDate).toISOString() : new Date().toISOString(),
-        PackageDetails: packageRows.map(row => ({
+        EnvelopeWeightLBSText: totalWeight || 0,
+        PackageDetails: packageRows.map((row) => ({
           PackageNumber: parseInt(row.packageNumber) || 1,
-          PackageWeight: parseFloat(row.weight) || 0.5,
-          PackageWidth: parseFloat(row.width) || 13,
-          PackageLength: parseFloat(row.length) || 10,
-          PackageHeight: parseFloat(row.height) || 1,
-          PackageChargableWeight: parseFloat(row.chargeableWeight) || 1,
-          PackageInsuredValue: row.insuredValue || '0',
+          PackageWeight: parseFloat(row.weight) || 0,
+          PackageWidth: parseFloat(row.width) || 0,
+          PackageLength: parseFloat(row.length) || 0,
+          PackageHeight: parseFloat(row.height) || 0,
+          PackageChargableWeight: parseFloat(row.chargeableWeight) || 0,
+          PackageInsuredValue: row.insuredValue || "0",
         })),
-        AgentCode: 12122,
       },
     };
+  }
 
-    try {
-      const response = await fetch('https://hubapi.sflworldwide.com/getQuote/getRates', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+  try {
+    const response = await fetch("https://hubapi.sflworldwide.com/getQuote/getRates", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      const result = await response.json();
-      toast.dismiss();
-      if (result.success) {
-        toast.success("Rates fetched successfully");
-        const updatedRates = result.data.map((item) => ({
-          service: item.ServiceDisplayName,
-          deliveryDate: item.Delivery_Date,
-          rate: item.Rates,
-        }));
-        setRates(updatedRates);
-        setShowRates(true);
-      } else {
-        toast.error("Failed to fetch rates");
-        console.error('API error:', result);
-      }
-    } catch (error) {
-      toast.dismiss();
-      toast.error("Error fetching rates", error);
-      console.error('Error fetching rates:', error);
+    const result = await response.json();
+    toast.dismiss();
+    if (result.success) {
+      toast.success("Rates fetched successfully");
+      const updatedRates = result.data.map((item) => ({
+        service: item.ServiceDisplayName,
+        deliveryDate: item.Delivery_Date,
+        rate: item.Rates,
+      }));
+      setRates(updatedRates);
+      setShowRates(true);
+    } else {
+      toast.error("Failed to fetch rates");
+      console.error("API error:", result);
     }
-  };
+  } catch (error) {
+    toast.dismiss();
+    toast.error("Error fetching rates", error);
+    console.error("Error fetching rates:", error);
+  }
+};
 
   const handleReset = () => {
     setFormData({
