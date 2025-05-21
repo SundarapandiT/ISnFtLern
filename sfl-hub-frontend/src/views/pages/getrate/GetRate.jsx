@@ -671,9 +671,9 @@ const handleGetRate = async () => {
     console.log(`Booking ${service}...`);
   };
 
-  const handleSendEmail = () => {
-    console.log('Sending email...');
-  };
+  // const handleSendEmail = () => {
+  //   console.log('Sending email...');
+  // };
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
@@ -1224,7 +1224,7 @@ const handleGetRate = async () => {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Button
+            {/* <Button
               onClick={handleSendEmail}
               variant="contained"
               sx={{
@@ -1234,7 +1234,7 @@ const handleGetRate = async () => {
               }}
             >
               SEND EMAIL
-            </Button>
+            </Button> */}
           </CardContent>
         )}
       </Card>
