@@ -735,12 +735,12 @@ const GetRate = () => {
           variant="fullWidth"
           onChange={(e, newValue) => setShipmentType(newValue)}
           sx={{
-            marginRight: '8px',
+            marginRight: '0px',
             marginTop: '14px',
           }}
         >
           <Tab
-            label="Air/Ground"
+            label="Air / Ground"
             value="AIR"
             sx={{
               padding: '12px 16px',
@@ -757,7 +757,7 @@ const GetRate = () => {
               minHeight: '36px',
             }}
           />
-          <Tab
+          {/* <Tab
             label="Ocean"
             value="OCEAN"
             sx={{
@@ -774,7 +774,7 @@ const GetRate = () => {
               textTransform: 'uppercase',
               minHeight: '36px',
             }}
-          />
+          /> */}
         </Tabs>
 
         <CardContent sx={{ padding: '16px' }}>
