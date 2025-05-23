@@ -1546,7 +1546,8 @@ const Schedule = () => {
           <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit} />} />
           <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} />} />
           <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
-          <Route path="getrate" element={<GetRate setActiveModule={setActiveModule}/>} />
+          {activeModule === "Getrate" && 
+          <Route path="getrate" element={<GetRate setActiveModule={setActiveModule}/>} />}
         </Routes>
         {activeModule !== "My Shipment" && (
           <Box className="footer-box" sx={{
