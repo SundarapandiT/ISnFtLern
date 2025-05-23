@@ -1,14 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from "axios";
-import { api, encryptURL } from "../../../utils/api";
-import { toast } from "react-hot-toast";
+import axios from 'axios';
+import { api, encryptURL } from '../../../utils/api';
+import { toast } from 'react-hot-toast';
 import {
   Box,
   Autocomplete,
   FormControl,
   Card,
-  CardHeader,
   CardContent,
   Button,
   Typography,
@@ -30,9 +29,26 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import { IconBox } from '../../styles/scheduleshipmentStyle';
 import { useStyles } from '../../styles/MyshipmentStyle';
+import { useShipmentContext } from '../../ShipmentContext';
+import { useNavigate } from 'react-router-dom';
 
-const GetRate = () => {
+const GetRate = ({setActiveModule}) => {
+  const navigate = useNavigate();
   const classes = useStyles();
+  const {
+    fromDetails,
+    updateFromDetails,
+    toDetails,
+    updateToDetails,
+    packageDetails,
+    setPackageDetails,
+    Giszip,
+    GsetisZip,
+    Gresiszip,
+    GsetresisZip,
+    GshipmentType,
+    GsetShipmentType,
+  } = useShipmentContext();
 
   // Fetch countries data
   const { data: countries = [], isLoading: isCountriesLoading, isError: isCountriesError } = useQuery({
@@ -47,35 +63,16 @@ const GetRate = () => {
         iszipavailable: country.iszipavailable,
       }));
     },
-    staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours
+    staleTime: 24 * 60 * 60 * 1000,
     retry: 2,
     onError: (error) => {
       console.error('Failed to fetch countries:', error);
-      toast.error("Failed to load countries.");
-    }
+      toast.error('Failed to load countries.');
+    },
   });
 
-  const today = new Date();
-  const defaultDate = today.toISOString().split('T')[0];
-
-  const [shipmentType, setShipmentType] = useState('AIR');
   const [rates, setRates] = useState([]);
   const [showRates, setShowRates] = useState(false);
-  const [iszip, setisZip] = useState(1);
-  const [resiszip, setresisZip] = useState(1);
-  const [formData, setFormData] = useState({
-    fromCountry: 'us',
-    fromZipCode: '',
-    fromCity: '',
-    fromState: '',
-    toCountry: 'us',
-    toZipCode: '',
-    toCity: '',
-    toState: '',
-    shipDate: defaultDate,
-    residential: 'No',
-    packageType: 'Package',
-  });
   const [pickupErrors, setPickupErrors] = useState({
     fromZipCode: '',
     toZipCode: '',
@@ -88,12 +85,7 @@ const GetRate = () => {
     fromCity: '',
     toCity: '',
     shipDate: '',
-    packageRows: [],
-  });
-
-  // State for package rows
-  const [packageRows, setPackageRows] = useState([
-    {
+    packageRows: packageDetails.map(() => ({
       packageNumber: '',
       weight: '',
       length: '',
@@ -101,59 +93,117 @@ const GetRate = () => {
       height: '',
       chargeableWeight: '',
       insuredValue: '',
-    },
-  ]);
+    })),
+  });
 
   // Global unit states
   const [weightUnit, setWeightUnit] = useState('LB');
   const [dimensionUnit, setDimensionUnit] = useState('INCHES');
   const [chargeableUnit, setChargeableUnit] = useState('LB');
-  const isEnvelope = formData.packageType === 'Envelope';
+  const isEnvelope = toDetails.packageType === 'Envelope';
+
+  // Sync packageDetails with packageType changes
+  useEffect(() => {
+    if (isEnvelope) {
+      setPackageDetails([
+        {
+          packageNumber: '1',
+          weight: '0.5',
+          length: '10',
+          width: '13',
+          height: '1',
+          chargeableWeight: '1',
+          insuredValue: '0',
+        },
+      ]);
+      setWeightUnit('LB');
+      setDimensionUnit('INCHES');
+      setChargeableUnit('LB');
+    } else {
+      // Only reset if packageDetails is not already in the desired state
+      if (
+        packageDetails.length !== 1 ||
+        packageDetails[0].packageNumber !== '' ||
+        packageDetails[0].weight !== '' ||
+        packageDetails[0].length !== '' ||
+        packageDetails[0].width !== '' ||
+        packageDetails[0].height !== '' ||
+        packageDetails[0].chargeableWeight !== '' ||
+        packageDetails[0].insuredValue !== ''
+      ) {
+        setPackageDetails([
+          {
+            packageNumber: '',
+            weight: '',
+            length: '',
+            width: '',
+            height: '',
+            chargeableWeight: '',
+            insuredValue: '',
+          },
+        ]);
+      }
+    }
+  }, [toDetails.packageType, setPackageDetails]);
+
+  // Sync formErrors with packageDetails
+  useEffect(() => {
+    setFormErrors(prev => ({
+      ...prev,
+      packageRows: packageDetails.map(() => ({
+        packageNumber: '',
+        weight: '',
+        length: '',
+        width: '',
+        height: '',
+        chargeableWeight: '',
+        insuredValue: '',
+      })),
+    }));
+  }, [packageDetails]);
 
   // Fetch city list for fromCountry when iszip === 0
-  const fromCountryObj = countries.find(c => c.value === formData.fromCountry);
+  const fromCountryObj = countries.find(c => c.value === fromDetails.fromCountry);
   const { data: fromCities = [], isLoading: isFromCitiesLoading, error: fromCitiesError } = useQuery({
-    queryKey: ['fromCityList', formData.fromCountry],
+    queryKey: ['fromCityList', fromDetails.fromCountry],
     queryFn: async () => {
-      if (!fromCountryObj || iszip !== 0) return [];
+      if (!fromCountryObj || Giszip !== 0) return [];
       const response = await axios.post(`${api.BackendURL}/locations/getFedexCityList`, {
         countryID: fromCountryObj.countryid,
         cityType: 'FedEx',
       });
       return response.data.user?.[0]?.map(city => city.cityname) || [];
     },
-    enabled: !!fromCountryObj && iszip === 0,
+    enabled: !!fromCountryObj && Giszip === 0,
     staleTime: 24 * 60 * 60 * 1000,
     retry: 2,
     onError: (error) => {
       console.error('Failed to fetch from city list:', error);
-      toast.error("Failed to load from city list.");
-    }
+      toast.error('Failed to load from city list.');
+    },
   });
 
   // Fetch city list for toCountry when resiszip === 0
-  const toCountryObj = countries.find(c => c.value === formData.toCountry);
+  const toCountryObj = countries.find(c => c.value === toDetails.toCountry);
   const { data: toCities = [], isLoading: isToCitiesLoading, error: toCitiesError } = useQuery({
-    queryKey: ['toCityList', formData.toCountry],
+    queryKey: ['toCityList', toDetails.toCountry],
     queryFn: async () => {
-      if (!toCountryObj || resiszip !== 0) return [];
+      if (!toCountryObj || Gresiszip !== 0) return [];
       const response = await axios.post(`${api.BackendURL}/locations/getFedexCityList`, {
         countryID: toCountryObj.countryid,
         cityType: 'FedEx',
       });
       return response.data.user?.[0]?.map(city => city.cityname) || [];
     },
-    enabled: !!toCountryObj && resiszip === 0,
+    enabled: !!toCountryObj && Gresiszip === 0,
     staleTime: 24 * 60 * 60 * 1000,
     retry: 2,
     onError: (error) => {
       console.error('Failed to fetch to city list:', error);
-      toast.error("Failed to load to city list.");
-    }
+      toast.error('Failed to load to city list.');
+    },
   });
 
-  // Rest of the component (validateForm, calculateChargeableWeight, useEffect, etc.) remains unchanged
-  // ... [Include the rest of the component code as provided previously, starting from validateForm]
   const validateForm = () => {
     let isValid = true;
     const newErrors = {
@@ -164,7 +214,7 @@ const GetRate = () => {
       fromCity: '',
       toCity: '',
       shipDate: '',
-      packageRows: packageRows.map(() => ({
+      packageRows: packageDetails.map(() => ({
         packageNumber: '',
         weight: '',
         length: '',
@@ -175,36 +225,36 @@ const GetRate = () => {
       })),
     };
 
-    if (!formData.fromCountry) {
+    if (!fromDetails.fromCountry) {
       newErrors.fromCountry = 'From Country is required';
       isValid = false;
     }
-    if (!formData.toCountry) {
+    if (!toDetails.toCountry) {
       newErrors.toCountry = 'To Country is required';
       isValid = false;
     }
-    if (iszip === 1 && !formData.fromZipCode) {
+    if (Giszip === 1 && !fromDetails.fromZipCode) {
       newErrors.fromZipCode = 'From Zip Code is required';
       isValid = false;
     }
-    if (resiszip === 1 && !formData.toZipCode) {
+    if (Gresiszip === 1 && !toDetails.toZipCode) {
       newErrors.toZipCode = 'To Zip Code is required';
       isValid = false;
     }
-    if (!formData.fromCity) {
+    if (!fromDetails.fromCity) {
       newErrors.fromCity = 'From City is required';
       isValid = false;
     }
-    if (!formData.toCity) {
+    if (!toDetails.toCity) {
       newErrors.toCity = 'To City is required';
       isValid = false;
     }
-    if (!formData.shipDate) {
+    if (!toDetails.shipDate) {
       newErrors.shipDate = 'Ship Date is required';
       isValid = false;
     }
 
-    packageRows.forEach((row, index) => {
+    packageDetails.forEach((row, index) => {
       if (!row.packageNumber || isNaN(row.packageNumber) || parseInt(row.packageNumber) <= 0) {
         newErrors.packageRows[index].packageNumber = 'Valid number of packages is required';
         isValid = false;
@@ -254,48 +304,23 @@ const GetRate = () => {
 
   useEffect(() => {
     if (isEnvelope) return;
-    setPackageRows(prevRows =>
+    setPackageDetails(prevRows =>
       prevRows.map(row => ({
         ...row,
-        chargeableWeight: calculateChargeableWeight(row, formData.fromCountry, formData.toCountry),
+        chargeableWeight: calculateChargeableWeight(row, fromDetails.fromCountry, toDetails.toCountry),
       }))
     );
-  }, [formData.fromCountry, formData.toCountry, packageRows, isEnvelope]);
+  }, [fromDetails.fromCountry, toDetails.toCountry, packageDetails, isEnvelope, setPackageDetails]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'packageType') {
-      if (value === 'Envelope') {
-        setPackageRows([
-          {
-            packageNumber: '1',
-            weight: '0.5',
-            length: '10',
-            width: '13',
-            height: '1',
-            chargeableWeight: '1',
-            insuredValue: '0',
-          },
-        ]);
-        setWeightUnit('LB');
-        setDimensionUnit('INCHES');
-        setChargeableUnit('LB');
-      } else {
-        setPackageRows([
-          {
-            packageNumber: '',
-            weight: '',
-            length: '',
-            width: '',
-            height: '',
-            chargeableWeight: '',
-            insuredValue: '',
-          },
-        ]);
-      }
+    if (name.startsWith('from')) {
+      updateFromDetails({ [name]: value });
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    } else if (name.startsWith('to') || name === 'residential' || name === 'packageType' || name === 'shipDate') {
+      updateToDetails({ [name]: value });
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setFormErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const fromDebounceRef = useRef(null);
@@ -303,8 +328,8 @@ const GetRate = () => {
 
   const fetchCityState = async (zipCode, countryValue, isFrom) => {
     if (!zipCode || zipCode.length < 3) {
-      handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: '' } });
-      handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: '' } });
+      updateFromDetails({ fromCity: '', fromState: '' });
+      updateToDetails({ toCity: '', toState: '' });
       setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
       return;
     }
@@ -312,10 +337,10 @@ const GetRate = () => {
     try {
       const country = countries.find(c => c.value === countryValue);
       if (!country) {
-        throw new Error("Country not selected or invalid");
+        throw new Error('Country not selected or invalid');
       }
 
-      const encodedUrl = encryptURL("/locations/getstateCitybyPostalCode");
+      const encodedUrl = encryptURL('/locations/getstateCitybyPostalCode');
       const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
         CountryID: country.countryid,
         PostalCode: zipCode,
@@ -324,20 +349,26 @@ const GetRate = () => {
       const userData = response.data?.user?.[0] || [];
       if (userData.length > 0) {
         const place = userData[0];
-        handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: place.city || '' } });
-        handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: place.state || '' } });
+        if (isFrom) {
+          updateFromDetails({ fromCity: place.city || '', fromState: place.state || '' });
+        } else {
+          updateToDetails({ toCity: place.city || '', toState: place.state || '' });
+        }
         setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
         setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
         return;
       }
 
-      if (countryValue === "in") {
+      if (countryValue === 'in') {
         const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
         const data = res.data[0];
-        if (data.Status === "Success" && data.PostOffice?.length > 0) {
+        if (data.Status === 'Success' && data.PostOffice?.length > 0) {
           const place = data.PostOffice[0];
-          handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: place.Block || place.District || '' } });
-          handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: place.State || '' } });
+          if (isFrom) {
+            updateFromDetails({ fromCity: place.Block || place.District || '', fromState: place.State || '' });
+          } else {
+            updateToDetails({ toCity: place.Block || place.District || '', toState: place.State || '' });
+          }
           setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
           setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
           return;
@@ -361,60 +392,66 @@ const GetRate = () => {
       });
 
       if (city || state) {
-        handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: city } });
-        handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: state } });
+        if (isFrom) {
+          updateFromDetails({ fromCity: city, fromState: state });
+        } else {
+          updateToDetails({ toCity: city, toState: state });
+        }
         setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
         setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
         return;
       }
 
-      throw new Error("No valid data found");
+      throw new Error('No valid data found');
     } catch (err) {
       console.error(`Failed to fetch city/state for ${isFrom ? 'fromZipCode' : 'toZipCode'}:`, err.message);
-      handleInputChange({ target: { name: isFrom ? 'fromCity' : 'toCity', value: '' } });
-      handleInputChange({ target: { name: isFrom ? 'fromState' : 'toState', value: '' } });
+      if (isFrom) {
+        updateFromDetails({ fromCity: '', fromState: '' });
+      } else {
+        updateToDetails({ toCity: '', toState: '' });
+      }
       setPickupErrors(prev => ({
         ...prev,
-        [isFrom ? 'fromZipCode' : 'toZipCode']: "Invalid or unsupported zip code.",
+        [isFrom ? 'fromZipCode' : 'toZipCode']: 'Invalid or unsupported zip code.',
       }));
       setFormErrors(prev => ({
         ...prev,
-        [isFrom ? 'fromCity' : 'toCity']: "Invalid city due to invalid zip code.",
+        [isFrom ? 'fromCity' : 'toCity']: 'Invalid city due to invalid zip code.',
       }));
     }
   };
 
   useEffect(() => {
-    if (iszip === 0) {
-      setFormData(prev => ({ ...prev, fromZipCode: '', fromCity: '', fromState: '' }));
+    if (Giszip === 0) {
+      updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
       setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
       setFormErrors(prev => ({ ...prev, fromCity: '' }));
       return;
     }
     if (fromDebounceRef.current) clearTimeout(fromDebounceRef.current);
     fromDebounceRef.current = setTimeout(() => {
-      fetchCityState(formData.fromZipCode, formData.fromCountry, true);
+      fetchCityState(fromDetails.fromZipCode, fromDetails.fromCountry, true);
     }, 500);
     return () => clearTimeout(fromDebounceRef.current);
-  }, [formData.fromZipCode, formData.fromCountry, iszip, countries]);
+  }, [fromDetails.fromZipCode, fromDetails.fromCountry, Giszip, countries]);
 
   useEffect(() => {
-    if (resiszip === 0) {
-      setFormData(prev => ({ ...prev, toZipCode: '', toCity: '', toState: '' }));
+    if (Gresiszip === 0) {
+      updateToDetails({ toZipCode: '', toCity: '', toState: '' });
       setPickupErrors(prev => ({ ...prev, toZipCode: '' }));
       setFormErrors(prev => ({ ...prev, toCity: '' }));
       return;
     }
     if (toDebounceRef.current) clearTimeout(toDebounceRef.current);
     toDebounceRef.current = setTimeout(() => {
-      fetchCityState(formData.toZipCode, formData.toCountry, false);
+      fetchCityState(toDetails.toZipCode, toDetails.toCountry, false);
     }, 500);
     return () => clearTimeout(toDebounceRef.current);
-  }, [formData.toZipCode, formData.toCountry, resiszip, countries]);
+  }, [toDetails.toZipCode, toDetails.toCountry, Gresiszip, countries]);
 
   const handlePackageRowChange = (index, field, value) => {
     if (isEnvelope) return;
-    setPackageRows((prevRows) => {
+    setPackageDetails((prevRows) => {
       const updatedRows = [...prevRows];
       updatedRows[index] = { ...updatedRows[index], [field]: value };
       return updatedRows;
@@ -440,7 +477,7 @@ const GetRate = () => {
 
   const handleAddRow = () => {
     if (isEnvelope) return;
-    setPackageRows((prevRows) => [
+    setPackageDetails((prevRows) => [
       ...prevRows,
       {
         packageNumber: '',
@@ -471,7 +508,7 @@ const GetRate = () => {
 
   const handleDeleteRow = (index) => {
     if (isEnvelope) return;
-    setPackageRows((prevRows) => {
+    setPackageDetails((prevRows) => {
       const updatedRows = [...prevRows];
       updatedRows.splice(index, 1);
       return updatedRows;
@@ -485,87 +522,87 @@ const GetRate = () => {
 
   const handleGetRate = async () => {
     if (!validateForm()) {
-      toast.error("Please fill all required fields correctly");
+      toast.error('Please fill all required fields correctly');
       return;
     }
 
     toast.dismiss();
-    const loading = toast.loading("Getting Rate...");
-    const fromCountryObj = countries.find((c) => c.value === formData.fromCountry);
-    const toCountryObj = countries.find((c) => c.value === formData.toCountry);
+    const loading = toast.loading('Getting Rate...');
+    const fromCountryObj = countries.find((c) => c.value === fromDetails.fromCountry);
+    const toCountryObj = countries.find((c) => c.value === toDetails.toCountry);
 
     const basePayload = {
       quoteData: {
-        PackageType: formData.packageType,
+        PackageType: toDetails.packageType,
         WeightType: weightUnit,
         UpsData: {
           FromCountry: JSON.stringify({
             CountryID: fromCountryObj.countryid,
             CountryName: fromCountryObj.label,
             CountryCode: fromCountryObj.value.toUpperCase(),
-            IsFedexCity: iszip === 0 ? 1 : 0,
+            IsFedexCity: Giszip === 0 ? 1 : 0,
             IsUpsCity: 0,
             IsDhlCity: 0,
-            IsZipAvailable: iszip,
-            FromZipCodeOptional: iszip === 0,
-            ToZipCodeOptional: resiszip === 0,
+            IsZipAvailable: Giszip,
+            FromZipCodeOptional: Giszip === 0,
+            ToZipCodeOptional: Gresiszip === 0,
           }),
-          FromCity: formData.fromCity,
+          FromCity: fromDetails.fromCity,
           FromUPSCity: null,
-          FromFedExCity: iszip === 0 ? formData.fromCity : null,
-          FromZipCode: formData.fromZipCode,
-          FromStateProvinceCode: "",
+          FromFedExCity: Giszip === 0 ? fromDetails.fromCity : null,
+          FromZipCode: fromDetails.fromZipCode,
+          FromStateProvinceCode: '',
           ToCountry: JSON.stringify({
             CountryID: toCountryObj.countryid,
             CountryName: toCountryObj.label,
             CountryCode: toCountryObj.value.toUpperCase(),
-            IsFedexCity: resiszip === 0 ? 1 : 0,
+            IsFedexCity: Gresiszip === 0 ? 1 : 0,
             IsUpsCity: 0,
             IsDhlCity: 0,
-            IsZipAvailable: resiszip,
-            FromZipCodeOptional: iszip === 0,
-            ToZipCodeOptional: resiszip === 0,
+            IsZipAvailable: Gresiszip,
+            FromZipCodeOptional: Giszip === 0,
+            ToZipCodeOptional: Gresiszip === 0,
           }),
-          ToCity: formData.toCity,
-          ToUPSCity: "",
-          ToFedExCity: resiszip === 0 ? formData.toCity : "",
-          ToZipCode: formData.toZipCode,
-          ToStateProvinceCode: "",
+          ToCity: toDetails.toCity,
+          ToUPSCity: '',
+          ToFedExCity: Gresiszip === 0 ? toDetails.toCity : '',
+          ToZipCode: toDetails.toZipCode,
+          ToStateProvinceCode: '',
         },
-        IsResidencial: formData.residential === "Yes",
+        IsResidencial: toDetails.residential === 'Yes',
         IsPickUp: false,
-        ShipDate: formData.shipDate ? new Date(formData.shipDate).toISOString() : new Date().toISOString(),
+        ShipDate: toDetails.shipDate ? new Date(toDetails.shipDate).toISOString() : new Date().toISOString(),
         AgentCode: 12122,
       },
     };
 
     let payload;
 
-    if (formData.packageType === "Envelope") {
+    if (toDetails.packageType === 'Envelope') {
       payload = {
         ...basePayload,
         quoteData: {
           ...basePayload.quoteData,
-          PackageNumber: ["1"],
-          Weight: ["0.5"],
-          DimeL: ["10"],
-          DimeW: ["13"],
-          DimeH: ["1"],
+          PackageNumber: ['1'],
+          Weight: ['0.5'],
+          DimeL: ['10'],
+          DimeW: ['13'],
+          DimeH: ['1'],
           TotalLength: 10,
           TotalWidth: 13,
           TotalHeight: 1,
           TotalInsuredValues: 0,
-          ChargableWeight: ["0.5"],
-          InsuredValues: ["0"],
-          SelectedWeightType: "LB",
+          ChargableWeight: ['0.5'],
+          InsuredValues: ['0'],
+          SelectedWeightType: 'LB',
           TotalWeight: 1,
           WeightCount: 1,
           LengthCount: 1,
           WidthCount: 1,
           HeightCount: 1,
-          PackCount: "1",
+          PackCount: '1',
           PackageDetailsCount: 1,
-          PackageDetailsText: "1",
+          PackageDetailsText: '1',
           EnvelopeWeightLBSText: 1,
           PackageDetails: [
             {
@@ -575,17 +612,17 @@ const GetRate = () => {
               PackageLength: 10,
               PackageHeight: 1,
               PackageChargableWeight: 1,
-              PackageInsuredValue: "0",
+              PackageInsuredValue: '0',
             },
           ],
         },
       };
     } else {
-      const totalWeight = packageRows.reduce((sum, row) => sum + (parseFloat(row.weight) || 0), 0);
-      const totalLength = packageRows.reduce((sum, row) => sum + (parseFloat(row.length) || 0), 0);
-      const totalWidth = packageRows.reduce((sum, row) => sum + (parseFloat(row.width) || 0), 0);
-      const totalHeight = packageRows.reduce((sum, row) => sum + (parseFloat(row.height) || 0), 0);
-      const totalInsuredValues = packageRows.reduce(
+      const totalWeight = packageDetails.reduce((sum, row) => sum + (parseFloat(row.weight) || 0), 0);
+      const totalLength = packageDetails.reduce((sum, row) => sum + (parseFloat(row.length) || 0), 0);
+      const totalWidth = packageDetails.reduce((sum, row) => sum + (parseFloat(row.width) || 0), 0);
+      const totalHeight = packageDetails.reduce((sum, row) => sum + (parseFloat(row.height) || 0), 0);
+      const totalInsuredValues = packageDetails.reduce(
         (sum, row) => sum + (parseFloat(row.insuredValue) || 0),
         0
       );
@@ -594,45 +631,45 @@ const GetRate = () => {
         ...basePayload,
         quoteData: {
           ...basePayload.quoteData,
-          PackageNumber: packageRows.map((row) => row.packageNumber || "1"),
-          Weight: packageRows.map((row) => row.weight || "0"),
-          DimeL: packageRows.map((row) => row.length || "0"),
-          DimeW: packageRows.map((row) => row.width || "0"),
-          DimeH: packageRows.map((row) => row.height || "0"),
+          PackageNumber: packageDetails.map((row) => row.packageNumber || '1'),
+          Weight: packageDetails.map((row) => row.weight || '0'),
+          DimeL: packageDetails.map((row) => row.length || '0'),
+          DimeW: packageDetails.map((row) => row.width || '0'),
+          DimeH: packageDetails.map((row) => row.height || '0'),
           TotalLength: totalLength || 0,
           TotalWidth: totalWidth || 0,
           TotalHeight: totalHeight || 0,
           TotalInsuredValues: totalInsuredValues || 0,
-          ChargableWeight: packageRows.map((row) => row.chargeableWeight || "0"),
-          InsuredValues: packageRows.map((row) => row.insuredValue || "0"),
+          ChargableWeight: packageDetails.map((row) => row.chargeableWeight || '0'),
+          InsuredValues: packageDetails.map((row) => row.insuredValue || '0'),
           SelectedWeightType: weightUnit,
           TotalWeight: totalWeight || 0,
-          WeightCount: packageRows.length,
-          LengthCount: packageRows.length,
-          WidthCount: packageRows.length,
-          HeightCount: packageRows.length,
-          PackCount: packageRows.length.toString(),
-          PackageDetailsCount: packageRows.length,
-          PackageDetailsText: packageRows.length.toString(),
+          WeightCount: packageDetails.length,
+          LengthCount: packageDetails.length,
+          WidthCount: packageDetails.length,
+          HeightCount: packageDetails.length,
+          PackCount: packageDetails.length.toString(),
+          PackageDetailsCount: packageDetails.length,
+          PackageDetailsText: packageDetails.length.toString(),
           EnvelopeWeightLBSText: totalWeight || 0,
-          PackageDetails: packageRows.map((row) => ({
+          PackageDetails: packageDetails.map((row) => ({
             PackageNumber: parseInt(row.packageNumber) || 1,
             PackageWeight: parseFloat(row.weight) || 0,
             PackageWidth: parseFloat(row.width) || 0,
             PackageLength: parseFloat(row.length) || 0,
             PackageHeight: parseFloat(row.height) || 0,
             PackageChargableWeight: parseFloat(row.chargeableWeight) || 0,
-            PackageInsuredValue: row.insuredValue || "0",
+            PackageInsuredValue: row.insuredValue || '0',
           })),
         },
       };
     }
 
     try {
-      const response = await fetch("https://hubapi.sflworldwide.com/getQuote/getRates", {
-        method: "POST",
+      const response = await fetch('https://hubapi.sflworldwide.com/getQuote/getRates', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       });
@@ -640,7 +677,7 @@ const GetRate = () => {
       const result = await response.json();
       toast.dismiss();
       if (result.success) {
-        toast.success("Rates fetched successfully");
+        toast.success('Rates fetched successfully');
         const updatedRates = result.data.map((item) => ({
           service: item.ServiceDisplayName,
           deliveryDate: item.Delivery_Date,
@@ -649,31 +686,33 @@ const GetRate = () => {
         setRates(updatedRates);
         setShowRates(true);
       } else {
-        toast.error("Failed to fetch rates");
-        console.error("API error:", result);
+        toast.error('Failed to fetch rates');
+        console.error('API error:', result);
       }
     } catch (error) {
       toast.dismiss();
-      toast.error("Error fetching rates", error);
-      console.error("Error fetching rates:", error);
+      toast.error('Error fetching rates', error);
+      console.error('Error fetching rates:', error);
     }
   };
 
   const handleReset = () => {
-    setFormData({
+    updateFromDetails({
       fromCountry: 'us',
       fromZipCode: '',
       fromCity: '',
       fromState: '',
+    });
+    updateToDetails({
       toCountry: 'us',
       toZipCode: '',
       toCity: '',
       toState: '',
-      shipDate: defaultDate,
+      shipDate: new Date().toISOString().split('T')[0],
       residential: 'No',
       packageType: 'Package',
     });
-    setPackageRows([
+    setPackageDetails([
       {
         packageNumber: '',
         weight: '',
@@ -689,8 +728,8 @@ const GetRate = () => {
     setWeightUnit('LB');
     setDimensionUnit('INCHES');
     setChargeableUnit('LB');
-    setisZip(1);
-    setresisZip(1);
+    GsetisZip(1);
+    GsetresisZip(1);
     setPickupErrors({ fromZipCode: '', toZipCode: '' });
     setFormErrors({
       fromCountry: '',
@@ -700,28 +739,32 @@ const GetRate = () => {
       fromCity: '',
       toCity: '',
       shipDate: '',
-      packageRows: [{
-        packageNumber: '',
-        weight: '',
-        length: '',
-        width: '',
-        height: '',
-        chargeableWeight: '',
-        insuredValue: '',
-      }],
+      packageRows: [
+        {
+          packageNumber: '',
+          weight: '',
+          length: '',
+          width: '',
+          height: '',
+          chargeableWeight: '',
+          insuredValue: '',
+        },
+      ],
     });
     toast.dismiss();
   };
 
   const handleBook = (service) => {
     console.log(`Booking ${service}...`);
+    setActiveModule('Schedule Shipment');
+    navigate('/admin/Scheduleshipment');
   };
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
       <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
         <div className="card-title">
-          <h2 style={{ fontSize: "1rem" }}>
+          <h2 style={{ fontSize: '1rem' }}>
             <IconBox className="card-icon">
               <FlightTakeoffIcon className={classes.iconBox} />
             </IconBox>
@@ -730,10 +773,10 @@ const GetRate = () => {
         </div>
 
         <Tabs
-          value={shipmentType === 'AIR' || shipmentType === 'GROUND' ? 'AIR' : 'OCEAN'}
+          value={GshipmentType === 'AIR' || GshipmentType === 'GROUND' ? 'AIR' : 'OCEAN'}
           indicatorColor="transparent"
           variant="fullWidth"
-          onChange={(e, newValue) => setShipmentType(newValue)}
+          onChange={(e, newValue) => GsetShipmentType(newValue)}
           sx={{
             marginRight: '0px',
             marginTop: '14px',
@@ -745,36 +788,18 @@ const GetRate = () => {
             sx={{
               padding: '12px 16px',
               fontWeight: 'medium',
-              backgroundColor: (shipmentType === 'AIR' || shipmentType === 'GROUND') ? '#E91E63' : '#e0e0e0',
-              "&.Mui-selected": {
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-                color: "white",
+              backgroundColor: GshipmentType === 'AIR' || GshipmentType === 'GROUND' ? '#E91E63' : '#e0e0e0',
+              '&.Mui-selected': {
+                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.3)',
+                color: 'white',
               },
               '&:hover': {
-                backgroundColor: (shipmentType === 'AIR' || shipmentType === 'GROUND') ? '#ec407a' : '#bdbdbd',
+                backgroundColor: GshipmentType === 'AIR' || GshipmentType === 'GROUND' ? '#ec407a' : '#bdbdbd',
               },
               textTransform: 'uppercase',
               minHeight: '36px',
             }}
           />
-          {/* <Tab
-            label="Ocean"
-            value="OCEAN"
-            sx={{
-              padding: '10px 16px',
-              fontWeight: 'medium',
-              backgroundColor: shipmentType === 'OCEAN' ? '#E91E63' : '#e0e0e0',
-              "&.Mui-selected": {
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-                color: "white",
-              },
-              '&:hover': {
-                backgroundColor: shipmentType === 'OCEAN' ? '#ec407a' : '#bdbdbd',
-              },
-              textTransform: 'uppercase',
-              minHeight: '36px',
-            }}
-          /> */}
         </Tabs>
 
         <CardContent sx={{ padding: '16px' }}>
@@ -786,11 +811,11 @@ const GetRate = () => {
                   disablePortal
                   options={countries}
                   getOptionLabel={(option) => option.label}
-                  value={formData.fromCountry ? countries.find((c) => c.value === formData.fromCountry) || null : null}
+                  value={fromDetails.fromCountry ? countries.find((c) => c.value === fromDetails.fromCountry) || null : null}
                   onChange={(event, newValue) => {
-                    handleInputChange({ target: { name: 'fromCountry', value: newValue?.value || '' } });
-                    setisZip(newValue?.iszipavailable ?? 1);
-                    setFormData(prev => ({ ...prev, fromZipCode: '', fromCity: '', fromState: '' }));
+                    updateFromDetails({ fromCountry: newValue?.value || '' });
+                    GsetisZip(newValue?.iszipavailable ?? 1);
+                    updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
                   }}
                   disabled={isCountriesLoading || isCountriesError}
                   renderInput={(params) => (
@@ -802,7 +827,7 @@ const GetRate = () => {
                       helperText={formErrors.fromCountry}
                     />
                   )}
-                  noOptionsText={isCountriesError ? "Error loading countries" : "No countries found"}
+                  noOptionsText={isCountriesError ? 'Error loading countries' : 'No countries found'}
                   sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
                 />
               </FormControl>
@@ -812,29 +837,29 @@ const GetRate = () => {
                 fullWidth
                 label="From Zip Code"
                 name="fromZipCode"
-                value={formData.fromZipCode}
+                value={fromDetails.fromZipCode || ''}
                 onChange={handleInputChange}
-                placeholder={iszip === 0 ? "Not required" : undefined}
+                placeholder={Giszip === 0 ? 'Not required' : undefined}
                 size="small"
                 className="custom-textfield"
                 inputProps={{
                   maxLength: 15,
-                  readOnly: iszip === 0,
+                  readOnly: Giszip === 0,
                 }}
                 error={!!pickupErrors.fromZipCode || !!formErrors.fromZipCode}
                 helperText={pickupErrors.fromZipCode || formErrors.fromZipCode}
-                disabled={iszip === 0}
+                disabled={Giszip === 0}
               />
             </Box>
             <Box>
-              {iszip === 0 ? (
+              {Giszip === 0 ? (
                 <FormControl fullWidth>
                   <Autocomplete
                     freeSolo
                     disablePortal
                     options={fromCities}
-                    value={formData.fromCity}
-                    onChange={(event, newValue) => handleInputChange({ target: { name: 'fromCity', value: newValue || '' } })}
+                    value={fromDetails.fromCity || ''}
+                    onChange={(event, newValue) => updateFromDetails({ fromCity: newValue || '' })}
                     disabled={isFromCitiesLoading || fromCitiesError}
                     renderInput={(params) => (
                       <TextField
@@ -842,10 +867,10 @@ const GetRate = () => {
                         className="small-textfield"
                         label="From City"
                         error={!!formErrors.fromCity}
-                        helperText={formErrors.fromCity || (fromCitiesError ? "Error loading cities" : undefined)}
+                        helperText={formErrors.fromCity || (fromCitiesError ? 'Error loading cities' : undefined)}
                       />
                     )}
-                    noOptionsText={isFromCitiesLoading ? "Loading cities..." : "No cities found"}
+                    noOptionsText={isFromCitiesLoading ? 'Loading cities...' : 'No cities found'}
                     sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
                   />
                 </FormControl>
@@ -855,7 +880,7 @@ const GetRate = () => {
                   label="From City"
                   name="fromCity"
                   className="custom-textfield"
-                  value={formData.fromCity}
+                  value={fromDetails.fromCity || ''}
                   onChange={handleInputChange}
                   size="small"
                   error={!!formErrors.fromCity}
@@ -870,11 +895,11 @@ const GetRate = () => {
                   disablePortal
                   options={countries}
                   getOptionLabel={(option) => option.label}
-                  value={formData.toCountry ? countries.find((c) => c.value === formData.toCountry) || null : null}
+                  value={toDetails.toCountry ? countries.find((c) => c.value === toDetails.toCountry) || null : null}
                   onChange={(event, newValue) => {
-                    handleInputChange({ target: { name: 'toCountry', value: newValue?.value || '' } });
-                    setresisZip(newValue?.iszipavailable ?? 1);
-                    setFormData(prev => ({ ...prev, toZipCode: '', toCity: '', toState: '' }));
+                    updateToDetails({ toCountry: newValue?.value || '' });
+                    GsetresisZip(newValue?.iszipavailable ?? 1);
+                    updateToDetails({ toZipCode: '', toCity: '', toState: '' });
                   }}
                   disabled={isCountriesLoading || isCountriesError}
                   renderInput={(params) => (
@@ -886,7 +911,7 @@ const GetRate = () => {
                       helperText={formErrors.toCountry}
                     />
                   )}
-                  noOptionsText={isCountriesError ? "Error loading countries" : "No countries found"}
+                  noOptionsText={isCountriesError ? 'Error loading countries' : 'No countries found'}
                   sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
                 />
               </FormControl>
@@ -896,29 +921,29 @@ const GetRate = () => {
                 fullWidth
                 label="To Zip Code"
                 name="toZipCode"
-                value={formData.toZipCode}
+                value={toDetails.toZipCode || ''}
                 onChange={handleInputChange}
-                placeholder={resiszip === 0 ? "Not required" : undefined}
+                placeholder={Gresiszip === 0 ? 'Not required' : undefined}
                 size="small"
                 className="custom-textfield"
                 inputProps={{
                   maxLength: 15,
-                  readOnly: resiszip === 0,
+                  readOnly: Gresiszip === 0,
                 }}
                 error={!!pickupErrors.toZipCode || !!formErrors.toZipCode}
                 helperText={pickupErrors.toZipCode || formErrors.toZipCode}
-                disabled={resiszip === 0}
+                disabled={Gresiszip === 0}
               />
             </Box>
             <Box>
-              {resiszip === 0 ? (
+              {Gresiszip === 0 ? (
                 <FormControl fullWidth>
                   <Autocomplete
                     freeSolo
                     disablePortal
                     options={toCities}
-                    value={formData.toCity}
-                    onChange={(event, newValue) => handleInputChange({ target: { name: 'toCity', value: newValue || '' } })}
+                    value={toDetails.toCity || ''}
+                    onChange={(event, newValue) => updateToDetails({ toCity: newValue || '' })}
                     disabled={isToCitiesLoading || toCitiesError}
                     renderInput={(params) => (
                       <TextField
@@ -926,10 +951,10 @@ const GetRate = () => {
                         className="small-textfield"
                         label="To City"
                         error={!!formErrors.toCity}
-                        helperText={formErrors.toCity || (toCitiesError ? "Error loading cities" : undefined)}
+                        helperText={formErrors.toCity || (toCitiesError ? 'Error loading cities' : undefined)}
                       />
                     )}
-                    noOptionsText={isToCitiesLoading ? "Loading cities..." : "No cities found"}
+                    noOptionsText={isToCitiesLoading ? 'Loading cities...' : 'No cities found'}
                     sx={{ '& .MuiAutocomplete-inputRoot': { height: '40px' } }}
                   />
                 </FormControl>
@@ -939,7 +964,7 @@ const GetRate = () => {
                   name="toCity"
                   label="To City"
                   className="custom-textfield"
-                  value={formData.toCity}
+                  value={toDetails.toCity || ''}
                   onChange={handleInputChange}
                   size="small"
                   error={!!formErrors.toCity}
@@ -952,10 +977,8 @@ const GetRate = () => {
                 <Autocomplete
                   options={[{ value: 'No', label: 'No' }, { value: 'Yes', label: 'Yes' }]}
                   getOptionLabel={(option) => option.label}
-                  value={formData.residential ? { value: formData.residential, label: formData.residential } : null}
-                  onChange={(event, newValue) => handleInputChange({
-                    target: { name: 'residential', value: newValue?.value || '' }
-                  })}
+                  value={toDetails.residential ? { value: toDetails.residential, label: toDetails.residential } : null}
+                  onChange={(event, newValue) => updateToDetails({ residential: newValue?.value || '' })}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -972,10 +995,8 @@ const GetRate = () => {
                 <Autocomplete
                   options={[{ value: 'Package', label: 'Package' }, { value: 'Envelope', label: 'Envelope' }]}
                   getOptionLabel={(option) => option.label}
-                  value={formData.packageType ? { value: formData.packageType, label: formData.packageType } : null}
-                  onChange={(event, newValue) => handleInputChange({
-                    target: { name: 'packageType', value: newValue?.value || '' }
-                  })}
+                  value={toDetails.packageType ? { value: toDetails.packageType, label: toDetails.packageType } : null}
+                  onChange={(event, newValue) => updateToDetails({ packageType: newValue?.value || '' })}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -993,7 +1014,7 @@ const GetRate = () => {
                 type="date"
                 label="Ship Date"
                 name="shipDate"
-                value={formData.shipDate || ''}
+                value={toDetails.shipDate || ''}
                 onChange={handleInputChange}
                 size="small"
                 className="small-textfield"
@@ -1140,12 +1161,12 @@ const GetRate = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {packageRows.map((row, index) => (
+                  {packageDetails.map((row, index) => (
                     <TableRow key={index}>
                       <TableCell sx={{ padding: '8px' }}>
                         <TextField
                           type="number"
-                          value={row.packageNumber}
+                          value={row.packageNumber || ''}
                           onChange={(e) => handlePackageRowChange(index, 'packageNumber', e.target.value)}
                           variant="outlined"
                           size="small"
@@ -1158,7 +1179,7 @@ const GetRate = () => {
                       <TableCell sx={{ padding: '8px' }}>
                         <TextField
                           type="number"
-                          value={row.weight}
+                          value={row.weight || ''}
                           onChange={(e) => handlePackageRowChange(index, 'weight', e.target.value)}
                           variant="outlined"
                           size="small"
@@ -1171,7 +1192,7 @@ const GetRate = () => {
                       <TableCell sx={{ padding: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
                         <TextField
                           type="number"
-                          value={row.length}
+                          value={row.length || ''}
                           onChange={(e) => handlePackageRowChange(index, 'length', e.target.value)}
                           variant="outlined"
                           size="small"
@@ -1182,7 +1203,7 @@ const GetRate = () => {
                         />
                         <TextField
                           type="number"
-                          value={row.width}
+                          value={row.width || ''}
                           onChange={(e) => handlePackageRowChange(index, 'width', e.target.value)}
                           variant="outlined"
                           size="small"
@@ -1193,7 +1214,7 @@ const GetRate = () => {
                         />
                         <TextField
                           type="number"
-                          value={row.height}
+                          value={row.height || ''}
                           onChange={(e) => handlePackageRowChange(index, 'height', e.target.value)}
                           variant="outlined"
                           size="small"
@@ -1206,7 +1227,7 @@ const GetRate = () => {
                       <TableCell sx={{ padding: '8px' }}>
                         <TextField
                           type="number"
-                          value={row.chargeableWeight}
+                          value={row.chargeableWeight || ''}
                           variant="outlined"
                           size="small"
                           fullWidth
@@ -1216,7 +1237,7 @@ const GetRate = () => {
                       <TableCell sx={{ padding: '8px' }}>
                         <TextField
                           type="number"
-                          value={row.insuredValue}
+                          value={row.insuredValue || ''}
                           onChange={(e) => handlePackageRowChange(index, 'insuredValue', e.target.value)}
                           variant="outlined"
                           size="small"
@@ -1226,7 +1247,7 @@ const GetRate = () => {
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px' }}>
-                        {packageRows.length > 1 && (
+                        {packageDetails.length > 1 && (
                           <IconButton
                             onClick={() => handleDeleteRow(index)}
                             sx={{ color: '#f44336' }}
@@ -1275,7 +1296,6 @@ const GetRate = () => {
           </Box>
         </CardContent>
       </Card>
-{/* Rate Details Section */}
       <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
         {showRates && (
           <CardContent sx={{ padding: '16px' }}>
@@ -1312,20 +1332,9 @@ const GetRate = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-            {/* <Button
-              onClick={handleSendEmail}
-              variant="contained"
-              sx={{
-                marginTop: '16px',
-                backgroundColor: '#4caf50',
-                '&:hover': { backgroundColor: '#388e3c' },
-              }}
-            >
-              SEND EMAIL
-            </Button> */}
           </CardContent>
         )}
-        </Card>
+      </Card>
     </Box>
   );
 };

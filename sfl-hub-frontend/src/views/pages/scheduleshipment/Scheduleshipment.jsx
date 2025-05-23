@@ -34,6 +34,7 @@ import Recipient from "./Recipient";
 import Package from "./Package";
 
 // import { countries } from "../../../data/Countries";
+import { useShipmentContext } from "../../ShipmentContext";
 
 import {
   Root,
@@ -52,6 +53,9 @@ import GetRate from "../getrate/GetRate";
 
 
 const Schedule = () => {
+   const { fromDetails, toDetails,  packageDetails ,Giszip,  
+      Gresiszip, GshipmentType} = useShipmentContext();
+console.log(fromDetails)
 
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
@@ -124,9 +128,9 @@ const Schedule = () => {
   }, []);
 
   // State for Schedule Pickup tab
-  const [shipmentType, setShipmentType] = useState("");
-  const [fromCountry, setFromCountry] = useState("");
-  const [toCountry, setToCountry] = useState("");
+  const [shipmentType, setShipmentType] = useState(GshipmentType? "Air" : "");
+  const [fromCountry, setFromCountry] = useState(fromDetails? fromDetails.fromCountry : "");
+  const [toCountry, setToCountry] = useState(toDetails? toDetails.toCountry : "");
   const [pickupErrors, setPickupErrors] = useState({});
 
   // State for Sender tab
@@ -134,14 +138,14 @@ const Schedule = () => {
   const [country, setCountry] = useState("");
   const [countrycode, setcountrycode] = useState("");
   const [countryId, setCountryId] = useState("");
-  const [iszip, setisZip] = useState(1);
+  const [iszip, setisZip] = useState(Giszip? Giszip : 1);
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
   const [addressLine3, setAddressLine3] = useState("");
-  const [zipCode, setZipCode] = useState("");
-  const [fromCity, setFromCity] = useState("");
+  const [zipCode, setZipCode] = useState(fromDetails?.fromZipCode? fromDetails.fromZipCode : "");
+  const [fromCity, setFromCity] = useState(fromDetails? fromDetails.fromCity : "");
   const [state, setState] = useState("");
   const [phone1, setPhone1] = useState("");
   const [phone2, setPhone2] = useState("");
@@ -154,14 +158,14 @@ const Schedule = () => {
   const [recipientCountry, setRecipientCountry] = useState("");
   const [recipientcountrycode, setrecipientcountrycode] = useState("");
   const [recipientCountryId, setRecipientCountryId] = useState("");
-  const [resiszip, setresisZip] = useState(1);
+  const [resiszip, setresisZip] = useState(Gresiszip? Gresiszip : 1);
   const [recipientCompanyName, setRecipientCompanyName] = useState("");
   const [recipientContactName, setRecipientContactName] = useState("");
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
   const [recipientAddressLine2, setRecipientAddressLine2] = useState("");
   const [recipientAddressLine3, setRecipientAddressLine3] = useState("");
-  const [recipientZipCode, setRecipientZipCode] = useState("");
-  const [recipientCity, setRecipientCity] = useState("");
+  const [recipientZipCode, setRecipientZipCode] = useState(toDetails?.toZipCode? toDetails.toZipCode : "");
+  const [recipientCity, setRecipientCity] = useState(toDetails? toDetails.toCity : "");
   const [recipientState, setRecipientState] = useState("");
   const [recipientPhone1, setRecipientPhone1] = useState("");
   const [recipientPhone2, setRecipientPhone2] = useState("");
@@ -1480,7 +1484,7 @@ const Schedule = () => {
           <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit} />} />
           <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} />} />
           <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
-          <Route path="getrate" element={<GetRate />} />
+          <Route path="getrate" element={<GetRate setActiveModule={setActiveModule}/>} />
         </Routes>
         {activeModule !== "My Shipment" && (
           <Box className="footer-box" sx={{
