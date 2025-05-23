@@ -55,7 +55,7 @@ import GetRate from "../getrate/GetRate";
 const Schedule = () => {
    const { fromDetails, toDetails,  packageDetails ,Giszip,  
       Gresiszip, GshipmentType} = useShipmentContext();
-console.log(fromDetails)
+
 
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
@@ -129,8 +129,8 @@ console.log(fromDetails)
 
   // State for Schedule Pickup tab
   const [shipmentType, setShipmentType] = useState(GshipmentType? "Air" : "");
-  const [fromCountry, setFromCountry] = useState(fromDetails? fromDetails.fromCountry : "");
-  const [toCountry, setToCountry] = useState(toDetails? toDetails.toCountry : "");
+  const [fromCountry, setFromCountry] = useState(fromDetails.fromCountry || "");
+  const [toCountry, setToCountry] = useState( toDetails.toCountry || "");
   const [pickupErrors, setPickupErrors] = useState({});
 
   // State for Sender tab
@@ -144,8 +144,8 @@ console.log(fromDetails)
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
   const [addressLine3, setAddressLine3] = useState("");
-  const [zipCode, setZipCode] = useState(fromDetails?.fromZipCode? fromDetails.fromZipCode : "");
-  const [fromCity, setFromCity] = useState(fromDetails? fromDetails.fromCity : "");
+  const [zipCode, setZipCode] = useState(fromDetails.fromZipCode|| "");
+  const [fromCity, setFromCity] = useState( fromDetails.fromCity || "");
   const [state, setState] = useState("");
   const [phone1, setPhone1] = useState("");
   const [phone2, setPhone2] = useState("");
@@ -164,8 +164,8 @@ console.log(fromDetails)
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
   const [recipientAddressLine2, setRecipientAddressLine2] = useState("");
   const [recipientAddressLine3, setRecipientAddressLine3] = useState("");
-  const [recipientZipCode, setRecipientZipCode] = useState(toDetails?.toZipCode? toDetails.toZipCode : "");
-  const [recipientCity, setRecipientCity] = useState(toDetails? toDetails.toCity : "");
+  const [recipientZipCode, setRecipientZipCode] = useState( toDetails.toZipCode || "");
+  const [recipientCity, setRecipientCity] = useState( toDetails.toCity || "");
   const [recipientState, setRecipientState] = useState("");
   const [recipientPhone1, setRecipientPhone1] = useState("");
   const [recipientPhone2, setRecipientPhone2] = useState("");
@@ -181,20 +181,30 @@ console.log(fromDetails)
 
 
   // Package tab
-  const [packageType, setPackageType] = useState("Package");
-  const [noOfPackages, setNoOfPackages] = useState(1);
+  const [packageType, setPackageType] = useState(toDetails.packageType||"package");
+  const [noOfPackages, setNoOfPackages] = useState(packageDetails.length||1);
   const [dutiesPaidBy, setDutiesPaidBy] = useState("Recipient");
-  const [packageData, setPackageData] = useState(
-    Array.from({ length: 1 }, () => ({
-      noOfPackages: 1,
-      weight: 0,
-      length: 0,
-      width: 0,
-      height: 0,
-      chargable_weight: 0,
-      insured_value: 0,
-    }))
-  );
+  const [packageData, setPackageData] = useState(() => 
+  packageDetails.length > 0
+    ? packageDetails.map(pkg => ({
+        noOfPackages: 1,
+        weight: pkg.weight || 0,
+        length: pkg.length || 0,
+        width: pkg.width || 0,
+        height: pkg.height || 0,
+        chargable_weight: pkg.chargeableWeight || 0,
+        insured_value: pkg.insuredValue || 0,
+      }))
+    : [{
+        noOfPackages: 1,
+        weight: 0,
+        length: 0,
+        width: 0,
+        height: 0,
+        chargable_weight: 0,
+        insured_value: 0,
+      }]
+);
   const [samecountry, setSamecountry] = useState(false);
   const [commercialInvoiceData, setCommercialInvoiceData] = useState([
     {
@@ -212,6 +222,53 @@ console.log(fromDetails)
   const [oldphone2, setoldphone2] = useState("");
   const [oldrecipientphone1, setoldrecipientphone1] = useState("");
   const [oldrecipientphone2, setoldrecipientphone2] = useState("");
+
+  useEffect(() => {
+    setShipmentType(GshipmentType?'Air':"");
+    setisZip(Giszip || 1);
+    setresisZip(Gresiszip || 1);
+    // setCountry(fromDetails.fromCountry);
+    setZipCode(fromDetails.fromZipCode || '');
+    setFromCity(fromDetails.fromCity || '');
+    setState(fromDetails.fromState || '');
+    // setRecipientCountry(toDetails.toCountry);
+    setRecipientZipCode(toDetails.toZipCode || '');
+    setRecipientCity(toDetails.toCity || '');
+    setRecipientState(toDetails.toState || '');
+    setPackageType(toDetails.packageType || 'Package');
+    setPickupDate(toDetails.shipDate || new Date().toISOString().split('T')[0]);
+    setNoOfPackages(packageDetails.length || 1);
+    setPackageData(
+      packageDetails.length > 0
+        ? packageDetails.map((pkg) => ({
+            noOfPackages: 1,
+            weight: pkg.weight || 0,
+            length: pkg.length || 0,
+            width: pkg.width || 0,
+            height: pkg.height || 0,
+            chargable_weight: pkg.chargeableWeight || 0,
+            insured_value: pkg.insuredValue || 0,
+          }))
+        : [
+            {
+              noOfPackages: 1,
+              weight: 0,
+              length: 0,
+              width: 0,
+              height: 0,
+              chargable_weight: 0,
+              insured_value: 0,
+            },
+          ]
+    );
+  }, [
+    GshipmentType,
+    Giszip,
+    Gresiszip,
+    fromDetails,
+    toDetails,
+    packageDetails,
+  ]);
 
 
   const getManagedBy = async () => {
@@ -1222,7 +1279,12 @@ console.log(fromDetails)
 
     setSamecountry(fromCountryObj && toCountryObj && fromCountryObj.value === toCountryObj.value);
 
-  }, [fromCountry, toCountry, countrycode, countryId, recipientCountryId, recipientcountrycode]);
+  }, [fromCountry, toCountry, countrycode, countryId, recipientCountryId, recipientcountrycode, GshipmentType,
+    Giszip,
+    Gresiszip,
+    fromDetails,
+    toDetails,
+    packageDetails]);
 
   return (
     <Root>

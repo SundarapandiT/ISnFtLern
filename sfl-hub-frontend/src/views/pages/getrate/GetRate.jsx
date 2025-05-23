@@ -100,7 +100,7 @@ const GetRate = ({setActiveModule}) => {
   const [weightUnit, setWeightUnit] = useState('LB');
   const [dimensionUnit, setDimensionUnit] = useState('INCHES');
   const [chargeableUnit, setChargeableUnit] = useState('LB');
-  const isEnvelope = toDetails.packageType === 'Envelope';
+  const isEnvelope = toDetails.packageType === 'Envelop';
 
   // Sync packageDetails with packageType changes
   useEffect(() => {
@@ -578,7 +578,7 @@ const GetRate = ({setActiveModule}) => {
 
     let payload;
 
-    if (toDetails.packageType === 'Envelope') {
+    if (toDetails.packageType === 'Envelop') {
       payload = {
         ...basePayload,
         quoteData: {
@@ -993,7 +993,7 @@ const GetRate = ({setActiveModule}) => {
             <Box>
               <FormControl fullWidth>
                 <Autocomplete
-                  options={[{ value: 'Package', label: 'Package' }, { value: 'Envelope', label: 'Envelope' }]}
+                  options={[{ value: 'Package', label: 'Package' }, { value: 'Envelop', label: 'Envelop' }]}
                   getOptionLabel={(option) => option.label}
                   value={toDetails.packageType ? { value: toDetails.packageType, label: toDetails.packageType } : null}
                   onChange={(event, newValue) => updateToDetails({ packageType: newValue?.value || '' })}
