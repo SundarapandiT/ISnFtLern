@@ -450,18 +450,21 @@ const GetRate = ({setActiveModule}) => {
   }, [toDetails.toZipCode, toDetails.toCountry, Gresiszip, countries]);
 
   const handlePackageRowChange = (index, field, value) => {
-    if (isEnvelope) return;
-    setPackageDetails((prevRows) => {
-      const updatedRows = [...prevRows];
-      updatedRows[index] = { ...updatedRows[index], [field]: value };
-      return updatedRows;
-    });
-    setFormErrors(prev => {
-      const newPackageErrors = [...prev.packageRows];
-      newPackageErrors[index] = { ...newPackageErrors[index], [field]: '' };
-      return { ...prev, packageRows: newPackageErrors };
-    });
-  };
+  if (isEnvelope) return;
+
+  // Restrict to non-negative numbers; integers for packageNumber, decimals for others
+  if (['packageNumber','weight', 'length', 'width', 'height'] && !/^\d*$/.test(value)) return;
+  setPackageDetails((prevRows) => {
+    const updatedRows = [...prevRows];
+    updatedRows[index] = { ...updatedRows[index], [field]: value };
+    return updatedRows;
+  });
+  setFormErrors(prev => {
+    const newPackageErrors = [...prev.packageRows];
+    newPackageErrors[index] = { ...newPackageErrors[index], [field]: '' };
+    return { ...prev, packageRows: newPackageErrors };
+  });
+};
 
   const handleWeightUnitChange = (value) => {
     if (isEnvelope) return;
