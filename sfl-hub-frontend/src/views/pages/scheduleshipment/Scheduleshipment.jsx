@@ -1405,6 +1405,7 @@ const Schedule = () => {
                 setRecipientPhone1={setRecipientPhone1}
                 setRecipientPhone2={setRecipientPhone2}
                 isGetrate={isGetrate}
+                setActiveModule={setActiveModule}
                 
 
               />
@@ -1452,6 +1453,7 @@ const Schedule = () => {
                 iszip={iszip}
                 setisZip={setisZip} 
                 isGetrate={isGetrate}
+                setActiveModule={setActiveModule}
               />
             )}
             {activeModule === "Schedule Shipment" && activeTab === "recipient" && (
@@ -1495,6 +1497,7 @@ const Schedule = () => {
                   resiszip,
                   setresisZip,
                   isGetrate,
+                  setActiveModule,
                 }}
               />
             )}
@@ -1524,6 +1527,7 @@ const Schedule = () => {
                 updatePackageRows={updatePackageRows}
                 samecountry={samecountry}
                 isGetrate={isGetrate}
+                setActiveModule={setActiveModule}
               />
             )}
 

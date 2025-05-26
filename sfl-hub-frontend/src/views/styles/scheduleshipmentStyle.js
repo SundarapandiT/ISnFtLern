@@ -144,3 +144,19 @@ export const PickupBox = styled(Box)(({ theme }) => ({
     width: "90%", // ⬅ Wider on mobile
   },
 }));
+
+export const EditButton = styled(Button)(({ theme }) => ({
+  width: "100%",
+  paddingTop: theme.spacing(1.3),
+  paddingBottom: theme.spacing(1.3),
+  paddingRight: theme.spacing(3),
+  paddingLeft: theme.spacing(3),
+  backgroundColor: "#E91E63",
+  color: "white",
+  "&:hover": {
+    backgroundColor: "red",
+  },
+  [theme.breakpoints.up("sm")]: {
+    width: "auto",
+  },
+}));

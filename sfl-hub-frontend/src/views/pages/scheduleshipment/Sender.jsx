@@ -16,8 +16,9 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import CircularProgress from '@mui/material/CircularProgress';
 import StateDropdown from "./Statedropdown";
 import { api, encryptURL } from "../../../utils/api";
-import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
+import { PhoneInputStyle, PrevButton,EditButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { useNavigate } from "react-router-dom";
 
 const Sender = ({
   country,
@@ -58,6 +59,7 @@ const Sender = ({
   setoldphone2,
   iszip,
   isGetrate,
+  setActiveModule,
 }) => {
   const debounceRef = useRef(null);
 
@@ -197,6 +199,7 @@ const Sender = ({
       console.log("Form validation failed");
     }
   };
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!zipCode || zipCode.length < 3) {
@@ -760,13 +763,28 @@ const Sender = ({
           >
             Previous
           </PrevButton>
-          <NextButton
+            <Box sx={{ display: "flex", gap: 2 }}>
+    {isGetrate && (
+      <EditButton
+        type="button"
+        variant="contained"
+        onClick={() => {
+          setActiveModule("Getrate");
+          navigate("/admin/getrate");
+        }}
+      >
+        Edit
+      </EditButton>
+    )}
+    <NextButton
             type="submit"
             variant="contained"
             endIcon={<ArrowForwardIcon />}
           >
             Next
           </NextButton>
+    </Box>  
+          
         </ButtonBox>
       </form>
     </Box>

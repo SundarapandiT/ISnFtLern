@@ -27,7 +27,8 @@ import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { ButtonBox, NextButton, PrevButton } from "../../styles/scheduleshipmentStyle";
+import { ButtonBox, NextButton,EditButton, PrevButton } from "../../styles/scheduleshipmentStyle";
+import { useNavigate } from "react-router-dom";
 
 const StyledTableTextField = ({ sx, ...props }) => (
   <TextField
@@ -80,6 +81,7 @@ const Package = ({
   updatePackageRows,
   samecountry,
   isGetrate,
+  setActiveModule,
 }) => {
   // State to control dialog visibility
   const [openDialog, setOpenDialog] = useState(false);
@@ -135,7 +137,7 @@ const Package = ({
     }
   };
 
-
+  const navigate = useNavigate();
   function handleNext(e) {
     const totalinsured_value = packageData.reduce(
       (sum, pkg) => sum + Number(pkg.insured_value || 0),
@@ -686,13 +688,28 @@ const Package = ({
           >
             Previous
           </PrevButton>
-          <NextButton
+          <Box sx={{ display: "flex", gap: 2 }}>
+              {isGetrate && (
+                <EditButton
+                  type="button"
+                  variant="contained"
+                  onClick={() => {
+                    setActiveModule("Getrate");
+                    navigate("/admin/getrate");
+                  }}
+                >
+                  Edit
+                </EditButton>
+              )}
+            <NextButton
             variant="contained"
             endIcon={<ArrowForwardIcon />}
             onClick={handleNext}
           >
             Submit
           </NextButton>
+          </Box>
+          
         </ButtonBox>
       </form>
     </Box>

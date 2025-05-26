@@ -6,8 +6,8 @@ import {
   Autocomplete,
   Button,
 } from "@mui/material";
-
-import { NextButton, PickupBox } from "../../styles/scheduleshipmentStyle";
+import { useNavigate } from "react-router-dom";
+import { NextButton, PickupBox,EditButton } from "../../styles/scheduleshipmentStyle";
 
 
 const PickupForm = ({
@@ -31,7 +31,9 @@ const PickupForm = ({
   setRecipientPhone1,
   setRecipientPhone2,
   isGetrate,
+  setActiveModule,
 }) => {
+  const navigate = useNavigate();
   return (
     <PickupBox>
       <form onSubmit={handlePickupSubmit}>
@@ -107,7 +109,18 @@ const PickupForm = ({
           />
         </FormControl>
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end",gap:2 }}>
+          {isGetrate && (
+            <EditButton 
+              variant="contained"
+              onClick={() => {
+                          setActiveModule("Getrate"); // Set activeModule to enable route
+                          navigate("/admin/getrate");
+                        }}
+            >
+              Edit
+            </EditButton>
+            )}
           <NextButton
             type="submit"
             variant="contained"

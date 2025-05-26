@@ -23,9 +23,9 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CircularProgress from '@mui/material/CircularProgress';
 import { api, encryptURL } from "../../../utils/api";
-import { PhoneInputStyle, PrevButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
+import { PhoneInputStyle, PrevButton, NextButton,EditButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
-
+import { useNavigate } from "react-router-dom";
 const Recipient = ({
   recipientCountry,
   recipientcountrycode,
@@ -64,8 +64,10 @@ const Recipient = ({
   shipmentType,
   resiszip,
   isGetrate,
+  setActiveModule,
 }) => {
   const debounceRef = useRef(null);
+  const navigate = useNavigate();
 
   const isRepeatedDigits = (number) => /^(\d)\1+$/.test(number);
   const isFakePattern = (number) => {
@@ -621,13 +623,28 @@ const Recipient = ({
           >
             Previous
           </PrevButton>
-          <NextButton
+           <Box sx={{ display: "flex", gap: 2 }}>
+              {isGetrate && (
+                <EditButton
+                  type="button"
+                  variant="contained"
+                  onClick={() => {
+                    setActiveModule("Getrate");
+                    navigate("/admin/getrate");
+                  }}
+                >
+                  Edit
+                </EditButton>
+              )}
+              <NextButton
             type="submit"
             variant="contained"
             endIcon={<ArrowForwardIcon />}
           >
             {shipmentType === "Ocean" ? "Submit" : "Next"}
           </NextButton>
+              </Box>
+          
         </ButtonBox>
       </form>
     </Box>
