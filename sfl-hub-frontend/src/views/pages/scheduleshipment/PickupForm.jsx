@@ -32,7 +32,6 @@ const PickupForm = ({
   setRecipientPhone2,
   isGetrate,
 }) => {
-console.log(isGetrate,"isgetrate")
   return (
     <PickupBox>
       <form onSubmit={handlePickupSubmit}>
@@ -64,12 +63,12 @@ console.log(isGetrate,"isgetrate")
           />
         </FormControl>
 
-
         <FormControl fullWidth sx={{ mb: 2 }}>
           <Autocomplete
             options={countries}
             getOptionLabel={(option) => option.label}
             value={fromCountry ? countries.find((c) => c.value === fromCountry) : null}
+           
             onChange={(event, newValue) => {
               setFromCountry(newValue?.value || "");
               setisZip(newValue?.iszipavailable ?? 0);

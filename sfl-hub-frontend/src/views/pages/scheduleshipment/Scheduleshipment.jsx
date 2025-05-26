@@ -129,8 +129,8 @@ const Schedule = () => {
 
   // State for Schedule Pickup tab
   const [shipmentType, setShipmentType] = useState("");
-  const [fromCountry, setFromCountry] = useState(fromDetails.fromCountry || "");
-  const [toCountry, setToCountry] = useState( toDetails.toCountry || "");
+  const [fromCountry, setFromCountry] = useState("");
+  const [toCountry, setToCountry] = useState("");
   const [pickupErrors, setPickupErrors] = useState({});
 
   // State for Sender tab
@@ -222,16 +222,21 @@ const Schedule = () => {
   const [oldphone2, setoldphone2] = useState("");
   const [oldrecipientphone1, setoldrecipientphone1] = useState("");
   const [oldrecipientphone2, setoldrecipientphone2] = useState("");
+  console.log(fromDetails.fromCountry);
 
   useEffect(() => {
+    setFromCountry(isGetrate&&fromDetails.fromCountry)
+    setToCountry(isGetrate&&toDetails.toCountry)
     setShipmentType(isGetrate && GshipmentType?'Air':"");
     setisZip(Giszip || 1);
     setresisZip(Gresiszip || 1);
-    // setCountry(fromDetails.fromCountry);
+    const fromCountryObj = countries.find((c) => c.value === fromDetails.fromCountry);
+    const toCountryObj = countries.find((c) => c.value === toDetails.toCountry);
+    setCountry(fromCountryObj ? fromCountryObj.label : "");
     setZipCode(fromDetails.fromZipCode || '');
     setFromCity(fromDetails.fromCity || '');
     setState(fromDetails.fromState || '');
-    // setRecipientCountry(toDetails.toCountry);
+    setRecipientCountry(toCountryObj?toCountryObj.label:"");
     setRecipientZipCode(toDetails.toZipCode || '');
     setRecipientCity(toDetails.toCity || '');
     setRecipientState(toDetails.toState || '');
@@ -1284,7 +1289,7 @@ const Schedule = () => {
     Gresiszip,
     fromDetails,
     toDetails,
-    packageDetails]);
+    packageDetails,isGetrate]);
 
   return (
     <Root>
@@ -1400,6 +1405,7 @@ const Schedule = () => {
                 setRecipientPhone1={setRecipientPhone1}
                 setRecipientPhone2={setRecipientPhone2}
                 isGetrate={isGetrate}
+                
 
               />
             )}
@@ -1444,7 +1450,7 @@ const Schedule = () => {
                 setoldphone1={setoldphone1}
                 setoldphone2={setoldphone2}
                 iszip={iszip}
-                setisZip={setisZip}
+                setisZip={setisZip} 
                 isGetrate={isGetrate}
               />
             )}
@@ -1488,7 +1494,7 @@ const Schedule = () => {
                   shipmentType,
                   resiszip,
                   setresisZip,
-                  isGetrate
+                  isGetrate,
                 }}
               />
             )}

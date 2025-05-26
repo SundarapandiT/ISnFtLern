@@ -764,6 +764,7 @@ const GetRate = ({setActiveModule}) => {
     setActiveModule('Schedule Shipment');
     navigate('/admin/Scheduleshipment');
   };
+  
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
@@ -819,6 +820,7 @@ const GetRate = ({setActiveModule}) => {
                   value={fromDetails.fromCountry ? countries.find((c) => c.value === fromDetails.fromCountry) || null : null}
                   onChange={(event, newValue) => {
                     updateFromDetails({ fromCountry: newValue?.value || '' });
+                    
                     GsetisZip(newValue?.iszipavailable ?? 1);
                     updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
                   }}
