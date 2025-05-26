@@ -54,7 +54,7 @@ import GetRate from "../getrate/GetRate";
 
 const Schedule = () => {
    const { fromDetails, toDetails,  packageDetails ,Giszip,  
-      Gresiszip, GshipmentType} = useShipmentContext();
+      Gresiszip, GshipmentType,isGetrate} = useShipmentContext();
 
 
   const navigate = useNavigate();
@@ -128,7 +128,7 @@ const Schedule = () => {
   }, []);
 
   // State for Schedule Pickup tab
-  const [shipmentType, setShipmentType] = useState(GshipmentType? "Air" : "");
+  const [shipmentType, setShipmentType] = useState("");
   const [fromCountry, setFromCountry] = useState(fromDetails.fromCountry || "");
   const [toCountry, setToCountry] = useState( toDetails.toCountry || "");
   const [pickupErrors, setPickupErrors] = useState({});
@@ -224,7 +224,7 @@ const Schedule = () => {
   const [oldrecipientphone2, setoldrecipientphone2] = useState("");
 
   useEffect(() => {
-    setShipmentType(GshipmentType?'Air':"");
+    setShipmentType(isGetrate && GshipmentType?'Air':"");
     setisZip(Giszip || 1);
     setresisZip(Gresiszip || 1);
     // setCountry(fromDetails.fromCountry);
@@ -1399,6 +1399,7 @@ const Schedule = () => {
                 setPhone2={setPhone2}
                 setRecipientPhone1={setRecipientPhone1}
                 setRecipientPhone2={setRecipientPhone2}
+                isGetrate={isGetrate}
 
               />
             )}
@@ -1444,6 +1445,7 @@ const Schedule = () => {
                 setoldphone2={setoldphone2}
                 iszip={iszip}
                 setisZip={setisZip}
+                isGetrate={isGetrate}
               />
             )}
             {activeModule === "Schedule Shipment" && activeTab === "recipient" && (
@@ -1485,7 +1487,8 @@ const Schedule = () => {
                   setoldrecipientphone2,
                   shipmentType,
                   resiszip,
-                  setresisZip
+                  setresisZip,
+                  isGetrate
                 }}
               />
             )}
@@ -1514,6 +1517,7 @@ const Schedule = () => {
                 setDutiesPaidBy={setDutiesPaidBy}
                 updatePackageRows={updatePackageRows}
                 samecountry={samecountry}
+                isGetrate={isGetrate}
               />
             )}
 

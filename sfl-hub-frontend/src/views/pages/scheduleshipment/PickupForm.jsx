@@ -9,6 +9,7 @@ import {
 
 import { NextButton, PickupBox } from "../../styles/scheduleshipmentStyle";
 
+
 const PickupForm = ({
   shipmentType,
   setShipmentType,
@@ -29,7 +30,9 @@ const PickupForm = ({
   setPhone2,
   setRecipientPhone1,
   setRecipientPhone2,
+  isGetrate,
 }) => {
+console.log(isGetrate,"isgetrate")
   return (
     <PickupBox>
       <form onSubmit={handlePickupSubmit}>
@@ -42,6 +45,7 @@ const PickupForm = ({
             ]}
             getOptionLabel={(option) => option.label}
             value={shipmentType ? { label: shipmentType, value: shipmentType } : null}
+             disabled={isGetrate}
             onChange={(event, newValue) => setShipmentType(newValue?.value || "")}
             renderInput={(params) => (
               <TextField
@@ -50,11 +54,16 @@ const PickupForm = ({
                 label="Select Shipment Type"
                 error={!!pickupErrors.shipmentType}
                 helperText={pickupErrors.shipmentType}
+                // InputProps={{
+                //   ...params.InputProps,
+                //   readOnly: isGetrate,  
+                // }}
               />
             )}
-            disablePortal // Ensures options appear below the field
+            disablePortal
           />
         </FormControl>
+
 
         <FormControl fullWidth sx={{ mb: 2 }}>
           <Autocomplete
@@ -65,9 +74,9 @@ const PickupForm = ({
               setFromCountry(newValue?.value || "");
               setisZip(newValue?.iszipavailable ?? 0);
               setZipCode("");
-              setPhone1("");setPhone2("");
+              setPhone1(""); setPhone2("");
             }}
-
+             disabled={isGetrate}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -85,7 +94,8 @@ const PickupForm = ({
             options={countries}
             getOptionLabel={(option) => option.label}
             value={toCountry ? countries.find((c) => c.value === toCountry) : null}
-            onChange={(event, newValue) => { setToCountry(newValue?.value || ""); setresisZip(newValue?.iszipavailable ?? 0); setRecipientZipCode("");setRecipientPhone1("");setRecipientPhone2(""); }}
+             disabled={isGetrate}
+            onChange={(event, newValue) => { setToCountry(newValue?.value || ""); setresisZip(newValue?.iszipavailable ?? 0); setRecipientZipCode(""); setRecipientPhone1(""); setRecipientPhone2(""); }}
             renderInput={(params) => (
               <TextField
                 {...params}

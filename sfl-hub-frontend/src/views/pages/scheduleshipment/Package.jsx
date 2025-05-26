@@ -79,6 +79,7 @@ const Package = ({
   setDutiesPaidBy,
   updatePackageRows,
   samecountry,
+  isGetrate,
 }) => {
   // State to control dialog visibility
   const [openDialog, setOpenDialog] = useState(false);
@@ -320,6 +321,7 @@ const Package = ({
                         size="small"
                         error={!!packageErrors[`weight_${index}`]}
                         helperText={packageErrors[`weight_${index}`]}
+                         disabled={isGetrate}
                         inputProps={{
                           autoComplete: "off",
                           autoCorrect: "off",
@@ -352,6 +354,7 @@ const Package = ({
                           sx={{ width: { xs: "100%", sm: "31%" }, mb: { xs: 1, sm: 0 } }}
                           error={!!packageErrors[`length_${index}`]}
                           helperText={packageErrors[`length_${index}`]}
+                          
                           inputProps={{
                             autoComplete: "off",
                             autoCorrect: "off",
@@ -362,7 +365,7 @@ const Package = ({
                             endAdornment: <InputAdornment position="end">in</InputAdornment>,
                             readOnly: isDocument
                           }}
-                          disabled={isDocument}
+                          disabled={isDocument || isGetrate}
                         />
                         <Typography sx={{ display: { xs: "none", sm: "block" } }}>+</Typography>
                         <StyledTableTextField
@@ -390,7 +393,7 @@ const Package = ({
                             endAdornment: <InputAdornment position="end">in</InputAdornment>,
                             readOnly: isDocument
                           }}
-                          disabled={isDocument}
+                          disabled={isDocument || isGetrate}
                         />
                         <Typography sx={{ display: { xs: "none", sm: "block" } }}>+</Typography>
                         <StyledTableTextField
@@ -450,6 +453,7 @@ const Package = ({
                         onChange={(e) =>
                           handlePackageChange(index, e)
                         }
+                         disabled={isGetrate}
                         fullWidth
                         variant="outlined"
                         size="small"

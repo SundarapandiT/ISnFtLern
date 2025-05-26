@@ -62,7 +62,8 @@ const Recipient = ({
   setoldrecipientphone1,
   setoldrecipientphone2,
   shipmentType,
-  resiszip
+  resiszip,
+  isGetrate,
 }) => {
   const debounceRef = useRef(null);
 
@@ -395,6 +396,7 @@ const Recipient = ({
             label="Zip Code"
             value={recipientZipCode}
             placeholder={resiszip === 0 ? "Not required" : undefined}
+             disabled={isGetrate}
             className="custom-textfield"
             inputProps={{
               autoComplete: "off",
@@ -420,6 +422,7 @@ const Recipient = ({
             loading={isLoading}
             value={recipientCity}
             sx={fieldStyle}
+             disabled={isGetrate}
             onChange={handleCityChange}
             renderInput={(params) => (
               <TextField
@@ -457,7 +460,7 @@ const Recipient = ({
             )}
           />
           {recipientCountry && resiszip!==0? (
-            <Box sx={fieldStyle}>
+            <Box sx={fieldStyle}  disabled={isGetrate}>
               <StateDropdown
                 country={recipientCountryId}
                 state={recipientState}

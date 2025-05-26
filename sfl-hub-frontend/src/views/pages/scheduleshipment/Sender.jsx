@@ -57,6 +57,7 @@ const Sender = ({
   setoldphone1,
   setoldphone2,
   iszip,
+  isGetrate,
 }) => {
   const debounceRef = useRef(null);
 
@@ -481,6 +482,7 @@ const Sender = ({
             className="custom-textfield"
             error={!!senderErrors.zipCode}
             helperText={senderErrors.zipCode}
+             disabled={isGetrate}
             sx={fieldStyle}
             inputProps={{
               maxLength: 15,
@@ -503,6 +505,7 @@ const Sender = ({
             value={fromCity}
             onChange={handleCityChange}
             sx={fieldStyle}
+             disabled={isGetrate}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -539,7 +542,7 @@ const Sender = ({
             )}
           />
           {country && iszip !== 0 ? (
-            <Box sx={fieldStyle}>
+            <Box sx={fieldStyle}  disabled={isGetrate}>
               <StateDropdown
                 country={countryId}
                 state={state}

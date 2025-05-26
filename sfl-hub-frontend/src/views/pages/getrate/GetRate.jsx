@@ -48,6 +48,7 @@ const GetRate = ({setActiveModule}) => {
     GsetresisZip,
     GshipmentType,
     GsetShipmentType,
+    setIsgetrate,
   } = useShipmentContext();
 
   // Fetch countries data
@@ -759,6 +760,7 @@ const GetRate = ({setActiveModule}) => {
 
   const handleBook = (service) => {
     console.log(`Booking ${service}...`);
+    setIsgetrate(true);
     setActiveModule('Schedule Shipment');
     navigate('/admin/Scheduleshipment');
   };

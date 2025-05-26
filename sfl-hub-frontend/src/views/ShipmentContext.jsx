@@ -38,6 +38,7 @@ export const ShipmentProvider = ({ children }) => {
     const [Giszip, GsetisZip] = useState(1);
     const [Gresiszip, GsetresisZip] = useState(1);
      const [GshipmentType, GsetShipmentType] = useState('AIR');
+     const [isGetrate,setIsgetrate]=useState(false);
 
   // Extract fromDetails and toDetails from formData
   const fromDetails = {
@@ -87,6 +88,8 @@ export const ShipmentProvider = ({ children }) => {
     GsetShipmentType,
     packageDetails: packageRows,
     setPackageDetails: setPackageRows,
+    isGetrate,
+    setIsgetrate,
   };
 
   return (
