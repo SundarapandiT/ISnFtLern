@@ -16,7 +16,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import CircularProgress from '@mui/material/CircularProgress';
 import StateDropdown from "./Statedropdown";
 import { api, encryptURL } from "../../../utils/api";
-import { PhoneInputStyle, PrevButton,EditButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
+import { PhoneInputStyle, PrevButton, EditButton, NextButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useNavigate } from "react-router-dom";
 
@@ -60,6 +60,7 @@ const Sender = ({
   iszip,
   isGetrate,
   setActiveModule,
+  Giszip,
 }) => {
   const debounceRef = useRef(null);
 
@@ -202,12 +203,14 @@ const Sender = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!zipCode || zipCode.length < 3) {
-      if(iszip !== 0) {
+    if (isGetrate || !zipCode || zipCode.length < 3) {
+    if (!isGetrate && iszip !== 0) {
       setFromCity("");
-      }
-      return;
+      setState("");
+      setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
     }
+    return;
+  }
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -338,6 +341,7 @@ const Sender = ({
       setSenderErrors({ fromCity: '' });
     }
   };
+ 
 
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
@@ -478,14 +482,14 @@ const Sender = ({
           <TextField
             label="Zip Code"
             value={zipCode}
-            placeholder={iszip === 0 ? "Not required" : undefined}
+            placeholder={iszip === 0 || Giszip===1 ? "Not required" : undefined}
             onChange={(e) => setZipCode(e.target.value)}
             fullWidth
-            required={iszip !== 0}
+            required={iszip !== 0 || Giszip !==1}
             className="custom-textfield"
             error={!!senderErrors.zipCode}
             helperText={senderErrors.zipCode}
-             disabled={isGetrate}
+            disabled={isGetrate}
             sx={fieldStyle}
             inputProps={{
               maxLength: 15,
@@ -494,13 +498,13 @@ const Sender = ({
               autoCapitalize: "none",
             }}
             InputProps={{
-              readOnly: iszip === 0,
+              readOnly: iszip === 0 || Giszip ===1,
               startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />,
             }}
           />
 
           <Autocomplete
-            freeSolo
+            // freeSolo
             disablePortal
 
             options={cities || []}
@@ -508,7 +512,7 @@ const Sender = ({
             value={fromCity}
             onChange={handleCityChange}
             sx={fieldStyle}
-             disabled={isGetrate}
+            disabled={isGetrate}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -544,20 +548,30 @@ const Sender = ({
               />
             )}
           />
-          {country && iszip !== 0 ? (
-            <Box sx={fieldStyle}  disabled={isGetrate}>
+
+          {country && iszip !== 0 && Giszip !==1 ? (
+            <Box sx={fieldStyle} >
               <StateDropdown
                 country={countryId}
                 state={state}
                 setState={setState}
                 senderErrors={senderErrors}
+                isGetrate={isGetrate}
               />
             </Box>
           ) : (
             <Box sx={fieldStyle}>
-              <TextField placeholder="Not required" value={""} fullWidth inputProps={{ readOnly: true }} sx={fieldStyle} className="custom-textfield" />
+              <TextField
+                placeholder="Not required"
+                value=""
+                fullWidth
+                inputProps={{ readOnly: true }}
+                sx={fieldStyle}
+                className="custom-textfield"
+              />
             </Box>
           )}
+
         </Box>
 
         {/* Row 4: Phone 1, Phone 2, Email */}
@@ -582,7 +596,7 @@ const Sender = ({
 
                 if (!phone) {
                   setSenderErrors(prev => ({ ...prev, phone1: "Phone number is required" }));
-                } else if (phone.length>=3 &&!validatePhoneNumber(phone, countryData.iso2)) {
+                } else if (phone.length >= 3 && !validatePhoneNumber(phone, countryData.iso2)) {
                   setSenderErrors(prev => ({ ...prev, phone1: "Invalid phone number" }));
                 } else {
                   setSenderErrors(prev => ({ ...prev, phone1: "" }));
@@ -642,7 +656,7 @@ const Sender = ({
                 setoldphone2(trimmedPhone);
 
                 // Validate phone2 only if it has meaningful content
-                if (phone.length>=3 &&!validatePhoneNumber(phone, countryData.iso2)) {
+                if (phone.length >= 3 && !validatePhoneNumber(phone, countryData.iso2)) {
                   setSenderErrors(prev => ({ ...prev, phone2: 'Invalid phone number' }));
                 } else {
                   setSenderErrors(prev => ({ ...prev, phone2: '' }));
@@ -763,28 +777,28 @@ const Sender = ({
           >
             Previous
           </PrevButton>
-            <Box sx={{ display: "flex", gap: 2 }}>
-    {isGetrate && (
-      <EditButton
-        type="button"
-        variant="contained"
-        onClick={() => {
-          setActiveModule("Getrate");
-          navigate("/admin/getrate");
-        }}
-      >
-        Edit
-      </EditButton>
-    )}
-    <NextButton
-            type="submit"
-            variant="contained"
-            endIcon={<ArrowForwardIcon />}
-          >
-            Next
-          </NextButton>
-    </Box>  
-          
+          <Box sx={{ display: "flex", gap: 2 }}>
+            {isGetrate && (
+              <EditButton
+                type="button"
+                variant="contained"
+                onClick={() => {
+                  setActiveModule("Getrate");
+                  navigate("/admin/getrate");
+                }}
+              >
+                Edit
+              </EditButton>
+            )}
+            <NextButton
+              type="submit"
+              variant="contained"
+              endIcon={<ArrowForwardIcon />}
+            >
+              Next
+            </NextButton>
+          </Box>
+
         </ButtonBox>
       </form>
     </Box>

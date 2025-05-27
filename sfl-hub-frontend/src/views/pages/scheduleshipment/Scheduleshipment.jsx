@@ -138,14 +138,14 @@ const Schedule = () => {
   const [country, setCountry] = useState("");
   const [countrycode, setcountrycode] = useState("");
   const [countryId, setCountryId] = useState("");
-  const [iszip, setisZip] = useState(Giszip? Giszip : 1);
+  const [iszip, setisZip] = useState(Giszip? Giszip : 0);
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
   const [addressLine2, setAddressLine2] = useState("");
   const [addressLine3, setAddressLine3] = useState("");
-  const [zipCode, setZipCode] = useState(fromDetails.fromZipCode|| "");
-  const [fromCity, setFromCity] = useState( fromDetails.fromCity || "");
+  const [zipCode, setZipCode] = useState("");
+  const [fromCity, setFromCity] = useState("");
   const [state, setState] = useState("");
   const [phone1, setPhone1] = useState("");
   const [phone2, setPhone2] = useState("");
@@ -164,8 +164,8 @@ const Schedule = () => {
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
   const [recipientAddressLine2, setRecipientAddressLine2] = useState("");
   const [recipientAddressLine3, setRecipientAddressLine3] = useState("");
-  const [recipientZipCode, setRecipientZipCode] = useState( toDetails.toZipCode || "");
-  const [recipientCity, setRecipientCity] = useState( toDetails.toCity || "");
+  const [recipientZipCode, setRecipientZipCode] = useState( "");
+  const [recipientCity, setRecipientCity] = useState( "");
   const [recipientState, setRecipientState] = useState("");
   const [recipientPhone1, setRecipientPhone1] = useState("");
   const [recipientPhone2, setRecipientPhone2] = useState("");
@@ -222,27 +222,27 @@ const Schedule = () => {
   const [oldphone2, setoldphone2] = useState("");
   const [oldrecipientphone1, setoldrecipientphone1] = useState("");
   const [oldrecipientphone2, setoldrecipientphone2] = useState("");
-  console.log(fromDetails.fromCountry);
 
   useEffect(() => {
     setFromCountry(isGetrate&&fromDetails.fromCountry)
     setToCountry(isGetrate&&toDetails.toCountry)
     setShipmentType(isGetrate && GshipmentType?'Air':"");
-    setisZip(Giszip || 1);
+    setisZip(Giszip || 0);
     setresisZip(Gresiszip || 1);
     const fromCountryObj = countries.find((c) => c.value === fromDetails.fromCountry);
     const toCountryObj = countries.find((c) => c.value === toDetails.toCountry);
     setCountry(fromCountryObj ? fromCountryObj.label : "");
-    setZipCode(fromDetails.fromZipCode || '');
-    setFromCity(fromDetails.fromCity || '');
-    setState(fromDetails.fromState || '');
+    setZipCode(fromDetails.fromZipCode);
+    setFromCity(fromDetails.fromCity);
+    setState(fromDetails.fromState);
     setRecipientCountry(toCountryObj?toCountryObj.label:"");
-    setRecipientZipCode(toDetails.toZipCode || '');
-    setRecipientCity(toDetails.toCity || '');
-    setRecipientState(toDetails.toState || '');
+    setRecipientZipCode(toDetails.toZipCode);
+    setRecipientCity(toDetails.toCity);
+    setRecipientState(toDetails.toState);
     setPackageType(toDetails.packageType || 'Package');
     setPickupDate(toDetails.shipDate || new Date().toISOString().split('T')[0]);
     setNoOfPackages(packageDetails.length || 1);
+    
     setPackageData(
       packageDetails.length > 0
         ? packageDetails.map((pkg) => ({
@@ -835,7 +835,7 @@ const Schedule = () => {
         newErrors.addressLine3 = "Address Line 3 must be 60 characters or fewer";
       }
     }
-    if (iszip !== 0) {
+    if (iszip !== 0 && Giszip !==1) {
       if (!zipCode?.trim()) {
         newErrors.zipCode = "Zip Code is required";
       } else if (!/^[A-Za-z0-9\- ]+$/.test(zipCode.trim())) {
@@ -851,7 +851,7 @@ const Schedule = () => {
       newErrors.fromCity = "City name must be 35 characters or fewer";
     }
 
-    if (iszip !== 0) {
+    if (iszip !== 0 && Giszip!==1) {
     if (!state?.trim()) {
       newErrors.state = "State is required";
     } else if (state.trim().length > 35) {
@@ -926,7 +926,7 @@ const Schedule = () => {
       }
     }
 
-    if (resiszip !== 0) {
+    if (resiszip !== 0 && Gresiszip !== 1) {
       if (!recipientZipCode?.trim()) {
         newErrors.recipientZipCode = "Zip Code is required";
       } else if (!zipCodeRegex.test(recipientZipCode.trim())) {
@@ -943,7 +943,7 @@ const Schedule = () => {
       newErrors.recipientCity = "City must be 35 characters or fewer";
     }
 
-   if(resiszip !== 0) {
+   if(resiszip !== 0 && Gresiszip !== 1) {
     if (!recipientState?.trim()) {
       newErrors.state = "State is required";
     } else if (recipientState.trim().length > 35) {
@@ -1391,6 +1391,8 @@ const Schedule = () => {
                 setFromCountry={setFromCountry}
                 toCountry={toCountry}
                 setToCountry={setToCountry}
+                setFromCity={setFromCity}
+                setRecipientCity={setRecipientCity}
                 pickupErrors={pickupErrors}
                 countries={countries}
                 handlePickupSubmit={handlePickupSubmit}
@@ -1454,6 +1456,7 @@ const Schedule = () => {
                 setisZip={setisZip} 
                 isGetrate={isGetrate}
                 setActiveModule={setActiveModule}
+                Giszip={Giszip}
               />
             )}
             {activeModule === "Schedule Shipment" && activeTab === "recipient" && (
@@ -1498,6 +1501,7 @@ const Schedule = () => {
                   setresisZip,
                   isGetrate,
                   setActiveModule,
+                  Gresiszip,
                 }}
               />
             )}

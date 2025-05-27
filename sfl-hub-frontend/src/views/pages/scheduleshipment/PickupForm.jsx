@@ -17,6 +17,8 @@ const PickupForm = ({
   setFromCountry,
   toCountry,
   setToCountry,
+  setFromCity,
+  setRecipientCity,
   pickupErrors,
   countries,
   handlePickupSubmit,
@@ -75,6 +77,7 @@ const PickupForm = ({
               setFromCountry(newValue?.value || "");
               setisZip(newValue?.iszipavailable ?? 0);
               setZipCode("");
+              setFromCity("")
               setPhone1(""); setPhone2("");
             }}
              disabled={isGetrate}
@@ -96,7 +99,7 @@ const PickupForm = ({
             getOptionLabel={(option) => option.label}
             value={toCountry ? countries.find((c) => c.value === toCountry) : null}
              disabled={isGetrate}
-            onChange={(event, newValue) => { setToCountry(newValue?.value || ""); setresisZip(newValue?.iszipavailable ?? 0); setRecipientZipCode(""); setRecipientPhone1(""); setRecipientPhone2(""); }}
+            onChange={(event, newValue) => { setToCountry(newValue?.value || ""); setresisZip(newValue?.iszipavailable ?? 0); setRecipientZipCode(""); setRecipientPhone1(""); setRecipientPhone2(""); setRecipientCity("") }}
             renderInput={(params) => (
               <TextField
                 {...params}

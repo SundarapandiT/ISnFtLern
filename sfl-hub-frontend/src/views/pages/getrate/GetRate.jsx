@@ -50,10 +50,11 @@ const GetRate = ({setActiveModule}) => {
     GsetShipmentType,
     setIsgetrate,
   } = useShipmentContext();
+  
 
   // Fetch countries data
   const { data: countries = [], isLoading: isCountriesLoading, isError: isCountriesError } = useQuery({
-    queryKey: ['countries'],
+    queryKey: ['country'],
     queryFn: async () => {
       const res = await axios.get(`${api.BackendURL}/locations/getCountry`);
       const countryData = res.data?.user?.[0] || [];
@@ -61,7 +62,7 @@ const GetRate = ({setActiveModule}) => {
         value: country.countrycode.toLowerCase(),
         label: country.countryname,
         countryid: country.countryid,
-        iszipavailable: country.iszipavailable,
+        isfedexcity: country.isfedexcity,
       }));
     },
     staleTime: 24 * 60 * 60 * 1000,
@@ -71,6 +72,9 @@ const GetRate = ({setActiveModule}) => {
       toast.error('Failed to load countries.');
     },
   });
+   
+ 
+console.log(countries)
 
   const [rates, setRates] = useState([]);
   const [showRates, setShowRates] = useState(false);
@@ -168,14 +172,14 @@ const GetRate = ({setActiveModule}) => {
   const { data: fromCities = [], isLoading: isFromCitiesLoading, error: fromCitiesError } = useQuery({
     queryKey: ['fromCityList', fromDetails.fromCountry],
     queryFn: async () => {
-      if (!fromCountryObj || Giszip !== 0) return [];
+      if (!fromCountryObj || Giszip !== 1) return [];
       const response = await axios.post(`${api.BackendURL}/locations/getFedexCityList`, {
         countryID: fromCountryObj.countryid,
         cityType: 'FedEx',
       });
       return response.data.user?.[0]?.map(city => city.cityname) || [];
     },
-    enabled: !!fromCountryObj && Giszip === 0,
+    enabled: !!fromCountryObj && Giszip === 1,
     staleTime: 24 * 60 * 60 * 1000,
     retry: 2,
     onError: (error) => {
@@ -189,14 +193,14 @@ const GetRate = ({setActiveModule}) => {
   const { data: toCities = [], isLoading: isToCitiesLoading, error: toCitiesError } = useQuery({
     queryKey: ['toCityList', toDetails.toCountry],
     queryFn: async () => {
-      if (!toCountryObj || Gresiszip !== 0) return [];
+      if (!toCountryObj || Gresiszip !== 1) return [];
       const response = await axios.post(`${api.BackendURL}/locations/getFedexCityList`, {
         countryID: toCountryObj.countryid,
         cityType: 'FedEx',
       });
       return response.data.user?.[0]?.map(city => city.cityname) || [];
     },
-    enabled: !!toCountryObj && Gresiszip === 0,
+    enabled: !!toCountryObj && Gresiszip === 1,
     staleTime: 24 * 60 * 60 * 1000,
     retry: 2,
     onError: (error) => {
@@ -234,11 +238,11 @@ const GetRate = ({setActiveModule}) => {
       newErrors.toCountry = 'To Country is required';
       isValid = false;
     }
-    if (Giszip === 1 && !fromDetails.fromZipCode) {
+    if (Giszip === 0 && !fromDetails.fromZipCode) {
       newErrors.fromZipCode = 'From Zip Code is required';
       isValid = false;
     }
-    if (Gresiszip === 1 && !toDetails.toZipCode) {
+    if (Gresiszip === 0 && !toDetails.toZipCode) {
       newErrors.toZipCode = 'To Zip Code is required';
       isValid = false;
     }
@@ -423,21 +427,31 @@ const GetRate = ({setActiveModule}) => {
   };
 
   useEffect(() => {
-    if (Giszip === 0) {
+  if (Giszip === 1) {
+    // Only reset fromCity if it's not already set or if the country has changed
+    if (!fromDetails.fromCity || fromDetails.fromCountry !== previousCountryRef.current) {
       updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
       setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
       setFormErrors(prev => ({ ...prev, fromCity: '' }));
-      return;
     }
-    if (fromDebounceRef.current) clearTimeout(fromDebounceRef.current);
-    fromDebounceRef.current = setTimeout(() => {
-      fetchCityState(fromDetails.fromZipCode, fromDetails.fromCountry, true);
-    }, 500);
-    return () => clearTimeout(fromDebounceRef.current);
-  }, [fromDetails.fromZipCode, fromDetails.fromCountry, Giszip, countries]);
+    return;
+  }
+  if (fromDebounceRef.current) clearTimeout(fromDebounceRef.current);
+  fromDebounceRef.current = setTimeout(() => {
+    fetchCityState(fromDetails.fromZipCode, fromDetails.fromCountry, true);
+  }, 500);
+  return () => clearTimeout(fromDebounceRef.current);
+}, [fromDetails.fromZipCode, fromDetails.fromCountry, Giszip, countries]);
+
+// Add a ref to track the previous country
+const previousCountryRef = useRef(fromDetails.fromCountry);
+
+useEffect(() => {
+  previousCountryRef.current = fromDetails.fromCountry;
+}, [fromDetails.fromCountry]);
 
   useEffect(() => {
-    if (Gresiszip === 0) {
+    if (Gresiszip === 1) {
       updateToDetails({ toZipCode: '', toCity: '', toState: '' });
       setPickupErrors(prev => ({ ...prev, toZipCode: '' }));
       setFormErrors(prev => ({ ...prev, toCity: '' }));
@@ -466,6 +480,7 @@ const GetRate = ({setActiveModule}) => {
     return { ...prev, packageRows: newPackageErrors };
   });
 };
+console.log(Giszip,Gresiszip)
 
   const handleWeightUnitChange = (value) => {
     if (isEnvelope) return;
@@ -544,32 +559,32 @@ const GetRate = ({setActiveModule}) => {
             CountryID: fromCountryObj.countryid,
             CountryName: fromCountryObj.label,
             CountryCode: fromCountryObj.value.toUpperCase(),
-            IsFedexCity: Giszip === 0 ? 1 : 0,
+            IsFedexCity: Giszip,
             IsUpsCity: 0,
             IsDhlCity: 0,
-            IsZipAvailable: Giszip,
-            FromZipCodeOptional: Giszip === 0,
-            ToZipCodeOptional: Gresiszip === 0,
+            IsZipAvailable: Giszip === 1 ? 0 : 1,
+            FromZipCodeOptional: Giszip === 1,
+            ToZipCodeOptional: Gresiszip === 1,
           }),
           FromCity: fromDetails.fromCity,
           FromUPSCity: null,
-          FromFedExCity: Giszip === 0 ? fromDetails.fromCity : null,
+          FromFedExCity: Giszip === 1 ? fromDetails.fromCity : null,
           FromZipCode: fromDetails.fromZipCode,
           FromStateProvinceCode: '',
           ToCountry: JSON.stringify({
             CountryID: toCountryObj.countryid,
             CountryName: toCountryObj.label,
             CountryCode: toCountryObj.value.toUpperCase(),
-            IsFedexCity: Gresiszip === 0 ? 1 : 0,
+            IsFedexCity: Gresiszip,
             IsUpsCity: 0,
             IsDhlCity: 0,
-            IsZipAvailable: Gresiszip,
-            FromZipCodeOptional: Giszip === 0,
-            ToZipCodeOptional: Gresiszip === 0,
+            IsZipAvailable: Gresiszip === 0 ? 1 : 0,
+            FromZipCodeOptional: Giszip === 1,
+            ToZipCodeOptional: Gresiszip === 1,
           }),
           ToCity: toDetails.toCity,
           ToUPSCity: '',
-          ToFedExCity: Gresiszip === 0 ? toDetails.toCity : '',
+          ToFedExCity: Gresiszip === 1 ? toDetails.toCity : '',
           ToZipCode: toDetails.toZipCode,
           ToStateProvinceCode: '',
         },
@@ -732,8 +747,8 @@ const GetRate = ({setActiveModule}) => {
     setWeightUnit('LB');
     setDimensionUnit('INCHES');
     setChargeableUnit('LB');
-    GsetisZip(1);
-    GsetresisZip(1);
+    GsetisZip(0);
+    GsetresisZip(0);
     setPickupErrors({ fromZipCode: '', toZipCode: '' });
     setFormErrors({
       fromCountry: '',
@@ -764,7 +779,7 @@ const GetRate = ({setActiveModule}) => {
     setActiveModule('Schedule Shipment');
     navigate('/admin/Scheduleshipment');
   };
-  
+ 
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
@@ -821,9 +836,10 @@ const GetRate = ({setActiveModule}) => {
                   onChange={(event, newValue) => {
                     updateFromDetails({ fromCountry: newValue?.value || '' });
                     
-                    GsetisZip(newValue?.iszipavailable ?? 1);
+                    GsetisZip(newValue?.isfedexcity ?? 0);
                     updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
                   }}
+                  
                   disabled={isCountriesLoading || isCountriesError}
                   renderInput={(params) => (
                     <TextField
@@ -846,20 +862,20 @@ const GetRate = ({setActiveModule}) => {
                 name="fromZipCode"
                 value={fromDetails.fromZipCode || ''}
                 onChange={handleInputChange}
-                placeholder={Giszip === 0 ? 'Not required' : undefined}
+                placeholder={Giszip === 1 ? 'Not required' : undefined}
                 size="small"
                 className="custom-textfield"
                 inputProps={{
                   maxLength: 15,
-                  readOnly: Giszip === 0,
+                  readOnly: Giszip === 1,
                 }}
                 error={!!pickupErrors.fromZipCode || !!formErrors.fromZipCode}
                 helperText={pickupErrors.fromZipCode || formErrors.fromZipCode}
-                disabled={Giszip === 0}
+                disabled={Giszip === 1}
               />
             </Box>
             <Box>
-              {Giszip === 0 ? (
+              {Giszip === 1 ? (
                 <FormControl fullWidth>
                   <Autocomplete
                     freeSolo
@@ -905,7 +921,7 @@ const GetRate = ({setActiveModule}) => {
                   value={toDetails.toCountry ? countries.find((c) => c.value === toDetails.toCountry) || null : null}
                   onChange={(event, newValue) => {
                     updateToDetails({ toCountry: newValue?.value || '' });
-                    GsetresisZip(newValue?.iszipavailable ?? 1);
+                    GsetresisZip(newValue?.isfedexcity ?? 0);
                     updateToDetails({ toZipCode: '', toCity: '', toState: '' });
                   }}
                   disabled={isCountriesLoading || isCountriesError}
@@ -930,20 +946,20 @@ const GetRate = ({setActiveModule}) => {
                 name="toZipCode"
                 value={toDetails.toZipCode || ''}
                 onChange={handleInputChange}
-                placeholder={Gresiszip === 0 ? 'Not required' : undefined}
+                placeholder={Gresiszip === 1 ? 'Not required' : undefined}
                 size="small"
                 className="custom-textfield"
                 inputProps={{
                   maxLength: 15,
-                  readOnly: Gresiszip === 0,
+                  readOnly: Gresiszip === 1,
                 }}
                 error={!!pickupErrors.toZipCode || !!formErrors.toZipCode}
                 helperText={pickupErrors.toZipCode || formErrors.toZipCode}
-                disabled={Gresiszip === 0}
+                disabled={Gresiszip === 1}
               />
             </Box>
             <Box>
-              {Gresiszip === 0 ? (
+              {Gresiszip === 1 ? (
                 <FormControl fullWidth>
                   <Autocomplete
                     freeSolo

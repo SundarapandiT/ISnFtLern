@@ -35,8 +35,8 @@ const initialPackageRows = [
 export const ShipmentProvider = ({ children }) => {
   const [formData, setFormData] = useState(initialFormData);
   const [packageRows, setPackageRows] = useState(initialPackageRows);
-    const [Giszip, GsetisZip] = useState(1);
-    const [Gresiszip, GsetresisZip] = useState(1);
+    const [Giszip, GsetisZip] = useState(0);
+    const [Gresiszip, GsetresisZip] = useState(0);
      const [GshipmentType, GsetShipmentType] = useState('AIR');
      const [isGetrate,setIsgetrate]=useState(false);
 

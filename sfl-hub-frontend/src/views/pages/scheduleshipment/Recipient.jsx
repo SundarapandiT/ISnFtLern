@@ -65,6 +65,7 @@ const Recipient = ({
   resiszip,
   isGetrate,
   setActiveModule,
+  Gresiszip,
 }) => {
   const debounceRef = useRef(null);
   const navigate = useNavigate();
@@ -397,7 +398,7 @@ const Recipient = ({
           <TextField
             label="Zip Code"
             value={recipientZipCode}
-            placeholder={resiszip === 0 ? "Not required" : undefined}
+            placeholder={resiszip === 0 || Gresiszip === 1 ? "Not required" : undefined}
              disabled={isGetrate}
             className="custom-textfield"
             inputProps={{
@@ -408,12 +409,12 @@ const Recipient = ({
             }}
             onChange={(e) => setRecipientZipCode(e.target.value)}
             fullWidth
-            required={resiszip !== 0}
+            required={resiszip !== 0 || Gresiszip !== 1}
             error={!!recipientErrors.recipientZipCode}
             helperText={recipientErrors.recipientZipCode}
             sx={fieldStyle}
             InputProps={{
-              readOnly: resiszip === 0,
+              readOnly: resiszip === 0 || Gresiszip === 1,
               startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />
             }}
           />
@@ -461,13 +462,14 @@ const Recipient = ({
               />
             )}
           />
-          {recipientCountry && resiszip!==0? (
+          {recipientCountry && resiszip!==0 && Gresiszip!==1? (
             <Box sx={fieldStyle}  disabled={isGetrate}>
               <StateDropdown
                 country={recipientCountryId}
                 state={recipientState}
                 setState={setRecipientState}
                 senderErrors={recipientErrors}
+                isGetrate={isGetrate}
               />
             </Box>
           ) : (

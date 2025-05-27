@@ -3,7 +3,7 @@ import axios from "axios";
 import { Autocomplete, TextField, FormControl } from "@mui/material";
 import { api, encryptURL } from "../../../utils/api";
 
-const StateDropdown = ({ country, setState, senderErrors, state: selectedState }) => {
+const StateDropdown = ({ country, setState, senderErrors, state: selectedState ,isGetrate}) => {
   const [states, setStates] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +41,7 @@ const StateDropdown = ({ country, setState, senderErrors, state: selectedState }
         options={states}
         loading={loading}
         getOptionLabel={(option) => option}
+        disabled={isGetrate}
         onChange={(event, newValue) => {
           setState(newValue); // when selected from dropdown
         }}
