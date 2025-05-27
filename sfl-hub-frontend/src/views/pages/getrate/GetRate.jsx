@@ -32,7 +32,7 @@ import { useStyles } from '../../styles/MyshipmentStyle';
 import { useShipmentContext } from '../../ShipmentContext';
 import { useNavigate } from 'react-router-dom';
 
-const GetRate = ({setActiveModule}) => {
+const GetRate = ({ setActiveModule }) => {
   const navigate = useNavigate();
   const classes = useStyles();
   const {
@@ -50,7 +50,7 @@ const GetRate = ({setActiveModule}) => {
     GsetShipmentType,
     setIsgetrate,
   } = useShipmentContext();
-  
+
 
   // Fetch countries data
   const { data: countries = [], isLoading: isCountriesLoading, isError: isCountriesError } = useQuery({
@@ -72,9 +72,6 @@ const GetRate = ({setActiveModule}) => {
       toast.error('Failed to load countries.');
     },
   });
-   
- 
-console.log(countries)
 
   const [rates, setRates] = useState([]);
   const [showRates, setShowRates] = useState(false);
@@ -427,28 +424,28 @@ console.log(countries)
   };
 
   useEffect(() => {
-  if (Giszip === 1) {
-    // Only reset fromCity if it's not already set or if the country has changed
-    if (!fromDetails.fromCity || fromDetails.fromCountry !== previousCountryRef.current) {
-      updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
-      setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
-      setFormErrors(prev => ({ ...prev, fromCity: '' }));
+    if (Giszip === 1) {
+      // Only reset fromCity if it's not already set or if the country has changed
+      if (!fromDetails.fromCity || fromDetails.fromCountry !== previousCountryRef.current) {
+        updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
+        setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
+        setFormErrors(prev => ({ ...prev, fromCity: '' }));
+      }
+      return;
     }
-    return;
-  }
-  if (fromDebounceRef.current) clearTimeout(fromDebounceRef.current);
-  fromDebounceRef.current = setTimeout(() => {
-    fetchCityState(fromDetails.fromZipCode, fromDetails.fromCountry, true);
-  }, 500);
-  return () => clearTimeout(fromDebounceRef.current);
-}, [fromDetails.fromZipCode, fromDetails.fromCountry, Giszip, countries]);
+    if (fromDebounceRef.current) clearTimeout(fromDebounceRef.current);
+    fromDebounceRef.current = setTimeout(() => {
+      fetchCityState(fromDetails.fromZipCode, fromDetails.fromCountry, true);
+    }, 500);
+    return () => clearTimeout(fromDebounceRef.current);
+  }, [fromDetails.fromZipCode, fromDetails.fromCountry, Giszip, countries]);
 
-// Add a ref to track the previous country
-const previousCountryRef = useRef(fromDetails.fromCountry);
+  // Add a ref to track the previous country
+  const previousCountryRef = useRef(fromDetails.fromCountry);
 
-useEffect(() => {
-  previousCountryRef.current = fromDetails.fromCountry;
-}, [fromDetails.fromCountry]);
+  useEffect(() => {
+    previousCountryRef.current = fromDetails.fromCountry;
+  }, [fromDetails.fromCountry]);
 
   useEffect(() => {
     if (Gresiszip === 1) {
@@ -465,22 +462,21 @@ useEffect(() => {
   }, [toDetails.toZipCode, toDetails.toCountry, Gresiszip, countries]);
 
   const handlePackageRowChange = (index, field, value) => {
-  if (isEnvelope) return;
+    if (isEnvelope) return;
 
-  // Restrict to non-negative numbers; integers for packageNumber, decimals for others
-  if (['packageNumber','weight', 'length', 'width', 'height'] && !/^\d*$/.test(value)) return;
-  setPackageDetails((prevRows) => {
-    const updatedRows = [...prevRows];
-    updatedRows[index] = { ...updatedRows[index], [field]: value };
-    return updatedRows;
-  });
-  setFormErrors(prev => {
-    const newPackageErrors = [...prev.packageRows];
-    newPackageErrors[index] = { ...newPackageErrors[index], [field]: '' };
-    return { ...prev, packageRows: newPackageErrors };
-  });
-};
-console.log(Giszip,Gresiszip)
+    // Restrict to non-negative numbers; integers for packageNumber, decimals for others
+    if (['packageNumber', 'weight', 'length', 'width', 'height'] && !/^\d*$/.test(value)) return;
+    setPackageDetails((prevRows) => {
+      const updatedRows = [...prevRows];
+      updatedRows[index] = { ...updatedRows[index], [field]: value };
+      return updatedRows;
+    });
+    setFormErrors(prev => {
+      const newPackageErrors = [...prev.packageRows];
+      newPackageErrors[index] = { ...newPackageErrors[index], [field]: '' };
+      return { ...prev, packageRows: newPackageErrors };
+    });
+  };
 
   const handleWeightUnitChange = (value) => {
     if (isEnvelope) return;
@@ -779,7 +775,7 @@ console.log(Giszip,Gresiszip)
     setActiveModule('Schedule Shipment');
     navigate('/admin/Scheduleshipment');
   };
- 
+
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
@@ -835,11 +831,11 @@ console.log(Giszip,Gresiszip)
                   value={fromDetails.fromCountry ? countries.find((c) => c.value === fromDetails.fromCountry) || null : null}
                   onChange={(event, newValue) => {
                     updateFromDetails({ fromCountry: newValue?.value || '' });
-                    
+
                     GsetisZip(newValue?.isfedexcity ?? 0);
                     updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
                   }}
-                  
+
                   disabled={isCountriesLoading || isCountriesError}
                   renderInput={(params) => (
                     <TextField
@@ -858,7 +854,7 @@ console.log(Giszip,Gresiszip)
             <Box>
               <TextField
                 fullWidth
-                label="From Zip Code"
+                label={Giszip === 1 ? 'Not required' : "From Zip Code"}
                 name="fromZipCode"
                 value={fromDetails.fromZipCode || ''}
                 onChange={handleInputChange}
@@ -868,6 +864,9 @@ console.log(Giszip,Gresiszip)
                 inputProps={{
                   maxLength: 15,
                   readOnly: Giszip === 1,
+                  autoComplete: 'off',
+                  autoCorrect: 'off',
+                  autoCapitalize: 'none',
                 }}
                 error={!!pickupErrors.fromZipCode || !!formErrors.fromZipCode}
                 helperText={pickupErrors.fromZipCode || formErrors.fromZipCode}
@@ -908,6 +907,11 @@ console.log(Giszip,Gresiszip)
                   size="small"
                   error={!!formErrors.fromCity}
                   helperText={formErrors.fromCity}
+                  InputProps={{
+                    autoComplete: 'off',
+                    autoCorrect: 'off',
+                    autoCapitalize: 'none',
+                  }}
                 />
               )}
             </Box>
@@ -942,7 +946,7 @@ console.log(Giszip,Gresiszip)
             <Box>
               <TextField
                 fullWidth
-                label="To Zip Code"
+                label={Gresiszip === 1 ? 'Not required' : "To Zip Code"}
                 name="toZipCode"
                 value={toDetails.toZipCode || ''}
                 onChange={handleInputChange}
@@ -952,6 +956,9 @@ console.log(Giszip,Gresiszip)
                 inputProps={{
                   maxLength: 15,
                   readOnly: Gresiszip === 1,
+                  autoComplete: 'off',
+                  autoCorrect: 'off',
+                  autoCapitalize: 'none',
                 }}
                 error={!!pickupErrors.toZipCode || !!formErrors.toZipCode}
                 helperText={pickupErrors.toZipCode || formErrors.toZipCode}
@@ -975,6 +982,11 @@ console.log(Giszip,Gresiszip)
                         label="To City"
                         error={!!formErrors.toCity}
                         helperText={formErrors.toCity || (toCitiesError ? 'Error loading cities' : undefined)}
+                        InputProps={{
+                          autoComplete: 'off',
+                          autoCorrect: 'off',
+                          autoCapitalize: 'none',
+                        }}
                       />
                     )}
                     noOptionsText={isToCitiesLoading ? 'Loading cities...' : 'No cities found'}
@@ -992,6 +1004,11 @@ console.log(Giszip,Gresiszip)
                   size="small"
                   error={!!formErrors.toCity}
                   helperText={formErrors.toCity}
+                  InputProps={{
+                    autoComplete: 'off',
+                    autoCorrect: 'off',
+                    autoCapitalize: 'none',
+                  }}
                 />
               )}
             </Box>
@@ -1047,6 +1064,7 @@ console.log(Giszip,Gresiszip)
                 placeholder=""
                 error={!!formErrors.shipDate}
                 helperText={formErrors.shipDate}
+
               />
             </Box>
           </Box>
@@ -1197,6 +1215,11 @@ console.log(Giszip,Gresiszip)
                           error={!!formErrors.packageRows[index]?.packageNumber}
                           helperText={formErrors.packageRows[index]?.packageNumber}
                           disabled={isEnvelope}
+                          InputProps={{
+                            autoComplete: 'off',
+                            autoCorrect: 'off',
+                            autoCapitalize: 'none',
+                          }}
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px' }}>
@@ -1210,6 +1233,11 @@ console.log(Giszip,Gresiszip)
                           error={!!formErrors.packageRows[index]?.weight}
                           helperText={formErrors.packageRows[index]?.weight}
                           disabled={isEnvelope}
+                          InputProps={{
+                            autoComplete: 'off',
+                            autoCorrect: 'off',
+                            autoCapitalize: 'none',
+                          }}
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
@@ -1223,6 +1251,11 @@ console.log(Giszip,Gresiszip)
                           error={!!formErrors.packageRows[index]?.length}
                           helperText={formErrors.packageRows[index]?.length}
                           disabled={isEnvelope}
+                          InputProps={{
+                            autoComplete: 'off',
+                            autoCorrect: 'off',
+                            autoCapitalize: 'none',
+                          }}
                         />
                         <TextField
                           type="number"
@@ -1234,6 +1267,11 @@ console.log(Giszip,Gresiszip)
                           error={!!formErrors.packageRows[index]?.width}
                           helperText={formErrors.packageRows[index]?.width}
                           disabled={isEnvelope}
+                          InputProps={{
+                            autoComplete: 'off',
+                            autoCorrect: 'off',
+                            autoCapitalize: 'none',
+                          }}
                         />
                         <TextField
                           type="number"
@@ -1245,6 +1283,11 @@ console.log(Giszip,Gresiszip)
                           error={!!formErrors.packageRows[index]?.height}
                           helperText={formErrors.packageRows[index]?.height}
                           disabled={isEnvelope}
+                          InputProps={{
+                            autoComplete: 'off',
+                            autoCorrect: 'off',
+                            autoCapitalize: 'none',
+                          }}
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px' }}>
@@ -1255,6 +1298,11 @@ console.log(Giszip,Gresiszip)
                           size="small"
                           fullWidth
                           disabled
+                          InputProps={{
+                            autoComplete: 'off',
+                            autoCorrect: 'off',
+                            autoCapitalize: 'none',
+                          }}
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px' }}>
@@ -1267,6 +1315,11 @@ console.log(Giszip,Gresiszip)
                           fullWidth
                           error={!!formErrors.packageRows[index]?.insuredValue}
                           helperText={formErrors.packageRows[index]?.insuredValue}
+                          InputProps={{
+                            autoComplete: 'off',
+                            autoCorrect: 'off',
+                            autoCapitalize: 'none',
+                          }}
                         />
                       </TableCell>
                       <TableCell sx={{ padding: '8px' }}>

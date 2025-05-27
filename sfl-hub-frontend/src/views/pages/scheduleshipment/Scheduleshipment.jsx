@@ -138,7 +138,7 @@ const Schedule = () => {
   const [country, setCountry] = useState("");
   const [countrycode, setcountrycode] = useState("");
   const [countryId, setCountryId] = useState("");
-  const [iszip, setisZip] = useState(Giszip? Giszip : 0);
+  const [iszip, setisZip] = useState(Giszip? Giszip : 1);
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
@@ -227,7 +227,7 @@ const Schedule = () => {
     setFromCountry(isGetrate&&fromDetails.fromCountry)
     setToCountry(isGetrate&&toDetails.toCountry)
     setShipmentType(isGetrate && GshipmentType?'Air':"");
-    setisZip(Giszip || 0);
+    setisZip(Giszip || 1);
     setresisZip(Gresiszip || 1);
     const fromCountryObj = countries.find((c) => c.value === fromDetails.fromCountry);
     const toCountryObj = countries.find((c) => c.value === toDetails.toCountry);
