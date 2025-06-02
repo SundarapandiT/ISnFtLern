@@ -773,7 +773,7 @@ const GetRate = ({ setActiveModule }) => {
     console.log(`Booking ${service}...`);
     setIsgetrate(true);
     setActiveModule('Schedule Shipment');
-    navigate('/admin/Scheduleshipment');
+     navigate("/admin/Scheduleshipment", { replace: true });
   };
 
 

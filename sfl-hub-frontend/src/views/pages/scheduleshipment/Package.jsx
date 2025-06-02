@@ -1,4 +1,4 @@
-import React, { useState, useRef, createRef } from "react";
+import React, { useState, useRef, createRef, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -85,6 +85,30 @@ const Package = ({
 }) => {
   // State to control dialog visibility
   const [openDialog, setOpenDialog] = useState(false);
+  useEffect(()=>
+  {
+    if (packageType === "Envelop") {
+      setNoOfPackages(1);
+      updatePackageRows(1);
+      const resetPackageData = [{
+        noOfPackages: 1,
+        weight: 0.5,
+        length: 10,
+        width: 13,
+        height: 1,
+        chargable_weight: 0.5,
+        insured_value: 0,
+      }];
+      setPackageData(resetPackageData);
+      setCommercialInvoiceData([{
+        packageNumber: "1",
+        contentDescription: "Document",
+        quantity: 0,
+        valuePerQty: 0,
+      }]);
+    }
+
+  },[packageType])
 
   // // Create an array of refs for valuePerQty TextFields (one ref per row)
   // const valuePerQtyRefs = useRef(
