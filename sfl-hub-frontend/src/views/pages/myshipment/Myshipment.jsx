@@ -206,7 +206,7 @@ const ShipmentDashboard = ({ setEdit }) => {
       });
 
       if (response.status === 200 && response.data?.user) {
-        setEdit(true);
+        setEdit(true); 
         navigate("/admin/MyShipmentNew", {
           state: { shipment: response.data.user },
           replace: true,

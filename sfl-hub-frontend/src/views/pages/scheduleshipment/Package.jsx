@@ -217,6 +217,7 @@ const Package = ({
               value={packageType || "Package"}
               label="Package Type (required)"
               onChange={(e) => handlepkgtype(e)}
+              disabled={isGetrate}
               className="custom-select"
             >
               <MenuItem value="Package" >Package</MenuItem>

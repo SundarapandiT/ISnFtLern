@@ -10,6 +10,8 @@ import ResetPassword from "./views/pages/ResetPassword";
 import { ShipmentProvider } from "./views/ShipmentContext";
 import "./App.css";
 import "./index.css";
+import Invoice from "./views/pages/ShipmentDocumentation/Invoice";
+import PrintCommercialInvoice from "./views/pages/ShipmentDocumentation/PrintCommercialInvoice";
 
 // ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
@@ -84,6 +86,8 @@ function App() {
           <Route path="/emailverification" element={<EmailVerification />} />
           <Route path="/auth/forgotpassword-page" element={<ForgotPassword />} />
           <Route path="/auth/ResetPassword" element={<ResetPassword />} />
+          <Route path="/auth/printinvoice" element={<Invoice/>} />
+          <Route path="/auth/printcommercialinvoice" element={<PrintCommercialInvoice/>} />
           <Route
             path="/admin/*"
             element={

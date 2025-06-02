@@ -342,13 +342,13 @@ body {
   font-size: 24px;
   color: #d32f2f;
   font-weight: bold;
-  border: 2px dashed #aaa;   /* Dashed border */
-  padding: 4px 8px;          /* Space around the text */
-  display: inline-block;     /* Makes the box wrap the content */
-  line-height: 1.2;          /* Keeps line-height clean */
-  border-radius: 4px;        /* Optional: rounded corners for style */
+  border: 2px dashed #aaa;        
+  padding: 4px 8px;          
+  display: inline-block;     
+  line-height: 1.2;         
+  border-radius: 4px;        
 }
-.scs-headerinner span:empty {
+.scs-headerinner span:empty {  
   display: inline-block;
   width: 100px;              /* Optional width for empty state */
   height: 30px;              /* Height for empty box */
@@ -600,4 +600,55 @@ form .MuiFormHelperText-root {
 }
 .MuiAutocomplete-popper li {
   font-size: 0.75rem;
+}
+
+/* commercial invoice css */
+.cip-new-table {
+  width: 100%;
+  background: #fff;
+}
+
+.cip-new-table th,
+.cip-new-table td {
+  text-align: left;
+  border: 1px solid #000;
+  color: #000;
+  font-size: 12px;
+  padding: 0px 5px;
+  height: 23px;
+}
+
+.cip-new-table td {
+  font-weight: 400;
+}
+
+.cip-new-table td {
+  font-weight: 500;
+}
+
+.cip-new-table th.center,
+.cip-new-table td.center {
+  text-align: center;
+}
+
+.cip-new-table td.bg-grey,
+.cip-new-table th.bg-grey {
+  background: rgb(221, 235, 247);
+}
+
+table.cip-new-table {
+  border-collapse: collapse;
+  border-spacing: 1px;
+}
+
+.commercial-invoice-print {
+  max-width: 800px;
+  width: 100%;
+  margin: 30px auto;
+}
+
+.commercial-invoice-print table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 1px;
 }
