@@ -54,7 +54,7 @@ const PrintContainer = styled(Paper)({
 
 const PrintCommercialInvoice = () => {
   const location = useLocation();
-  const { shipment } = location.state || {};
+  const shipment = JSON.parse(sessionStorage.getItem("shipmentData"));
 
   const [state, setState] = useState({
     FromAddress: {},
@@ -71,6 +71,7 @@ const PrintCommercialInvoice = () => {
   });
 
   useEffect(() => {
+    
     if (shipment) {
       const shipmentInfo = shipment?.SHIPMENTINFO?.[0] || {};
       const fromAddress =
@@ -130,7 +131,8 @@ const PrintCommercialInvoice = () => {
 
   const renderTrackingNumber = () => {
     return state.TrackingNumberList.map((tracking) => (
-      <MenuItem key={tracking.TrackingNumber} value={tracking.TrackingNumber}>
+                
+      <MenuItem key={tracking.TrackingNumber} value={tracking.TrackingNumber} sx={{ fontSize: "0.75rem" ,height:"2rem"}}>
         {tracking.TrackingNumber}
       </MenuItem>
     ));
@@ -276,8 +278,9 @@ const PrintCommercialInvoice = () => {
                 value={CurrentTrackingNumber}
                 displayEmpty
                 fullWidth
+                sx={{ fontSize: "0.75rem" ,height:"2rem"}}
               >
-                <MenuItem value="">Select Tracking Number</MenuItem>
+                <MenuItem value="" sx={{ fontSize: "0.75rem" ,height:"2rem"}}>Select Tracking Number</MenuItem>
                 {renderTrackingNumber()}
               </Select>
             </StyledTableBodyCell>

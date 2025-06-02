@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Box,
   Typography,
   Table,
-  TableBody,
-  TableCell,
   TableContainer,
   TableHead,
+  TableBody,
   TableRow,
+  TableCell,
   Paper,
   Link,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { format, addDays, isValid } from "date-fns";
 
-// Styled components with reduced font sizes
+// Styled components (unchanged)
 const InvoiceContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
   maxWidth: "800px",
@@ -37,7 +39,7 @@ const CompanyDetails = styled(Box)(({ theme }) => ({
   textAlign: "right",
   "& p": {
     margin: 0,
-    fontSize: "0.8rem", // Reduced from 0.9rem
+    fontSize: "0.8rem",
   },
 }));
 
@@ -45,7 +47,7 @@ const TableStyled = styled(Table)({
   "& th, & td": {
     border: "1px solid #000",
     padding: "4px 8px",
-    fontSize: "0.8rem", // Reduced from 0.9rem
+    fontSize: "0.8rem",
   },
   "& th": {
     backgroundColor: "#f0f0f0",
@@ -55,7 +57,7 @@ const TableStyled = styled(Table)({
 
 const PaymentTerms = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
-  fontSize: "0.7rem", // Reduced from 0.8rem
+  fontSize: "0.7rem",
   "& p": {
     margin: "2px 0",
   },
@@ -72,7 +74,7 @@ const PaymentMethods = styled(Box)(({ theme }) => ({
   "& th, & td": {
     border: "1px solid #000",
     padding: "4px",
-    fontSize: "0.7rem", // Reduced from 0.8rem
+    fontSize: "0.7rem",
     textAlign: "left",
   },
   "& th": {
@@ -89,11 +91,131 @@ const Footer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
   border: "1px solid #000",
   padding: theme.spacing(1),
-  fontSize: "0.7rem", // Reduced from 0.8rem
+  fontSize: "0.7rem",
   textAlign: "center",
 }));
 
-const Invoice = () => {
+const PrintInvoice = () => {
+  const location = useLocation();
+  const shipment = JSON.parse(sessionStorage.getItem("shipmentData"));
+   
+  // Local state to hold processed data
+  const [state, setState] = useState({
+    shipmentInfo: {},
+    fromAddress: {},
+    toAddress: {},
+    packageDetails: {},
+    services: [],
+    grossAmount: 0,
+    paidAmount: 0,
+    balance: 0,
+  });
+
+  useEffect(() => {
+    const shipment = JSON.parse(sessionStorage.getItem("shipmentData"));
+    if (shipment) {
+      const shipmentInfo = shipment?.SHIPMENTINFO?.[0] || {};
+      const shipmentDetails = shipment?.SHIPMENTDETAILS || []; // Corrected from SHIP_DETAILS
+      const commercial = shipment?.COMMERCIAL || [];
+      const packageDetails = shipment?.PACKAGE?.[0] || {};
+      const accountsDetails = shipment?.ACCOUNTSDETAILS || [];
+
+      // From and To addresses
+      const fromAddress = shipmentDetails.find((detail) => detail.entitytype === "FromAddress") || {};
+      const toAddress = shipmentDetails.find((detail) => detail.entitytype === "ToAddress") || {};
+
+      // Service data
+      const services = commercial.length > 0
+        ? commercial
+        : [
+            {
+              contentdescription: packageDetails.packagecontent || "N/A",
+              quantity: packageDetails.totalpackages || 0,
+              valueperquantity: "0.00",
+              totalvalue: "0.00",
+            },
+          ];
+
+      // Financial calculations
+      const grossAmount = services.reduce((sum, service) => sum + Number(service.totalvalue || 0), 0);
+      const paidAmount = accountsDetails.reduce(
+        (sum, acc) => sum + (acc.PaymentReceivedData?.reduce((s, p) => s + parseFloat(p.Amount || 0), 0) || 0),
+        0
+      );
+      const balance = grossAmount - paidAmount;
+
+      setState({
+        shipmentInfo: {
+          trackingNumber: shipmentInfo.trackingnumber || "N/A",
+          shipmentDate: shipmentInfo.shipmentdate || "",
+          shipmentType: shipmentInfo.shipmenttype || "N/A",
+          createdByName: shipmentInfo.createdbyname || "N/A",
+          invoiceDueDate: shipmentInfo.invoiceduedate || "",
+        },
+        fromAddress: {
+          contactName: fromAddress.contactname || "N/A",
+          addressLine1: fromAddress.addressline1 || "",
+          city: fromAddress.city || "",
+          state: fromAddress.state || "",
+          countryName: fromAddress.countryname || "",
+          postalCode: fromAddress.zipcode || "",
+          phone1: fromAddress.phone1 || "N/A",
+        },
+        toAddress: {
+          contactName: toAddress.contactname || "N/A",
+          addressLine1: toAddress.addressline1 || "",
+          city: toAddress.city || "",
+          state: toAddress.state || "",
+          countryName: toAddress.countryname || "",
+          postalCode: toAddress.zipcode || "",
+          phone1: toAddress.phone1 || "N/A",
+        },
+        packageDetails: {
+          packagecontent: packageDetails.packagecontent || "N/A",
+          totalpackages: packageDetails.totalpackages || 0,
+        },
+        services,
+        grossAmount,
+        paidAmount,
+        balance,
+      });
+
+      // Debug: Log the shipment data
+      console.log("PrintInvoice - Shipment Data:", shipment);
+    }
+  }, [shipment]);
+
+  // Format address
+  const formatAddress = (address) =>
+    `${address.addressLine1 || ""}, ${address.city || ""}, ${address.state || ""}, ${
+      address.countryName || ""
+    } - ${address.postalCode || ""}`;
+
+  // Format date
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+    const parsedDate = new Date(date);
+    return isValid(parsedDate) ? format(parsedDate, "MM/dd/yyyy") : "N/A";
+  };
+
+  // Calculate due date
+  const dueDate = state.shipmentInfo.invoiceDueDate
+    ? formatDate(state.shipmentInfo.invoiceDueDate)
+    : state.shipmentInfo.shipmentDate
+    ? format(addDays(new Date(state.shipmentInfo.shipmentDate), 7), "MM/dd/yyyy")
+    : "N/A";
+
+  // If no shipment data, show error
+  if (!shipment) {
+    return (
+      <Box sx={{ p: 2, color: "error.main", textAlign: "center" }}>
+        <Typography variant="h6">No shipment data available for invoice.</Typography>
+      </Box>
+    );
+  }
+
+  const { shipmentInfo, fromAddress, toAddress, packageDetails, services, grossAmount, paidAmount, balance } = state;
+
   return (
     <InvoiceContainer>
       {/* Header */}
@@ -102,7 +224,7 @@ const Invoice = () => {
           <Logo src="/SFL_logo.png" alt="SFL Worldwide Logo" />
         </Box>
         <CompanyDetails>
-          <Typography variant="h6" fontSize="1.1rem">
+          <Typography variant="h6" fontSize="0.85rem">
             SFL Worldwide LLC
           </Typography>
           <Typography>3364 Garden Brook Drive, Farmers Branch, TX 75234</Typography>
@@ -114,147 +236,128 @@ const Invoice = () => {
         INVOICE
       </Typography>
 
-      {/* Address and Details Table */}
+      {/* Invoice Details Table */}
       <TableContainer component={Paper} sx={{ border: "1px solid black" }}>
         <Table>
           <TableBody>
-            {/* Row 1: From Address (Left, spans 2 rows), Invoice Number & Invoice Date (Right) */}
             <TableRow>
               <TableCell
                 rowSpan={2}
                 sx={{
-                  borderTop: "1px solid black",
-                  borderLeft: "1px solid black",
-                  borderRight: "1px solid black",
-                  borderBottom: "1px solid black",
+                  border: "1px solid black",
                   verticalAlign: "top",
-                  width: "40%",
-                  padding: "12px",
-                  height: "100px", 
+                  width: "35%",
+                  padding: "6px",
+                  height: "70px",
                 }}
               >
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
-                  From: Ravinder Oswal
+                  From: {fromAddress.contactName}
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>46657 Windmill Dr</Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>
-                  Fremont, California - 94539, United States
-                </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>14088870120</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{formatAddress(fromAddress)}</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{fromAddress.phone1}</Typography>
               </TableCell>
-
-              <TableCell sx={{ border: "1px solid black", height: "50px", verticalAlign: "top" }}>
+              <TableCell sx={{ border: "1px solid black", height: "35px", verticalAlign: "top", padding: "6px" }}>
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
                   Invoice Number
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>81674416860</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{shipmentInfo.trackingNumber}</Typography>
               </TableCell>
-              <TableCell sx={{ border: "1px solid black", height: "50px", verticalAlign: "top" }}>
+              <TableCell sx={{ border: "1px solid black", height: "35px", verticalAlign: "top", padding: "6px" }}>
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
                   Invoice Date
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>Invalid date</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{formatDate(shipmentInfo.shipmentDate)}</Typography>
               </TableCell>
             </TableRow>
-
-            {/* Row 2: Tracking Number & Booking Date (Right) */}
             <TableRow>
-              <TableCell sx={{ border: "1px solid black", height: "50px", verticalAlign: "top" }}>
+              <TableCell sx={{ border: "1px solid black", height: "35px", verticalAlign: "top", padding: "6px" }}>
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
                   Tracking Number
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>81674416860</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{shipmentInfo.trackingNumber}</Typography>
               </TableCell>
-              <TableCell sx={{ border: "1px solid black", height: "50px", verticalAlign: "top" }}>
+              <TableCell sx={{ border: "1px solid black", height: "35px", verticalAlign: "top", padding: "6px" }}>
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
                   Booking Date
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>05/27/2025</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{formatDate(shipmentInfo.shipmentDate)}</Typography>
               </TableCell>
             </TableRow>
-
-            {/* Row 3: To Address (Left, spans 2 rows), Mode of Shipment & Invoice Due Date (Right) */}
             <TableRow>
               <TableCell
                 rowSpan={2}
                 sx={{
-                  borderTop: "1px solid black",
-                  borderLeft: "1px solid black",
-                  borderRight: "1px solid black",
-                  borderBottom: "1px solid black",
+                  border: "1px solid black",
                   verticalAlign: "top",
-                  width: "40%",
-                  padding: "12px",
-                  height: "100px", 
+                  width: "35%",
+                  padding: "6px",
+                  height: "70px",
                 }}
               >
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
-                  To: M K Jain
+                  To: {toAddress.contactName}
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>
-                  H-32/7B Lane W10B, Sainik Farms
-                </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>
-                  New Delhi, Delhi - 110062, India
-                </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>
-                  919810700829, 917678290548
-                </Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{formatAddress(toAddress)}</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{toAddress.phone1}</Typography>
               </TableCell>
-
-              <TableCell sx={{ border: "1px solid black", height: "50px", verticalAlign: "top" }}>
+              <TableCell sx={{ border: "1px solid black", height: "35px", verticalAlign: "top", padding: "6px" }}>
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
                   Mode of Shipment
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>Air</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{shipmentInfo.shipmentType}</Typography>
               </TableCell>
-              <TableCell sx={{ border: "1px solid black", height: "50px", verticalAlign: "top" }}>
+              <TableCell sx={{ border: "1px solid black", height: "35px", verticalAlign: "top", padding: "6px" }}>
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
                   Invoice Due Date
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>Invalid date</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{dueDate}</Typography>
               </TableCell>
             </TableRow>
-
-            {/* Row 4: Sales Representative (Right, spans both columns) */}
             <TableRow>
               <TableCell
                 colSpan={2}
-                sx={{ border: "1px solid black", height: "50px", verticalAlign: "top" }}
+                sx={{ border: "1px solid black", height: "35px", verticalAlign: "top", padding: "6px" }}
               >
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
                   Sales Representative
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>Nirav Shah</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{shipmentInfo.createdByName}</Typography>
               </TableCell>
             </TableRow>
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* Service Type */}
+      {/* Service Type Table */}
       <Box sx={{ mt: 1 }}>
         <TableContainer component={Paper} sx={{ border: "1px solid black" }}>
           <Table size="small">
             <TableHead>
-              <TableRow>
-                <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem" }}>
+              <TableRow sx={{ height: "20px" }}>
+                <TableCell
+                  scope="col"
+                  sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", padding: "3px" }}
+                >
                   Service Type - Description
                 </TableCell>
                 <TableCell
-                  sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", width: 100 }}
+                  scope="col"
+                  sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", width: 60, padding: "3px" }}
                   align="center"
                 >
                   Quantity
                 </TableCell>
                 <TableCell
-                  sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", width: 100 }}
+                  scope="col"
+                  sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", width: 60, padding: "3px" }}
                   align="center"
                 >
                   Cost
                 </TableCell>
                 <TableCell
-                  sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", width: 120 }}
+                  scope="col"
+                  sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", width: 80, padding: "3px" }}
                   align="center"
                 >
                   Total Cost
@@ -262,43 +365,45 @@ const Invoice = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {[...Array(10)].map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem" }}> </TableCell>
-                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem" }} align="center">
-                    {" "}
+              {services.map((service, index) => (
+                <TableRow key={index} sx={{ height: "20px" }}>
+                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }}>
+                    {service.contentdescription || "N/A"}
                   </TableCell>
-                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem" }} align="center">
-                    {" "}
+                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="center">
+                    {service.quantity || packageDetails.totalpackages || 1}
                   </TableCell>
-                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem" }} align="center">
-                    {" "}
-                 </TableCell>
+                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="center">
+                    ${Number(service.valueperquantity || 0).toFixed(2)}
+                  </TableCell>
+                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="center">
+                    ${Number(service.totalvalue || 0).toFixed(2)}
+                  </TableCell>
                 </TableRow>
               ))}
-              <TableRow>
+              <TableRow sx={{ height: "20px" }}>
                 <TableCell rowSpan={3} colSpan={2} sx={{ border: "none" }} />
-                <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem" }}>
+                <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", padding: "3px" }}>
                   Gross Amount:
                 </TableCell>
-                <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem" }} align="right">
-                  $ 0.00
+                <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="right">
+                  ${grossAmount.toFixed(2)}
                 </TableCell>
               </TableRow>
-              <TableRow>
-                <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem" }}>
+              <TableRow sx={{ height: "20px" }}>
+                <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", padding: "3px" }}>
                   Paid on:
                 </TableCell>
-                <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem" }} align="right">
-                  $ 0.00
+                <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="right">
+                  ${paidAmount.toFixed(2)}
                 </TableCell>
               </TableRow>
-              <TableRow>
-                <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem" }}>
+              <TableRow sx={{ height: "20px" }}>
+                <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", padding: "3px" }}>
                   Balance:
                 </TableCell>
-                <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem" }} align="right">
-                  $ 0.00
+                <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="right">
+                  ${balance.toFixed(2)}
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -306,19 +411,17 @@ const Invoice = () => {
         </TableContainer>
       </Box>
 
-      {/* Payment Methods */}
+      {/* Payment Terms */}
       <PaymentMethods>
         <PaymentTerms sx={{ mt: -1 }}>
           <Typography fontWeight="bold" fontSize="0.8rem">
             PAYMENT TERMS:
           </Typography>
           <Typography fontSize="0.7rem">
-            All charges, as above, must be paid by check or wire transfer within
-            seven days from the receipt of our invoice for pickup of your
-            shipment. Credit Card will be only accepted for payment under $500.00
-            and credit card fees will be charged at 3% if payment is being made by
-            Credit Card, if payment is not made by due date fees of $35.00 and
-            interest of 14.69% per annum will be applied.
+            All charges, as above, must be paid by check or wire transfer within seven days from the receipt of our invoice
+            for pickup of your shipment. Credit Card will be only accepted for payment under $500.00 and credit card fees
+            will be charged at 3% if payment is being made by Credit Card, if payment is not made by due date fees of
+            $35.00 and interest of 14.69% per annum will be applied.
           </Typography>
         </PaymentTerms>
         <Typography fontWeight="bold" fontSize="0.8rem" mt="10px">
@@ -332,73 +435,53 @@ const Invoice = () => {
               <TableCell sx={{ fontSize: "0.7rem" }}>Credit Card Payment</TableCell>
               <TableCell sx={{ fontSize: "0.7rem" }}>Pay by Mail</TableCell>
             </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell sx={{ fontSize: "0.7rem" }}>
-                  Zelle payment is fast, safe and secure free bank to bank transfer
-                  via your email or phone number.
-                </TableCell>
-                <TableCell sx={{ fontSize: "0.7rem" }}>
-                  ACH payment is safe, secure and free electronic bank-to-bank
-                  payment authorized in USA.
-                </TableCell>
-                <TableCell sx={{ fontSize: "0.7rem" }}>
-                  On type and value of shipment, credit card fees may be applied on
-                  the credit card payments.
-                </TableCell>
-                <TableCell sx={{ fontSize: "0.7rem" }}>
-                  Below our registered address to mail physical check for your
-                  shipment.
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ fontSize: "0.7rem" }}>
-                  Zelle Email:{" "}
-                  <a href="mailto:contact@SFLWorldwide.com">
-                    contact@SFLWorldwide.com
-                  </a>
-                  <br />
-                  Zelse Name: SFL Worldwide LLC
-                  <br />
-                  <Typography color="red" fontSize="0.7rem">
-                    Please mention tracking number in memo field
-                  </Typography>
-                </TableCell>
-                <TableCell sx={{ fontSize: "0.7rem" }}>
-                  <a href="https://www.sflworldwide.com/pay">
-                    www.sflworldwide.com/pay
-                  </a>
-                </TableCell>
-                <TableCell sx={{ fontSize: "0.7rem" }}>
-                  <a href="https://www.sflworldwide.com/pay">
-                    www.sflworldwide.com/pay
-                  </a>
-                </TableCell>
-                <TableCell sx={{ fontSize: "0.7rem" }}>
-                  SFL Worldwide LLC
-                  <br />
-                  3364 Garden Brook Drive
-                  <br />
-                  Farmers Branch, TX 75063
-                </TableCell>
-              </TableRow>
-            </TableBody>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell sx={{ fontSize: "0.7rem" }}>
+                Zelle payment is fast, safe and secure free bank to bank transfer via your email or phone number.
+              </TableCell>
+              <TableCell sx={{ fontSize: "0.7rem" }}>
+                ACH payment is safe, secure and free electronic bank-to-bank payment authorized in USA.
+              </TableCell>
+              <TableCell sx={{ fontSize: "0.7rem" }}>
+                On type and value of shipment, credit card fees may be applied on the credit card payments.
+              </TableCell>
+              <TableCell sx={{ fontSize: "0.7rem" }}>
+                Below our registered address to mail physical check for your shipment.
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ fontSize: "0.7rem" }}>
+                Zelle Email: <a href="mailto:contact@SFLWorldwide.com">contact@SFLWorldwide.com</a>
+                <br />
+                Zelle Name: SFL Worldwide LLC
+                <br />
+                <Typography color="red" fontSize="0.7rem">
+                  Please mention tracking number in memo field
+                </Typography>
+              </TableCell>
+              <TableCell sx={{ fontSize: "0.7rem" }}>
+                <a href="https://www.sflworldwide.com/pay">www.sflworldwide.com/pay</a>
+              </TableCell>
+              <TableCell sx={{ fontSize: "0.7rem" }}>
+                <a href="https://www.sflworldwide.com/pay">www.sflworldwide.com/pay</a>
+              </TableCell>
+              <TableCell sx={{ fontSize: "0.7rem" }}>
+                SFL Worldwide LLC
+                <br />
+                3364 Garden Brook Drive
+                <br />
+                Farmers Branch, TX 75063
+              </TableCell>
+            </TableRow>
+          </TableBody>
         </Table>
       </PaymentMethods>
 
       {/* Footer */}
-      <Box
-        sx={{
-          border: "1px solid black",
-          padding: 1,
-          marginTop: 2,
-          fontSize: "0.7rem", // Reduced from 14px (~0.875rem)
-        }}
-      >
-        <Typography fontSize="0.7rem">
-          Subject To Texas - United States Jurisdiction
-        </Typography>
+      <Footer>
+        <Typography fontSize="0.7rem">Subject To Texas - United States Jurisdiction</Typography>
         <Typography fontSize="0.7rem">
           <Link href="mailto:contact@SFLWorldwide.com" underline="hover">
             contact@SFLWorldwide.com
@@ -409,9 +492,9 @@ const Invoice = () => {
           </Link>{" "}
           | SFL WORLDWIDE LLC | FMC Licence No.: <strong>025184</strong>
         </Typography>
-      </Box>
+      </Footer>
     </InvoiceContainer>
   );
 };
 
-export default Invoice;
+export default PrintInvoice;

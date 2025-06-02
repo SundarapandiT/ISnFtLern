@@ -49,7 +49,7 @@ const StyledTableTextField = ({ sx, ...props }) => (
       "& .MuiInputBase-input": {
         padding: "6px",
         fontSize: "0.8rem",
- 
+
       },
       "& .MuiInputLabel-root": {
         fontSize: "0.8rem",
@@ -185,13 +185,6 @@ const Myshipmentnew = ({ setEdit }) => {
     },
     {
       type: "Invoice",
-      documentName: "",
-      createdOn: "",
-      attachment: "VIEW FILE",
-      status: "IN PROGRESS",
-    },
-    {
-      type: "Contract",
       documentName: "",
       createdOn: "",
       attachment: "VIEW FILE",
@@ -402,7 +395,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <PersonIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <PersonIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -417,7 +410,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocationOnIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -432,7 +425,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocationOnIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -447,7 +440,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <PublicIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <PublicIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -474,7 +467,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <EmailIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -489,7 +482,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <BusinessIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <BusinessIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -516,7 +509,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <BusinessCenterIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <BusinessCenterIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -531,7 +524,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -546,7 +539,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -561,7 +554,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <EmailIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -587,7 +580,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <PersonIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <PersonIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -602,7 +595,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocationOnIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -617,7 +610,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocationOnIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <LocationOnIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -632,7 +625,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <PublicIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <PublicIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -659,7 +652,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <EmailIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -674,7 +667,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <BusinessIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <BusinessIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -701,7 +694,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <BusinessCenterIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <BusinessCenterIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -716,7 +709,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -731,7 +724,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <LocalPhoneIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -746,7 +739,7 @@ const Myshipmentnew = ({ setEdit }) => {
                   readOnly: true,
                   endAdornment: (
                     <InputAdornment position="end">
-                      <EmailIcon sx={{ fontSize: isMobile ? 18:24 }} />
+                      <EmailIcon sx={{ fontSize: isMobile ? 18 : 24 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -853,7 +846,7 @@ const Myshipmentnew = ({ setEdit }) => {
             }}
           >
             <StyledTextField
-              className="custom-textfield"  
+              className="custom-textfield"
               label="Total Packages"
               value={fromAddress.totalpackages || "0"}
               variant="outlined"
@@ -924,22 +917,22 @@ const Myshipmentnew = ({ setEdit }) => {
               columnWidths={{
                 Date: "15%",
                 Time: "15%",
-                Updates: "70%", 
+                Updates: "70%",
               }}
               rows={
                 trackingDetails.length > 0
                   ? trackingDetails.map((track) => ({
-                      date: track.PickupDate || "",
-                      time: track.PickupTime || "",
-                      updates: track.Updates || "",
-                    }))
+                    date: track.PickupDate || "",
+                    time: track.PickupTime || "",
+                    updates: track.Updates || "",
+                  }))
                   : [
-                      {
-                        date: "",
-                        time: "",
-                        updates: "No tracking details available",
-                      },
-                    ]
+                    {
+                      date: "",
+                      time: "",
+                      updates: "No tracking details available",
+                    },
+                  ]
               }
             />
           </TableContainer>
@@ -948,116 +941,116 @@ const Myshipmentnew = ({ setEdit }) => {
 
       {activeTab === "accounts" && (
         <SectionPaper>
-  <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-    Invoice
-  </ResponsiveTypography>
-  <TableContainer sx={{ overflowX: "auto" }}>
-    <ResponsiveTable
-      columns={["Date", "Service", "Description", "Qty", "Cost", "Total"]}
-      columnWidths={{
-        Date: "11%",
-        Service: "25%",
-        Description: "30%",
-        Qty: "9%",
-        Cost: "10%",
-        Total: "15%",
-      }}
-      rows={
-        invoiceData.length > 0
-          ? invoiceData.map((inv) => ({
-              date: inv.InvoiceDate || "",
-              service: inv.ServiceDescription || "",
-              description: inv.Description || "",
-              qty: inv.Quantity || "0",
-              cost: inv.Amount || "0.00",
-              total: inv.TotalAmount || "0.00",
-            }))
-          : [
-              {
-                date: "",
-                service: "",
-                description: "",
-                qty: "",
-                cost: "",
-                total: "No invoice ",
-              },
-            ]
-      }
-    />
-  </TableContainer>
+          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+            Invoice
+          </ResponsiveTypography>
+          <TableContainer sx={{ overflowX: "auto" }}>
+            <ResponsiveTable
+              columns={["Date", "Service", "Description", "Qty", "Cost", "Total"]}
+              columnWidths={{
+                Date: "11%",
+                Service: "25%",
+                Description: "30%",
+                Qty: "9%",
+                Cost: "10%",
+                Total: "15%",
+              }}
+              rows={
+                invoiceData.length > 0
+                  ? invoiceData.map((inv) => ({
+                    date: inv.InvoiceDate || "",
+                    service: inv.ServiceDescription || "",
+                    description: inv.Description || "",
+                    qty: inv.Quantity || "0",
+                    cost: inv.Amount || "0.00",
+                    total: inv.TotalAmount || "0.00",
+                  }))
+                  : [
+                    {
+                      date: "",
+                      service: "",
+                      description: "",
+                      qty: "",
+                      cost: "",
+                      total: "No invoice ",
+                    },
+                  ]
+              }
+            />
+          </TableContainer>
 
-  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-    <StyledTextField
-      className="custom-textfield"
-      label="Total Cost:"
-      value={invoiceData
-        .reduce((sum, inv) => sum + parseFloat(inv.TotalAmount || 0), 0)
-        .toFixed(2)}
-      variant="outlined"
-      InputProps={{ readOnly: true }}
-      sx={{ width: isMobile ? "100%" : "auto" }}
-    />
-  </Box>
-  <ResponsiveTypography
-    variant="h6"
-    sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
-  >
-    Payment Made
-  </ResponsiveTypography>
-  <TableContainer sx={{ overflowX: "auto" }}>
-    <ResponsiveTable
-      columns={["Date", "Payment Type", "Number", "Confirmation", "Amount"]}
-      columnWidths={{
-        Date: "11%",
-        "Payment Type": "29%",
-        Number: "20%",
-        Confirmation: "20%",
-        Amount: "20%",
-      }}
-      rows={
-        paymentData.length > 0
-          ? paymentData.map((pay) => ({
-              date: pay.PaymentDate || "05-06-2025",
-              "payment type": pay.PaymentType || "",
-              number: pay.PaymentNumber || "",
-              confirmation: pay.Confirmation || "",
-              amount: pay.Amount || "0.00",
-            }))
-          : [
-              {
-                date: "",
-                "payment type": "",
-                number: "",
-                confirmation: "",
-                amount: "No payment",
-              },
-            ]
-      }
-    />
-  </TableContainer>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+            <StyledTextField
+              className="custom-textfield"
+              label="Total Cost:"
+              value={invoiceData
+                .reduce((sum, inv) => sum + parseFloat(inv.TotalAmount || 0), 0)
+                .toFixed(2)}
+              variant="outlined"
+              InputProps={{ readOnly: true }}
+              sx={{ width: isMobile ? "100%" : "auto" }}
+            />
+          </Box>
+          <ResponsiveTypography
+            variant="h6"
+            sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
+          >
+            Payment Made
+          </ResponsiveTypography>
+          <TableContainer sx={{ overflowX: "auto" }}>
+            <ResponsiveTable
+              columns={["Date", "Payment Type", "Number", "Confirmation", "Amount"]}
+              columnWidths={{
+                Date: "11%",
+                "Payment Type": "29%",
+                Number: "20%",
+                Confirmation: "20%",
+                Amount: "20%",
+              }}
+              rows={
+                paymentData.length > 0
+                  ? paymentData.map((pay) => ({
+                    date: pay.PaymentDate || "05-06-2025",
+                    "payment type": pay.PaymentType || "",
+                    number: pay.PaymentNumber || "",
+                    confirmation: pay.Confirmation || "",
+                    amount: pay.Amount || "0.00",
+                  }))
+                  : [
+                    {
+                      date: "",
+                      "payment type": "",
+                      number: "",
+                      confirmation: "",
+                      amount: "No payment",
+                    },
+                  ]
+              }
+            />
+          </TableContainer>
 
-  <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-    <StyledTextField
-      className="custom-textfield"
-      label="Total Cost:"
-      value={paymentData
-        .reduce((sum, pay) => sum + parseFloat(pay.Amount || 0), 0)
-        .toFixed(2)}
-      variant="outlined"
-      InputProps={{ readOnly: true }}
-      sx={{ width: isMobile ? "100%" : "auto" }}
-    />
-  </Box>
-</SectionPaper>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+            <StyledTextField
+              className="custom-textfield"
+              label="Total Cost:"
+              value={paymentData
+                .reduce((sum, pay) => sum + parseFloat(pay.Amount || 0), 0)
+                .toFixed(2)}
+              variant="outlined"
+              InputProps={{ readOnly: true }}
+              sx={{ width: isMobile ? "100%" : "auto" }}
+            />
+          </Box>
+        </SectionPaper>
 
       )}
 
       {activeTab === "documentation" && (
         <SectionPaper>
-          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5, textAlign: "center", color: "orange" }}>
+          {/* <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5, textAlign: "center", color: "orange" }}>
             In-Progress
-          </ResponsiveTypography>
-          {/* <TableContainer sx={{ overflowX: "auto" }}>
+          </ResponsiveTypography> */}
+          <TableContainer sx={{ overflowX: "auto" }}>
             <TableStyled>
               <TableHead>
                 <TableRow>
@@ -1072,7 +1065,7 @@ const Myshipmentnew = ({ setEdit }) => {
               <TableBody>
                 {displayedRows.length > 0 ? (
                   displayedRows.map((doc, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={index} className="custom-textfield">
                       <TableCell>
                         <FormControl fullWidth variant="outlined">
                           <InputLabel>Document Type</InputLabel>
@@ -1106,7 +1099,23 @@ const Myshipmentnew = ({ setEdit }) => {
                       </TableCell>
                       <TableCell>
                         <ResponsiveButton
-                          
+                          onClick={() => {
+                            // Save 
+                            sessionStorage.setItem("shipmentData", JSON.stringify(shipment));
+
+                            let url = "";
+                            if (doc.type === "Commercial Invoice") {
+                              url = "/auth/printcommercialinvoice";
+                            } else if (doc.type === "Invoice") {
+                              url = "/auth/printinvoice";
+                            }
+
+                            if (url) {
+                              // new tab
+                              window.open(url, "_blank");
+                            }
+                          }}
+
                           variant="contained"
                           color="error"
                           sx={{
@@ -1119,7 +1128,7 @@ const Myshipmentnew = ({ setEdit }) => {
                       </TableCell>
                       <TableCell>
                         <ResponsiveButton
-                          
+
                           variant="contained"
                           sx={{
                             backgroundColor: "#ff9800",
@@ -1158,8 +1167,8 @@ const Myshipmentnew = ({ setEdit }) => {
                 )}
               </TableBody>
             </TableStyled>
-          </TableContainer> */}
-          {/* <Box
+          </TableContainer>
+          <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
@@ -1168,8 +1177,8 @@ const Myshipmentnew = ({ setEdit }) => {
               flexDirection: isMobile ? "column" : "row",
               gap: isMobile ? 1 : 0,
             }}
-          > */}
-          {/* <ResponsiveButton
+          >
+            <ResponsiveButton
               variant="contained"
               onClick={handlePreviousPage}
               disabled={page === 0}
@@ -1189,23 +1198,22 @@ const Myshipmentnew = ({ setEdit }) => {
                 flexDirection: isMobile ? "column" : "row",
               }}
             >
-              <ResponsiveTypography>
+              <ResponsiveTypography sx={{ fontSize: "14px" }}>
                 Page {page + 1} of {Math.ceil(documents.length / rowsPerPage)}
               </ResponsiveTypography>
               <Select
                 value={rowsPerPage}
                 onChange={handleRowsPerPageChange}
-                sx={{ width: isMobile ? "100%" : "100px" }}
+                sx={{ width: isMobile ? "100%" : "100px", height: "2rem", fontSize: "0.75rem"}}
               >
-                <MenuItem value={5}>5 rows</MenuItem>
-                <MenuItem value={10}>10 rows</MenuItem>
-                <MenuItem value={20}>20 rows</MenuItem>
-                <MenuItem value={25}>25 rows</MenuItem>
-                <MenuItem value={50}>50 rows</MenuItem>
-                <MenuItem value={100}>100 rows</MenuItem>
+                {[5, 10, 20, 25, 50, 100].map((value) => (
+                  <MenuItem key={value} value={value} sx={{ fontSize: "0.75rem" }}>
+                    {value} rows
+                  </MenuItem>
+                ))}
               </Select>
-            </Box> */}
-          {/* <ResponsiveButton
+            </Box>
+            <ResponsiveButton
               variant="contained"
               onClick={handleNextPage}
               disabled={page >= Math.ceil(documents.length / rowsPerPage) - 1}
@@ -1223,7 +1231,7 @@ const Myshipmentnew = ({ setEdit }) => {
             >
               Next
             </ResponsiveButton>
-          </Box> */}
+          </Box>
         </SectionPaper>
       )}
 
@@ -1237,17 +1245,17 @@ const Myshipmentnew = ({ setEdit }) => {
           BACK TO MY SHIPMENT
         </ResponsiveButton>
       </ButtonContainer>
-       <Box className="footer-box">
-                <Typography className={classes.footerTypography} sx={{ mt: 2, fontSize: "0.75rem", textAlign: { xs: "center", sm: "right" }, }}>
-                  All Rights Reserved. Site Powered by{" "}
-                  <span
-                    className={`${classes.sflLink} sfl-link`}
-                    onClick={() => window.open("https://sflworldwide.com/", "_blank")}
-                  >
-                    SFL Worldwide
-                  </span>
-                </Typography>
-              </Box>
+      <Box className="footer-box">
+        <Typography className={classes.footerTypography} sx={{ mt: 2, fontSize: "0.75rem", textAlign: { xs: "center", sm: "right" }, }}>
+          All Rights Reserved. Site Powered by{" "}
+          <span
+            className={`${classes.sflLink} sfl-link`}
+            onClick={() => window.open("https://sflworldwide.com/", "_blank")}
+          >
+            SFL Worldwide
+          </span>
+        </Typography>
+      </Box>
     </Box>
   );
 };

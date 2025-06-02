@@ -21,6 +21,7 @@
     "axios": "^1.8.4",
     "classnames": "^2.5.1",
     "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
     "js-cookie": "^3.0.5",
     "libphonenumber-js": "^1.12.8",
     "moment": "^2.30.1",
