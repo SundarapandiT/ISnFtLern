@@ -161,7 +161,8 @@ const Myshipmentnew = ({ setEdit }) => {
   const packages = shipment?.PACKAGE || [];
   const commercialItems = shipment?.COMMERCIAL || [];
   const trackingDetails = shipment?.TRACKINGDETAILS || [];
-  const invoiceData = shipment?.ACCOUNTSDETAILS?.[0]?.InvoiceData || [];
+  //const invoiceData = shipment?.ACCOUNTSDETAILS?.[0]?.InvoiceData || [];
+  const invoiceData = shipment?.ACCOUNTSDETAILS || [];
   const paymentData = shipment?.ACCOUNTSDETAILS?.[0]?.PaymentReceivedData || [];
 
   const isSameCountry =
@@ -906,144 +907,149 @@ const Myshipmentnew = ({ setEdit }) => {
         </SectionPaper>
       )}
 
-      {activeTab === "tracking" && (
-        <SectionPaper>
-          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-            Tracking
-          </ResponsiveTypography>
-          <TableContainer sx={{ overflowX: "auto" }}>
-            <ResponsiveTable
-              columns={["Date", "Time", "Updates"]}
-              columnWidths={{
-                Date: "15%",
-                Time: "15%",
-                Updates: "70%",
-              }}
-              rows={
-                trackingDetails.length > 0
-                  ? trackingDetails.map((track) => ({
-                    date: track.PickupDate || "",
-                    time: track.PickupTime || "",
-                    updates: track.Updates || "",
-                  }))
-                  : [
-                    {
-                      date: "",
-                      time: "",
-                      updates: "No tracking details available",
-                    },
-                  ]
-              }
-            />
-          </TableContainer>
-        </SectionPaper>
-      )}
+{activeTab === "tracking" && (
+  <SectionPaper>
+    <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+      Tracking
+    </ResponsiveTypography>
+    <TableContainer sx={{ overflowX: "auto" }}>
+      <ResponsiveTable
+        columns={["Date", "Time", "Updates"]}
+        columnWidths={{
+          Date: "15%",
+          Time: "15%",
+          Updates: "70%",
+        }}
+        rows={
+          trackingDetails.length > 0
+            ? trackingDetails.map((track) => ({
+                date: track.trackingdate || "",
+                time: track.createdon
+                  ? new Date(track.createdon).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })
+                  : "",
+                updates: track.comments
+                  ? `${track.comments} (${track.carrier})`
+                  : `${track.trackingstatus} (${track.carrier})`,
+              }))
+            : [
+                {
+                  date: "",
+                  time: "",
+                  updates: "No tracking details available",
+                },
+              ]
+        }
+      />
+    </TableContainer>
+  </SectionPaper>
+)}
 
-      {activeTab === "accounts" && (
-        <SectionPaper>
-          <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
-            Invoice
-          </ResponsiveTypography>
-          <TableContainer sx={{ overflowX: "auto" }}>
-            <ResponsiveTable
-              columns={["Date", "Service", "Description", "Qty", "Cost", "Total"]}
-              columnWidths={{
-                Date: "11%",
-                Service: "25%",
-                Description: "30%",
-                Qty: "9%",
-                Cost: "10%",
-                Total: "15%",
-              }}
-              rows={
-                invoiceData.length > 0
-                  ? invoiceData.map((inv) => ({
-                    date: inv.InvoiceDate || "",
-                    service: inv.ServiceDescription || "",
-                    description: inv.Description || "",
-                    qty: inv.Quantity || "0",
-                    cost: inv.Amount || "0.00",
-                    total: inv.TotalAmount || "0.00",
-                  }))
-                  : [
-                    {
-                      date: "",
-                      service: "",
-                      description: "",
-                      qty: "",
-                      cost: "",
-                      total: "No invoice ",
-                    },
-                  ]
-              }
-            />
-          </TableContainer>
-
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-            <StyledTextField
-              className="custom-textfield"
-              label="Total Cost:"
-              value={invoiceData
-                .reduce((sum, inv) => sum + parseFloat(inv.TotalAmount || 0), 0)
-                .toFixed(2)}
-              variant="outlined"
-              InputProps={{ readOnly: true }}
-              sx={{ width: isMobile ? "100%" : "auto" }}
-            />
-          </Box>
-          <ResponsiveTypography
-            variant="h6"
-            sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
-          >
-            Payment Made
-          </ResponsiveTypography>
-          <TableContainer sx={{ overflowX: "auto" }}>
-            <ResponsiveTable
-              columns={["Date", "Payment Type", "Number", "Confirmation", "Amount"]}
-              columnWidths={{
-                Date: "11%",
-                "Payment Type": "29%",
-                Number: "20%",
-                Confirmation: "20%",
-                Amount: "20%",
-              }}
-              rows={
-                paymentData.length > 0
-                  ? paymentData.map((pay) => ({
-                    date: pay.PaymentDate || "05-06-2025",
-                    "payment type": pay.PaymentType || "",
-                    number: pay.PaymentNumber || "",
-                    confirmation: pay.Confirmation || "",
-                    amount: pay.Amount || "0.00",
-                  }))
-                  : [
-                    {
-                      date: "",
-                      "payment type": "",
-                      number: "",
-                      confirmation: "",
-                      amount: "No payment",
-                    },
-                  ]
-              }
-            />
-          </TableContainer>
-
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
-            <StyledTextField
-              className="custom-textfield"
-              label="Total Cost:"
-              value={paymentData
-                .reduce((sum, pay) => sum + parseFloat(pay.Amount || 0), 0)
-                .toFixed(2)}
-              variant="outlined"
-              InputProps={{ readOnly: true }}
-              sx={{ width: isMobile ? "100%" : "auto" }}
-            />
-          </Box>
-        </SectionPaper>
-
-      )}
+{activeTab === "accounts" && (
+  <SectionPaper>
+    <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5 }}>
+      Invoice
+    </ResponsiveTypography>
+    <TableContainer sx={{ overflowX: "auto" }}>
+      <ResponsiveTable
+        columns={["Date", "Service", "Description", "Qty", "Cost", "Total"]}
+        columnWidths={{
+          Date: "11%",
+          Service: "25%",
+          Description: "30%",
+          Qty: "9%",
+          Cost: "10%",
+          Total: "15%",
+        }}
+        rows={
+          invoiceData.length > 0
+            ? invoiceData.map((inv) => ({
+                date: inv.invoicedate || "",
+                service: inv.servicedescription || "",
+                description: inv.description || "",
+                qty: inv.quantity || "0",
+                cost: inv.amount || "0.00",
+                total: inv.totalamount || "0.00",
+              }))
+            : [
+                {
+                  date: "",
+                  service: "",
+                  description: "",
+                  qty: "",
+                  cost: "",
+                  total: "No invoice",
+                },
+              ]
+        }
+      />
+    </TableContainer>
+    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+      <StyledTextField
+        className="custom-textfield"
+        label="Total Cost:"
+        value={invoiceData
+          .reduce((sum, inv) => sum + parseFloat(inv.totalamount || 0), 0)
+          .toFixed(2)}
+        variant="outlined"
+        InputProps={{ readOnly: true }}
+        sx={{ width: isMobile ? "100%" : "auto" }}
+      />
+    </Box>
+    <ResponsiveTypography
+      variant="h6"
+      sx={{ mt: isMobile ? 1.5 : 2.5, mb: isMobile ? 1.5 : 2.5 }}
+    >
+      Payment Made
+    </ResponsiveTypography>
+    <TableContainer sx={{ overflowX: "auto" }}>
+      <ResponsiveTable
+        columns={["Date", "Payment Type", "Number", "Confirmation", "Amount"]}
+        columnWidths={{
+          Date: "11%",
+          "Payment Type": "29%",
+          Number: "20%",
+          Confirmation: "20%",
+          Amount: "20%",
+        }}
+        rows={
+          paymentData.length > 0
+            ? paymentData.map((pay) => ({
+                date: pay.PaymentDate || "",
+                "payment type": pay.PaymentType || "",
+                number: pay.PaymentNumber || "",
+                confirmation: pay.Confirmation || "",
+                amount: pay.Amount || "0.00",
+              }))
+            : [
+                {
+                  date: "",
+                  "payment type": "",
+                  number: "",
+                  confirmation: "",
+                  amount: "No payment",
+                },
+              ]
+        }
+      />
+    </TableContainer>
+    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1.25 }}>
+      <StyledTextField
+        className="custom-textfield"
+        label="Total Cost:"
+        value={paymentData
+          .reduce((sum, pay) => sum + parseFloat(pay.Amount || 0), 0)
+          .toFixed(2)}
+        variant="outlined"
+        InputProps={{ readOnly: true }}
+        sx={{ width: isMobile ? "100%" : "auto" }}
+      />
+    </Box>
+  </SectionPaper>
+)}
 
       {activeTab === "documentation" && (
         <SectionPaper>
