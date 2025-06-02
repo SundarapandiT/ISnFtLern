@@ -322,7 +322,7 @@ const PrintInvoice = () => {
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
                   Sales Representative
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>{shipmentInfo.createdByName}</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{shipmentInfo.managedby}</Typography>
               </TableCell>
             </TableRow>
           </TableBody>
