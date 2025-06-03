@@ -706,100 +706,114 @@ const GetRate = ({ setActiveModule }) => {
   const fromDebounceRef = useRef(null);
   const toDebounceRef = useRef(null);
 
-  const fetchCityState = async (zipCode, countryValue, isFrom) => {
-    if (!zipCode || zipCode.length < 3) {
+ const fetchCityState = async (zipCode, countryValue, isFrom) => {
+  if (!zipCode || zipCode.length < 2) {
+    if (isFrom) {
       updateFromDetails({ fromCity: '', fromState: '' });
+      setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
+      setFormErrors(prev => ({ ...prev, fromCity: '' }));
+    } else {
       updateToDetails({ toCity: '', toState: '' });
+      setPickupErrors(prev => ({ ...prev, toZipCode: '' }));
+      setFormErrors(prev => ({ ...prev, toCity: '' }));
+    }
+    return;
+  }
+
+  try {
+    const country = countries.find(c => c.value === countryValue);
+    if (!country) {
+      throw new Error('Country not selected or invalid');
+    }
+
+    const encodedUrl = encryptURL('/locations/getstateCitybyPostalCode');
+    const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
+      CountryID: country.countryid,
+      PostalCode: zipCode,
+    });
+
+    const userData = response.data?.user?.[0] || [];
+    if (userData.length > 0) {
+      const place = userData[0];
+      if (isFrom) {
+        updateFromDetails({ fromCity: place.city || '', fromState: place.state || '' });
+      } else {
+        updateToDetails({ toCity: place.city || '', toState: place.state || '' });
+      }
       setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+      setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
       return;
     }
 
-    try {
-      const country = countries.find(c => c.value === countryValue);
-      if (!country) {
-        throw new Error('Country not selected or invalid');
-      }
-
-      const encodedUrl = encryptURL('/locations/getstateCitybyPostalCode');
-      const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
-        CountryID: country.countryid,
-        PostalCode: zipCode,
-      });
-
-      const userData = response.data?.user?.[0] || [];
-      if (userData.length > 0) {
-        const place = userData[0];
+    if (countryValue === 'in') {
+      const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
+      const data = res.data[0];
+      if (data.Status === 'Success' && data.PostOffice?.length > 0) {
+        const place = data.PostOffice[0];
         if (isFrom) {
-          updateFromDetails({ fromCity: place.city || '', fromState: place.state || '' });
+          updateFromDetails({ fromCity: place.Block || place.District || '', fromState: place.State || '' });
         } else {
-          updateToDetails({ toCity: place.city || '', toState: place.state || '' });
+          updateToDetails({ toCity: place.Block || place.District || '', toState: place.State || '' });
         }
         setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
         setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
         return;
       }
+    }
 
-      if (countryValue === 'in') {
-        const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
-        const data = res.data[0];
-        if (data.Status === 'Success' && data.PostOffice?.length > 0) {
-          const place = data.PostOffice[0];
-          if (isFrom) {
-            updateFromDetails({ fromCity: place.Block || place.District || '', fromState: place.State || '' });
-          } else {
-            updateToDetails({ toCity: place.Block || place.District || '', toState: place.State || '' });
-          }
-          setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
-          setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
-          return;
-        }
+    const res = await axios.get(
+      `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countryValue}|postal_code:${zipCode}`
+    );
+    const components = res.data.results?.[0]?.address_components || [];
+    let city = '';
+    let state = '';
+
+    components.forEach(component => {
+      if (component.types.includes('locality') || component.types.includes('postal_town')) {
+        city = component.long_name;
       }
-
-      const res = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countryValue}|postal_code:${zipCode}`
-      );
-      const components = res.data.results?.[0]?.address_components || [];
-      let city = '';
-      let state = '';
-
-      components.forEach(component => {
-        if (component.types.includes('locality') || component.types.includes('postal_town')) {
-          city = component.long_name;
-        }
-        if (component.types.includes('administrative_area_level_1')) {
-          state = component.long_name;
-        }
-      });
-
-      if (city || state) {
-        if (isFrom) {
-          updateFromDetails({ fromCity: city, fromState: state });
-        } else {
-          updateToDetails({ toCity: city, toState: state });
-        }
-        setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
-        setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
-        return;
+      if (component.types.includes('administrative_area_level_1')) {
+        state = component.long_name;
       }
+    });
 
-      throw new Error('No valid data found');
-    } catch (err) {
-      console.error(`Failed to fetch city/state for ${isFrom ? 'fromZipCode' : 'toZipCode'}:`, err.message);
+    if (city || state) {
       if (isFrom) {
-        updateFromDetails({ fromCity: '', fromState: '' });
+        updateFromDetails({ fromCity: city, fromState: state });
       } else {
-        updateToDetails({ toCity: '', toState: '' });
+        updateToDetails({ toCity: city, toState: state });
       }
+      setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+      setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
+      return;
+    }
+
+    throw new Error('No valid data found');
+  } catch (err) {
+    console.error(`Failed to fetch city/state for ${isFrom ? 'fromZipCode' : 'toZipCode'}:`, err.message);
+    if (isFrom) {
+      updateFromDetails({ fromCity: '', fromState: '' });
       setPickupErrors(prev => ({
         ...prev,
-        [isFrom ? 'fromZipCode' : 'toZipCode']: 'Invalid or unsupported zip code.',
+        fromZipCode: 'Invalid or unsupported zip code.',
       }));
       setFormErrors(prev => ({
         ...prev,
-        [isFrom ? 'fromCity' : 'toCity']: 'Invalid city due to invalid zip code.',
+        fromCity: 'Invalid city due to invalid zip code.',
+      }));
+    } else {
+      updateToDetails({ toCity: '', toState: '' });
+      setPickupErrors(prev => ({
+        ...prev,
+        toZipCode: 'Invalid or unsupported zip code.',
+      }));
+      setFormErrors(prev => ({
+        ...prev,
+        toCity: 'Invalid city due to invalid zip code.',
       }));
     }
-  };
+  }
+};
 
   useEffect(() => {
     if (Giszip === 1) {
