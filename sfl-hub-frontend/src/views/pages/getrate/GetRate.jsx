@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -24,6 +25,7 @@ import {
   Tabs,
   Tab,
   IconButton,
+  useMediaQuery,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
@@ -31,6 +33,356 @@ import { IconBox } from '../../styles/scheduleshipmentStyle';
 import { useStyles } from '../../styles/MyshipmentStyle';
 import { useShipmentContext } from '../../ShipmentContext';
 import { useNavigate } from 'react-router-dom';
+
+// Define StyledTextField and StyledTableTextField similar to Myshipmentnew
+const StyledTableTextField = ({ sx, ...props }) => (
+  <TextField
+    {...props}
+    sx={{
+      ...sx,
+      "& .MuiInputBase-root": {
+        height: 36,
+        fontSize: "0.8rem",
+      },
+      "& .MuiInputBase-input": {
+        padding: "6px",
+        fontSize: "0.8rem",
+      },
+      "& .MuiInputLabel-root": {
+        fontSize: "0.8rem",
+        transform: "translate(14px, 9px) scale(1)",
+      },
+      "& .MuiInputLabel-shrink": {
+        transform: "translate(14px, -6px) scale(0.75)",
+      },
+      "& .MuiFormHelperText-root": {
+        marginTop: "2px",
+      },
+    }}
+  />
+);
+
+const StyledTextField = ({ sx, ...props }) => (
+  <TextField
+    {...props}
+    sx={{
+      ...sx,
+      "& .MuiInputBase-input": { fontSize: "0.875rem" },
+      "& .MuiInputLabel-root": { fontSize: "0.875rem" },
+    }}
+  />
+);
+
+// Define ResponsiveTable for Package Details
+const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowChange, handleDeleteRow, isEnvelope, weightUnit, dimensionUnit, chargeableUnit }) => {
+  const isMobile = useMediaQuery("(max-width:600px)");
+  const columns = [
+    "No of Packages",
+    `Weight (${weightUnit})`,
+    `Dimension (L * W * H) (${dimensionUnit})`,
+    `Chargeable Weight (${chargeableUnit})`,
+    "Insured Value (USD)",
+    ""
+  ];
+
+  if (isMobile) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+        {packageDetails.map((row, index) => (
+          <Paper key={index} sx={{ p: 1.5, boxShadow: 1 }}>
+            <Box sx={{ mb: 1, display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="caption" sx={{ minWidth: 120, fontWeight: "bold", fontSize: "0.75rem" }}>
+                  No of Packages:
+                </Typography>
+                <StyledTableTextField
+                  fullWidth
+                  type="number"
+                  value={row.packageNumber || ''}
+                  onChange={(e) => handlePackageRowChange(index, 'packageNumber', e.target.value)}
+                  error={!!formErrors.packageRows[index]?.packageNumber}
+                  helperText={formErrors.packageRows[index]?.packageNumber}
+                  disabled={isEnvelope}
+                  size="small"
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="caption" sx={{ minWidth: 120, fontWeight: "bold", fontSize: "0.75rem" }}>
+                  Weight ({weightUnit}):
+                </Typography>
+                <StyledTableTextField
+                  fullWidth
+                  type="number"
+                  value={row.weight || ''}
+                  onChange={(e) => handlePackageRowChange(index, 'weight', e.target.value)}
+                  error={!!formErrors.packageRows[index]?.weight}
+                  helperText={formErrors.packageRows[index]?.weight}
+                  disabled={isEnvelope}
+                  size="small"
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="caption" sx={{ minWidth: 120, fontWeight: "bold", fontSize: "0.75rem" }}>
+                  Dimension ({dimensionUnit}):
+                </Typography>
+                <Box sx={{ display: "flex", gap: 1, flex: 1 }}>
+                  <StyledTableTextField
+                    type="number"
+                    value={row.length || ''}
+                    onChange={(e) => handlePackageRowChange(index, 'length', e.target.value)}
+                    error={!!formErrors.packageRows[index]?.length}
+                    helperText={formErrors.packageRows[index]?.length}
+                    disabled={isEnvelope}
+                    size="small"
+                    placeholder="L"
+                    InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                  />
+                  <StyledTableTextField
+                    type="number"
+                    value={row.width || ''}
+                    onChange={(e) => handlePackageRowChange(index, 'width', e.target.value)}
+                    error={!!formErrors.packageRows[index]?.width}
+                    helperText={formErrors.packageRows[index]?.width}
+                    disabled={isEnvelope}
+                    size="small"
+                    placeholder="W"
+                    InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                  />
+                  <StyledTableTextField
+                    type="number"
+                    value={row.height || ''}
+                    onChange={(e) => handlePackageRowChange(index, 'height', e.target.value)}
+                    error={!!formErrors.packageRows[index]?.height}
+                    helperText={formErrors.packageRows[index]?.height}
+                    disabled={isEnvelope}
+                    size="small"
+                    placeholder="H"
+                    InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                  />
+                </Box>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="caption" sx={{ minWidth: 120, fontWeight: "bold", fontSize: "0.75rem" }}>
+                  Chargeable Weight ({chargeableUnit}):
+                </Typography>
+                <StyledTableTextField
+                  fullWidth
+                  type="number"
+                  value={row.chargeableWeight || ''}
+                  disabled
+                  size="small"
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="caption" sx={{ minWidth: 120, fontWeight: "bold", fontSize: "0.75rem" }}>
+                  Insured Value (USD):
+                </Typography>
+                <StyledTableTextField
+                  fullWidth
+                  type="number"
+                  value={row.insuredValue || ''}
+                  onChange={(e) => handlePackageRowChange(index, 'insuredValue', e.target.value)}
+                  error={!!formErrors.packageRows[index]?.insuredValue}
+                  helperText={formErrors.packageRows[index]?.insuredValue}
+                  size="small"
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+              </Box>
+              {packageDetails.length > 1 && (
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  <IconButton
+                    onClick={() => handleDeleteRow(index)}
+                    sx={{ color: '#f44336' }}
+                    disabled={isEnvelope}
+                    aria-label="Delete package row"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
+          </Paper>
+        ))}
+      </Box>
+    );
+  }
+
+  return (
+
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow sx={{ backgroundColor: '#000' }}>
+            {columns.map((col, idx) => (
+              <TableCell
+                key={idx}
+                sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}
+              >
+                {col.includes('Weight') || col.includes('Dimension') || col.includes('Chargeable') ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    {col.split(' (')[0]}
+                    {(col.includes('Weight') || col.includes('Dimension') || col.includes('Chargeable')) && (
+                      <Select
+                        value={col.includes('Weight') ? weightUnit : col.includes('Dimension') ? dimensionUnit : chargeableUnit}
+                        onChange={(e) => {
+                          if (col.includes('Weight')) handleWeightUnitChange(e.target.value);
+                          else if (col.includes('Dimension')) setDimensionUnit(e.target.value);
+                          else setChargeableUnit(e.target.value);
+                        }}
+                        sx={{
+                          height: '24px',
+                          width: col.includes('Dimension') ? '90px' : '70px',
+                          fontSize: '12px',
+                          color: '#fff',
+                          marginLeft: '8px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          '& .MuiSelect-select': {
+                            padding: '4px 24px 4px 8px',
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                          '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                          '&.Mui-disabled': {
+                            '& .MuiSelect-select': { color: '#fff', '-webkit-text-fill-color': '#fff' },
+                          },
+                          '& .MuiSvgIcon-root': { color: '#fff' },
+                        }}
+                        disabled={col.includes('Dimension') || col.includes('Chargeable') || isEnvelope}
+                      >
+                        {col.includes('Dimension') ? (
+                          <>
+                            <MenuItem value="INCHES">INCHES</MenuItem>
+                            <MenuItem value="CM">CM</MenuItem>
+                          </>
+                        ) : (
+                          <>
+                            <MenuItem value="LB">LB</MenuItem>
+                            <MenuItem value="KG">KG</MenuItem>
+                          </>
+                        )}
+                      </Select>
+                    )}
+                  </Box>
+                ) : (
+                  col
+                )}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {packageDetails.map((row, index) => (
+            <TableRow key={index}>
+              <TableCell sx={{ padding: '8px' }}>
+                <StyledTableTextField
+                  type="number"
+                  value={row.packageNumber || ''}
+                  onChange={(e) => handlePackageRowChange(index, 'packageNumber', e.target.value)}
+                  error={!!formErrors.packageRows[index]?.packageNumber}
+                  helperText={formErrors.packageRows[index]?.packageNumber}
+                  disabled={isEnvelope}
+                  fullWidth
+                  size="small"
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+              </TableCell>
+              <TableCell sx={{ padding: '8px' }}>
+                <StyledTableTextField
+                  type="number"
+                  value={row.weight || ''}
+                  onChange={(e) => handlePackageRowChange(index, 'weight', e.target.value)}
+                  error={!!formErrors.packageRows[index]?.weight}
+                  helperText={formErrors.packageRows[index]?.weight}
+                  disabled={isEnvelope}
+                  fullWidth
+                  size="small"
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+              </TableCell>
+              <TableCell sx={{ padding: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <StyledTableTextField
+                  type="number"
+                  value={row.length || ''}
+                  onChange={(e) => handlePackageRowChange(index, 'length', e.target.value)}
+                  error={!!formErrors.packageRows[index]?.length}
+                  helperText={formErrors.packageRows[index]?.length}
+                  disabled={isEnvelope}
+                  size="small"
+                  placeholder="L"
+                  sx={{ flex: 1 }}
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+                <StyledTableTextField
+                  type="number"
+                  value={row.width || ''}
+                  onChange={(e) => handlePackageRowChange(index, 'width', e.target.value)}
+                  error={!!formErrors.packageRows[index]?.width}
+                  helperText={formErrors.packageRows[index]?.width}
+                  disabled={isEnvelope}
+                  size="small"
+                  placeholder="W"
+                  sx={{ flex: 1 }}
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+                <StyledTableTextField
+                  type="number"
+                  value={row.height || ''}
+                  onChange={(e) => handlePackageRowChange(index, 'height', e.target.value)}
+                  error={!!formErrors.packageRows[index]?.height}
+                  helperText={formErrors.packageRows[index]?.height}
+                  disabled={isEnvelope}
+                  size="small"
+                  placeholder="H"
+                  sx={{ flex: 1 }}
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+              </TableCell>
+              <TableCell sx={{ padding: '8px' }}>
+                <StyledTableTextField
+                  type="number"
+                  value={row.chargeableWeight || ''}
+                  disabled
+                  fullWidth
+                  size="small"
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+              </TableCell>
+              <TableCell sx={{ padding: '8px' }}>
+                <StyledTableTextField
+                  type="number"
+                  value={row.insuredValue || ''}
+                  onChange={(e) => handlePackageRowChange(index, 'insuredValue', e.target.value)}
+                  error={!!formErrors.packageRows[index]?.insuredValue}
+                  helperText={formErrors.packageRows[index]?.insuredValue}
+                  fullWidth
+                  size="small"
+                  InputProps={{ autoComplete: 'off', autoCorrect: 'off', autoCapitalize: 'none' }}
+                />
+              </TableCell>
+              <TableCell sx={{ padding: '8px' }}>
+                {packageDetails.length > 1 && (
+                  <IconButton
+                    onClick={() => handleDeleteRow(index)}
+                    sx={{ color: '#f44336' }}
+                    disabled={isEnvelope}
+                    aria-label="Delete package row"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
 
 const GetRate = ({ setActiveModule }) => {
   const navigate = useNavigate();
@@ -50,7 +402,6 @@ const GetRate = ({ setActiveModule }) => {
     GsetShipmentType,
     setIsgetrate,
   } = useShipmentContext();
-
 
   // Fetch countries data
   const { data: countries = [], isLoading: isCountriesLoading, isError: isCountriesError } = useQuery({
@@ -122,7 +473,6 @@ const GetRate = ({ setActiveModule }) => {
       setDimensionUnit('INCHES');
       setChargeableUnit('LB');
     } else {
-      // Only reset if packageDetails is not already in the desired state
       if (
         packageDetails.length !== 1 ||
         packageDetails[0].packageNumber !== '' ||
@@ -425,7 +775,6 @@ const GetRate = ({ setActiveModule }) => {
 
   useEffect(() => {
     if (Giszip === 1) {
-      // Only reset fromCity if it's not already set or if the country has changed
       if (!fromDetails.fromCity || fromDetails.fromCountry !== previousCountryRef.current) {
         updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
         setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
@@ -440,7 +789,6 @@ const GetRate = ({ setActiveModule }) => {
     return () => clearTimeout(fromDebounceRef.current);
   }, [fromDetails.fromZipCode, fromDetails.fromCountry, Giszip, countries]);
 
-  // Add a ref to track the previous country
   const previousCountryRef = useRef(fromDetails.fromCountry);
 
   useEffect(() => {
@@ -464,7 +812,6 @@ const GetRate = ({ setActiveModule }) => {
   const handlePackageRowChange = (index, field, value) => {
     if (isEnvelope) return;
 
-    // Restrict to non-negative numbers; integers for packageNumber, decimals for others
     if (['packageNumber', 'weight', 'length', 'width', 'height'] && !/^\d*$/.test(value)) return;
     setPackageDetails((prevRows) => {
       const updatedRows = [...prevRows];
@@ -773,9 +1120,8 @@ const GetRate = ({ setActiveModule }) => {
     console.log(`Booking ${service}...`);
     setIsgetrate(true);
     setActiveModule('Schedule Shipment');
-     navigate("/admin/Scheduleshipment", { replace: true });
+    navigate("/admin/Scheduleshipment", { replace: true });
   };
-
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
@@ -831,14 +1177,12 @@ const GetRate = ({ setActiveModule }) => {
                   value={fromDetails.fromCountry ? countries.find((c) => c.value === fromDetails.fromCountry) || null : null}
                   onChange={(event, newValue) => {
                     updateFromDetails({ fromCountry: newValue?.value || '' });
-
                     GsetisZip(newValue?.isfedexcity ?? 0);
                     updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
                   }}
-
                   disabled={isCountriesLoading || isCountriesError}
                   renderInput={(params) => (
-                    <TextField
+                    <StyledTextField
                       {...params}
                       className="small-textfield"
                       label="From Country"
@@ -852,7 +1196,7 @@ const GetRate = ({ setActiveModule }) => {
               </FormControl>
             </Box>
             <Box>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label={Giszip === 1 ? 'Not required' : "From Zip Code"}
                 name="fromZipCode"
@@ -884,7 +1228,7 @@ const GetRate = ({ setActiveModule }) => {
                     onChange={(event, newValue) => updateFromDetails({ fromCity: newValue || '' })}
                     disabled={isFromCitiesLoading || fromCitiesError}
                     renderInput={(params) => (
-                      <TextField
+                      <StyledTextField
                         {...params}
                         className="small-textfield"
                         label="From City"
@@ -897,7 +1241,7 @@ const GetRate = ({ setActiveModule }) => {
                   />
                 </FormControl>
               ) : (
-                <TextField
+                <StyledTextField
                   fullWidth
                   label="From City"
                   name="fromCity"
@@ -930,7 +1274,7 @@ const GetRate = ({ setActiveModule }) => {
                   }}
                   disabled={isCountriesLoading || isCountriesError}
                   renderInput={(params) => (
-                    <TextField
+                    <StyledTextField
                       {...params}
                       className="small-textfield"
                       label="To Country"
@@ -944,7 +1288,7 @@ const GetRate = ({ setActiveModule }) => {
               </FormControl>
             </Box>
             <Box>
-              <TextField
+              <StyledTextField
                 fullWidth
                 label={Gresiszip === 1 ? 'Not required' : "To Zip Code"}
                 name="toZipCode"
@@ -976,7 +1320,7 @@ const GetRate = ({ setActiveModule }) => {
                     onChange={(event, newValue) => updateToDetails({ toCity: newValue || '' })}
                     disabled={isToCitiesLoading || toCitiesError}
                     renderInput={(params) => (
-                      <TextField
+                      <StyledTextField
                         {...params}
                         className="small-textfield"
                         label="To City"
@@ -994,7 +1338,7 @@ const GetRate = ({ setActiveModule }) => {
                   />
                 </FormControl>
               ) : (
-                <TextField
+                <StyledTextField
                   fullWidth
                   name="toCity"
                   label="To City"
@@ -1020,7 +1364,7 @@ const GetRate = ({ setActiveModule }) => {
                   value={toDetails.residential ? { value: toDetails.residential, label: toDetails.residential } : null}
                   onChange={(event, newValue) => updateToDetails({ residential: newValue?.value || '' })}
                   renderInput={(params) => (
-                    <TextField
+                    <StyledTextField
                       {...params}
                       className="small-textfield"
                       label="Residential"
@@ -1038,7 +1382,7 @@ const GetRate = ({ setActiveModule }) => {
                   value={toDetails.packageType ? { value: toDetails.packageType, label: toDetails.packageType } : null}
                   onChange={(event, newValue) => updateToDetails({ packageType: newValue?.value || '' })}
                   renderInput={(params) => (
-                    <TextField
+                    <StyledTextField
                       {...params}
                       className="small-textfield"
                       label="Package Type"
@@ -1049,7 +1393,7 @@ const GetRate = ({ setActiveModule }) => {
               </FormControl>
             </Box>
             <Box>
-              <TextField
+              <StyledTextField
                 fullWidth
                 type="date"
                 label="Ship Date"
@@ -1064,280 +1408,24 @@ const GetRate = ({ setActiveModule }) => {
                 placeholder=""
                 error={!!formErrors.shipDate}
                 helperText={formErrors.shipDate}
-
               />
             </Box>
           </Box>
 
           <Box sx={{ marginBottom: '16px' }}>
-            <Typography variant="h6" sx={{ fontWeight: 'medium', marginBottom: '8px' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'medium', marginBottom: '8px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Package Details
             </Typography>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: '#000' }}>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>No of Packages</TableCell>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>
-                      Weight
-                      <Select
-                        value={weightUnit}
-                        onChange={(e) => handleWeightUnitChange(e.target.value)}
-                        sx={{
-                          height: '24px',
-                          width: '70px',
-                          fontSize: '12px',
-                          color: '#fff',
-                          marginLeft: '8px',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          '& .MuiSelect-select': {
-                            padding: '4px 24px 4px 8px',
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '& .MuiSvgIcon-root': {
-                            color: '#fff',
-                          },
-                        }}
-                      >
-                        <MenuItem value="LB">LB</MenuItem>
-                        <MenuItem value="KG">KG</MenuItem>
-                      </Select>
-                    </TableCell>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>
-                      Dimension (L * W * H")
-                      <Select
-                        value={dimensionUnit}
-                        onChange={(e) => setDimensionUnit(e.target.value)}
-                        sx={{
-                          height: '24px',
-                          width: '90px',
-                          fontSize: '12px',
-                          color: '#fff',
-                          marginLeft: '8px',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          '& .MuiSelect-select': {
-                            padding: '4px 24px 4px 8px',
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&.Mui-disabled': {
-                            '& .MuiSelect-select': {
-                              color: '#fff',
-                              '-webkit-text-fill-color': '#fff',
-                            },
-                          },
-                          '& .MuiSvgIcon-root': {
-                            color: '#fff',
-                          },
-                        }}
-                        disabled
-                      >
-                        <MenuItem value="INCHES">INCHES</MenuItem>
-                        <MenuItem value="CM">CM</MenuItem>
-                      </Select>
-                    </TableCell>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>
-                      Chargeable Weight
-                      <Select
-                        value={chargeableUnit}
-                        onChange={(e) => setChargeableUnit(e.target.value)}
-                        sx={{
-                          height: '24px',
-                          width: '70px',
-                          fontSize: '12px',
-                          color: '#fff',
-                          marginLeft: '8px',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          '& .MuiSelect-select': {
-                            padding: '4px 24px 4px 8px',
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&.Mui-disabled': {
-                            '& .MuiSelect-select': {
-                              color: '#fff',
-                              '-webkit-text-fill-color': '#fff',
-                            },
-                          },
-                          '& .MuiSvgIcon-root': {
-                            color: '#fff',
-                          },
-                        }}
-                        disabled
-                      >
-                        <MenuItem value="LB">LB</MenuItem>
-                        <MenuItem value="KG">KG</MenuItem>
-                      </Select>
-                    </TableCell>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}>Insured Value (USD)</TableCell>
-                    <TableCell sx={{ padding: '8px', fontSize: '14px', color: '#fff', fontWeight: 'bold' }}></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {packageDetails.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell sx={{ padding: '8px' }}>
-                        <TextField
-                          type="number"
-                          value={row.packageNumber || ''}
-                          onChange={(e) => handlePackageRowChange(index, 'packageNumber', e.target.value)}
-                          variant="outlined"
-                          size="small"
-                          fullWidth
-                          error={!!formErrors.packageRows[index]?.packageNumber}
-                          helperText={formErrors.packageRows[index]?.packageNumber}
-                          disabled={isEnvelope}
-                          InputProps={{
-                            autoComplete: 'off',
-                            autoCorrect: 'off',
-                            autoCapitalize: 'none',
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ padding: '8px' }}>
-                        <TextField
-                          type="number"
-                          value={row.weight || ''}
-                          onChange={(e) => handlePackageRowChange(index, 'weight', e.target.value)}
-                          variant="outlined"
-                          size="small"
-                          fullWidth
-                          error={!!formErrors.packageRows[index]?.weight}
-                          helperText={formErrors.packageRows[index]?.weight}
-                          disabled={isEnvelope}
-                          InputProps={{
-                            autoComplete: 'off',
-                            autoCorrect: 'off',
-                            autoCapitalize: 'none',
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ padding: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
-                        <TextField
-                          type="number"
-                          value={row.length || ''}
-                          onChange={(e) => handlePackageRowChange(index, 'length', e.target.value)}
-                          variant="outlined"
-                          size="small"
-                          sx={{ flex: 1 }}
-                          error={!!formErrors.packageRows[index]?.length}
-                          helperText={formErrors.packageRows[index]?.length}
-                          disabled={isEnvelope}
-                          InputProps={{
-                            autoComplete: 'off',
-                            autoCorrect: 'off',
-                            autoCapitalize: 'none',
-                          }}
-                        />
-                        <TextField
-                          type="number"
-                          value={row.width || ''}
-                          onChange={(e) => handlePackageRowChange(index, 'width', e.target.value)}
-                          variant="outlined"
-                          size="small"
-                          sx={{ flex: 1 }}
-                          error={!!formErrors.packageRows[index]?.width}
-                          helperText={formErrors.packageRows[index]?.width}
-                          disabled={isEnvelope}
-                          InputProps={{
-                            autoComplete: 'off',
-                            autoCorrect: 'off',
-                            autoCapitalize: 'none',
-                          }}
-                        />
-                        <TextField
-                          type="number"
-                          value={row.height || ''}
-                          onChange={(e) => handlePackageRowChange(index, 'height', e.target.value)}
-                          variant="outlined"
-                          size="small"
-                          sx={{ flex: 1 }}
-                          error={!!formErrors.packageRows[index]?.height}
-                          helperText={formErrors.packageRows[index]?.height}
-                          disabled={isEnvelope}
-                          InputProps={{
-                            autoComplete: 'off',
-                            autoCorrect: 'off',
-                            autoCapitalize: 'none',
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ padding: '8px' }}>
-                        <TextField
-                          type="number"
-                          value={row.chargeableWeight || ''}
-                          variant="outlined"
-                          size="small"
-                          fullWidth
-                          disabled
-                          InputProps={{
-                            autoComplete: 'off',
-                            autoCorrect: 'off',
-                            autoCapitalize: 'none',
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ padding: '8px' }}>
-                        <TextField
-                          type="number"
-                          value={row.insuredValue || ''}
-                          onChange={(e) => handlePackageRowChange(index, 'insuredValue', e.target.value)}
-                          variant="outlined"
-                          size="small"
-                          fullWidth
-                          error={!!formErrors.packageRows[index]?.insuredValue}
-                          helperText={formErrors.packageRows[index]?.insuredValue}
-                          InputProps={{
-                            autoComplete: 'off',
-                            autoCorrect: 'off',
-                            autoCapitalize: 'none',
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ padding: '8px' }}>
-                        {packageDetails.length > 1 && (
-                          <IconButton
-                            onClick={() => handleDeleteRow(index)}
-                            sx={{ color: '#f44336' }}
-                            disabled={isEnvelope}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <ResponsivePackageTable
+              packageDetails={packageDetails}
+              formErrors={formErrors}
+              handlePackageRowChange={handlePackageRowChange}
+              handleDeleteRow={handleDeleteRow}
+              isEnvelope={isEnvelope}
+              weightUnit={weightUnit}
+              dimensionUnit={dimensionUnit}
+              chargeableUnit={chargeableUnit}
+            />
             <Button
               onClick={handleAddRow}
               variant="contained"
@@ -1375,7 +1463,7 @@ const GetRate = ({ setActiveModule }) => {
       <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
         {showRates && (
           <CardContent sx={{ padding: '16px' }}>
-            <Typography variant="h6" sx={{ fontWeight: 'medium', marginBottom: '8px' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'medium', marginBottom: '8px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Rate Details
             </Typography>
             <TableContainer component={Paper}>
