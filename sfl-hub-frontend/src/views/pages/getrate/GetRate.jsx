@@ -74,11 +74,11 @@ const StyledTextField = ({ sx, ...props }) => (
 );
 
 // Define ResponsiveTable for Package Details
-const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowChange, handleDeleteRow, isEnvelope, weightUnit, dimensionUnit, chargeableUnit }) => {
+const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowChange, handleDeleteRow, isEnvelope, weightUnit, dimensionUnit, chargeableUnit, handleWeightUnitChange }) => {
   const isMobile = useMediaQuery("(max-width:600px)");
   const columns = [
     "No of Packages",
-    `Weight (${weightUnit})`,
+   ` Weight (${weightUnit})`,
     `Dimension (L * W * H) (${dimensionUnit})`,
     `Chargeable Weight (${chargeableUnit})`,
     "Insured Value (USD)",
@@ -88,6 +88,34 @@ const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowCh
   if (isMobile) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+          <Select
+            value={weightUnit || 'LB'} // Fallback to 'LB'
+            onChange={(e) => {
+              console.log('Mobile view weight unit change:', e.target.value);
+              handleWeightUnitChange(e.target.value);
+            }}
+            disabled={isEnvelope}
+            sx={{
+              height: '24px',
+              width: '70px',
+              fontSize: '12px',
+              backgroundColor: '#000',
+              color: '#fff',
+              '& .MuiSelect-select': {
+                padding: '4px 24px 4px 8px',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
+              },
+              '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+              '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+              '& .MuiSvgIcon-root': { color: '#fff' },
+            }}
+          >
+            <MenuItem value="LB">LB</MenuItem>
+            <MenuItem value="KG">KG</MenuItem>
+          </Select>
+        </Box>
         {packageDetails.map((row, index) => (
           <Paper key={index} sx={{ p: 1.5, boxShadow: 1 }}>
             <Box sx={{ mb: 1, display: "flex", flexDirection: "column", gap: 1 }}>
@@ -124,7 +152,7 @@ const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowCh
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Typography variant="caption" sx={{ minWidth: 120, fontWeight: "bold", fontSize: "0.75rem" }}>
+                <Typography variant="caption" sx={{ minWidth: 120, fontWeight: "bold", fontSize: '0.75rem' }}>
                   Dimension ({dimensionUnit}):
                 </Typography>
                 <Box sx={{ display: "flex", gap: 1, flex: 1 }}>
@@ -211,7 +239,6 @@ const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowCh
   }
 
   return (
-
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
@@ -224,49 +251,50 @@ const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowCh
                 {col.includes('Weight') || col.includes('Dimension') || col.includes('Chargeable') ? (
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {col.split(' (')[0]}
-                    {(col.includes('Weight') || col.includes('Dimension') || col.includes('Chargeable')) && (
-                      <Select
-                        value={col.includes('Weight') ? weightUnit : col.includes('Dimension') ? dimensionUnit : chargeableUnit}
-                        onChange={(e) => {
-                          if (col.includes('Weight')) handleWeightUnitChange(e.target.value);
-                          else if (col.includes('Dimension')) setDimensionUnit(e.target.value);
-                          else setChargeableUnit(e.target.value);
-                        }}
-                        sx={{
-                          height: '24px',
-                          width: col.includes('Dimension') ? '90px' : '70px',
-                          fontSize: '12px',
-                          color: '#fff',
-                          marginLeft: '8px',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          '& .MuiSelect-select': {
-                            padding: '4px 24px 4px 8px',
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                          '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                          '&.Mui-disabled': {
-                            '& .MuiSelect-select': { color: '#fff', '-webkit-text-fill-color': '#fff' },
-                          },
-                          '& .MuiSvgIcon-root': { color: '#fff' },
-                        }}
-                        disabled={col.includes('Dimension') || col.includes('Chargeable') || isEnvelope}
-                      >
-                        {col.includes('Dimension') ? (
-                          <>
-                            <MenuItem value="INCHES">INCHES</MenuItem>
-                            <MenuItem value="CM">CM</MenuItem>
-                          </>
-                        ) : (
-                          <>
-                            <MenuItem value="LB">LB</MenuItem>
-                            <MenuItem value="KG">KG</MenuItem>
-                          </>
-                        )}
-                      </Select>
-                    )}
+                    <Select
+                      value={
+                        col.includes('Weight')
+                          ? weightUnit || 'LB'
+                          : col.includes('Dimension')
+                          ? dimensionUnit || 'INCHES'
+                          : chargeableUnit || 'LB'
+                      }
+                      onChange={(e) => {
+                        if (col.includes('Weight')) {
+                          console.log('Desktop view weight unit change:', e.target.value);
+                          handleWeightUnitChange(e.target.value);
+                        }
+                      }}
+                      disabled={col.includes('Dimension') || col.includes('Chargeable') || isEnvelope}
+                      sx={{
+                        height: '24px',
+                        width: col.includes('Dimension') ? '90px' : '70px',
+                        fontSize: '12px',
+                        color: '#fff',
+                        marginLeft: '8px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        '& .MuiSelect-select': {
+                          padding: '4px 24px 4px 8px',
+                          borderBottom: '1px solid rgba(255, 255, 255, 0.42)',
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                        '&:hover .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                        '&.Mui-disabled': {
+                          '& .MuiSelect-select': { color: '#fff', '-webkit-text-fill-color': '#fff' },
+                        },
+                        '& .MuiSvgIcon-root': { color: '#fff' },
+                      }}
+                    >
+                      {col.includes('Dimension') ? [
+                        <MenuItem key="INCHES" value="INCHES">INCHES</MenuItem>,
+                        <MenuItem key="CM" value="CM">CM</MenuItem>
+                      ] : [
+                        <MenuItem key="LB" value="LB">LB</MenuItem>,
+                        <MenuItem key="KG" value="KG">KG</MenuItem>
+                      ]}
+                    </Select>
                   </Box>
                 ) : (
                   col
@@ -1026,9 +1054,10 @@ const GetRate = ({ setActiveModule }) => {
         },
       };
     }
-
+    //old endpoint : https://hubapi.sflworldwide.com/getQuote/getRates
+    //below new endpoint
     try {
-      const response = await fetch('https://hubapi.sflworldwide.com/getQuote/getRates', {
+      const response = await fetch(`${api.BackendURL}/getRates/getRatesData`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1038,7 +1067,7 @@ const GetRate = ({ setActiveModule }) => {
 
       const result = await response.json();
       toast.dismiss();
-      if (result.success) {
+      if (result.message === "Data fetched") {
         toast.success('Rates fetched successfully');
         const updatedRates = result.data.map((item) => ({
           service: item.ServiceDisplayName,
@@ -1126,8 +1155,8 @@ const GetRate = ({ setActiveModule }) => {
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
       <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
-        <div className="card-title">
-          <h2 style={{ fontSize: '1rem' }}>
+        <div className="card-title" style={{minWidth:"60%"}} >
+          <h2 style={{ fontSize: '1rem',fontWeight:"500"}}>
             <IconBox className="card-icon">
               <FlightTakeoffIcon className={classes.iconBox} />
             </IconBox>
@@ -1425,6 +1454,7 @@ const GetRate = ({ setActiveModule }) => {
               weightUnit={weightUnit}
               dimensionUnit={dimensionUnit}
               chargeableUnit={chargeableUnit}
+              handleWeightUnitChange={handleWeightUnitChange}
             />
             <Button
               onClick={handleAddRow}
@@ -1481,7 +1511,11 @@ const GetRate = ({ setActiveModule }) => {
                     <TableRow key={index}>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>{rate.service}</TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>{rate.deliveryDate}</TableCell>
-                      <TableCell sx={{ padding: '8px', fontSize: '14px' }}>USD {rate.rate}</TableCell>
+                      <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
+                        {fromDetails.fromCountry === 'in' ? 'INR ' :
+                          fromDetails.fromCountry === 'ca' ? 'CAD ' : 'USD '}
+                        {Math.round(rate.rate)}
+                      </TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         <Button
                           onClick={() => handleBook(rate.service)}
