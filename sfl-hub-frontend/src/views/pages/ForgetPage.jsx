@@ -29,28 +29,28 @@ const ForgotPassword = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "email" ? value.trim() : value,
     }));
   };
 
-   // Validate email format
-   const isValidEmail = (email) => {
+  // Validate email format
+  const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
-  
+
     if (!SECRET_KEY) {
       toast.error("Encryption key is missing!");
       return;
     }
-  
-     // Check for valid email format
-     if (!isValidEmail(formData.email)) {
+
+    // Check for valid email format
+    if (!isValidEmail(formData.email)) {
       toast.error("E-MAIL ID Not Found");
       return;
     }
@@ -65,40 +65,40 @@ const ForgotPassword = () => {
       selectedEmailMy: CryptoJS.AES.encrypt(formData.requestType, SECRET_KEY).toString(),
       userIP: userIP
     };
-     const encodedUrl= encryptURL("/users/forgotPassword");
-    
-    toast.dismiss();
-   await toast.promise(
-  axios.post(`${api.BackendURL}/users/${encodedUrl}`, { data: payload }),
-  {
-    loading: "Sending Mail...",
-    success: (res) => {
-      const msg = res.data?.message;
-      console.log("Response message:", msg); 
+    const encodedUrl = encryptURL("/users/forgotPassword");
 
-      if (
-        msg === "Reset password link sent successfully over email" ||
-        msg === "Username sent successfully over email"
-      ) {
-        setTimeout(() => navigate("/auth/login-page"), 1500);
-        return msg;
-      } else if (msg === "Could not retrieve necessary user details.") {
-        toast.error("Could not retrieve user details. Please provide a valid email or sign up.");
-        return;
-      } else {
-        toast.error(msg || "Cannot send email");
-        return;
+    toast.dismiss();
+    await toast.promise(
+      axios.post(`${api.BackendURL}/users/${encodedUrl}`, { data: payload }),
+      {
+        loading: "Sending Mail...",
+        success: (res) => {
+          const msg = res.data?.message;
+          console.log("Response message:", msg);
+
+          if (
+            msg === "Reset password link sent successfully over email" ||
+            msg === "Username sent successfully over email"
+          ) {
+            setTimeout(() => navigate("/auth/login-page"), 1500);
+            return msg;
+          } else if (msg === "Could not retrieve necessary user details.") {
+            toast.error("Could not retrieve user details. Please provide a valid email or sign up.");
+            return;
+          } else {
+            toast.error(msg || "Cannot send email");
+            return;
+          }
+        },
+        error: (err) => {
+          console.log(err);
+          return err || "Something went wrong";
+        }
       }
-    },
-    error: (err) => {
-      console.log(err);
-      return err || "Something went wrong";
-    }
-  }
-);
+    );
 
   };
-  
+
 
 
   return (
