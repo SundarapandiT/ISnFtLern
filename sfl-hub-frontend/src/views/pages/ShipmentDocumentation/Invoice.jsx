@@ -57,7 +57,7 @@ const TableStyled = styled(Table)({
 
 const PaymentTerms = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
-  fontSize: "0.8rem",
+  fontSize: "0.75rem",
   "& p": {
     margin: "2px 0",
   },
@@ -72,16 +72,17 @@ const PaymentMethods = styled(Box)(({ theme }) => ({
     borderCollapse: "collapse",
   },
   "& th, & td": {
-    border: "1px solid #000",
+    // border: "1px solid #000",
     padding: "4px",
-    fontSize: "0.8rem",
+    fontSize: "0.75rem",
     textAlign: "left",
-    width: "25%", // Ensure each column takes equal width (100% / 4 columns)
-    boxSizing: "border-box", // Ensure padding is included in width calculation
+    width: "25%", 
+    boxSizing: "border-box",
   },
   "& th": {
     backgroundColor: "#f0f0f0",
     fontWeight: "bold",
+    border: "1px solid #000"
   },
   "& a": {
     color: "red",
@@ -456,21 +457,21 @@ const PrintInvoice = () => {
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableCell sx={{ fontSize: "0.7rem" }}>
+              <TableCell sx={{ fontSize: "0.7rem",border: "1px solid #000",borderBottom:"none"}}>
                 Zelle payment is fast, safe and secure free bank to bank transfer via your email or phone number.
               </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" }}>
+              <TableCell sx={{ fontSize: "0.7rem",border: "1px solid #000",borderBottom:"none" }}>
                 ACH payment is safe, secure and free electronic bank-to-bank payment authorized in USA.
               </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" }}>
+              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderBottom:"none"}}>
                 On type and value of shipment, credit card fees may be applied on the credit card payments.
               </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" }}>
+              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderBottom:"none"}}>
                 Below our registered address to mail physical check for your shipment.
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell sx={{ fontSize: "0.7rem" }}>
+              <TableCell sx={{ fontSize: "0.7rem",border: "1px solid #000",borderTop:"none" }}>
                 Zelle Email: <a href="mailto:contact@SFLWorldwide.com">contact@SFLWorldwide.com</a>
                 <br />
                 Zelle Name: SFL Worldwide LLC
@@ -479,13 +480,13 @@ const PrintInvoice = () => {
                   Please mention tracking number in memo field
                 </Typography>
               </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" }}>
+              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderTop:"none"}}>
                 <a href="https://www.sflworldwide.com/pay">www.sflworldwide.com/pay</a>
               </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" }}>
+              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderTop:"none"}}>
                 <a href="https://www.sflworldwide.com/pay">www.sflworldwide.com/pay</a>
               </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" }}>
+              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderTop:"none"}}>
                 SFL Worldwide LLC
                 <br />
                 3364 Garden Brook Drive
