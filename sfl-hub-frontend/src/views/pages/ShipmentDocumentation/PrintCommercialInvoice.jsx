@@ -184,7 +184,8 @@ const PrintCommercialInvoice = () => {
               CONSIGNEE
             </StyledTableHeadCell>
           </TableRow>
-            <TableRow>
+            {ToAddress.CompanyName !== "" && (
+              <TableRow>
               <StyledTableHeadCell colSpan={3}>
                 COMPANY NAME: {FromAddress.CompanyName}
               </StyledTableHeadCell>
@@ -192,6 +193,7 @@ const PrintCommercialInvoice = () => {
                 COMPANY NAME: {ToAddress.CompanyName}
               </StyledTableHeadCell>
             </TableRow>
+            )}
           <TableRow>
             <StyledTableHeadCell colSpan={3}>
               COMPLETE NAME: {FromAddress.ContactName}
@@ -268,7 +270,7 @@ const PrintCommercialInvoice = () => {
               COUNTRY OF ULTIMATE DESTINATION
             </StyledTableHeadCell>
             <StyledTableHeadCell colSpan={4} className="bg-grey">
-              {ServiceName} INTERNATIONAL AWB NO
+               INTERNATIONAL AWB NO
             </StyledTableHeadCell>
           </TableRow>
           <TableRow>
@@ -285,30 +287,42 @@ const PrintCommercialInvoice = () => {
               </Select>
             </StyledTableBodyCell>
           </TableRow>
-          <TableRow>
-            <StyledTableHeadCell className="bg-grey">Mark No.</StyledTableHeadCell>
-            <StyledTableHeadCell className="bg-grey">No. of Packages</StyledTableHeadCell>
-            <StyledTableHeadCell className="bg-grey">Complete desc. of Goods</StyledTableHeadCell>
-            <StyledTableHeadCell className="bg-grey">Quantity</StyledTableHeadCell>
-            <StyledTableHeadCell className="bg-grey" sx={{ maxWidth: 42 }}>
-              Unit Value
-            </StyledTableHeadCell>
-            <StyledTableHeadCell className="bg-grey" sx={{ width: "15%" }}>
-              Total Value
-            </StyledTableHeadCell>
-            <StyledTableHeadCell className="bg-grey">Currency USD/Dest</StyledTableHeadCell>
-          </TableRow>
-          {CommercialItems.map((item, index) => (
-            <TableRow key={index}>
-              <StyledTableBodyCell>{item.packagenumber}</StyledTableBodyCell>
-              <StyledTableBodyCell>{MaxPackageNumber}</StyledTableBodyCell>
-              <StyledTableBodyCell>{item.contentdescription}</StyledTableBodyCell>
-              <StyledTableBodyCell>{item.quantity}</StyledTableBodyCell>
-              <StyledTableBodyCell>{item.valueperquantity}</StyledTableBodyCell>
-              <StyledTableBodyCell>{item.totalvalue}</StyledTableBodyCell>
-              <StyledTableBodyCell>USD</StyledTableBodyCell>
-            </TableRow>
-          ))}
+<TableRow>
+  <StyledTableHeadCell className="bg-grey">Mark No.</StyledTableHeadCell>
+  <StyledTableHeadCell className="bg-grey">No. of Packages</StyledTableHeadCell>
+  <StyledTableHeadCell className="bg-grey">Complete desc. of Goods</StyledTableHeadCell>
+  <StyledTableHeadCell className="bg-grey">Quantity</StyledTableHeadCell>
+  <StyledTableHeadCell className="bg-grey" sx={{ maxWidth: 42 }}>
+    Unit Value
+  </StyledTableHeadCell>
+  <StyledTableHeadCell className="bg-grey" sx={{ width: "15%" }}>
+    Total Value
+  </StyledTableHeadCell>
+  <StyledTableHeadCell className="bg-grey">Currency USD/Dest</StyledTableHeadCell>
+</TableRow>
+{CommercialItems.map((item, index) => (
+  <TableRow key={index}>
+    <StyledTableBodyCell>{item.packagenumber}</StyledTableBodyCell>
+    <StyledTableBodyCell>{MaxPackageNumber}</StyledTableBodyCell>
+    <StyledTableBodyCell>{item.contentdescription}</StyledTableBodyCell>
+    <StyledTableBodyCell>{item.quantity}</StyledTableBodyCell>
+    <StyledTableBodyCell>{item.valueperquantity}</StyledTableBodyCell>
+    <StyledTableBodyCell>{item.totalvalue}</StyledTableBodyCell>
+    <StyledTableBodyCell>USD</StyledTableBodyCell>
+  </TableRow>
+))}
+{/* Added 3 empty rows for design */}
+{[...Array(9)].map((_, index) => (
+  <TableRow key={`empty-${index}`}>
+    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+  </TableRow>
+))}
           <TableRow>
             <StyledTableBodyCell rowSpan={2}></StyledTableBodyCell>
             <StyledTableHeadCell className="bg-grey">Total No. of Packages</StyledTableHeadCell>

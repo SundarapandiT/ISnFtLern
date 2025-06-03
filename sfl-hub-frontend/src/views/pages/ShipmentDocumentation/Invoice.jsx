@@ -57,14 +57,14 @@ const TableStyled = styled(Table)({
 
 const PaymentTerms = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
-  fontSize: "0.7rem",
+  fontSize: "0.8rem",
   "& p": {
     margin: "2px 0",
   },
 }));
 
 const PaymentMethods = styled(Box)(({ theme }) => ({
-  marginTop: theme.spacing(2),
+  marginTop: theme.spacing(1),
   border: "1px solid #000",
   padding: theme.spacing(1),
   "& table": {
@@ -74,8 +74,10 @@ const PaymentMethods = styled(Box)(({ theme }) => ({
   "& th, & td": {
     border: "1px solid #000",
     padding: "4px",
-    fontSize: "0.7rem",
+    fontSize: "0.8rem",
     textAlign: "left",
+    width: "25%", // Ensure each column takes equal width (100% / 4 columns)
+    boxSizing: "border-box", // Ensure padding is included in width calculation
   },
   "& th": {
     backgroundColor: "#f0f0f0",
@@ -86,7 +88,6 @@ const PaymentMethods = styled(Box)(({ theme }) => ({
     textDecoration: "none",
   },
 }));
-
 const Footer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
   border: "1px solid #000",
@@ -98,7 +99,7 @@ const Footer = styled(Box)(({ theme }) => ({
 const PrintInvoice = () => {
   const location = useLocation();
   const shipment = JSON.parse(sessionStorage.getItem("shipmentData"));
-   
+
   // Local state to hold processed data
   const [state, setState] = useState({
     shipmentInfo: {},
@@ -128,13 +129,13 @@ const PrintInvoice = () => {
       const services = commercial.length > 0
         ? commercial
         : [
-            {
-              contentdescription: packageDetails.packagecontent || "N/A",
-              quantity: packageDetails.totalpackages || 0,
-              valueperquantity: "0.00",
-              totalvalue: "0.00",
-            },
-          ];
+          {
+            contentdescription: packageDetails.packagecontent || "N/A",
+            quantity: packageDetails.totalpackages || 0,
+            valueperquantity: "0.00",
+            totalvalue: "0.00",
+          },
+        ];
 
       // Financial calculations
       const grossAmount = services.reduce((sum, service) => sum + Number(service.totalvalue || 0), 0);
@@ -187,8 +188,7 @@ const PrintInvoice = () => {
 
   // Format address
   const formatAddress = (address) =>
-    `${address.addressLine1 || ""}, ${address.city || ""}, ${address.state || ""}, ${
-      address.countryName || ""
+    `${address.addressLine1 || ""}, ${address.city || ""}, ${address.state || ""}, ${address.countryName || ""
     } - ${address.postalCode || ""}`;
 
   // Format date
@@ -202,8 +202,8 @@ const PrintInvoice = () => {
   const dueDate = state.shipmentInfo.invoiceDueDate
     ? formatDate(state.shipmentInfo.invoiceDueDate)
     : state.shipmentInfo.shipmentDate
-    ? format(addDays(new Date(state.shipmentInfo.shipmentDate), 7), "MM/dd/yyyy")
-    : "N/A";
+      ? format(addDays(new Date(state.shipmentInfo.shipmentDate), 7), "MM/dd/yyyy")
+      : "N/A";
 
   // If no shipment data, show error
   if (!shipment) {
@@ -246,7 +246,7 @@ const PrintInvoice = () => {
                 sx={{
                   border: "1px solid black",
                   verticalAlign: "top",
-                  width: "35%",
+                  width: "50%",
                   padding: "6px",
                   height: "70px",
                 }}
@@ -381,9 +381,25 @@ const PrintInvoice = () => {
                   </TableCell>
                 </TableRow>
               ))}
-              <TableRow sx={{ height: "20px" }}>
-                <TableCell rowSpan={3} colSpan={2} sx={{ border: "none" }} />
-                <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", padding: "3px" }}>
+              {[...Array(9 - services.length)].map((_, index) => (
+                <TableRow key={`empty-${index}`} sx={{ height: "20px" }}>
+                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }}>
+
+                  </TableCell>
+                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="center">
+
+                  </TableCell>
+                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="center">
+
+                  </TableCell>
+                  <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="center">
+
+                  </TableCell>
+                </TableRow>
+              ))}
+              <TableRow sx={{ height: "20px", borderTop: "1px solid black" }}>
+                <TableCell colSpan={2} sx={{ border: "1px solid black" }} /> 
+                <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", padding: "3px", whiteSpace: "nowrap" }}>
                   Gross Amount:
                 </TableCell>
                 <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="right">
@@ -391,6 +407,7 @@ const PrintInvoice = () => {
                 </TableCell>
               </TableRow>
               <TableRow sx={{ height: "20px" }}>
+                <TableCell colSpan={2} sx={{ border: "1px solid black" }} /> 
                 <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", padding: "3px" }}>
                   Paid on:
                 </TableCell>
@@ -399,6 +416,7 @@ const PrintInvoice = () => {
                 </TableCell>
               </TableRow>
               <TableRow sx={{ height: "20px" }}>
+                <TableCell colSpan={2} sx={{ border: "1px solid black" }} /> 
                 <TableCell sx={{ border: "1px solid black", fontWeight: "bold", fontSize: "0.8rem", padding: "3px" }}>
                   Balance:
                 </TableCell>
@@ -417,7 +435,7 @@ const PrintInvoice = () => {
           <Typography fontWeight="bold" fontSize="0.8rem">
             PAYMENT TERMS:
           </Typography>
-          <Typography fontSize="0.7rem">
+          <Typography fontSize="0.8rem">
             All charges, as above, must be paid by check or wire transfer within seven days from the receipt of our invoice
             for pickup of your shipment. Credit Card will be only accepted for payment under $500.00 and credit card fees
             will be charged at 3% if payment is being made by Credit Card, if payment is not made by due date fees of
