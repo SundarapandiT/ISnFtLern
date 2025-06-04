@@ -1539,7 +1539,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         {fromDetails.fromCountry === 'in' ? 'INR ' :
                           fromDetails.fromCountry === 'ca' ? 'CAD ' : 'USD '}
-                        {(Number(rate.rate)).toFixed(2)}
+                        {(Math.ceil(rate.rate))}
                       </TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         <Button

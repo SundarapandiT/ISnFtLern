@@ -350,9 +350,18 @@ const Myshipmentnew = ({ setEdit }) => {
           </FormControl>
 
           <FormControl fullWidth variant="outlined" className="small-textfield" >
-            <InputLabel sx={{ fontSize: "0.875rem" }}>Service Type</InputLabel>
-            <Select
-              value={fromAddress.servicename || ""}
+            {/* <InputLabel sx={{ fontSize: "0.875rem" }}>Service Type</InputLabel> */}
+            <StyledTextField
+            fullWidth
+            disabled
+            className="custom-textfield"
+            label="Service Type"
+            value={shipmentInfo.servicename || ""}
+            InputProps={{ readOnly: true }}
+            variant="outlined"
+          />
+            {/* <Select
+              value={shipmentInfo.servicename || ""}
               label="Service Type"
               disabled
               sx={{ "& .MuiSelect-select": { fontSize: "0.875rem" } }}
@@ -360,19 +369,28 @@ const Myshipmentnew = ({ setEdit }) => {
               <MenuItem value="" sx={{ fontSize: "0.75rem" }}>Select</MenuItem>
               <MenuItem value="Standard" sx={{ fontSize: "0.75rem" }}>Standard</MenuItem>
               <MenuItem value="Express" sx={{ fontSize: "0.75rem" }}>Express</MenuItem>
-            </Select>
+            </Select> */}
           </FormControl>
 
           <FormControl fullWidth variant="outlined" className="small-textfield">
-            <InputLabel sx={{ fontSize: "0.875rem" }}>Sub Service Type</InputLabel>
+            <StyledTextField
+            fullWidth
+            disabled
+            className="custom-textfield"
+            label="Sub Service Type"
+            value={shipmentInfo.subservicename || ""}
+            InputProps={{ readOnly: true }}
+            variant="outlined"
+          />
+            {/* <InputLabel sx={{ fontSize: "0.875rem" }}>Sub Service Type</InputLabel>
             <Select
-              value={fromAddress.subservicename || ""}
+              value={shipmentInfo.subservicename || ""}
               label="Sub Service Type"
               disabled
               sx={{ "& .MuiSelect-select": { fontSize: "0.875rem" } }}
             >
               <MenuItem value="" sx={{ fontSize: "0.75rem" }}>Select</MenuItem>
-            </Select>
+            </Select> */}
           </FormControl>
         </GridContainer>
       </SectionPaper>
