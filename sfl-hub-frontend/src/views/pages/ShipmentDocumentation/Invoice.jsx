@@ -148,32 +148,32 @@ const PrintInvoice = () => {
 
       setState({
         shipmentInfo: {
-          trackingNumber: shipmentInfo.trackingnumber || "N/A",
+          trackingNumber: shipmentInfo.trackingnumber || "",
           shipmentDate: shipmentInfo.shipmentdate || "",
-          shipmentType: shipmentInfo.shipmenttype || "N/A",
-          createdByName: shipmentInfo.createdbyname || "N/A",
+          shipmentType: shipmentInfo.shipmenttype || "",
+          managedByName: shipmentInfo.managedbyname || "",
           invoiceDueDate: shipmentInfo.invoiceduedate || "",
         },
         fromAddress: {
-          contactName: fromAddress.contactname || "N/A",
+          contactName: fromAddress.contactname || "",
           addressLine1: fromAddress.addressline1 || "",
           city: fromAddress.city || "",
           state: fromAddress.state || "",
           countryName: fromAddress.countryname || "",
           postalCode: fromAddress.zipcode || "",
-          phone1: fromAddress.phone1 || "N/A",
+          phone1: fromAddress.phone1 || "",
         },
         toAddress: {
-          contactName: toAddress.contactname || "N/A",
+          contactName: toAddress.contactname || "",
           addressLine1: toAddress.addressline1 || "",
           city: toAddress.city || "",
           state: toAddress.state || "",
           countryName: toAddress.countryname || "",
           postalCode: toAddress.zipcode || "",
-          phone1: toAddress.phone1 || "N/A",
+          phone1: toAddress.phone1 || "",
         },
         packageDetails: {
-          packagecontent: packageDetails.packagecontent || "N/A",
+          packagecontent: packageDetails.packagecontent || "",
           totalpackages: packageDetails.totalpackages || 0,
         },
         services,
@@ -323,7 +323,7 @@ const PrintInvoice = () => {
                 <Typography fontWeight="bold" sx={{ fontSize: "0.75rem" }}>
                   Sales Representative
                 </Typography>
-                <Typography sx={{ fontSize: "0.75rem" }}>{shipmentInfo.managedby}</Typography>
+                <Typography sx={{ fontSize: "0.75rem" }}>{shipmentInfo.managedByName}</Typography>
               </TableCell>
             </TableRow>
           </TableBody>
