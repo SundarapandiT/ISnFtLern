@@ -230,7 +230,7 @@ const Schedule = () => {
   useEffect(() => {
     setFromCountry(isGetrate&&fromDetails.fromCountry)
     setToCountry(isGetrate&&toDetails.toCountry)
-    setShipmentType(isGetrate && GshipmentType);
+    setShipmentType(isGetrate && GshipmentType); 
     setisZip(Giszip || 1);
     setresisZip(Gresiszip || 1);
     const fromCountryObj = countries.find((c) => c.value === fromDetails.fromCountry);
