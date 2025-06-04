@@ -211,7 +211,7 @@ const Schedule = () => {
   const [commercialInvoiceData, setCommercialInvoiceData] = useState([
     {
       packageNumber: "1",
-      contentDescription: packageType === "Envelop" ? "Document" : "",
+      contentDescription: packageType === "Envelope" ? "Document" : "",
       quantity: 0,
       valuePerQty: 0,
     },
@@ -695,7 +695,7 @@ const Schedule = () => {
 
 
     // If packageType is " ", enforce default values and skip dimension calculations
-    if (packageType === "Envelop") {
+    if (packageType === "Envelope") {
       updatedPackageData[index] = {
         ...updatedPackageData[index],
         weight: 0.5,
@@ -1001,7 +1001,7 @@ const Schedule = () => {
     }
 
     // Package data validation
-    if (packageType !== "Envelop") {
+    if (packageType !== "Envelope") {
       packageData.forEach((pkg, index) => {
         if (!pkg.noOfPackages || pkg.noOfPackages <= 0) {
           newErrors[`noOfPackages_${index}`] = "Number of packages is required and must be greater than 0";
@@ -1025,7 +1025,7 @@ const Schedule = () => {
     }
 
     // ✅ Validate commercialInvoiceData only if any field in the invoice is filled
-    if (samecountry === false && Array.isArray(commercialInvoiceData) && packageType !== "Envelop") {
+    if (samecountry === false && Array.isArray(commercialInvoiceData) && packageType !== "Envelope") {
       commercialInvoiceData.forEach((invoice, index) => {
         const hasAnyField =
           invoice.packageNumber ||

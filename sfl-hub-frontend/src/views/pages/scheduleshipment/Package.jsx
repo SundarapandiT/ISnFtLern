@@ -87,7 +87,7 @@ const Package = ({
   const [openDialog, setOpenDialog] = useState(false);
   useEffect(()=>
   {
-    if (packageType === "Envelop") {
+    if (packageType === "Envelope") {
       setNoOfPackages(1);
       updatePackageRows(1);
       const resetPackageData = [{
@@ -120,7 +120,7 @@ const Package = ({
     const selectedType = e.target.value;
     setPackageType(selectedType);
 
-    if (selectedType === "Envelop") {
+    if (selectedType === "Envelope") {
       setNoOfPackages(1);
       updatePackageRows(1);
       const resetPackageData = [{
@@ -174,7 +174,7 @@ const Package = ({
     );
     console.log("totalDeclaredValue", totalDeclaredValue);
 
-    if (samecountry === false && packageType !== "Envelop") {
+    if (samecountry === false && packageType !== "Envelope") {
       const isNextEnabled = totalinsured_value <= totalDeclaredValue && totalinsured_value >= 0;
       if (isNextEnabled) {
         console.log("different country");
@@ -202,7 +202,7 @@ const Package = ({
     setOpenDialog(false);
   };
 
-  const isDocument = packageType === "Envelop";
+  const isDocument = packageType === "Envelope";
   return (
     <Box className="ss-box">
       {/* Dialog for Insured Value Error */}
@@ -245,7 +245,7 @@ const Package = ({
               className="custom-select"
             >
               <MenuItem value="Package" >Package</MenuItem>
-              <MenuItem value="Envelop">Document(Under 0.5Lbs)</MenuItem>
+              <MenuItem value="Envelope">Document(Under 0.5Lbs)</MenuItem>
             </Select>
           </FormControl>
         </Grid>

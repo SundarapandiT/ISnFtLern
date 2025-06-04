@@ -481,7 +481,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
   const [weightUnit, setWeightUnit] = useState('LB');
   const [dimensionUnit, setDimensionUnit] = useState('INCHES');
   const [chargeableUnit, setChargeableUnit] = useState('LB');
-  const isEnvelope = toDetails.packageType === 'Envelop';
+  const isEnvelope = toDetails.packageType === 'Envelope';
 
   // Sync packageDetails with packageType changes
   useEffect(() => {
@@ -982,7 +982,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
 
     let payload;
 
-    if (toDetails.packageType === 'Envelop') {
+    if (toDetails.packageType === 'Envelope') {
       payload = {
         ...basePayload,
         quoteData: {
@@ -1431,7 +1431,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
             <Box>
               <FormControl fullWidth>
                 <Autocomplete
-                  options={[{ value: 'Package', label: 'Package' }, { value: 'Envelop', label: 'Envelop' }]}
+                  options={[{ value: 'Package', label: 'Package' }, { value: 'Envelope', label: 'Envelope' }]}
                   getOptionLabel={(option) => option.label}
                   value={toDetails.packageType ? { value: toDetails.packageType, label: toDetails.packageType } : null}
                   onChange={(event, newValue) => updateToDetails({ packageType: newValue?.value || '' })}
@@ -1539,7 +1539,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         {fromDetails.fromCountry === 'in' ? 'INR ' :
                           fromDetails.fromCountry === 'ca' ? 'CAD ' : 'USD '}
-                        {Math.round(rate.rate)}
+                        {(Number(rate.rate)).toFixed(2)}
                       </TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         <Button
