@@ -78,7 +78,7 @@ const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowCh
   const isMobile = useMediaQuery("(max-width:600px)");
   const columns = [
     "No of Packages",
-   ` Weight (${weightUnit})`,
+    ` Weight (${weightUnit})`,
     `Dimension (L * W * H) (${dimensionUnit})`,
     `Chargeable Weight (${chargeableUnit})`,
     "Insured Value (USD)",
@@ -256,8 +256,8 @@ const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowCh
                         col.includes('Weight')
                           ? weightUnit || 'LB'
                           : col.includes('Dimension')
-                          ? dimensionUnit || 'INCHES'
-                          : chargeableUnit || 'LB'
+                            ? dimensionUnit || 'INCHES'
+                            : chargeableUnit || 'LB'
                       }
                       onChange={(e) => {
                         if (col.includes('Weight')) {
@@ -412,7 +412,7 @@ const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowCh
   );
 };
 
-const GetRate = ({ setActiveModule }) => {
+const GetRate = ({ setActiveModule, setActiveTab }) => {
   const navigate = useNavigate();
   const classes = useStyles();
   const {
@@ -706,114 +706,114 @@ const GetRate = ({ setActiveModule }) => {
   const fromDebounceRef = useRef(null);
   const toDebounceRef = useRef(null);
 
- const fetchCityState = async (zipCode, countryValue, isFrom) => {
-  if (!zipCode || zipCode.length < 2) {
-    if (isFrom) {
-      updateFromDetails({ fromCity: '', fromState: '' });
-      setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
-      setFormErrors(prev => ({ ...prev, fromCity: '' }));
-    } else {
-      updateToDetails({ toCity: '', toState: '' });
-      setPickupErrors(prev => ({ ...prev, toZipCode: '' }));
-      setFormErrors(prev => ({ ...prev, toCity: '' }));
-    }
-    return;
-  }
-
-  try {
-    const country = countries.find(c => c.value === countryValue);
-    if (!country) {
-      throw new Error('Country not selected or invalid');
-    }
-
-    const encodedUrl = encryptURL('/locations/getstateCitybyPostalCode');
-    const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
-      CountryID: country.countryid,
-      PostalCode: zipCode,
-    });
-
-    const userData = response.data?.user?.[0] || [];
-    if (userData.length > 0) {
-      const place = userData[0];
+  const fetchCityState = async (zipCode, countryValue, isFrom) => {
+    if (!zipCode || zipCode.length < 2) {
       if (isFrom) {
-        updateFromDetails({ fromCity: place.city || '', fromState: place.state || '' });
+        updateFromDetails({ fromCity: '', fromState: '' });
+        setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
+        setFormErrors(prev => ({ ...prev, fromCity: '' }));
       } else {
-        updateToDetails({ toCity: place.city || '', toState: place.state || '' });
+        updateToDetails({ toCity: '', toState: '' });
+        setPickupErrors(prev => ({ ...prev, toZipCode: '' }));
+        setFormErrors(prev => ({ ...prev, toCity: '' }));
       }
-      setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
-      setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
       return;
     }
 
-    if (countryValue === 'in') {
-      const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
-      const data = res.data[0];
-      if (data.Status === 'Success' && data.PostOffice?.length > 0) {
-        const place = data.PostOffice[0];
+    try {
+      const country = countries.find(c => c.value === countryValue);
+      if (!country) {
+        throw new Error('Country not selected or invalid');
+      }
+
+      const encodedUrl = encryptURL('/locations/getstateCitybyPostalCode');
+      const response = await axios.post(`${api.BackendURL}/locations/${encodedUrl}`, {
+        CountryID: country.countryid,
+        PostalCode: zipCode,
+      });
+
+      const userData = response.data?.user?.[0] || [];
+      if (userData.length > 0) {
+        const place = userData[0];
         if (isFrom) {
-          updateFromDetails({ fromCity: place.Block || place.District || '', fromState: place.State || '' });
+          updateFromDetails({ fromCity: place.city || '', fromState: place.state || '' });
         } else {
-          updateToDetails({ toCity: place.Block || place.District || '', toState: place.State || '' });
+          updateToDetails({ toCity: place.city || '', toState: place.state || '' });
         }
         setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
         setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
         return;
       }
-    }
 
-    const res = await axios.get(
-      `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countryValue}|postal_code:${zipCode}`
-    );
-    const components = res.data.results?.[0]?.address_components || [];
-    let city = '';
-    let state = '';
-
-    components.forEach(component => {
-      if (component.types.includes('locality') || component.types.includes('postal_town')) {
-        city = component.long_name;
+      if (countryValue === 'in') {
+        const res = await axios.get(`https://api.postalpincode.in/pincode/${zipCode}`);
+        const data = res.data[0];
+        if (data.Status === 'Success' && data.PostOffice?.length > 0) {
+          const place = data.PostOffice[0];
+          if (isFrom) {
+            updateFromDetails({ fromCity: place.Block || place.District || '', fromState: place.State || '' });
+          } else {
+            updateToDetails({ toCity: place.Block || place.District || '', toState: place.State || '' });
+          }
+          setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+          setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
+          return;
+        }
       }
-      if (component.types.includes('administrative_area_level_1')) {
-        state = component.long_name;
-      }
-    });
 
-    if (city || state) {
+      const res = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?key=${import.meta.env.VITE_GOOGLE_API_KEY}&components=country:${countryValue}|postal_code:${zipCode}`
+      );
+      const components = res.data.results?.[0]?.address_components || [];
+      let city = '';
+      let state = '';
+
+      components.forEach(component => {
+        if (component.types.includes('locality') || component.types.includes('postal_town')) {
+          city = component.long_name;
+        }
+        if (component.types.includes('administrative_area_level_1')) {
+          state = component.long_name;
+        }
+      });
+
+      if (city || state) {
+        if (isFrom) {
+          updateFromDetails({ fromCity: city, fromState: state });
+        } else {
+          updateToDetails({ toCity: city, toState: state });
+        }
+        setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
+        setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
+        return;
+      }
+
+      throw new Error('No valid data found');
+    } catch (err) {
+      console.error(`Failed to fetch city/state for ${isFrom ? 'fromZipCode' : 'toZipCode'}:`, err.message);
       if (isFrom) {
-        updateFromDetails({ fromCity: city, fromState: state });
+        updateFromDetails({ fromCity: '', fromState: '' });
+        setPickupErrors(prev => ({
+          ...prev,
+          fromZipCode: 'Invalid or unsupported zip code.',
+        }));
+        setFormErrors(prev => ({
+          ...prev,
+          fromCity: 'Invalid city due to invalid zip code.',
+        }));
       } else {
-        updateToDetails({ toCity: city, toState: state });
+        updateToDetails({ toCity: '', toState: '' });
+        setPickupErrors(prev => ({
+          ...prev,
+          toZipCode: 'Invalid or unsupported zip code.',
+        }));
+        setFormErrors(prev => ({
+          ...prev,
+          toCity: 'Invalid city due to invalid zip code.',
+        }));
       }
-      setPickupErrors(prev => ({ ...prev, [isFrom ? 'fromZipCode' : 'toZipCode']: '' }));
-      setFormErrors(prev => ({ ...prev, [isFrom ? 'fromCity' : 'toCity']: '' }));
-      return;
     }
-
-    throw new Error('No valid data found');
-  } catch (err) {
-    console.error(`Failed to fetch city/state for ${isFrom ? 'fromZipCode' : 'toZipCode'}:`, err.message);
-    if (isFrom) {
-      updateFromDetails({ fromCity: '', fromState: '' });
-      setPickupErrors(prev => ({
-        ...prev,
-        fromZipCode: 'Invalid or unsupported zip code.',
-      }));
-      setFormErrors(prev => ({
-        ...prev,
-        fromCity: 'Invalid city due to invalid zip code.',
-      }));
-    } else {
-      updateToDetails({ toCity: '', toState: '' });
-      setPickupErrors(prev => ({
-        ...prev,
-        toZipCode: 'Invalid or unsupported zip code.',
-      }));
-      setFormErrors(prev => ({
-        ...prev,
-        toCity: 'Invalid city due to invalid zip code.',
-      }));
-    }
-  }
-};
+  };
 
   useEffect(() => {
     if (Giszip === 1) {
@@ -1087,6 +1087,9 @@ const GetRate = ({ setActiveModule }) => {
           service: item.ServiceDisplayName,
           deliveryDate: item.Delivery_Date,
           rate: item.Rates,
+          ServiceDisplayName: item.ServiceDisplayName,
+          ServiceType: item.ServiceType,
+          MainServiceName: item.MainServiceName
         }));
         setRates(updatedRates);
         setShowRates(true);
@@ -1159,9 +1162,17 @@ const GetRate = ({ setActiveModule }) => {
     toast.dismiss();
   };
 
-  const handleBook = (service) => {
-    console.log(`Booking ${service}...`);
+  useEffect(() => {
+    setRates([]);
+    setShowRates(false);
+  }, [fromDetails.fromCountry]);
+
+  const handleBook = (rate) => {
+    console.log(`Booking ${rate.service}`);
+    sessionStorage.setItem("service", JSON.stringify(rate))
+    GsetShipmentType(rate.ServiceType)
     setIsgetrate(true);
+    setActiveTab("schedule-pickup");
     setActiveModule('Schedule Shipment');
     navigate("/admin/Scheduleshipment", { replace: true });
   };
@@ -1169,8 +1180,8 @@ const GetRate = ({ setActiveModule }) => {
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
       <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
-        <div className="card-title" style={{minWidth:"60%"}} >
-          <h2 style={{ fontSize: '1rem',fontWeight:"500"}}>
+        <div className="card-title" style={{ minWidth: "60%" }} >
+          <h2 style={{ fontSize: '1rem', fontWeight: "500" }}>
             <IconBox className="card-icon">
               <FlightTakeoffIcon className={classes.iconBox} />
             </IconBox>
@@ -1532,7 +1543,7 @@ const GetRate = ({ setActiveModule }) => {
                       </TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         <Button
-                          onClick={() => handleBook(rate.service)}
+                          onClick={() => handleBook(rate)}
                           variant="contained"
                           sx={{ backgroundColor: '#4caf50', '&:hover': { backgroundColor: '#388e3c' } }}
                         >

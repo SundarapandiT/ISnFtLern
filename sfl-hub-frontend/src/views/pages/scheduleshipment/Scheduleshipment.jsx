@@ -125,6 +125,8 @@ const Schedule = () => {
     if (storedPersonId) {
       setUserOldId(storedPersonId);
     }
+
+    
   }, []);
 
   // State for Schedule Pickup tab
@@ -223,10 +225,12 @@ const Schedule = () => {
   const [oldrecipientphone1, setoldrecipientphone1] = useState("");
   const [oldrecipientphone2, setoldrecipientphone2] = useState("");
 
+  const fedexservice=JSON.parse(sessionStorage.getItem("service"))||"";
+
   useEffect(() => {
     setFromCountry(isGetrate&&fromDetails.fromCountry)
     setToCountry(isGetrate&&toDetails.toCountry)
-    setShipmentType(isGetrate && GshipmentType?'Air':"");
+    setShipmentType(isGetrate && GshipmentType);
     setisZip(Giszip || 1);
     setresisZip(Gresiszip || 1);
     const fromCountryObj = countries.find((c) => c.value === fromDetails.fromCountry);
@@ -370,8 +374,8 @@ const Schedule = () => {
             .reduce((sum, item) => sum + Number(item.total_value || 0), 0)
             .toString(),
           userName: userName,
-          ServiceName: "",
-          SubServiceName: "",
+          ServiceName: fedexservice.MainServiceName || "",
+          SubServiceName: fedexservice.service || "",
           managed_by: managedByResult || "0",
           ShippingID: null,
           InvoiceDueDate: null,
@@ -513,8 +517,8 @@ const Schedule = () => {
           duties_paid_by: dutiesPaidBy,
           total_declared_value: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2) : "",
           userName: userName,
-          ServiceName: "",
-          SubServiceName: "",
+          ServiceName: fedexservice.MainServiceName || "",
+          SubServiceName: fedexservice.service || "",
           managed_by: "",
           Old_managed_by: managedByResult || "0",
           ShippingID: null,
@@ -602,6 +606,7 @@ const Schedule = () => {
           `Shipment scheduled successfully! Tracking Number: ${trackingNumber}`,
           { id: toastId }
         );
+        sessionStorage.removeItem("service")
         setConfirmation(true);
         navigate("/admin/ScheduleConfirmation", {
           replace: true,
@@ -1565,7 +1570,7 @@ const Schedule = () => {
           <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} />} />
           <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
           {activeModule === "Getrate" && 
-          <Route path="getrate" element={<GetRate setActiveModule={setActiveModule}/>} />}
+          <Route path="getrate" element={<GetRate setActiveModule={setActiveModule} setActiveTab={setActiveTab}/>} />}
         </Routes>
         {activeModule !== "My Shipment" && (
           <Box className="footer-box" sx={{

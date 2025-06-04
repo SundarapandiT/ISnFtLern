@@ -185,7 +185,7 @@ const PrintInvoice = () => {
       // Debug: Log the shipment data
       console.log("PrintInvoice - Shipment Data:", shipment);
     }
-  }, [shipment]);
+  }, []);
 
   // Format address
   const formatAddress = (address) =>

@@ -71,7 +71,7 @@ const PrintCommercialInvoice = () => {
   });
 
   useEffect(() => {
-    
+
     if (shipment) {
       const shipmentInfo = shipment?.SHIPMENTINFO?.[0] || {};
       const fromAddress =
@@ -127,12 +127,12 @@ const PrintCommercialInvoice = () => {
         })),
       });
     }
-  }, [shipment]);
+  }, []);
 
   const renderTrackingNumber = () => {
     return state.TrackingNumberList.map((tracking) => (
-                
-      <MenuItem key={tracking.TrackingNumber} value={tracking.TrackingNumber} sx={{ fontSize: "0.75rem" ,height:"2rem"}}>
+
+      <MenuItem key={tracking.TrackingNumber} value={tracking.TrackingNumber} sx={{ fontSize: "0.75rem", height: "2rem" }}>
         {tracking.TrackingNumber}
       </MenuItem>
     ));
@@ -184,8 +184,8 @@ const PrintCommercialInvoice = () => {
               CONSIGNEE
             </StyledTableHeadCell>
           </TableRow>
-            {ToAddress.CompanyName !== "" && (
-              <TableRow>
+          {ToAddress.CompanyName !== "" && (
+            <TableRow>
               <StyledTableHeadCell colSpan={3}>
                 COMPANY NAME: {FromAddress.CompanyName}
               </StyledTableHeadCell>
@@ -193,7 +193,7 @@ const PrintCommercialInvoice = () => {
                 COMPANY NAME: {ToAddress.CompanyName}
               </StyledTableHeadCell>
             </TableRow>
-            )}
+          )}
           <TableRow>
             <StyledTableHeadCell colSpan={3}>
               COMPLETE NAME: {FromAddress.ContactName}
@@ -206,19 +206,19 @@ const PrintCommercialInvoice = () => {
             <StyledTableHeadCell colSpan={3}>ADDRESS</StyledTableHeadCell>
             <StyledTableHeadCell colSpan={4}>ADDRESS</StyledTableHeadCell>
           </TableRow>
-            <TableRow>
-              <StyledTableBodyCell colSpan={3} sx={{ verticalAlign: "top" }}>
-                {FromAddress.AddressLine1}
-                {FromAddress.AddressLine2 ? ", " + FromAddress.AddressLine2 : null}
-                {FromAddress.AddressLine3 ? ", " + FromAddress.AddressLine3 : null}
-              </StyledTableBodyCell>
-              <StyledTableBodyCell colSpan={4}>
-                {ToAddress.AddressLine1}
-                {ToAddress.AddressLine2 ? ", " + ToAddress.AddressLine2 : null}
-                {ToAddress.AddressLine3 ? ", " + ToAddress.AddressLine3 : null}
-              </StyledTableBodyCell>
-            </TableRow>
-          
+          <TableRow>
+            <StyledTableBodyCell colSpan={3} sx={{ verticalAlign: "top" }}>
+              {FromAddress.AddressLine1}
+              {FromAddress.AddressLine2 ? ", " + FromAddress.AddressLine2 : null}
+              {FromAddress.AddressLine3 ? ", " + FromAddress.AddressLine3 : null}
+            </StyledTableBodyCell>
+            <StyledTableBodyCell colSpan={4}>
+              {ToAddress.AddressLine1}
+              {ToAddress.AddressLine2 ? ", " + ToAddress.AddressLine2 : null}
+              {ToAddress.AddressLine3 ? ", " + ToAddress.AddressLine3 : null}
+            </StyledTableBodyCell>
+          </TableRow>
+
           <TableRow>
             <StyledTableBodyCell colSpan={3}>
               {FromAddress.City}, {FromAddress.State} - {FromAddress.ZipCode},{" "}
@@ -270,7 +270,7 @@ const PrintCommercialInvoice = () => {
               COUNTRY OF ULTIMATE DESTINATION
             </StyledTableHeadCell>
             <StyledTableHeadCell colSpan={4} className="bg-grey">
-               INTERNATIONAL AWB NO
+              INTERNATIONAL AWB NO
             </StyledTableHeadCell>
           </TableRow>
           <TableRow>
@@ -280,49 +280,49 @@ const PrintCommercialInvoice = () => {
                 value={CurrentTrackingNumber}
                 displayEmpty
                 fullWidth
-                sx={{ fontSize: "0.75rem" ,height:"2rem"}}
+                sx={{ fontSize: "0.75rem", height: "2rem" }}
               >
-                <MenuItem value="" sx={{ fontSize: "0.75rem" ,height:"2rem"}}>Select Tracking Number</MenuItem>
+                <MenuItem value="" sx={{ fontSize: "0.75rem", height: "2rem" }}>Select Tracking Number</MenuItem>
                 {renderTrackingNumber()}
               </Select>
             </StyledTableBodyCell>
           </TableRow>
-<TableRow>
-  <StyledTableHeadCell className="bg-grey">Mark No.</StyledTableHeadCell>
-  <StyledTableHeadCell className="bg-grey">No. of Packages</StyledTableHeadCell>
-  <StyledTableHeadCell className="bg-grey">Complete desc. of Goods</StyledTableHeadCell>
-  <StyledTableHeadCell className="bg-grey">Quantity</StyledTableHeadCell>
-  <StyledTableHeadCell className="bg-grey" sx={{ maxWidth: 42 }}>
-    Unit Value
-  </StyledTableHeadCell>
-  <StyledTableHeadCell className="bg-grey" sx={{ width: "15%" }}>
-    Total Value
-  </StyledTableHeadCell>
-  <StyledTableHeadCell className="bg-grey">Currency USD/Dest</StyledTableHeadCell>
-</TableRow>
-{CommercialItems.map((item, index) => (
-  <TableRow key={index}>
-    <StyledTableBodyCell>{item.packagenumber}</StyledTableBodyCell>
-    <StyledTableBodyCell>{MaxPackageNumber}</StyledTableBodyCell>
-    <StyledTableBodyCell>{item.contentdescription}</StyledTableBodyCell>
-    <StyledTableBodyCell>{item.quantity}</StyledTableBodyCell>
-    <StyledTableBodyCell>{item.valueperquantity}</StyledTableBodyCell>
-    <StyledTableBodyCell>{item.totalvalue}</StyledTableBodyCell>
-    <StyledTableBodyCell>USD</StyledTableBodyCell>
-  </TableRow>
-))}
-{/* Added 3 empty rows for design */}
-{[...Array(9)].map((_, index) => (
-  <TableRow key={`empty-${index}`}>
-    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
-    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
-    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
-    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
-    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
-    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
-    <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
-  </TableRow>
-))}
+          <TableRow>
+            <StyledTableHeadCell className="bg-grey">Mark No.</StyledTableHeadCell>
+            <StyledTableHeadCell className="bg-grey">No. of Packages</StyledTableHeadCell>
+            <StyledTableHeadCell className="bg-grey">Complete desc. of Goods</StyledTableHeadCell>
+            <StyledTableHeadCell className="bg-grey">Quantity</StyledTableHeadCell>
+            <StyledTableHeadCell className="bg-grey" sx={{ maxWidth: 42 }}>
+              Unit Value
+            </StyledTableHeadCell>
+            <StyledTableHeadCell className="bg-grey" sx={{ width: "15%" }}>
+              Total Value
+            </StyledTableHeadCell>
+            <StyledTableHeadCell className="bg-grey">Currency USD/Dest</StyledTableHeadCell>
+          </TableRow>
+          {CommercialItems.map((item, index) => (
+            <TableRow key={index}>
+              <StyledTableBodyCell>{item.packagenumber}</StyledTableBodyCell>
+              <StyledTableBodyCell>{MaxPackageNumber}</StyledTableBodyCell>
+              <StyledTableBodyCell>{item.contentdescription}</StyledTableBodyCell>
+              <StyledTableBodyCell>{item.quantity}</StyledTableBodyCell>
+              <StyledTableBodyCell>{item.valueperquantity}</StyledTableBodyCell>
+              <StyledTableBodyCell>{item.totalvalue}</StyledTableBodyCell>
+              <StyledTableBodyCell>USD</StyledTableBodyCell>
+            </TableRow>
+          ))}
+          {/* Added 3 empty rows for design */}
+          {[...Array(9)].map((_, index) => (
+            <TableRow key={`empty-${index}`}>
+              <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+              <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+              <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+              <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+              <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+              <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+              <StyledTableBodyCell>&nbsp;</StyledTableBodyCell>
+            </TableRow>
+          ))}
           <TableRow>
             <StyledTableBodyCell rowSpan={2}></StyledTableBodyCell>
             <StyledTableHeadCell className="bg-grey">Total No. of Packages</StyledTableHeadCell>
