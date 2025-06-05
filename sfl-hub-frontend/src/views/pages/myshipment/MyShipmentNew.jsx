@@ -17,6 +17,11 @@ import {
   TableRow,
   useMediaQuery,
   TextField,
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogContentText, 
+  DialogActions,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -153,7 +158,7 @@ const Myshipmentnew = ({ setEdit }) => {
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
-
+const [openDialog, setOpenDialog] = useState(false);
   const shipmentInfo = shipment?.SHIPMENTINFO?.[0] || {};
   const fromAddress =
     shipment?.SHIPMENTDETAILS?.find((d) => d.entitytype === "FromAddress") ||
@@ -229,6 +234,20 @@ const Myshipmentnew = ({ setEdit }) => {
 
   const handleNextPage = () => {
     setPage((prev) => Math.min(prev + 1, Math.ceil(documents.length / rowsPerPage) - 1));
+  };
+  const handleGenerateClick = () => {
+    setOpenDialog(true);
+  };
+
+  // Handler for "Yes" action
+  const handleConfirmGenerate = () => {
+    setOpenDialog(false);
+    console.log("Generate Prepaid Label"); // Replace with actual logic to generate the prepaid label
+  };
+
+  // Handler for "No" action
+  const handleCancelGenerate = () => {
+    setOpenDialog(false);
   };
 
   const displayedRows = documents.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -1075,11 +1094,8 @@ const Myshipmentnew = ({ setEdit }) => {
         </SectionPaper>
       )}
 
-      {activeTab === "documentation" && (
+{activeTab === "documentation" && (
         <SectionPaper>
-          {/* <ResponsiveTypography variant="h6" sx={{ mb: isMobile ? 1.5 : 2.5, textAlign: "center", color: "orange" }}>
-            In-Progress
-          </ResponsiveTypography> */}
           <TableContainer sx={{ overflowX: "auto" }}>
             <TableStyled>
               <TableHead>
@@ -1095,94 +1111,151 @@ const Myshipmentnew = ({ setEdit }) => {
               <TableBody>
                 {displayedRows.length > 0 ? (
                   displayedRows.map((doc, index) => (
-                    <TableRow key={index} className="custom-textfield">
-                      <TableCell >
-                        <FormControl fullWidth variant="outlined" >
-                          <InputLabel>Document Type</InputLabel>
-                          <Select
-                            value={doc.type}
-                            label="Document Type"
-                            disabled
+                    <React.Fragment key={index}>
+                      <TableRow className="custom-textfield">
+                        <TableCell>
+                          <FormControl fullWidth variant="outlined">
+                            <InputLabel>Document Type</InputLabel>
+                            <Select value={doc.type} label="Document Type" disabled>
+                              <MenuItem value="Commercial Invoice">Commercial Invoice</MenuItem>
+                              <MenuItem value="Invoice">Invoice</MenuItem>
+                              <MenuItem value="Contract">Contract</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            fullWidth
+                            value={doc.documentName || ""}
+                            variant="outlined"
+                            InputProps={{ readOnly: true }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <TextField
+                            fullWidth
+                            value={doc.createdOn || ""}
+                            variant="outlined"
+                            InputProps={{ readOnly: true }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <ResponsiveButton
+                            onClick={() => {
+                              sessionStorage.setItem("shipmentData", JSON.stringify(shipment));
+                              let url = "";
+                              if (doc.type === "Commercial Invoice") {
+                                url = "/auth/printcommercialinvoice";
+                              } else if (doc.type === "Invoice") {
+                                url = "/auth/printinvoice";
+                              }
+                              if (url) {
+                                window.open(url, "_blank");
+                              }
+                            }}
+                            variant="contained"
+                            color="error"
+                            sx={{
+                              textTransform: "none",
+                              fontSize: isMobile ? "0.75rem" : "0.875rem",
+                            }}
                           >
-                            <MenuItem value="Commercial Invoice">
-                              Commercial Invoice
-                            </MenuItem>
-                            <MenuItem value="Invoice">Invoice</MenuItem>
-                            <MenuItem value="Contract">Contract</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={doc.documentName || ""}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          fullWidth
-                          value={doc.createdOn || ""}
-                          variant="outlined"
-                          InputProps={{ readOnly: true }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <ResponsiveButton
-                          onClick={() => {
-                            // Save 
-                            sessionStorage.setItem("shipmentData", JSON.stringify(shipment));
+                            {doc.attachment}
+                          </ResponsiveButton>
+                        </TableCell>
+                        <TableCell>
+                          <ResponsiveButton
+                            variant="contained"
+                            sx={{
+                              backgroundColor: "#ff9800",
+                              textTransform: "none",
+                              fontSize: isMobile ? "0.75rem" : "0.875rem",
+                            }}
+                          >
+                            {doc.status}
+                          </ResponsiveButton>
+                        </TableCell>
+                        <TableCell>
+                          <IconButton
+                            variant="contained"
+                            color="primary"
+                            sx={{
+                              textTransform: "none",
+                              fontSize: isMobile ? "0.75rem" : "0.875rem",
+                            }}
+                          >
+                            <InfoIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
 
-                            let url = "";
-                            if (doc.type === "Commercial Invoice") {
-                              url = "/auth/printcommercialinvoice";
-                            } else if (doc.type === "Invoice") {
-                              url = "/auth/printinvoice";
-                            }
-
-                            if (url) {
-                              // new tab
-                              window.open(url, "_blank");
-                            }
-                          }}
-
-                          variant="contained"
-                          color="error"
-                          sx={{
-                            textTransform: "none",
-                            fontSize: isMobile ? "0.75rem" : "0.875rem",
-                          }}
-                        >
-                          {doc.attachment}
-                        </ResponsiveButton>
-                      </TableCell>
-                      <TableCell>
-                        <ResponsiveButton
-
-                          variant="contained"
-                          sx={{
-                            backgroundColor: "#ff9800",
-                            textTransform: "none",
-                            fontSize: isMobile ? "0.75rem" : "0.875rem",
-                          }}
-                        >
-                          {doc.status}
-                        </ResponsiveButton>
-                      </TableCell>
-                      <TableCell>
-                        <IconButton
-                          variant="contained"
-                          color="primary"
-                          sx={{
-                            textTransform: "none",
-                            fontSize: isMobile ? "0.75rem" : "0.875rem",
-                          }}
-                        >
-                          <InfoIcon/>
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
+                      {/* Add Prepaid Label row below the Invoice row */}
+                      {doc.type === "Invoice" && (
+                        <TableRow className="custom-textfield">
+                          <TableCell>
+                            <FormControl fullWidth variant="outlined">
+                              <InputLabel>Document Type</InputLabel>
+                              <Select value="Prepaid Label" label="Document Type" disabled>
+                                <MenuItem value="Prepaid Label">Prepaid Label</MenuItem>
+                              </Select>
+                            </FormControl>
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              fullWidth
+                              // value="Prepaid_Label.pdf"
+                              variant="outlined"
+                              InputProps={{ readOnly: true }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              fullWidth
+                              value={doc.createdOn || ""}
+                              variant="outlined"
+                              InputProps={{ readOnly: true }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <ResponsiveButton
+                              onClick={handleGenerateClick} // Updated to open dialog
+                              variant="contained"
+                              color="error"
+                              sx={{
+                                textTransform: "none",
+                                fontSize: isMobile ? "0.75rem" : "0.875rem",
+                              }}
+                            >
+                              GENERATE
+                            </ResponsiveButton>
+                          </TableCell>
+                          <TableCell>
+                            <ResponsiveButton
+                              variant="contained"
+                              sx={{
+                                backgroundColor: "#ff9800",
+                                textTransform: "none",
+                                fontSize: isMobile ? "0.75rem" : "0.875rem",
+                              }}
+                            >
+                              {doc.status}
+                            </ResponsiveButton>
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              variant="contained"
+                              color="primary"
+                              sx={{
+                                textTransform: "none",
+                                fontSize: isMobile ? "0.75rem" : "0.875rem",
+                              }}
+                            >
+                              <InfoIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
                   ))
                 ) : (
                   <TableRow>
@@ -1199,6 +1272,38 @@ const Myshipmentnew = ({ setEdit }) => {
               </TableBody>
             </TableStyled>
           </TableContainer>
+
+          {/* Confirmation Dialog */}
+          <Dialog
+            open={openDialog}
+            onClose={handleCancelGenerate}
+            aria-labelledby="confirm-dialog-title"
+            aria-describedby="confirm-dialog-description"
+          >
+            <DialogTitle id="confirm-dialog-title" sx={{fontWeight:"550"}}>Confirm you want to generate label</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="confirm-dialog-description">
+                Are you sure want to genrate label for this service?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <ResponsiveButton
+                onClick={handleCancelGenerate}
+                variant="contained"
+                sx={{ textTransform: "none",background:"grey" }}
+              >
+                Cancel
+              </ResponsiveButton>
+              <ResponsiveButton
+                onClick={handleConfirmGenerate}
+                variant="contained"
+                sx={{ textTransform: "none" ,background:"#C30AC9"}}
+              >
+                Yes
+              </ResponsiveButton>
+            </DialogActions>
+          </Dialog>
+
           <Box
             sx={{
               display: "flex",
@@ -1265,6 +1370,7 @@ const Myshipmentnew = ({ setEdit }) => {
           </Box>
         </SectionPaper>
       )}
+
 
       <ButtonContainer>
         <ResponsiveButton

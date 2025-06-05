@@ -35,8 +35,11 @@ const Sidebar = ({
   activeModule,
   handleModuleClick,
   setDrawerOpen,
+  account_number,
 }) => {
-  const modules = ['Getrate', 'Schedule Shipment', 'My Shipment'];
+
+  const modules = account_number ? ['Getrate', 'Schedule Shipment', 'My Shipment'] : ['Schedule Shipment', 'My Shipment'];
+
   const iconMap = {
     'Schedule Shipment': <LocalShippingIcon />,
     'My Shipment': <DirectionsBoatIcon />,

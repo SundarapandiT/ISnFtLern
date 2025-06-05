@@ -53,8 +53,8 @@ import GetRate from "../getrate/GetRate";
 
 
 const Schedule = () => {
-   const { fromDetails, toDetails,  packageDetails ,Giszip,  
-      Gresiszip, GshipmentType,isGetrate} = useShipmentContext();
+  const { fromDetails, toDetails, packageDetails, Giszip,
+    Gresiszip, GshipmentType, isGetrate } = useShipmentContext();
 
 
   const navigate = useNavigate();
@@ -97,6 +97,7 @@ const Schedule = () => {
   };
 
   const handleLogout = () => {
+    window.location.reload();
     navigate("/auth/login-page");
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("PersonID");
@@ -109,6 +110,7 @@ const Schedule = () => {
   const [userId, setUserId] = useState("");
   const [userOldid, setUserOldId] = useState("");
   const [userName, setUserName] = useState("");
+  const [account_number,setaccountNumber]=useState();
 
   useEffect(() => {
     const storedUser = JSON.parse(sessionStorage.getItem("user"));
@@ -120,13 +122,16 @@ const Schedule = () => {
       // setUserId(storedUser.personID);
       setUserId(storedUser.personID);
       setUserName(storedUser.username);
+      setaccountNumber(storedUser.account_number);
+      // setaccountNumber("12sfgj34gj5678");
+
     }
     const storedPersonId = sessionStorage.getItem("PersonID");
     if (storedPersonId) {
       setUserOldId(storedPersonId);
     }
 
-    
+
   }, []);
 
   // State for Schedule Pickup tab
@@ -140,7 +145,7 @@ const Schedule = () => {
   const [country, setCountry] = useState("");
   const [countrycode, setcountrycode] = useState("");
   const [countryId, setCountryId] = useState("");
-  const [iszip, setisZip] = useState(Giszip? Giszip : 1);
+  const [iszip, setisZip] = useState(Giszip ? Giszip : 1);
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
@@ -160,14 +165,14 @@ const Schedule = () => {
   const [recipientCountry, setRecipientCountry] = useState("");
   const [recipientcountrycode, setrecipientcountrycode] = useState("");
   const [recipientCountryId, setRecipientCountryId] = useState("");
-  const [resiszip, setresisZip] = useState(Gresiszip? Gresiszip : 1);
+  const [resiszip, setresisZip] = useState(Gresiszip ? Gresiszip : 1);
   const [recipientCompanyName, setRecipientCompanyName] = useState("");
   const [recipientContactName, setRecipientContactName] = useState("");
   const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
   const [recipientAddressLine2, setRecipientAddressLine2] = useState("");
   const [recipientAddressLine3, setRecipientAddressLine3] = useState("");
-  const [recipientZipCode, setRecipientZipCode] = useState( "");
-  const [recipientCity, setRecipientCity] = useState( "");
+  const [recipientZipCode, setRecipientZipCode] = useState("");
+  const [recipientCity, setRecipientCity] = useState("");
   const [recipientState, setRecipientState] = useState("");
   const [recipientPhone1, setRecipientPhone1] = useState("");
   const [recipientPhone2, setRecipientPhone2] = useState("");
@@ -183,12 +188,12 @@ const Schedule = () => {
 
 
   // Package tab
-  const [packageType, setPackageType] = useState(toDetails.packageType||"package");
-  const [noOfPackages, setNoOfPackages] = useState(packageDetails.length||1);
+  const [packageType, setPackageType] = useState(toDetails.packageType || "package");
+  const [noOfPackages, setNoOfPackages] = useState(packageDetails.length || 1);
   const [dutiesPaidBy, setDutiesPaidBy] = useState("Recipient");
-  const [packageData, setPackageData] = useState(() => 
-  packageDetails.length > 0
-    ? packageDetails.map(pkg => ({
+  const [packageData, setPackageData] = useState(() =>
+    packageDetails.length > 0
+      ? packageDetails.map(pkg => ({
         noOfPackages: 1,
         weight: pkg.weight || 0,
         length: pkg.length || 0,
@@ -197,7 +202,7 @@ const Schedule = () => {
         chargable_weight: pkg.chargeableWeight || 0,
         insured_value: pkg.insuredValue || 0,
       }))
-    : [{
+      : [{
         noOfPackages: 1,
         weight: 0,
         length: 0,
@@ -206,7 +211,7 @@ const Schedule = () => {
         chargable_weight: 0,
         insured_value: 0,
       }]
-);
+  );
   const [samecountry, setSamecountry] = useState(false);
   const [commercialInvoiceData, setCommercialInvoiceData] = useState([
     {
@@ -225,12 +230,12 @@ const Schedule = () => {
   const [oldrecipientphone1, setoldrecipientphone1] = useState("");
   const [oldrecipientphone2, setoldrecipientphone2] = useState("");
 
-  const fedexservice=JSON.parse(sessionStorage.getItem("service"))||"";
+  const fedexservice = JSON.parse(sessionStorage.getItem("service")) || "";
 
   useEffect(() => {
-    setFromCountry(isGetrate&&fromDetails.fromCountry)
-    setToCountry(isGetrate&&toDetails.toCountry)
-    setShipmentType(isGetrate && GshipmentType); 
+    setFromCountry(isGetrate && fromDetails.fromCountry)
+    setToCountry(isGetrate && toDetails.toCountry)
+    setShipmentType(isGetrate && GshipmentType);
     setisZip(Giszip || 1);
     setresisZip(Gresiszip || 1);
     const fromCountryObj = countries.find((c) => c.value === fromDetails.fromCountry);
@@ -239,36 +244,36 @@ const Schedule = () => {
     setZipCode(fromDetails.fromZipCode);
     setFromCity(fromDetails.fromCity);
     setState(fromDetails.fromState);
-    setRecipientCountry(toCountryObj?toCountryObj.label:"");
+    setRecipientCountry(toCountryObj ? toCountryObj.label : "");
     setRecipientZipCode(toDetails.toZipCode);
     setRecipientCity(toDetails.toCity);
     setRecipientState(toDetails.toState);
     setPackageType(toDetails.packageType || 'Package');
     setPickupDate(toDetails.shipDate || new Date().toISOString().split('T')[0]);
     setNoOfPackages(packageDetails.length || 1);
-    
+
     setPackageData(
       packageDetails.length > 0
         ? packageDetails.map((pkg) => ({
-            noOfPackages: 1,
-            weight: pkg.weight || 0,
-            length: pkg.length || 0,
-            width: pkg.width || 0,
-            height: pkg.height || 0,
-            chargable_weight: pkg.chargeableWeight || 0,
-            insured_value: pkg.insuredValue || 0,
-          }))
+          noOfPackages: 1,
+          weight: pkg.weight || 0,
+          length: pkg.length || 0,
+          width: pkg.width || 0,
+          height: pkg.height || 0,
+          chargable_weight: pkg.chargeableWeight || 0,
+          insured_value: pkg.insuredValue || 0,
+        }))
         : [
-            {
-              noOfPackages: 1,
-              weight: 0,
-              length: 0,
-              width: 0,
-              height: 0,
-              chargable_weight: 0,
-              insured_value: 0,
-            },
-          ]
+          {
+            noOfPackages: 1,
+            weight: 0,
+            length: 0,
+            width: 0,
+            height: 0,
+            chargable_weight: 0,
+            insured_value: 0,
+          },
+        ]
     );
   }, [
     GshipmentType,
@@ -606,6 +611,24 @@ const Schedule = () => {
           `Shipment scheduled successfully! Tracking Number: ${trackingNumber}`,
           { id: toastId }
         );
+        if (isGetrate) {
+          try {
+            const invoiceres = await axios.post(`${api.BackendURL}/generateInvoice/generateInvoiceGetRate`, {
+              TrackingNumber: trackingNumber,
+              UserID: userId,
+              Rates: fedexservice.rate
+            });
+
+            if (invoiceres.data?.success && invoiceres.data?.message === "Data saved successfully") {
+              console.log("getrate invoice: Data saved successfully");
+            } else {
+              console.log("Unexpected response:", invoiceres);
+            }
+          } catch (error) {
+            console.error("API call failed:", error);
+          }
+        }
+
         sessionStorage.removeItem("service")
         setConfirmation(true);
         navigate("/admin/ScheduleConfirmation", {
@@ -840,7 +863,7 @@ const Schedule = () => {
         newErrors.addressLine3 = "Address Line 3 must be 60 characters or fewer";
       }
     }
-    if (iszip !== 0 && Giszip !==1) {
+    if (iszip !== 0 && Giszip !== 1) {
       if (!zipCode?.trim()) {
         newErrors.zipCode = "Zip Code is required";
       } else if (!/^[A-Za-z0-9\- ]+$/.test(zipCode.trim())) {
@@ -856,12 +879,12 @@ const Schedule = () => {
       newErrors.fromCity = "City name must be 35 characters or fewer";
     }
 
-    if (iszip !== 0 && Giszip!==1) {
-    if (!state?.trim()) {
-      newErrors.state = "State is required";
-    } else if (state.trim().length > 35) {
-      newErrors.state = "State name must be 35 characters or fewer";
-    }
+    if (iszip !== 0 && Giszip !== 1) {
+      if (!state?.trim()) {
+        newErrors.state = "State is required";
+      } else if (state.trim().length > 35) {
+        newErrors.state = "State name must be 35 characters or fewer";
+      }
     }
     if (!phone1?.trim()) {
       newErrors.phone1 = "Phone 1 is required";
@@ -948,13 +971,13 @@ const Schedule = () => {
       newErrors.recipientCity = "City must be 35 characters or fewer";
     }
 
-   if(resiszip !== 0 && Gresiszip !== 1) {
-    if (!recipientState?.trim()) {
-      newErrors.state = "State is required";
-    } else if (recipientState.trim().length > 35) {
-      newErrors.state = "State must be 35 characters or fewer";
+    if (resiszip !== 0 && Gresiszip !== 1) {
+      if (!recipientState?.trim()) {
+        newErrors.state = "State is required";
+      } else if (recipientState.trim().length > 35) {
+        newErrors.state = "State must be 35 characters or fewer";
+      }
     }
-  }
     if (!recipientPhone1?.trim()) {
       newErrors.phone1 = "Phone 1 is required";
     } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1.trim())) {
@@ -1294,7 +1317,7 @@ const Schedule = () => {
     Gresiszip,
     fromDetails,
     toDetails,
-    packageDetails,isGetrate]);
+    packageDetails, isGetrate]);
 
   return (
     <Root>
@@ -1310,6 +1333,7 @@ const Schedule = () => {
         handleModuleClick={handleModuleClick}
         drawerWidth={drawerwidth}
         setDrawerWidth={setDrawerWidth}
+        account_number={account_number}
       />
 
       {/* Main Content */}
@@ -1413,7 +1437,7 @@ const Schedule = () => {
                 setRecipientPhone2={setRecipientPhone2}
                 isGetrate={isGetrate}
                 setActiveModule={setActiveModule}
-                
+
 
               />
             )}
@@ -1458,7 +1482,7 @@ const Schedule = () => {
                 setoldphone1={setoldphone1}
                 setoldphone2={setoldphone2}
                 iszip={iszip}
-                setisZip={setisZip} 
+                setisZip={setisZip}
                 isGetrate={isGetrate}
                 setActiveModule={setActiveModule}
                 Giszip={Giszip}
@@ -1569,8 +1593,8 @@ const Schedule = () => {
           <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit} />} />
           <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} />} />
           <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
-          {activeModule === "Getrate" && 
-          <Route path="getrate" element={<GetRate setActiveModule={setActiveModule} setActiveTab={setActiveTab}/>} />}
+          {activeModule === "Getrate" &&
+            <Route path="getrate" element={<GetRate setActiveModule={setActiveModule} setActiveTab={setActiveTab} />} />}
         </Routes>
         {activeModule !== "My Shipment" && (
           <Box className="footer-box" sx={{

@@ -29,13 +29,14 @@ const InactivityHandler = ({ children }) => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
         sessionStorage.removeItem("user");
-        navigate("/auth/login-page", { replace: true }); 
+        sessionStorage.removeItem("PersonID");
+        navigate("/auth/login-page", { replace: true });
       }, 15 * 60 * 1000); // 15 minutes
     };
 
     const events = ["mousemove", "mousedown", "keydown", "touchstart"];
     events.forEach((event) => window.addEventListener(event, resetTimer));
-    resetTimer(); 
+    resetTimer();
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -86,15 +87,15 @@ function App() {
           <Route path="/emailverification" element={<EmailVerification />} />
           <Route path="/auth/forgotpassword-page" element={<ForgotPassword />} />
           <Route path="/auth/ResetPassword" element={<ResetPassword />} />
-          <Route path="/auth/printinvoice" element={<Invoice/>} />
-          <Route path="/auth/printcommercialinvoice" element={<PrintCommercialInvoice/>} />
+          <Route path="/auth/printinvoice" element={<Invoice />} />
+          <Route path="/auth/printcommercialinvoice" element={<PrintCommercialInvoice />} />
           <Route
             path="/admin/*"
             element={
-            
+
               <ProtectedRoute>
                 <ShipmentProvider>
-                <ScheduleShipment />
+                  <ScheduleShipment />
                 </ShipmentProvider>
               </ProtectedRoute>
             }
