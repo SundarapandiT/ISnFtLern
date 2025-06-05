@@ -616,7 +616,7 @@ const Schedule = () => {
             const invoiceres = await axios.post(`${api.BackendURL}/generateInvoice/generateInvoiceGetRate`, {
               TrackingNumber: trackingNumber,
               UserID: userId,
-              Rates: fedexservice.rate
+              Rates: Math.ceil(Number(fedexservice.rate))
             });
 
             if (invoiceres.data?.success && invoiceres.data?.message === "Data saved successfully") {

@@ -33,6 +33,10 @@ const Header = styled(Box)(({ theme }) => ({
 
 const Logo = styled("img")({
   width: "250px",
+  // Responsive styling for mobile screens
+  "@media (max-width: 600px)": {
+    width: "150px", // Logo width for smaller screens (mobile)
+  },
 });
 
 const CompanyDetails = styled(Box)(({ theme }) => ({
@@ -127,26 +131,38 @@ const PrintInvoice = () => {
       const toAddress = shipmentDetails.find((detail) => detail.entitytype === "ToAddress") || {};
 
       // Service data
-      const services = commercial.length > 0
-        ? commercial
+      const services = accountsDetails.length > 0
+        ? accountsDetails.map((inv) => ({
+            date: inv.invoicedate || "",
+            service: inv.servicedescription || "",
+            description: inv.description || "",
+            qty: inv.quantity || "0",
+            cost: inv.amount || "0.00",
+            total: inv.totalamount || "0.00",
+          }))
         : [
-          {
-            contentdescription: packageDetails.packagecontent || "N/A",
-            quantity: packageDetails.totalpackages || 0,
-            valueperquantity: "0.00",
-            totalvalue: "0.00",
-          },
-        ];
+            {
+              date: "",
+              service: "",
+              description: "",
+              qty: "0",
+              cost: "0.00",
+              total: "No invoice",
+            },
+          ];
 
       // Financial calculations
-      const grossAmount = services.reduce((sum, service) => sum + Number(service.totalvalue || 0), 0);
+      const grossAmount = accountsDetails.reduce(
+        (sum, inv) => sum + parseFloat(inv.totalamount || 0),
+        0
+      );
       const paidAmount = accountsDetails.reduce(
         (sum, acc) => sum + (acc.PaymentReceivedData?.reduce((s, p) => s + parseFloat(p.Amount || 0), 0) || 0),
         0
       );
       const balance = grossAmount - paidAmount;
 
-      setState({
+setState({
         shipmentInfo: {
           trackingNumber: shipmentInfo.trackingnumber || "",
           shipmentDate: shipmentInfo.shipmentdate || "",
@@ -185,7 +201,7 @@ const PrintInvoice = () => {
       // Debug: Log the shipment data
       console.log("PrintInvoice - Shipment Data:", shipment);
     }
-  }, []);
+  }, [shipment]);
 
   // Format address
   const formatAddress = (address) =>
@@ -369,16 +385,16 @@ const PrintInvoice = () => {
               {services.map((service, index) => (
                 <TableRow key={index} sx={{ height: "20px" }}>
                   <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }}>
-                    {service.contentdescription || "N/A"}
+                    {service.service || ""}:{service.description || ""}
                   </TableCell>
                   <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="center">
-                    {service.quantity || packageDetails.totalpackages || 1}
+                    {service.qty || packageDetails.totalpackages || ""}
                   </TableCell>
                   <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="center">
-                    ${Number(service.valueperquantity || 0).toFixed(2)}
+                    ${Number(service.cost || 0).toFixed(2)}
                   </TableCell>
                   <TableCell sx={{ border: "1px solid black", fontSize: "0.8rem", padding: "3px" }} align="center">
-                    ${Number(service.totalvalue || 0).toFixed(2)}
+                    ${Number(service.total || 0).toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -431,73 +447,74 @@ const PrintInvoice = () => {
       </Box>
 
       {/* Payment Terms */}
-      <PaymentMethods>
-        <PaymentTerms sx={{ mt: -1 }}>
-          <Typography fontWeight="bold" fontSize="0.8rem">
-            PAYMENT TERMS:
-          </Typography>
-          <Typography fontSize="0.8rem">
-            All charges, as above, must be paid by check or wire transfer within seven days from the receipt of our invoice
-            for pickup of your shipment. Credit Card will be only accepted for payment under $500.00 and credit card fees
-            will be charged at 3% if payment is being made by Credit Card, if payment is not made by due date fees of
-            $35.00 and interest of 14.69% per annum will be applied.
-          </Typography>
-        </PaymentTerms>
-        <Typography fontWeight="bold" fontSize="0.8rem" mt="10px">
-          Method of Payment
-        </Typography>
-        <Table sx={{ mt: 2 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontSize: "0.7rem" }}>Zelle Payment</TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" }}>Bank (ACH) Payment</TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" }}>Credit Card Payment</TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" }}>Pay by Mail</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell sx={{ fontSize: "0.7rem",border: "1px solid #000",borderBottom:"none"}}>
-                Zelle payment is fast, safe and secure free bank to bank transfer via your email or phone number.
-              </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem",border: "1px solid #000",borderBottom:"none" }}>
-                ACH payment is safe, secure and free electronic bank-to-bank payment authorized in USA.
-              </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderBottom:"none"}}>
-                On type and value of shipment, credit card fees may be applied on the credit card payments.
-              </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderBottom:"none"}}>
-                Below our registered address to mail physical check for your shipment.
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ fontSize: "0.7rem",border: "1px solid #000",borderTop:"none" }}>
-                Zelle Email: <a href="mailto:contact@SFLWorldwide.com">contact@SFLWorldwide.com</a>
-                <br />
-                Zelle Name: SFL Worldwide LLC
-                <br />
-                <Typography color="red" fontSize="0.7rem">
-                  Please mention tracking number in memo field
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderTop:"none"}}>
-                <a href="https://www.sflworldwide.com/pay">www.sflworldwide.com/pay</a>
-              </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderTop:"none"}}>
-                <a href="https://www.sflworldwide.com/pay">www.sflworldwide.com/pay</a>
-              </TableCell>
-              <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderTop:"none"}}>
-                SFL Worldwide LLC
-                <br />
-                3364 Garden Brook Drive
-                <br />
-                Farmers Branch, TX 75063
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </PaymentMethods>
-
+        <PaymentMethods>
+            <PaymentTerms sx={{ mt: -1 }}>
+              <Typography fontWeight="bold" fontSize="0.8rem">
+                PAYMENT TERMS:
+              </Typography>
+              <Typography fontSize="0.8rem">
+                All charges, as above, must be paid by check or wire transfer within seven days from the receipt of our invoice
+                for pickup of your shipment. Credit Card will be only accepted for payment under $500.00 and credit card fees
+                will be charged at 3% if payment is being made by Credit Card, if payment is not made by due date fees of
+                $35.00 and interest of 14.69% per annum will be applied.
+              </Typography>
+            </PaymentTerms>
+            <Typography fontWeight="bold" fontSize="0.8rem" mt="10px">
+              Method of Payment
+            </Typography>
+            <Box sx={{ overflowX: "auto", marginTop: "1rem" }}>
+            <Table sx={{ mt: 2 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontSize: "0.7rem" }}>Zelle Payment</TableCell>
+                  <TableCell sx={{ fontSize: "0.7rem" }}>Bank (ACH) Payment</TableCell>
+                  <TableCell sx={{ fontSize: "0.7rem" }}>Credit Card Payment</TableCell>
+                  <TableCell sx={{ fontSize: "0.7rem" }}>Pay by Mail</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell sx={{ fontSize: "0.7rem",border: "1px solid #000",borderBottom:"none"}}>
+                    Zelle payment is fast, safe and secure free bank to bank transfer via your email or phone number.
+                  </TableCell>
+                  <TableCell sx={{ fontSize: "0.7rem",border: "1px solid #000",borderBottom:"none" }}>
+                    ACH payment is safe, secure and free electronic bank-to-bank payment authorized in USA.
+                  </TableCell>
+                  <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderBottom:"none"}}>
+                    On type and value of shipment, credit card fees may be applied on the credit card payments.
+                  </TableCell>
+                  <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderBottom:"none"}}>
+                    Below our registered address to mail physical check for your shipment.
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell sx={{ fontSize: "0.7rem",border: "1px solid #000",borderTop:"none" }}>
+                    Zelle Email: <a href="mailto:contact@SFLWorldwide.com">contact@SFLWorldwide.com</a>
+                    <br />
+                    Zelle Name: SFL Worldwide LLC
+                    <br />
+                    <Typography color="red" fontSize="0.7rem">
+                      Please mention tracking number in memo field
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderTop:"none"}}>
+                    <a href="https://www.sflworldwide.com/pay">www.sflworldwide.com/pay</a>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderTop:"none"}}>
+                    <a href="https://www.sflworldwide.com/pay">www.sflworldwide.com/pay</a>
+                  </TableCell>
+                  <TableCell sx={{ fontSize: "0.7rem" ,border: "1px solid #000",borderTop:"none"}}>
+                    SFL Worldwide LLC
+                    <br />
+                    3364 Garden Brook Drive
+                    <br />
+                    Farmers Branch, TX 75063
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+           </Box>
+          </PaymentMethods>
       {/* Footer */}
       <Footer>
         <Typography fontSize="0.7rem">Subject To Texas - United States Jurisdiction</Typography>
