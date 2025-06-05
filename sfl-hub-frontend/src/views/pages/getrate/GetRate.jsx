@@ -1089,7 +1089,8 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
           rate: item.Rates,
           ServiceDisplayName: item.ServiceDisplayName,
           ServiceType: item.ServiceType,
-          MainServiceName: item.MainServiceName
+          MainServiceName: item.MainServiceName,
+          fromcountry:fromDetails.fromCountry
         }));
         setRates(updatedRates);
         setShowRates(true);

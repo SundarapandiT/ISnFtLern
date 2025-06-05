@@ -110,7 +110,7 @@ const Schedule = () => {
   const [userId, setUserId] = useState("");
   const [userOldid, setUserOldId] = useState("");
   const [userName, setUserName] = useState("");
-  const [account_number,setaccountNumber]=useState();
+  const [account_number, setaccountNumber] = useState();
 
   useEffect(() => {
     const storedUser = JSON.parse(sessionStorage.getItem("user"));
@@ -613,12 +613,27 @@ const Schedule = () => {
         );
         if (isGetrate) {
           try {
+
+            const conversionRateINRtoUSD = 1 / 85.77; //india
+            const conversionRateCADtoUSD = 0.7292; //canada
+
+            let rate = Number(fedexservice.rate);
+
+            if (fedexservice.fromcountry.toLowerCase() === "in") {
+              rate *= conversionRateINRtoUSD; 
+            } else if (fedexservice.fromcountry.toLowerCase() === "ca") {
+              rate *= conversionRateCADtoUSD;
+            } else if (fedexservice.fromcountry.toLowerCase() !== "us") {
+              console.warn("conversion rate is not known");
+            }
+
+            const roundedRate = Math.ceil(rate);
+
             const invoiceres = await axios.post(`${api.BackendURL}/generateInvoice/generateInvoiceGetRate`, {
               TrackingNumber: trackingNumber,
               UserID: userId,
-              Rates: Math.ceil(Number(fedexservice.rate))
+              Rates: roundedRate
             });
-
             if (invoiceres.data?.success && invoiceres.data?.message === "Data saved successfully") {
               console.log("getrate invoice: Data saved successfully");
             } else {
