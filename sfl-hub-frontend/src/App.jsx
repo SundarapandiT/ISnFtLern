@@ -30,6 +30,7 @@ const InactivityHandler = ({ children }) => {
       timeoutRef.current = setTimeout(() => {
         sessionStorage.removeItem("user");
         sessionStorage.removeItem("PersonID");
+        sessionStorage.removeItem("shipmentData");
         navigate("/auth/login-page", { replace: true });
       }, 15 * 60 * 1000); // 15 minutes
     };

@@ -522,7 +522,7 @@ const Package = ({
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleAddPackage}
-              disabled={packageData.length >= 10}
+              disabled={packageData.length >= 10 || isGetrate}
             >
               ADD NEW ROW
             </Button>

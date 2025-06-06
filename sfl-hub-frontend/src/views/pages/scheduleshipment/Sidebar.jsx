@@ -38,7 +38,7 @@ const Sidebar = ({
   account_number,
 }) => {
 
-  const modules = account_number ? ['Getrate', 'Schedule Shipment', 'My Shipment'] : ['Schedule Shipment', 'My Shipment'];
+  const modules = account_number ? ['Get Rates', 'Schedule Shipment', 'My Shipment'] : ['Schedule Shipment', 'My Shipment'];
 
   const iconMap = {
     'Schedule Shipment': <LocalShippingIcon />,

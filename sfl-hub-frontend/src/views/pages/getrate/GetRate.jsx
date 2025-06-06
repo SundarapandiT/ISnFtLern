@@ -1095,7 +1095,8 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
         setRates(updatedRates);
         setShowRates(true);
       } else {
-        toast.error('Failed to fetch rates');
+        toast.error('No rates');
+        setRates([])
         console.error('API error:', result);
       }
     } catch (error) {
@@ -1517,7 +1518,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
         </CardContent>
       </Card>
       <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
-        {showRates && (
+        {showRates && rates && rates.length > 0 ? (
           <CardContent sx={{ padding: '16px' }}>
             <Typography variant="h6" sx={{ fontWeight: 'medium', marginBottom: '8px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Rate Details
@@ -1540,7 +1541,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         {fromDetails.fromCountry === 'in' ? 'INR ' :
                           fromDetails.fromCountry === 'ca' ? 'CAD ' : 'USD '}
-                        {(Math.ceil(rate.rate))}
+                        {fromDetails.fromCountry === "us" ? Number((rate.rate)).toFixed(2) : Math.ceil(rate.rate)}
                       </TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         <Button
@@ -1557,7 +1558,10 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
               </Table>
             </TableContainer>
           </CardContent>
-        )}
+        ): <Typography variant="body1" sx={{ padding: '16px', color: '#f44336', textAlign: 'center' }}>
+      No rates available for the entered country with the specified ZIP code
+    </Typography>
+}
       </Card>
     </Box>
   );

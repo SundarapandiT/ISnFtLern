@@ -614,8 +614,8 @@ const Schedule = () => {
         if (isGetrate) {
           try {
 
-            const conversionRateINRtoUSD = 1 / 85.77; //india
-            const conversionRateCADtoUSD = 0.7292; //canada
+            const conversionRateINRtoUSD = 1 / 87; //india
+            const conversionRateCADtoUSD = 1.44; //canada
 
             let rate = Number(fedexservice.rate);
 
@@ -627,7 +627,7 @@ const Schedule = () => {
               console.warn("conversion rate is not known");
             }
 
-            const roundedRate = Math.ceil(rate);
+            const roundedRate = fedexservice.fromcountry.toLowerCase() === "us" ? rate : Math.ceil(rate);
 
             const invoiceres = await axios.post(`${api.BackendURL}/generateInvoice/generateInvoiceGetRate`, {
               TrackingNumber: trackingNumber,
@@ -639,6 +639,18 @@ const Schedule = () => {
             } else {
               console.log("Unexpected response:", invoiceres);
             }
+
+            const oldinvoiceres= await axios.post(`${api.OldDatabaseURL}/scheduleshipment/GenerateInvoiceGetRate`,{
+              TrackingNumber: trackingNumber,
+              UserID: userOldid,
+              Rates: roundedRate
+            })
+            if (oldinvoiceres.data?.success && oldinvoiceres.data?.message === "Data saved successfully") {
+              console.log("getrate invoice(Old db): Data saved successfully");
+            } else {
+              console.log("Unexpected response: (Old db)", invoiceres);
+            }
+
           } catch (error) {
             console.error("API call failed:", error);
           }
@@ -1306,7 +1318,7 @@ const Schedule = () => {
       setActiveTab("my-shipment");
       navigate("/admin/ShipmentList", { replace: true });
     }
-    else if (module === "Getrate") {
+    else if (module === "Get Rates") {
       navigate("/admin/GetRate", { replace: true });
     }
     setDrawerOpen(false);
@@ -1608,7 +1620,7 @@ const Schedule = () => {
           <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit} />} />
           <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} />} />
           <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
-          {activeModule === "Getrate" &&
+          {activeModule === "Get Rates" &&
             <Route path="getrate" element={<GetRate setActiveModule={setActiveModule} setActiveTab={setActiveTab} />} />}
         </Routes>
         {activeModule !== "My Shipment" && (
