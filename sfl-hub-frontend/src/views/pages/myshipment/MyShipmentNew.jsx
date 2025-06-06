@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
+import { api, encryptURL } from '../../../utils/api';
+import axios from "axios";
 import Tooltip from '@mui/material/Tooltip';
 import {
   MenuItem,
@@ -18,10 +20,10 @@ import {
   TableRow,
   useMediaQuery,
   TextField,
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogContentText, 
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
   DialogActions,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
@@ -161,7 +163,7 @@ const Myshipmentnew = ({ setEdit }) => {
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
-const [openDialog, setOpenDialog] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const shipmentInfo = shipment?.SHIPMENTINFO?.[0] || {};
   const fromAddress =
     shipment?.SHIPMENTDETAILS?.find((d) => d.entitytype === "FromAddress") ||
@@ -171,7 +173,6 @@ const [openDialog, setOpenDialog] = useState(false);
   const packages = shipment?.PACKAGE || [];
   const commercialItems = shipment?.COMMERCIAL || [];
   const trackingDetails = shipment?.TRACKINGDETAILS || [];
-  //const invoiceData = shipment?.ACCOUNTSDETAILS?.[0]?.InvoiceData || [];
   const invoiceData = shipment?.ACCOUNTSDETAILS || [];
   const paymentData = shipment?.ACCOUNTSDETAILS?.[0]?.PaymentReceivedData || [];
 
@@ -238,15 +239,142 @@ const [openDialog, setOpenDialog] = useState(false);
   const handleNextPage = () => {
     setPage((prev) => Math.min(prev + 1, Math.ceil(documents.length / rowsPerPage) - 1));
   };
-  const handleGenerateClick = () => {
+  const [documentId,setDocumentID]=useState("")
+
+  const handleConfirmGenerate = async () => {
+    setOpenDialog(false);
+
+    const payload = {
+      TrackingNumber: shipmentInfo.trackingnumber || "",
+      isSendEmail: false,
+      UserID: shipmentInfo.personid, 
+      LabelSpecification: "PAPER_8.5X11_TOP_HALF_LABEL",
+      EtdDocumentId: documentId, 
+      fCountry: fromAddress.countryid,
+    };
+
+    try {
+      // Assuming api is imported and configured for making API calls
+      const response = await axios.post(`${api.BackendURL}/generate-label`, payload);
+      console.log("Label generated successfully:", response.data);
+    } catch (error) {
+      console.error("Error generating prepaid label:", error);
+     
+    }
+  };
+  // Handler for "Generate" button click
+  const handleGenerateClick = async () => {
+    const objectdata = {
+      UserID: shipmentInfo.personid || "",
+      ipAddress: shipmentInfo.ipaddress || "",
+      ip: shipmentInfo.iplocation || "",
+      username: shipmentInfo.createdbyname || "",
+      emailLogger: fromAddress.email || "",
+      TrackingNumber: shipmentInfo.trackingnumber || "",
+      shipments: {
+        tracking_number: shipmentInfo.trackingnumber || "",
+        shipment_type: shipmentInfo.shipmenttype || "",
+        location_type: fromAddress.locationtype || "",
+        is_pickup: fromAddress.ispickup || false,
+        pickup_date: fromAddress.pickupdate || "",
+        package_type: fromAddress.packagetype || "",
+        total_packages: fromAddress.totalpackages || 0,
+        is_pay_online: 0,
+        is_pay_bank: 0,
+        promo_code: fromAddress.promocode || "",
+        is_agree: "",
+        total_weight: fromAddress.totalweight || packages.reduce((sum, pkg) => sum + Number(pkg.estimetedweight || 0), 0).toString(),
+        total_chargable_weight: fromAddress.totalchargableweight || packages.reduce((sum, pkg) => sum + Number(pkg.chargableweight || 0), 0).toString(),
+        total_insured_value: fromAddress.totalinsuredvalue || packages.reduce((sum, pkg) => sum + Number(pkg.insuredvalue || 0), 0).toString(),
+        duties_paid_by: fromAddress.dutiespaidby || "",
+        total_declared_value: fromAddress.totaldeclaredvalue || commercialItems.reduce((sum, item) => sum + Number(item.totalvalue || 0), 0).toFixed(2),
+        userName: shipmentInfo.createdbyname || "",
+        ServiceName: fromAddress.servicename || "",
+        SubServiceName: fromAddress.subservicename || "",
+        managed_by: fromAddress.managedby || "",
+        Old_managed_by: shipmentInfo.managedbyname || "0",
+        ShippingID: fromAddress.shippingid || "",
+        InvoiceDueDate: shipmentInfo.invoiceduedate || null
+      },
+      MovingBackToIndia: fromAddress.movingback === "true",
+      from_address: {
+        AddressID: fromAddress.fromaddressid || "",
+        country_id: fromAddress.countryid || "",
+        country_name: fromAddress.countryname || "",
+        fromCountryCode: "",
+        company_name: fromAddress.companyname || "",
+        contact_name: fromAddress.contactname || "",
+        address_1: fromAddress.addressline1 || "",
+        address_2: fromAddress.addressline2 || "",
+        address_3: fromAddress.addressline3 || "",
+        MovingBack: fromAddress.movingback === "true",
+        OriginalPassportAvailable: fromAddress.originalpassportavailable === "true",
+        EligibleForTR: fromAddress.eligiblefortr === "true",
+        city_id: "",
+        city_name: fromAddress.city || "",
+        fedex_city: fromAddress.fedexcity || "",
+        state_id: "",
+        state_name: fromAddress.state || "",
+        zip_code: fromAddress.zipcode || "",
+        phone1: fromAddress.phone1 || "",
+        phone2: fromAddress.phone2 || "",
+        email: fromAddress.email || ""
+      },
+      to_address: {
+        AddressID: toAddress.toaddressid || "",
+        country_id: toAddress.countryid || "",
+        country_name: toAddress.countryname || "",
+        toCountryCode: "",
+        company_name: toAddress.companyname || "",
+        contact_name: toAddress.contactname || "",
+        address_1: toAddress.addressline1 || "",
+        address_2: toAddress.addressline2 || "",
+        address_3: toAddress.addressline3 || "",
+        city_id: "",
+        city_name: toAddress.city || "",
+        fedex_city: toAddress.fedexcity || "",
+        state_id: "",
+        state_name: toAddress.state || "",
+        zip_code: toAddress.zipcode || "",
+        phone1: toAddress.phone1 || "",
+        phone2: toAddress.phone2 || "",
+        email: toAddress.email || ""
+      },
+      packages: packages,
+      commercial: commercialItems,
+      invoiceData: invoiceData,
+      TotalCommercialvalue: commercialItems.reduce((sum, item) => sum + Number(item.totalvalue || 0), 0).toFixed(2),
+      TotalWeight: packages.reduce((sum, pkg) => sum + Number(pkg.estimetedweight || 0), 0).toString(),
+      isSameCountry: isSameCountry
+    }
+
+    const fedexETD_payload = {
+      Second_data: objectdata,
+      trackingNumber: shipmentInfo.trackingnumber,
+      ShippingID: fromAddress.shippingid,
+      Attachments: [],
+      showGetrate: false,
+      showGetrateError: false,
+      data: {},
+    };
+
+    console.log(fedexETD_payload);
+
+    let documentId = "";
+    if (shipmentInfo.shipmenttype === "Air") {
+      try {
+        const generate_response = await axios.post(`${api.BackendURL}/generate/fedexETD`, fedexETD_payload);
+        documentId = generate_response?.data?.result[0]?.DocumentId || "";
+      } catch (error) {
+        console.error("Error fetching document ID:", error);
+      }
+    }
+
+    setDocumentID(documentId);
     setOpenDialog(true);
   };
 
-  // Handler for "Yes" action
-  const handleConfirmGenerate = () => {
-    setOpenDialog(false);
-    console.log("Generate Prepaid Label"); // Replace with actual logic to generate the prepaid label
-  };
+  
 
   // Handler for "No" action
   const handleCancelGenerate = () => {
@@ -374,14 +502,14 @@ const [openDialog, setOpenDialog] = useState(false);
           <FormControl fullWidth variant="outlined" className="small-textfield" >
             {/* <InputLabel sx={{ fontSize: "0.875rem" }}>Service Type</InputLabel> */}
             <StyledTextField
-            fullWidth
-            disabled
-            className="custom-textfield"
-            label="Service Type"
-            value={shipmentInfo.servicename || ""}
-            InputProps={{ readOnly: true }}
-            variant="outlined"
-          />
+              fullWidth
+              disabled
+              className="custom-textfield"
+              label="Service Type"
+              value={shipmentInfo.servicename || ""}
+              InputProps={{ readOnly: true }}
+              variant="outlined"
+            />
             {/* <Select
               value={shipmentInfo.servicename || ""}
               label="Service Type"
@@ -396,14 +524,14 @@ const [openDialog, setOpenDialog] = useState(false);
 
           <FormControl fullWidth variant="outlined" className="small-textfield">
             <StyledTextField
-            fullWidth
-            disabled
-            className="custom-textfield"
-            label="Sub Service Type"
-            value={shipmentInfo.subservicename || ""}
-            InputProps={{ readOnly: true }}
-            variant="outlined"
-          />
+              fullWidth
+              disabled
+              className="custom-textfield"
+              label="Sub Service Type"
+              value={shipmentInfo.subservicename || ""}
+              InputProps={{ readOnly: true }}
+              variant="outlined"
+            />
             {/* <InputLabel sx={{ fontSize: "0.875rem" }}>Sub Service Type</InputLabel>
             <Select
               value={shipmentInfo.subservicename || ""}
@@ -1097,7 +1225,7 @@ const [openDialog, setOpenDialog] = useState(false);
         </SectionPaper>
       )}
 
-{activeTab === "documentation" && (
+      {activeTab === "documentation" && (
         <SectionPaper>
           <TableContainer sx={{ overflowX: "auto" }}>
             <TableStyled>
@@ -1195,7 +1323,7 @@ const [openDialog, setOpenDialog] = useState(false);
                       </TableRow>
 
                       {/* Add Prepaid Label row below the Invoice row */}
-                      {/* {doc.type === "Invoice" && (
+                      {doc.type === "Invoice" && (
                         <TableRow className="custom-textfield">
                           <TableCell>
                             <FormControl fullWidth variant="outlined">
@@ -1259,7 +1387,7 @@ const [openDialog, setOpenDialog] = useState(false);
                             </IconButton>
                           </TableCell>
                         </TableRow>
-                      )} */}
+                      )}
                     </React.Fragment>
                   ))
                 ) : (
@@ -1285,7 +1413,7 @@ const [openDialog, setOpenDialog] = useState(false);
             aria-labelledby="confirm-dialog-title"
             aria-describedby="confirm-dialog-description"
           >
-            <DialogTitle id="confirm-dialog-title" sx={{fontWeight:"550"}}>Confirm you want to generate label</DialogTitle>
+            <DialogTitle id="confirm-dialog-title" sx={{ fontWeight: "550" }}>Confirm you want to generate label</DialogTitle>
             <DialogContent>
               <DialogContentText id="confirm-dialog-description">
                 Are you sure want to genrate label for this service?
@@ -1295,14 +1423,14 @@ const [openDialog, setOpenDialog] = useState(false);
               <ResponsiveButton
                 onClick={handleCancelGenerate}
                 variant="contained"
-                sx={{ textTransform: "none",background:"grey" }}
+                sx={{ textTransform: "none", background: "grey" }}
               >
                 Cancel
               </ResponsiveButton>
               <ResponsiveButton
                 onClick={handleConfirmGenerate}
                 variant="contained"
-                sx={{ textTransform: "none" ,background:"#C30AC9"}}
+                sx={{ textTransform: "none", background: "#C30AC9" }}
               >
                 Yes
               </ResponsiveButton>

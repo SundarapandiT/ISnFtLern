@@ -448,7 +448,7 @@ const Package = ({
                             endAdornment: <InputAdornment position="end">in</InputAdornment>,
                             readOnly: isDocument
                           }}
-                          disabled={isDocument}
+                          disabled={isDocument|| isGetrate}
                         />
                       </Box>
                     </TableCell>

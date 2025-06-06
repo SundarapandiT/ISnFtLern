@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -1083,8 +1082,9 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
       toast.dismiss();
       if (result.message === "Data fetched") {
         toast.success('Rates fetched successfully');
-        const updatedRates = result.data.map((item) => ({
-          service: item.ServiceDisplayName,
+        const allRates = result.data.reduce((acc, current) => acc.concat(current), []);
+        const updatedRates = allRates.map((item) => ({
+          service: item.ServiceDisplayName || item.Service_Type,
           deliveryDate: item.Delivery_Date,
           rate: item.Rates,
           ServiceDisplayName: item.ServiceDisplayName,
@@ -1092,6 +1092,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
           MainServiceName: item.MainServiceName,
           fromcountry: fromDetails.fromCountry,
           Error: item.Service_Type,
+          isError: item.IsError || false,
         }));
         setRates(updatedRates);
         setShowRates(true);
@@ -1188,7 +1189,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
             <IconBox className="card-icon">
               <FlightTakeoffIcon className={classes.iconBox} />
             </IconBox>
-            <span>Get Rate</span>
+            <span>Get Rates</span>
           </h2>
         </div>
 
@@ -1532,7 +1533,10 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                 <TableBody>
                   {rates.map((rate, index) => (
                     <TableRow key={index}>
-                      <TableCell sx={{ padding: '8px', fontSize: '14px' }}>{rate.service || rate.Error}</TableCell>
+                      <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
+                        {rate.service || rate.Error}
+                         {rate.isError }
+                      </TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>{rate.deliveryDate}</TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         {rate.rate === 0
