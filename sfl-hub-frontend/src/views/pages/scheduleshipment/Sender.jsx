@@ -783,7 +783,7 @@ const Sender = ({
                 type="button"
                 variant="contained"
                 onClick={() => {
-                  setActiveModule("Getrate");
+                  setActiveModule("Get Rates");
                   navigate("/admin/getrate");
                 }}
               >

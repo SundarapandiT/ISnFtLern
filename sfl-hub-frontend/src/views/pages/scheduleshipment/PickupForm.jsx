@@ -117,7 +117,7 @@ const PickupForm = ({
             <EditButton 
               variant="contained"
               onClick={() => {
-                          setActiveModule("Getrate"); // Set activeModule to enable route
+                          setActiveModule("Get Rates"); // Set activeModule to enable route
                           navigate("/admin/getrate");
                         }}
             >

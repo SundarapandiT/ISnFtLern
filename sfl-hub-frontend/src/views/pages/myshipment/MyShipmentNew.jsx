@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
+import Tooltip from '@mui/material/Tooltip';
 import {
   MenuItem,
   Select,
@@ -41,7 +42,9 @@ import {
   ResponsiveButton,
 } from "../../styles/myshipmentnew";
 import TabNavigation from "./TabNavigation";
+
 // import { api, encryptURL, getUserIP, getUserDetails} from "../../../utils/api";
+
 
 // Define StyledTextField if not already defined in styles
 const StyledTableTextField = ({ sx, ...props }) => (
@@ -193,14 +196,14 @@ const [openDialog, setOpenDialog] = useState(false);
       documentName: "",
       createdOn: formattedDate,
       attachment: "VIEW FILE",
-      status: "APPROVED",
+      status: "ACTIVE",
     },
     {
       type: "Invoice",
       documentName: "",
       createdOn: formattedDate,
       attachment: "VIEW FILE",
-      status: "APPROVED",
+      status: "ACTIVE",
     },
   ];
 
@@ -1176,21 +1179,23 @@ const [openDialog, setOpenDialog] = useState(false);
                           </ResponsiveButton>
                         </TableCell>
                         <TableCell>
-                          <IconButton
-                            variant="contained"
-                            color="primary"
-                            sx={{
-                              textTransform: "none",
-                              fontSize: isMobile ? "0.75rem" : "0.875rem",
-                            }}
-                          >
-                            <InfoIcon />
-                          </IconButton>
+                          <Tooltip title="Auto" arrow>
+                            <IconButton
+                              variant="contained"
+                              color="primary"
+                              sx={{
+                                textTransform: "none",
+                                fontSize: isMobile ? "0.75rem" : "0.875rem",
+                              }}
+                            >
+                              <InfoIcon />
+                            </IconButton>
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
 
                       {/* Add Prepaid Label row below the Invoice row */}
-                      {doc.type === "Invoice" && (
+                      {/* {doc.type === "Invoice" && (
                         <TableRow className="custom-textfield">
                           <TableCell>
                             <FormControl fullWidth variant="outlined">
@@ -1254,7 +1259,7 @@ const [openDialog, setOpenDialog] = useState(false);
                             </IconButton>
                           </TableCell>
                         </TableRow>
-                      )}
+                      )} */}
                     </React.Fragment>
                   ))
                 ) : (

@@ -1090,7 +1090,8 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
           ServiceDisplayName: item.ServiceDisplayName,
           ServiceType: item.ServiceType,
           MainServiceName: item.MainServiceName,
-          fromcountry:fromDetails.fromCountry
+          fromcountry: fromDetails.fromCountry,
+          Error: item.Service_Type,
         }));
         setRates(updatedRates);
         setShowRates(true);
@@ -1382,11 +1383,6 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                         label="To City"
                         error={!!formErrors.toCity}
                         helperText={formErrors.toCity || (toCitiesError ? 'Error loading cities' : undefined)}
-                        InputProps={{
-                          autoComplete: 'off',
-                          autoCorrect: 'off',
-                          autoCapitalize: 'none',
-                        }}
                       />
                     )}
                     noOptionsText={isToCitiesLoading ? 'Loading cities...' : 'No cities found'}
@@ -1518,7 +1514,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
         </CardContent>
       </Card>
       <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
-        {showRates && rates && rates.length > 0 ? (
+        {showRates && rates && rates.length > 0 && (
           <CardContent sx={{ padding: '16px' }}>
             <Typography variant="h6" sx={{ fontWeight: 'medium', marginBottom: '8px', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Rate Details
@@ -1536,16 +1532,22 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                 <TableBody>
                   {rates.map((rate, index) => (
                     <TableRow key={index}>
-                      <TableCell sx={{ padding: '8px', fontSize: '14px' }}>{rate.service}</TableCell>
+                      <TableCell sx={{ padding: '8px', fontSize: '14px' }}>{rate.service || rate.Error}</TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>{rate.deliveryDate}</TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
-                        {fromDetails.fromCountry === 'in' ? 'INR ' :
-                          fromDetails.fromCountry === 'ca' ? 'CAD ' : 'USD '}
-                        {fromDetails.fromCountry === "us" ? Number((rate.rate)).toFixed(2) : Math.ceil(rate.rate)}
+                        {rate.rate === 0
+                          ? "Call for Rates"
+                          : `${fromDetails.fromCountry === 'in' ? 'INR '
+                            : fromDetails.fromCountry === 'ca' ? 'CAD '
+                              : 'USD '} ${fromDetails.fromCountry === 'us'
+                                ? Number(rate.rate).toFixed(2)
+                                : Math.ceil(rate.rate)}`
+                        }
                       </TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         <Button
                           onClick={() => handleBook(rate)}
+                           disabled={rate.rate === 0}
                           variant="contained"
                           sx={{ backgroundColor: '#4caf50', '&:hover': { backgroundColor: '#388e3c' } }}
                         >
@@ -1558,10 +1560,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
               </Table>
             </TableContainer>
           </CardContent>
-        ): <Typography variant="body1" sx={{ padding: '16px', color: '#f44336', textAlign: 'center' }}>
-      No rates available for the entered country with the specified ZIP code
-    </Typography>
-}
+        )}
       </Card>
     </Box>
   );
