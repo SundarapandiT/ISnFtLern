@@ -504,7 +504,7 @@ const ShipmentDashboard = ({ setEdit }) => {
                               color:"white"
                             }}
                             className={classes.editIcon}
-                            style={{ cursor: "pointer", marginRight: 8 }}
+                            style={{ cursor: "pointer", marginRight: 8,color:"white"  }}
                             onClick={() => handleEdit(row)}/>
                           
                             Open
