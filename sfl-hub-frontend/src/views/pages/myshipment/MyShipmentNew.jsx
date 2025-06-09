@@ -191,22 +191,27 @@ const Myshipmentnew = ({ setEdit }) => {
 
   console.log(date)
 
-  const documents = [
-    {
-      type: "Commercial Invoice",
-      documentName: "",
-      createdOn: formattedDate,
-      attachment: "VIEW FILE",
-      status: "ACTIVE",
-    },
-    {
-      type: "Invoice",
-      documentName: "",
-      createdOn: formattedDate,
-      attachment: "VIEW FILE",
-      status: "ACTIVE",
-    },
-  ];
+  const baseDocuments = [
+  {
+    type: "Commercial Invoice",
+    documentName: "",
+    createdOn: formattedDate,
+    attachment: "VIEW FILE",
+    status: "ACTIVE",
+  },
+  {
+    type: "Invoice",
+    documentName: "",
+    createdOn: formattedDate,
+    attachment: "VIEW FILE",
+    status: "ACTIVE",
+  },
+];
+
+// Filter out "Commercial Invoice" if shipment is domestic
+const documents = isSameCountry
+  ? baseDocuments.filter((doc) => doc.type !== "Commercial Invoice")
+  : baseDocuments;
 
   if (!shipment || !shipmentInfo) {
     return (

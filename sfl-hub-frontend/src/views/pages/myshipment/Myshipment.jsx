@@ -25,7 +25,7 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import CircularProgress from '@mui/material/CircularProgress';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { IconBox } from "../../styles/scheduleshipmentStyle";
 import { useStyles } from "../../styles/MyshipmentStyle";
 
@@ -206,7 +206,7 @@ const ShipmentDashboard = ({ setEdit }) => {
       });
 
       if (response.status === 200 && response.data?.user) {
-        setEdit(true); 
+        setEdit(true);
         navigate("/admin/MyShipmentNew", {
           state: { shipment: response.data.user },
           replace: true,
@@ -496,11 +496,19 @@ const ShipmentDashboard = ({ setEdit }) => {
                       <TableCell className="small-cell">{row.shipmenttype}</TableCell>
                       <TableCell className="small-cell">{row.shipmentstatus}</TableCell>
                       <TableCell>
-                        <VisibilityIcon
-                          className={classes.editIcon}
-                          onClick={() => handleEdit(row)}
-                          style={{ cursor: "pointer" }}
-                        />
+                        <Box display="flex" alignItems="center" variant="contained" 
+                         onClick={() => handleEdit(row)} 
+                         sx={{fontSize:"12px",background:"#0c72e8",color:"white",p:1, borderRadius:"5px" ,cursor: "pointer"}}>
+                            <OpenInNewIcon
+                            sx={{
+                              color:"white"
+                            }}
+                            className={classes.editIcon}
+                            style={{ cursor: "pointer", marginRight: 8 }}
+                            onClick={() => handleEdit(row)}/>
+                          
+                            Open
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))

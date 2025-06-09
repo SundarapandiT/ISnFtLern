@@ -359,6 +359,7 @@ const Schedule = () => {
           location_type: recipientLocationType,
           is_pickup: needsPickup === "Yes - I Need Pickup Service" ? true : false,
           pickup_date: pickupDate,
+          pickupProvider:671,
           package_type: packageType,
           total_packages: noOfPackages,
           is_pay_online: 0,
