@@ -357,7 +357,7 @@ const Schedule = () => {
           tracking_number: "",
           shipment_type: shipmentType,
           location_type: recipientLocationType,
-          is_pickup: needsPickup === "Yes - I Need Pickup" ? true : false,
+          is_pickup: needsPickup === "Yes - I Need Pickup Service" ? true : false,
           pickup_date: pickupDate,
           package_type: packageType,
           total_packages: noOfPackages,

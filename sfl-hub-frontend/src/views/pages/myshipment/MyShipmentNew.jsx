@@ -1375,6 +1375,7 @@ const Myshipmentnew = ({ setEdit }) => {
                             </ResponsiveButton>
                           </TableCell>
                           <TableCell>
+                          <Tooltip title="Auto" arrow>
                             <IconButton
                               variant="contained"
                               color="primary"
@@ -1385,6 +1386,7 @@ const Myshipmentnew = ({ setEdit }) => {
                             >
                               <InfoIcon />
                             </IconButton>
+                            </Tooltip>
                           </TableCell>
                         </TableRow>
                       )}
