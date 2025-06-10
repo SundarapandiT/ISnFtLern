@@ -253,7 +253,7 @@ const documents = isSameCountry
       TrackingNumber: shipmentInfo.trackingnumber || "",
       isSendEmail: false,
       UserID: shipmentInfo.personid, 
-      LabelSpecification: "PAPER_8.5X11_TOP_HALF_LABEL",
+      LabelSpecification: "4 X 6",
       EtdDocumentId: documentId, 
       fCountry: fromAddress.countryid,
     };
@@ -269,7 +269,10 @@ const documents = isSameCountry
   };
   // Handler for "Generate" button click
   const handleGenerateClick = async () => {
-    const objectdata = {
+
+    let documentId = "";
+    if ( isSameCountry===false && shipmentInfo.shipmenttype === "Air") {
+       const objectdata = {
       UserID: shipmentInfo.personid || "",
       ipAddress: shipmentInfo.ipaddress || "",
       ip: shipmentInfo.iplocation || "",
@@ -364,17 +367,15 @@ const documents = isSameCountry
     };
 
     console.log(fedexETD_payload);
-
-    let documentId = "";
-    if (shipmentInfo.shipmenttype === "Air") {
       try {
-        const generate_response = await axios.post(`${api.BackendURL}/generate/fedexETD`, fedexETD_payload);
-        documentId = generate_response?.data?.result[0]?.DocumentId || "";
+        const generate_response = await axios.post(`${api.BackendURL}/FedexApi/fedexETD`, fedexETD_payload);
+        documentId = generate_response?.data?.data?.result[0]?.DocumentId || null;
+        
       } catch (error) {
         console.error("Error fetching document ID:", error);
       }
     }
-
+    console.log("Document ID:", documentId);
     setDocumentID(documentId);
     setOpenDialog(true);
   };
