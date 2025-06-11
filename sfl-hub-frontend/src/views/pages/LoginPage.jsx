@@ -79,6 +79,8 @@ const LoginPage = () => {
         const decryptedaccount_number = encryptedAccountNumber
           ? CryptoJS.AES.decrypt(encryptedAccountNumber, SECRET_KEY).toString(CryptoJS.enc.Utf8)
           : null;
+
+          const p_paper_originalname=res.data.user.data.p_paper_originalname;
         sessionStorage.setItem("user", JSON.stringify({
           name: decryptedName,
           email: decryptedEmail,
@@ -87,6 +89,7 @@ const LoginPage = () => {
           personID: decryptedPersonID,
           oldPersonID: decryptedOldPersonID,
           account_number: decryptedaccount_number,
+          p_paper_originalname: p_paper_originalname,
         }));
         sessionStorage.setItem("PersonID", decryptedOldPersonID);
 

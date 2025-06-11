@@ -207,6 +207,7 @@ const Myshipmentnew = ({ setEdit }) => {
     status: "ACTIVE",
   },
 ];
+const userdata=JSON.parse(sessionStorage.getItem("user"));
 
 // Filter out "Commercial Invoice" if shipment is domestic
 const documents = isSameCountry
@@ -253,7 +254,7 @@ const documents = isSameCountry
       TrackingNumber: shipmentInfo.trackingnumber || "",
       isSendEmail: false,
       UserID: shipmentInfo.personid, 
-      LabelSpecification: "4 X 6",
+      LabelSpecification: userdata.p_paper_originalname,
       EtdDocumentId: documentId, 
       fCountry: fromAddress.countryid,
     };
