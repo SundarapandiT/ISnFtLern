@@ -25,6 +25,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  CircularProgress,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -152,6 +153,7 @@ const ResponsiveTable = ({ columns, rows, columnWidths = {} }) => {
   );
 };
 import { useStyles } from "../../styles/MyshipmentStyle";
+import toast from "react-hot-toast";
 
 const Myshipmentnew = ({ setEdit }) => {
   const classes = useStyles();
@@ -192,27 +194,27 @@ const Myshipmentnew = ({ setEdit }) => {
   console.log(date)
 
   const baseDocuments = [
-  {
-    type: "Commercial Invoice",
-    documentName: "",
-    createdOn: formattedDate,
-    attachment: "VIEW FILE",
-    status: "ACTIVE",
-  },
-  {
-    type: "Invoice",
-    documentName: "",
-    createdOn: formattedDate,
-    attachment: "VIEW FILE",
-    status: "ACTIVE",
-  },
-];
-const userdata=JSON.parse(sessionStorage.getItem("user"));
+    {
+      type: "Commercial Invoice",
+      documentName: "",
+      createdOn: formattedDate,
+      attachment: "VIEW FILE",
+      status: "ACTIVE",
+    },
+    {
+      type: "Invoice",
+      documentName: "",
+      createdOn: formattedDate,
+      attachment: "VIEW FILE",
+      status: "ACTIVE",
+    },
+  ];
+  const userdata = JSON.parse(sessionStorage.getItem("user"));
 
-// Filter out "Commercial Invoice" if shipment is domestic
-const documents = isSameCountry
-  ? baseDocuments.filter((doc) => doc.type !== "Commercial Invoice")
-  : baseDocuments;
+  // Filter out "Commercial Invoice" if shipment is domestic
+  const documents = isSameCountry
+    ? baseDocuments.filter((doc) => doc.type !== "Commercial Invoice")
+    : baseDocuments;
 
   if (!shipment || !shipmentInfo) {
     return (
@@ -245,7 +247,9 @@ const documents = isSameCountry
   const handleNextPage = () => {
     setPage((prev) => Math.min(prev + 1, Math.ceil(documents.length / rowsPerPage) - 1));
   };
-  const [documentId,setDocumentID]=useState("")
+  const [documentId, setDocumentID] = useState(null)
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleConfirmGenerate = async () => {
     setOpenDialog(false);
@@ -253,135 +257,174 @@ const documents = isSameCountry
     const payload = {
       TrackingNumber: shipmentInfo.trackingnumber || "",
       isSendEmail: false,
-      UserID: shipmentInfo.personid, 
+      UserID: shipmentInfo.personid,
       LabelSpecification: userdata.p_paper_originalname,
-      EtdDocumentId: documentId, 
+      EtdDocumentId: documentId || null,
       fCountry: fromAddress.countryid,
     };
 
     try {
-      // Assuming api is imported and configured for making API calls
+      // toast.loading("Generating...");
+       setIsLoading(true)
+
       const response = await axios.post(`${api.BackendURL}/FedexLabelApi/fedexLabel`, payload);
-      console.log("Label generated successfully:", response.data);
+      const fedexData = response?.data?.data?.data;
+
+      console.log("Label generated successfully:", fedexData);
+
+      if (fedexData?.success) {
+        const attachment = fedexData.attachmentData;
+        const label = fedexData.FedexLabel;
+
+        const secondPayload = {
+          trackingnumber: label.trackingnumber,
+          fedextrakingnumber: label.fedextrakingnumber,
+          imagetype: label.imagetype,
+          carriercode: label.carriercode,
+          fedexstatus: label.fedexstatus,
+          status: label.status,
+          EntityType: attachment.EntityType,
+          AttachmentType: attachment.AttachmentType,
+          AttachmentName: attachment.AttachmentName,
+          Description: attachment.Description,
+          DocumentType: attachment.DocumentType,
+          AttachmentPath: attachment.AttachmentPathToOld,
+        };
+
+        const res = await axios.post("https://hubapi.sflworldwide.com/contactus/addFedexData", secondPayload);
+        console.log("FedEx data submitted successfully.", res.data);
+        setIsLoading(false)
+      } else {
+        toast.error("Faild to send old db .");
+      }
     } catch (error) {
-      console.error("Error generating prepaid label:", error);
-     
+      setIsLoading(false)
+      toast.dismiss();
+      toast.error("Something went wrong");
+      console.error("Error handling FedEx operations:", error);
     }
   };
   // Handler for "Generate" button click
   const handleGenerateClick = async () => {
 
     let documentId = "";
-    if ( isSameCountry===false && shipmentInfo.shipmenttype === "Air") {
-       const objectdata = {
-      UserID: shipmentInfo.personid || "",
-      ipAddress: shipmentInfo.ipaddress || "",
-      ip: shipmentInfo.iplocation || "",
-      username: shipmentInfo.createdbyname || "",
-      emailLogger: fromAddress.email || "",
-      TrackingNumber: shipmentInfo.trackingnumber || "",
-      shipments: {
-        tracking_number: shipmentInfo.trackingnumber || "",
-        shipment_type: shipmentInfo.shipmenttype || "",
-        location_type: fromAddress.locationtype || "",
-        is_pickup: fromAddress.ispickup || false,
-        pickup_date: fromAddress.pickupdate || "",
-        package_type: fromAddress.packagetype || "",
-        total_packages: fromAddress.totalpackages || 0,
-        is_pay_online: 0,
-        is_pay_bank: 0,
-        promo_code: fromAddress.promocode || "",
-        is_agree: "",
-        total_weight: fromAddress.totalweight || packages.reduce((sum, pkg) => sum + Number(pkg.estimetedweight || 0), 0).toString(),
-        total_chargable_weight: fromAddress.totalchargableweight || packages.reduce((sum, pkg) => sum + Number(pkg.chargableweight || 0), 0).toString(),
-        total_insured_value: fromAddress.totalinsuredvalue || packages.reduce((sum, pkg) => sum + Number(pkg.insuredvalue || 0), 0).toString(),
-        duties_paid_by: fromAddress.dutiespaidby || "",
-        total_declared_value: fromAddress.totaldeclaredvalue || commercialItems.reduce((sum, item) => sum + Number(item.totalvalue || 0), 0).toFixed(2),
-        userName: shipmentInfo.createdbyname || "",
-        ServiceName: fromAddress.servicename || "",
-        SubServiceName: fromAddress.subservicename || "",
-        managed_by: fromAddress.managedby || "",
-        Old_managed_by: shipmentInfo.managedbyname || "0",
-        ShippingID: fromAddress.shippingid || "",
-        InvoiceDueDate: shipmentInfo.invoiceduedate || null
-      },
-      MovingBackToIndia: fromAddress.movingback === "true",
-      from_address: {
-        AddressID: fromAddress.fromaddressid || "",
-        country_id: fromAddress.countryid || "",
-        country_name: fromAddress.countryname || "",
-        fromCountryCode: fromAddress.countrycode || "",
-        company_name: fromAddress.companyname || "",
-        contact_name: fromAddress.contactname || "",
-        address_1: fromAddress.addressline1 || "",
-        address_2: fromAddress.addressline2 || "",
-        address_3: fromAddress.addressline3 || "",
-        MovingBack: fromAddress.movingback === "true",
-        OriginalPassportAvailable: fromAddress.originalpassportavailable === "true",
-        EligibleForTR: fromAddress.eligiblefortr === "true",
-        city_id: "",
-        city_name: fromAddress.city || "",
-        fedex_city: fromAddress.fedexcity || "",
-        state_id: "",
-        state_name: fromAddress.state || "",
-        zip_code: fromAddress.zipcode || "",
-        phone1: fromAddress.phone1 || "",
-        phone2: fromAddress.phone2 || "",
-        email: fromAddress.email || ""
-      },
-      to_address: {
-        AddressID: toAddress.toaddressid || "",
-        country_id: toAddress.countryid || "",
-        country_name: toAddress.countryname || "",
-        toCountryCode: toAddress.countrycode || "",
-        company_name: toAddress.companyname || "",
-        contact_name: toAddress.contactname || "",
-        address_1: toAddress.addressline1 || "",
-        address_2: toAddress.addressline2 || "",
-        address_3: toAddress.addressline3 || "",
-        city_id: "",
-        city_name: toAddress.city || "",
-        fedex_city: toAddress.fedexcity || "",
-        state_id: "",
-        state_name: toAddress.state || "",
-        zip_code: toAddress.zipcode || "",
-        phone1: toAddress.phone1 || "",
-        phone2: toAddress.phone2 || "",
-        email: toAddress.email || ""
-      },
-      packages: packages,
-      commercial: commercialItems,
-      invoiceData: invoiceData,
-      TotalCommercialvalue: commercialItems.reduce((sum, item) => sum + Number(item.totalvalue || 0), 0).toFixed(2),
-      TotalWeight: packages.reduce((sum, pkg) => sum + Number(pkg.estimetedweight || 0), 0).toString(),
-      isSameCountry: isSameCountry
-    }
+    if (isSameCountry === false && shipmentInfo.shipmenttype === "Air") {
+      const objectdata = {
+        UserID: shipmentInfo.personid || "",
+        ipAddress: shipmentInfo.ipaddress || "",
+        ip: shipmentInfo.iplocation || "",
+        username: shipmentInfo.createdbyname || "",
+        emailLogger: fromAddress.email || "",
+        TrackingNumber: shipmentInfo.trackingnumber || "",
+        shipments: {
+          tracking_number: shipmentInfo.trackingnumber || "",
+          shipment_type: shipmentInfo.shipmenttype || "",
+          location_type: fromAddress.locationtype || "",
+          is_pickup: fromAddress.ispickup || false,
+          pickup_date: fromAddress.pickupdate || "",
+          package_type: fromAddress.packagetype || "",
+          total_packages: fromAddress.totalpackages || 0,
+          is_pay_online: 0,
+          is_pay_bank: 0,
+          promo_code: fromAddress.promocode || "",
+          is_agree: "",
+          total_weight: fromAddress.totalweight || packages.reduce((sum, pkg) => sum + Number(pkg.estimetedweight || 0), 0).toString(),
+          total_chargable_weight: fromAddress.totalchargableweight || packages.reduce((sum, pkg) => sum + Number(pkg.chargableweight || 0), 0).toString(),
+          total_insured_value: fromAddress.totalinsuredvalue || packages.reduce((sum, pkg) => sum + Number(pkg.insuredvalue || 0), 0).toString(),
+          duties_paid_by: fromAddress.dutiespaidby || "",
+          total_declared_value: fromAddress.totaldeclaredvalue || commercialItems.reduce((sum, item) => sum + Number(item.totalvalue || 0), 0).toFixed(2),
+          userName: shipmentInfo.createdbyname || "",
+          ServiceName: fromAddress.servicename || "",
+          SubServiceName: fromAddress.subservicename || "",
+          managed_by: fromAddress.managedby || "",
+          Old_managed_by: shipmentInfo.managedbyname || "0",
+          ShippingID: fromAddress.shippingid || "",
+          InvoiceDueDate: shipmentInfo.invoiceduedate || null
+        },
+        MovingBackToIndia: fromAddress.movingback === "true",
+        from_address: {
+          AddressID: fromAddress.fromaddressid || "",
+          country_id: fromAddress.countryid || "",
+          country_name: fromAddress.countryname || "",
+          fromCountryCode: fromAddress.countrycode || "",
+          company_name: fromAddress.companyname || "",
+          contact_name: fromAddress.contactname || "",
+          address_1: fromAddress.addressline1 || "",
+          address_2: fromAddress.addressline2 || "",
+          address_3: fromAddress.addressline3 || "",
+          MovingBack: fromAddress.movingback === "true",
+          OriginalPassportAvailable: fromAddress.originalpassportavailable === "true",
+          EligibleForTR: fromAddress.eligiblefortr === "true",
+          city_id: "",
+          city_name: fromAddress.city || "",
+          fedex_city: fromAddress.fedexcity || "",
+          state_id: "",
+          state_name: fromAddress.state || "",
+          zip_code: fromAddress.zipcode || "",
+          phone1: fromAddress.phone1 || "",
+          phone2: fromAddress.phone2 || "",
+          email: fromAddress.email || ""
+        },
+        to_address: {
+          AddressID: toAddress.toaddressid || "",
+          country_id: toAddress.countryid || "",
+          country_name: toAddress.countryname || "",
+          toCountryCode: toAddress.countrycode || "",
+          company_name: toAddress.companyname || "",
+          contact_name: toAddress.contactname || "",
+          address_1: toAddress.addressline1 || "",
+          address_2: toAddress.addressline2 || "",
+          address_3: toAddress.addressline3 || "",
+          city_id: "",
+          city_name: toAddress.city || "",
+          fedex_city: toAddress.fedexcity || "",
+          state_id: "",
+          state_name: toAddress.state || "",
+          zip_code: toAddress.zipcode || "",
+          phone1: toAddress.phone1 || "",
+          phone2: toAddress.phone2 || "",
+          email: toAddress.email || ""
+        },
+        packages: packages,
+        commercial: commercialItems,
+        invoiceData: invoiceData,
+        TotalCommercialvalue: commercialItems.reduce((sum, item) => sum + Number(item.totalvalue || 0), 0).toFixed(2),
+        TotalWeight: packages.reduce((sum, pkg) => sum + Number(pkg.estimetedweight || 0), 0).toString(),
+        isSameCountry: isSameCountry
+      }
 
-    const fedexETD_payload = {
-      Second_data: objectdata,
-      trackingNumber: shipmentInfo.trackingnumber,
-      ShippingID: fromAddress.shippingid,
-      Attachments: [],
-      showGetrate: false,
-      showGetrateError: false,
-      data: {},
-    };
+      const fedexETD_payload = {
+        Second_data: objectdata,
+        trackingNumber: shipmentInfo.trackingnumber,
+        ShippingID: fromAddress.shippingid,
+        Attachments: [],
+        showGetrate: false,
+        showGetrateError: false,
+        data: {},
+      };
 
-    console.log(fedexETD_payload);
+      console.log(fedexETD_payload);
       try {
+        // toast.loading("Wait...")
+         setIsLoading(true)
         const generate_response = await axios.post(`${api.BackendURL}/FedexApi/fedexETD`, fedexETD_payload);
         documentId = generate_response?.data?.data?.result[0]?.DocumentId || null;
-        
+
       } catch (error) {
+        toast.dismiss();
+         setIsLoading(false);
+        toast.error(error)
         console.error("Error fetching document ID:", error);
       }
     }
+     setIsLoading(false)
+    toast.dismiss();
     console.log("Document ID:", documentId);
     setDocumentID(documentId);
     setOpenDialog(true);
   };
 
-  
+
 
   // Handler for "No" action
   const handleCancelGenerate = () => {
@@ -1330,7 +1373,7 @@ const documents = isSameCountry
                       </TableRow>
 
                       {/* Add Prepaid Label row below the Invoice row */}
-                      {doc.type === "Invoice" && userdata.p_prepaid_label!==0 && (
+                      {doc.type === "Invoice" && userdata.p_prepaid_label !== 0 && (
                         <TableRow className="custom-textfield">
                           <TableCell>
                             <FormControl fullWidth variant="outlined">
@@ -1382,17 +1425,17 @@ const documents = isSameCountry
                             </ResponsiveButton>
                           </TableCell>
                           <TableCell>
-                          <Tooltip title="Auto" arrow>
-                            <IconButton
-                              variant="contained"
-                              color="primary"
-                              sx={{
-                                textTransform: "none",
-                                fontSize: isMobile ? "0.75rem" : "0.875rem",
-                              }}
-                            >
-                              <InfoIcon />
-                            </IconButton>
+                            <Tooltip title="Auto" arrow>
+                              <IconButton
+                                variant="contained"
+                                color="primary"
+                                sx={{
+                                  textTransform: "none",
+                                  fontSize: isMobile ? "0.75rem" : "0.875rem",
+                                }}
+                              >
+                                <InfoIcon />
+                              </IconButton>
                             </Tooltip>
                           </TableCell>
                         </TableRow>
@@ -1445,6 +1488,25 @@ const documents = isSameCountry
               </ResponsiveButton>
             </DialogActions>
           </Dialog>
+          {/* Loading Spinner */}
+          {isLoading && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              zIndex: 1300,
+              width: '100%',
+              height: '100%',
+              backdropFilter: 'blur(1px)',
+              backgroundColor: 'rgba(0,0,0,0.3)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              <CircularProgress size={60} thickness={4}  sx={{color:"#fff"}}/>
+            </div>
+          )}
+
 
           <Box
             sx={{
