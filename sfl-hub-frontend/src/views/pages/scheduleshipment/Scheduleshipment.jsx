@@ -285,6 +285,87 @@ const Schedule = () => {
   ]);
 
 
+  const resetForm = () => {
+  // Schedule Pickup tab
+  setShipmentType("");
+  setFromCountry("");
+  setToCountry("");
+  setPickupErrors({});
+
+  // Sender tab
+  setCountry("");
+  setcountrycode("");
+  setCountryId("");
+  setisZip(1);
+  setCompanyName("");
+  setContactName("");
+  setAddressLine1("");
+  setAddressLine2("");
+  setAddressLine3("");
+  setZipCode("");
+  setFromCity("");
+  setState("");
+  setPhone1("");
+  setPhone2("");
+  setEmail("");
+  setNeedsPickup("No - I Will Drop Off My Package");
+  setPickupDate("");
+  setSenderErrors({});
+
+  // Recipient tab
+  setRecipientCountry("");
+  setrecipientcountrycode("");
+  setRecipientCountryId("");
+  setresisZip(1);
+  setRecipientCompanyName("");
+  setRecipientContactName("");
+  setRecipientAddressLine1("");
+  setRecipientAddressLine2("");
+  setRecipientAddressLine3("");
+  setRecipientZipCode("");
+  setRecipientCity("");
+  setRecipientState("");
+  setRecipientPhone1("");
+  setRecipientPhone2("");
+  setRecipientEmail("");
+  setRecipientLocationType("Residential");
+  setRecipientErrors({});
+
+  // Old IDs and phones
+  setfromoldcountryid("");
+  setfromoldstateid("");
+  setrecipientoldcountryid("");
+  setrecipientoldstateid("");
+  setoldphone1("");
+  setoldphone2("");
+  setoldrecipientphone1("");
+  setoldrecipientphone2("");
+
+  // Package tab
+  setPackageType("package");
+  setNoOfPackages(1);
+  setDutiesPaidBy("Recipient");
+  setPackageData([{
+    noOfPackages: 1,
+    weight: 0,
+    length: 0,
+    width: 0,
+    height: 0,
+    chargable_weight: 0,
+    insured_value: 0,
+  }]);
+  setSamecountry(false);
+  setCommercialInvoiceData([{
+    packageNumber: "1",
+    contentDescription: "",
+    quantity: 0,
+    valuePerQty: 0,
+  }]);
+  setPackageErrors({});
+  setManagedBy("");
+  setShippingId("");
+};
+
   const getManagedBy = async () => {
     console.log("Fetching ManagedBy...");
     try {
@@ -670,6 +751,7 @@ const Schedule = () => {
             commercialInvoiceData: commercialInvoiceData,
           },
         });
+        resetForm();
       } else {
         toast.dismiss(toastId);
 
