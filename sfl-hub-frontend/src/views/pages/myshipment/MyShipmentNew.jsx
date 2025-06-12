@@ -261,7 +261,7 @@ const documents = isSameCountry
 
     try {
       // Assuming api is imported and configured for making API calls
-      const response = await axios.post(`${api.BackendURL}/generate-label`, payload);
+      const response = await axios.post(`${api.BackendURL}/FedexLabelApi/fedexLabel`, payload);
       console.log("Label generated successfully:", response.data);
     } catch (error) {
       console.error("Error generating prepaid label:", error);
@@ -1330,7 +1330,7 @@ const documents = isSameCountry
                       </TableRow>
 
                       {/* Add Prepaid Label row below the Invoice row */}
-                      {doc.type === "Invoice" && (
+                      {doc.type === "Invoice" && userdata.p_prepaid_label!==0 && (
                         <TableRow className="custom-textfield">
                           <TableCell>
                             <FormControl fullWidth variant="outlined">

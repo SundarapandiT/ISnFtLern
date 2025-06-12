@@ -81,6 +81,7 @@ const LoginPage = () => {
           : null;
 
           const p_paper_originalname=res.data.user.data.p_paper_originalname;
+          const p_prepaid_label = res.data.user.data.p_prepaid_label;
         sessionStorage.setItem("user", JSON.stringify({
           name: decryptedName,
           email: decryptedEmail,
@@ -90,6 +91,7 @@ const LoginPage = () => {
           oldPersonID: decryptedOldPersonID,
           account_number: decryptedaccount_number,
           p_paper_originalname: p_paper_originalname,
+          p_prepaid_label: p_prepaid_label,
         }));
         sessionStorage.setItem("PersonID", decryptedOldPersonID);
 
