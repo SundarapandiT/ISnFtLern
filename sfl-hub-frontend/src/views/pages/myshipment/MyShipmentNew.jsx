@@ -1373,7 +1373,7 @@ const Myshipmentnew = ({ setEdit }) => {
                       </TableRow>
 
                       {/* Add Prepaid Label row below the Invoice row */}
-                      {doc.type === "Invoice" && userdata.p_prepaid_label !== 0 && (
+                      {doc.type === "Invoice" && fromAddress.servicename && userdata.p_prepaid_label !== 0 && (
                         <TableRow className="custom-textfield">
                           <TableCell>
                             <FormControl fullWidth variant="outlined">

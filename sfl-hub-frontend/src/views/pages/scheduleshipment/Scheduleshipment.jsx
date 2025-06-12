@@ -1383,7 +1383,7 @@ const Schedule = () => {
     setActiveModule(module);
     if (module === "Schedule Shipment") {
       navigate("/admin/Scheduleshipment", { replace: true });
-      window.location.reload();
+      // window.location.reload();
       setConfirmation(false);
 
       setActiveTab("schedule-pickup");
