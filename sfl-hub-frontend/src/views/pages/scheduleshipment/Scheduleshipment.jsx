@@ -165,8 +165,8 @@ const handleprofile=()=>{
   const [dutiesPaidBy, setDutiesPaidBy] = useState("Recipient");
   const [packageData, setPackageData] = useState(() =>
     packageDetails.length > 0
-      ? packageDetails.map(pkg => ({
-          noOfPackages: 1,
+      ? packageDetails.map((pkg, index) => ({
+          noOfPackages: index + 1,
           weight: pkg.weight || 0,
           length: pkg.length || 0,
           width: pkg.width || 0,
@@ -239,8 +239,8 @@ const handleprofile=()=>{
     setNoOfPackages(packageDetails.length || 1);
     setPackageData(
       packageDetails.length > 0
-        ? packageDetails.map((pkg) => ({
-            noOfPackages: 1,
+        ? packageDetails.map((pkg, index) => ({
+            noOfPackages: index + 1,
             weight: pkg.weight || 0,
             length: pkg.length || 0,
             width: pkg.width || 0,
