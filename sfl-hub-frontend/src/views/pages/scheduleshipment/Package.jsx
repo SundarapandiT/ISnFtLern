@@ -255,6 +255,7 @@ const Package = ({
               <FormControl fullWidth className="small-textfield">
                 <InputLabel id="no-of-packages-label">No. of Packages</InputLabel>
                 <Select
+                disabled={isGetrate}
                   labelId="no-of-packages-label"
                   value={noOfPackages || 1}
                   label="No. of Packages"

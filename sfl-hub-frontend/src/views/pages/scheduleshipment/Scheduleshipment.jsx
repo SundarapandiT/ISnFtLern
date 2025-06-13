@@ -1,9 +1,8 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, Routes, Route } from "react-router-dom";
-
 import axios from "axios";
-import { api, encryptURL, getStateID, getUserIP, getUserDetails } from '../../../utils/api'
+import { api, encryptURL, getStateID, getUserIP, getUserDetails } from '../../../utils/api';
 import { toast } from "react-hot-toast";
 import Myshipment from "../myshipment/Myshipment";
 import { useStyles } from "../../styles/MyshipmentStyle";
@@ -12,7 +11,6 @@ import { useStyles } from "../../styles/MyshipmentStyle";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
-// import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import AppBar from "@mui/material/AppBar";
 import Menu from "@mui/material/Menu";
@@ -32,10 +30,8 @@ import PickupForm from "./PickupForm";
 import Sender from "./Sender";
 import Recipient from "./Recipient";
 import Package from "./Package";
-
-// import { countries } from "../../../data/Countries";
+import ProfilePage from "./ProfilePage";
 import { useShipmentContext } from "../../ShipmentContext";
-
 import {
   Root,
   MainContent,
@@ -51,24 +47,18 @@ import CryptoJS from "crypto-js";
 import ScheduleConfirmation from "../scheduleconfirmation/ScheduleConfirmation";
 import GetRate from "../getrate/GetRate";
 
-
 const Schedule = () => {
-  const { fromDetails, toDetails, packageDetails, Giszip,
-    Gresiszip, GshipmentType, isGetrate } = useShipmentContext();
-
-
+  const { fromDetails, toDetails, packageDetails, Giszip, Gresiszip, GshipmentType, isGetrate,setIsgetrate } = useShipmentContext();
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
   const [confirmation, setConfirmation] = useState(false);
   const classes = useStyles();
-
 
   const { data: countries = [], isLoading: isCountriesLoading, isError: isCountriesError } = useQuery({
     queryKey: ['countries'],
     queryFn: async () => {
       const res = await axios.get(`${api.BackendURL}/locations/getCountry`);
       const countryData = res.data?.user?.[0] || [];
-
       return countryData.map(country => ({
         value: country.countrycode.toLowerCase(),
         label: country.countryname,
@@ -76,7 +66,7 @@ const Schedule = () => {
         iszipavailable: country.iszipavailable,
       }));
     },
-    staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours since country data rarely changes
+    staleTime: 24 * 60 * 60 * 1000,
     retry: 2,
     onError: (error) => {
       console.error('Failed to fetch countries:', error);
@@ -84,7 +74,6 @@ const Schedule = () => {
     }
   });
 
-  // Profile
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -95,6 +84,12 @@ const Schedule = () => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+const handleprofile=()=>{
+  navigate("/admin/profile",{replace:true})
+  setActiveModule("");
+  setActiveTab("")
+  handleMenuClose()
+}
 
   const handleLogout = () => {
     window.location.reload();
@@ -102,90 +97,67 @@ const Schedule = () => {
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("PersonID");
     handleMenuClose();
-  }
+  };
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [Loginname, setLoginname] = useState("Unknown")
-  const [userId, setUserId] = useState("");
-  const [userOldid, setUserOldId] = useState("");
-  const [userName, setUserName] = useState("");
-  const [account_number, setaccountNumber] = useState();
-
-  useEffect(() => {
-    const storedUser = JSON.parse(sessionStorage.getItem("user"));
-    if (storedUser) {
-      setLoginname(storedUser.name);
-      setContactName(storedUser.name);
-      setEmail(storedUser.email);
-      // setPhone1(storedUser.phone);
-      // setUserId(storedUser.personID);
-      setUserId(storedUser.personID);
-      setUserName(storedUser.username);
-      setaccountNumber(storedUser.account_number);
-      // setaccountNumber("12sfgj34gj5678");
-
-    }
-    const storedPersonId = sessionStorage.getItem("PersonID");
-    if (storedPersonId) {
-      setUserOldId(storedPersonId);
-    }
-
-
-  }, []);
-
-  // State for Schedule Pickup tab
-  const [shipmentType, setShipmentType] = useState("");
-  const [fromCountry, setFromCountry] = useState("");
-  const [toCountry, setToCountry] = useState("");
+  const [formData, setFormData] = useState({
+    // Pickup
+    shipmentType: "",
+    fromCountry: "",
+    toCountry: "",
+    // Sender
+    country: "",
+    countrycode: "",
+    countryId: "",
+    iszip: Giszip ? Giszip : 1,
+    companyName: "",
+    contactName: "",
+    addressLine1: "",
+    addressLine2: "",
+    addressLine3: "",
+    zipCode: "",
+    fromCity: "",
+    state: "",
+    phone1: "",
+    phone2: "",
+    email: "",
+    needsPickup: "No - I Will Drop Off My Package",
+    pickupDate: "",
+    // Recipient
+    recipientCountry: "",
+    recipientcountrycode: "",
+    recipientCountryId: "",
+    resiszip: Gresiszip ? Gresiszip : 1,
+    recipientCompanyName: "",
+    recipientContactName: "",
+    recipientAddressLine1: "",
+    recipientAddressLine2: "",
+    recipientAddressLine3: "",
+    recipientZipCode: "",
+    recipientCity: "",
+    recipientState: "",
+    recipientPhone1: "",
+    recipientPhone2: "",
+    recipientEmail: "",
+    recipientLocationType: "Residential",
+  });
   const [pickupErrors, setPickupErrors] = useState({});
-
-  // State for Sender tab
-
-  const [country, setCountry] = useState("");
-  const [countrycode, setcountrycode] = useState("");
-  const [countryId, setCountryId] = useState("");
-  const [iszip, setisZip] = useState(Giszip ? Giszip : 1);
-  const [companyName, setCompanyName] = useState("");
-  const [contactName, setContactName] = useState("");
-  const [addressLine1, setAddressLine1] = useState("");
-  const [addressLine2, setAddressLine2] = useState("");
-  const [addressLine3, setAddressLine3] = useState("");
-  const [zipCode, setZipCode] = useState("");
-  const [fromCity, setFromCity] = useState("");
-  const [state, setState] = useState("");
-  const [phone1, setPhone1] = useState("");
-  const [phone2, setPhone2] = useState("");
-  const [email, setEmail] = useState("");
-  const [needsPickup, setNeedsPickup] = useState("No - I Will Drop Off My Package");
-  const [pickupDate, setPickupDate] = useState("");
   const [senderErrors, setSenderErrors] = useState({});
-
-  // Recipient tab
-  const [recipientCountry, setRecipientCountry] = useState("");
-  const [recipientcountrycode, setrecipientcountrycode] = useState("");
-  const [recipientCountryId, setRecipientCountryId] = useState("");
-  const [resiszip, setresisZip] = useState(Gresiszip ? Gresiszip : 1);
-  const [recipientCompanyName, setRecipientCompanyName] = useState("");
-  const [recipientContactName, setRecipientContactName] = useState("");
-  const [recipientAddressLine1, setRecipientAddressLine1] = useState("");
-  const [recipientAddressLine2, setRecipientAddressLine2] = useState("");
-  const [recipientAddressLine3, setRecipientAddressLine3] = useState("");
-  const [recipientZipCode, setRecipientZipCode] = useState("");
-  const [recipientCity, setRecipientCity] = useState("");
-  const [recipientState, setRecipientState] = useState("");
-  const [recipientPhone1, setRecipientPhone1] = useState("");
-  const [recipientPhone2, setRecipientPhone2] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
-  const [recipientLocationType, setRecipientLocationType] = useState("Residential");
   const [recipientErrors, setRecipientErrors] = useState({});
-
-
   const [fromoldcountryid, setfromoldcountryid] = useState("");
   const [fromoldstateid, setfromoldstateid] = useState("");
   const [recipientoldcountryid, setrecipientoldcountryid] = useState("");
   const [recipientoldstateid, setrecipientoldstateid] = useState("");
-
+  const [loginName, setLoginName] = useState("Unknown");
+  const [userId, setUserId] = useState("");
+  const [userOldid, setUserOldId] = useState("");
+  const [userName, setUserName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [oldphone1, setoldphone1] = useState("");
+  const [oldphone2, setoldphone2] = useState("");
+  const [oldrecipientphone1, setoldrecipientphone1] = useState("");
+  const [oldrecipientphone2, setoldrecipientphone2] = useState("");
 
   // Package tab
   const [packageType, setPackageType] = useState(toDetails.packageType || "package");
@@ -194,23 +166,23 @@ const Schedule = () => {
   const [packageData, setPackageData] = useState(() =>
     packageDetails.length > 0
       ? packageDetails.map(pkg => ({
-        noOfPackages: 1,
-        weight: pkg.weight || 0,
-        length: pkg.length || 0,
-        width: pkg.width || 0,
-        height: pkg.height || 0,
-        chargable_weight: pkg.chargeableWeight || 0,
-        insured_value: pkg.insuredValue || 0,
-      }))
+          noOfPackages: 1,
+          weight: pkg.weight || 0,
+          length: pkg.length || 0,
+          width: pkg.width || 0,
+          height: pkg.height || 0,
+          chargable_weight: pkg.chargeableWeight || 0,
+          insured_value: pkg.insuredValue || 0,
+        }))
       : [{
-        noOfPackages: 1,
-        weight: 0,
-        length: 0,
-        width: 0,
-        height: 0,
-        chargable_weight: 0,
-        insured_value: 0,
-      }]
+          noOfPackages: 1,
+          weight: 0,
+          length: 0,
+          width: 0,
+          height: 0,
+          chargable_weight: 0,
+          insured_value: 0,
+        }]
   );
   const [samecountry, setSamecountry] = useState(false);
   const [commercialInvoiceData, setCommercialInvoiceData] = useState([
@@ -223,148 +195,143 @@ const Schedule = () => {
   ]);
   const [packageErrors, setPackageErrors] = useState({});
   const [managedBy, setManagedBy] = useState("");
-  const [shippingid, setShippingId] = useState("");
-
-  const [oldphone1, setoldphone1] = useState("");
-  const [oldphone2, setoldphone2] = useState("");
-  const [oldrecipientphone1, setoldrecipientphone1] = useState("");
-  const [oldrecipientphone2, setoldrecipientphone2] = useState("");
+  const [shippingId, setShippingId] = useState("");
 
   const fedexservice = JSON.parse(sessionStorage.getItem("service")) || "";
 
   useEffect(() => {
-    setFromCountry(isGetrate && fromDetails.fromCountry)
-    setToCountry(isGetrate && toDetails.toCountry)
-    setShipmentType(isGetrate && GshipmentType);
-    setisZip(Giszip || 1);
-    setresisZip(Gresiszip || 1);
-    const fromCountryObj = countries.find((c) => c.value === fromDetails.fromCountry);
-    const toCountryObj = countries.find((c) => c.value === toDetails.toCountry);
-    setCountry(fromCountryObj ? fromCountryObj.label : "");
-    setZipCode(fromDetails.fromZipCode);
-    setFromCity(fromDetails.fromCity);
-    setState(fromDetails.fromState);
-    setRecipientCountry(toCountryObj ? toCountryObj.label : "");
-    setRecipientZipCode(toDetails.toZipCode);
-    setRecipientCity(toDetails.toCity);
-    setRecipientState(toDetails.toState);
-    setPackageType(toDetails.packageType || 'Package');
-    setPickupDate(toDetails.shipDate || new Date().toISOString().split('T')[0]);
-    setNoOfPackages(packageDetails.length || 1);
+    const storedUser = JSON.parse(sessionStorage.getItem("user"));
+    if (storedUser) {
+      setLoginName(storedUser.name);
+      setFormData(prev => ({
+        ...prev,
+        contactName: storedUser.name,
+        email: storedUser.email,
+      }));
+      setUserId(storedUser.personID);
+      setUserName(storedUser.username);
+      setAccountNumber(storedUser.account_number);
+    }
+    const  storedPersonId = sessionStorage.getItem("PersonID");
+    if (storedPersonId) {
+      setUserOldId(storedPersonId);
+    }
+  }, []);
 
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      fromCountry: isGetrate && fromDetails.fromCountry,
+      toCountry: isGetrate && toDetails.toCountry,
+      shipmentType: isGetrate && GshipmentType,
+      iszip: Giszip || 1,
+      resiszip: Gresiszip || 1,
+      zipCode: fromDetails.fromZipCode,
+      fromCity: fromDetails.fromCity,
+      state: fromDetails.fromState,
+      recipientCountry: countries.find((c) => c.value === toDetails.toCountry)?.label || "",
+      recipientZipCode: toDetails.toZipCode,
+      recipientCity: toDetails.toCity,
+      recipientState: toDetails.toState,
+      pickupDate: toDetails.shipDate || new Date().toISOString().split('T')[0],
+    }));
+    setPackageType(toDetails.packageType || 'Package');
+    setNoOfPackages(packageDetails.length || 1);
     setPackageData(
       packageDetails.length > 0
         ? packageDetails.map((pkg) => ({
-          noOfPackages: 1,
-          weight: pkg.weight || 0,
-          length: pkg.length || 0,
-          width: pkg.width || 0,
-          height: pkg.height || 0,
-          chargable_weight: pkg.chargeableWeight || 0,
-          insured_value: pkg.insuredValue || 0,
-        }))
-        : [
-          {
             noOfPackages: 1,
-            weight: 0,
-            length: 0,
-            width: 0,
-            height: 0,
-            chargable_weight: 0,
-            insured_value: 0,
-          },
-        ]
+            weight: pkg.weight || 0,
+            length: pkg.length || 0,
+            width: pkg.width || 0,
+            height: pkg.height || 0,
+            chargable_weight: pkg.chargeableWeight || 0,
+            insured_value: pkg.insuredValue || 0,
+          }))
+        : [
+            {
+              noOfPackages: 1,
+              weight: 0,
+              length: 0,
+              width: 0,
+              height: 0,
+              chargable_weight: 0,
+              insured_value: 0,
+            },
+          ]
     );
-  }, [
-    GshipmentType,
-    Giszip,
-    Gresiszip,
-    fromDetails,
-    toDetails,
-    packageDetails,
-  ]);
-
+  }, [GshipmentType, Giszip, Gresiszip, fromDetails, toDetails, packageDetails, countries, isGetrate]);
 
   const resetForm = () => {
-  // Schedule Pickup tab
-  setShipmentType("");
-  setFromCountry("");
-  setToCountry("");
-  setPickupErrors({});
-
-  // Sender tab
-  setCountry("");
-  setcountrycode("");
-  setCountryId("");
-  setisZip(1);
-  setCompanyName("");
-  setContactName("");
-  setAddressLine1("");
-  setAddressLine2("");
-  setAddressLine3("");
-  setZipCode("");
-  setFromCity("");
-  setState("");
-  setPhone1("");
-  setPhone2("");
-  setEmail("");
-  setNeedsPickup("No - I Will Drop Off My Package");
-  setPickupDate("");
-  setSenderErrors({});
-
-  // Recipient tab
-  setRecipientCountry("");
-  setrecipientcountrycode("");
-  setRecipientCountryId("");
-  setresisZip(1);
-  setRecipientCompanyName("");
-  setRecipientContactName("");
-  setRecipientAddressLine1("");
-  setRecipientAddressLine2("");
-  setRecipientAddressLine3("");
-  setRecipientZipCode("");
-  setRecipientCity("");
-  setRecipientState("");
-  setRecipientPhone1("");
-  setRecipientPhone2("");
-  setRecipientEmail("");
-  setRecipientLocationType("Residential");
-  setRecipientErrors({});
-
-  // Old IDs and phones
-  setfromoldcountryid("");
-  setfromoldstateid("");
-  setrecipientoldcountryid("");
-  setrecipientoldstateid("");
-  setoldphone1("");
-  setoldphone2("");
-  setoldrecipientphone1("");
-  setoldrecipientphone2("");
-
-  // Package tab
-  setPackageType("package");
-  setNoOfPackages(1);
-  setDutiesPaidBy("Recipient");
-  setPackageData([{
-    noOfPackages: 1,
-    weight: 0,
-    length: 0,
-    width: 0,
-    height: 0,
-    chargable_weight: 0,
-    insured_value: 0,
-  }]);
-  setSamecountry(false);
-  setCommercialInvoiceData([{
-    packageNumber: "1",
-    contentDescription: "",
-    quantity: 0,
-    valuePerQty: 0,
-  }]);
-  setPackageErrors({});
-  setManagedBy("");
-  setShippingId("");
-};
+    setFormData({
+      shipmentType: "",
+      fromCountry: "",
+      toCountry: "",
+      country: "",
+      countrycode: "",
+      countryId: "",
+      iszip: 1,
+      companyName: "",
+      contactName: "",
+      addressLine1: "",
+      addressLine2: "",
+      addressLine3: "",
+      zipCode: "",
+      fromCity: "",
+      state: "",
+      phone1: "",
+      phone2: "",
+      email: "",
+      needsPickup: "No - I Will Drop Off My Package",
+      pickupDate: "",
+      recipientCountry: "",
+      recipientcountrycode: "",
+      recipientCountryId: "",
+      resiszip: 1,
+      recipientCompanyName: "",
+      recipientContactName: "",
+      recipientAddressLine1: "",
+      recipientAddressLine2: "",
+      recipientAddressLine3: "",
+      recipientZipCode: "",
+      recipientCity: "",
+      recipientState: "",
+      recipientPhone1: "",
+      recipientPhone2: "",
+      recipientEmail: "",
+      recipientLocationType: "Residential",
+    });
+    setfromoldcountryid("");
+    setfromoldstateid("");
+    setrecipientoldcountryid("");
+    setrecipientoldstateid("");
+    setoldphone1("");
+    setoldphone2("");
+    setoldrecipientphone1("");
+    setoldrecipientphone2("");
+    setPackageType("package");
+    setNoOfPackages(1);
+    setDutiesPaidBy("Recipient");
+    setPackageData([{
+      noOfPackages: 1,
+      weight: 0,
+      length: 0,
+      width: 0,
+      height: 0,
+      chargable_weight: 0,
+      insured_value: 0,
+    }]);
+    setSamecountry(false);
+    setCommercialInvoiceData([{
+      packageNumber: "1",
+      contentDescription: "",
+      quantity: 0,
+      valuePerQty: 0,
+    }]);
+    setPackageErrors({});
+    setManagedBy("");
+    setShippingId("");
+  };
 
   const getManagedBy = async () => {
     console.log("Fetching ManagedBy...");
@@ -372,15 +339,14 @@ const Schedule = () => {
       const response = await axios.post(
         "https://hubapi.sflworldwide.com/scheduleshipment/getManagedByPhoneOREmailShipment",
         {
-          FromEmail: email,
+          FromEmail: formData.email,
           FromPhone1: oldphone1,
           FromPhone2: oldphone2,
-          ToEmail: recipientEmail,
+          ToEmail: formData.recipientEmail,
           ToPhone1: oldrecipientphone1,
           ToPhone2: oldrecipientphone2,
         }
       );
-
       const managedby = response.data?.data?.[0]?.ManagedBy || "";
       setManagedBy(managedby);
       console.log("ManagedBy fetched successfully", {
@@ -402,7 +368,6 @@ const Schedule = () => {
   const SendOldDb = async (trackingNumber, managedByResult) => {
     const loadingToast = toast.loading("Sending shipment...");
     try {
-
       const transformedPackages = packageData.map((pkg, index) => ({
         shipments_tracking_number: trackingNumber || "",
         PackageNumber: index + 1,
@@ -436,11 +401,11 @@ const Schedule = () => {
         NewTrackingNumber: trackingNumber || null,
         shipments: {
           tracking_number: "",
-          shipment_type: shipmentType,
-          location_type: recipientLocationType,
-          is_pickup: needsPickup === "Yes - I Need Pickup Service" ? true : false,
-          pickup_date: pickupDate,
-          pickupProvider:671,
+          shipment_type: formData.shipmentType,
+          location_type: formData.recipientLocationType,
+          is_pickup: formData.needsPickup === "Yes - I Need Pickup Service" ? true : false,
+          pickup_date: formData.pickupDate,
+          pickupProvider: 671,
           package_type: packageType,
           total_packages: noOfPackages,
           is_pay_online: 0,
@@ -461,8 +426,8 @@ const Schedule = () => {
             .reduce((sum, item) => sum + Number(item.total_value || 0), 0)
             .toString(),
           userName: userName,
-          ServiceName: fedexservice.MainServiceName || "",
-          SubServiceName: fedexservice.service || "",
+          ServiceName: isGetrate&&fedexservice.MainServiceName || "",
+          SubServiceName: isGetrate&&fedexservice.service || "",
           managed_by: managedByResult || "0",
           ShippingID: null,
           InvoiceDueDate: null,
@@ -471,45 +436,45 @@ const Schedule = () => {
         from_address: {
           AddressID: null,
           country_id: fromoldcountryid ? fromoldcountryid : 202,
-          country_name: fromCountry,
-          fromCountryCode: countrycode,
-          company_name: companyName,
-          contact_name: contactName,
-          address_1: addressLine1,
-          address_2: addressLine2,
-          address_3: addressLine3,
+          country_name: formData.fromCountry,
+          fromCountryCode: formData.countrycode,
+          company_name: formData.companyName,
+          contact_name: formData.contactName,
+          address_1: formData.addressLine1,
+          address_2: formData.addressLine2,
+          address_3: formData.addressLine3,
           MovingBack: false,
           OriginalPassportAvailable: false,
           EligibleForTR: false,
           city_id: 1,
-          city_name: fromCity,
+          city_name: formData.fromCity,
           fedex_city: "",
           state_id: fromoldstateid ? fromoldstateid : 1,
-          state_name: state,
-          zip_code: zipCode,
-          phone1: phone1,
-          phone2: phone2,
-          email: email,
+          state_name: formData.state,
+          zip_code: formData.zipCode,
+          phone1: formData.phone1,
+          phone2: formData.phone2,
+          email: formData.email,
         },
         to_address: {
           AddressID: null,
           country_id: recipientoldcountryid ? recipientoldcountryid : 89,
-          country_name: recipientCountry,
-          toCountryCode: recipientcountrycode,
-          company_name: recipientCompanyName,
-          contact_name: recipientContactName,
-          address_1: recipientAddressLine1,
-          address_2: recipientAddressLine2,
-          address_3: recipientAddressLine3,
+          country_name: formData.recipientCountry,
+          toCountryCode: formData.recipientcountrycode,
+          company_name: formData.recipientCompanyName,
+          contact_name: formData.recipientContactName,
+          address_1: formData.recipientAddressLine1,
+          address_2: formData.recipientAddressLine2,
+          address_3: formData.recipientAddressLine3,
           city_id: 1,
-          city_name: recipientCity,
+          city_name: formData.recipientCity,
           fedex_city: "",
           state_id: recipientoldstateid ? recipientoldstateid : 1,
-          state_name: recipientState,
-          zip_code: recipientZipCode,
-          phone1: recipientPhone1,
-          phone2: recipientPhone2,
-          email: recipientEmail,
+          state_name: formData.recipientState,
+          zip_code: formData.recipientZipCode,
+          phone1: formData.recipientPhone1,
+          phone2: formData.recipientPhone2,
+          email: formData.recipientEmail,
         },
         packages: transformedPackages,
         commercial: transformedCommercial,
@@ -568,13 +533,8 @@ const Schedule = () => {
     }
 
     try {
-
       const managedByResult = await getManagedBy();
       console.log("managedByResult:", managedByResult);
-      // if (!managedByResult) {
-      //   throw new Error("ManagedBy is empty or not fetched");
-      // }
-
 
       const encrypt = (value) =>
         value ? CryptoJS.AES.encrypt(value, SECRET_KEY).toString() : "";
@@ -588,10 +548,10 @@ const Schedule = () => {
         TrackingNumber: null,
         shipments: {
           tracking_number: "",
-          shipment_type: shipmentType,
-          location_type: recipientLocationType,
-          is_pickup: needsPickup,
-          pickup_date: pickupDate,
+          shipment_type: formData.shipmentType,
+          location_type: formData.recipientLocationType,
+          is_pickup: formData.needsPickup,
+          pickup_date: formData.pickupDate,
           package_type: packageType,
           total_packages: noOfPackages,
           is_pay_online: 0,
@@ -604,8 +564,8 @@ const Schedule = () => {
           duties_paid_by: dutiesPaidBy,
           total_declared_value: commercialInvoiceData ? commercialInvoiceData.reduce((sum, _, index) => sum + Number(calculateTotalValue(index) || 0), 0).toFixed(2) : "",
           userName: userName,
-          ServiceName: fedexservice.MainServiceName || "",
-          SubServiceName: fedexservice.service || "",
+          ServiceName: isGetrate&&fedexservice.MainServiceName || "",
+          SubServiceName: isGetrate&&fedexservice.service || "",
           managed_by: "",
           Old_managed_by: managedByResult || "0",
           ShippingID: null,
@@ -614,46 +574,46 @@ const Schedule = () => {
         MovingBackToIndia: false,
         from_address: {
           AddressID: null,
-          country_id: countryId,
-          country_name: fromCountry,
-          fromCountryCode: countrycode,
-          company_name: companyName,
-          contact_name: encrypt(contactName),
-          address_1: encrypt(addressLine1),
-          address_2: encrypt(addressLine2),
-          address_3: encrypt(addressLine3),
+          country_id: formData.countryId,
+          country_name: formData.fromCountry,
+          fromCountryCode: formData.countrycode,
+          company_name: formData.companyName,
+          contact_name: encrypt(formData.contactName),
+          address_1: encrypt(formData.addressLine1),
+          address_2: encrypt(formData.addressLine2),
+          address_3: encrypt(formData.addressLine3),
           MovingBack: false,
           OriginalPassportAvailable: false,
           EligibleForTR: false,
           city_id: "",
-          city_name: fromCity,
+          city_name: formData.fromCity,
           fedex_city: "",
           state_id: "",
-          state_name: state,
-          zip_code: zipCode,
-          phone1: encrypt(phone1),
-          phone2: encrypt(phone2),
-          email: encrypt(email),
+          state_name: formData.state,
+          zip_code: formData.zipCode,
+          phone1: encrypt(formData.phone1),
+          phone2: encrypt(formData.phone2),
+          email: encrypt(formData.email),
         },
         to_address: {
           AddressID: null,
-          country_id: recipientCountryId,
-          country_name: recipientCountry,
-          toCountryCode: recipientcountrycode,
-          company_name: recipientCompanyName,
-          contact_name: encrypt(recipientContactName),
-          address_1: encrypt(recipientAddressLine1),
-          address_2: encrypt(recipientAddressLine2),
-          address_3: encrypt(recipientAddressLine3),
+          country_id: formData.recipientCountryId,
+          country_name: formData.recipientCountry,
+          toCountryCode: formData.recipientcountrycode,
+          company_name: formData.recipientCompanyName,
+          contact_name: encrypt(formData.recipientContactName),
+          address_1: encrypt(formData.recipientAddressLine1),
+          address_2: encrypt(formData.recipientAddressLine2),
+          address_3: encrypt(formData.recipientAddressLine3),
           city_id: "",
-          city_name: recipientCity,
+          city_name: formData.recipientCity,
           fedex_city: "",
           state_id: "",
-          state_name: recipientState,
-          zip_code: recipientZipCode,
-          phone1: encrypt(recipientPhone1),
-          phone2: encrypt(recipientPhone2),
-          email: encrypt(recipientEmail),
+          state_name: formData.recipientState,
+          zip_code: formData.recipientZipCode,
+          phone1: encrypt(formData.recipientPhone1),
+          phone2: encrypt(formData.recipientPhone2),
+          email: encrypt(formData.recipientEmail),
         },
         packages: packageData,
         commercial: commercialInvoiceData ? commercialInvoiceData : [],
@@ -673,17 +633,14 @@ const Schedule = () => {
       );
       if (response.data?.error) {
         toast.dismiss(toastId);
-
         throw new Error(response.data.error);
       }
 
       const { shipments, from_address, to_address } = requestData;
       const trackingNumber = response.data?.user?.TrackingNumber;
 
-
       console.log("Tracking Number:", trackingNumber);
 
-      // Call SendOldDb with the tracking number
       const shippingId = await SendOldDb(trackingNumber, managedByResult);
       if (!shippingId) {
         throw new Error("Failed to obtain ShippingID");
@@ -695,14 +652,13 @@ const Schedule = () => {
         );
         if (isGetrate) {
           try {
-
-            const conversionRateINRtoUSD = 1 / 87; //india
-            const conversionRateCADtoUSD = 1.44; //canada
+            const conversionRateINRtoUSD = 1 / 87;
+            const conversionRateCADtoUSD = 1.44;
 
             let rate = Number(fedexservice.rate);
 
             if (fedexservice.fromcountry.toLowerCase() === "in") {
-              rate *= conversionRateINRtoUSD; 
+              rate *= conversionRateINRtoUSD;
             } else if (fedexservice.fromcountry.toLowerCase() === "ca") {
               rate *= conversionRateCADtoUSD;
             } else if (fedexservice.fromcountry.toLowerCase() !== "us") {
@@ -722,23 +678,22 @@ const Schedule = () => {
               console.log("Unexpected response:", invoiceres);
             }
 
-            const oldinvoiceres= await axios.post(`${api.OldDatabaseURL}/scheduleshipment/GenerateInvoiceGetRate`,{
+            const oldinvoiceres = await axios.post(`${api.OldDatabaseURL}/scheduleshipment/GenerateInvoiceGetRate`, {
               TrackingNumber: trackingNumber,
               UserID: userOldid,
               Rates: roundedRate
-            })
+            });
             if (oldinvoiceres.data?.success && oldinvoiceres.data?.message === "Data saved successfully") {
               console.log("getrate invoice(Old db): Data saved successfully");
             } else {
-              console.log("Unexpected response: (Old db)", invoiceres);
+              console.log("Unexpected response: (Old db)", oldinvoiceres);
             }
-
           } catch (error) {
             console.error("API call failed:", error);
           }
         }
 
-        sessionStorage.removeItem("service")
+        sessionStorage.removeItem("service");
         setConfirmation(true);
         navigate("/admin/ScheduleConfirmation", {
           replace: true,
@@ -752,9 +707,9 @@ const Schedule = () => {
           },
         });
         resetForm();
+        setIsgetrate(false)
       } else {
         toast.dismiss(toastId);
-
         throw new Error("Failed to obtain TrackingNumber");
       }
     } catch (error) {
@@ -768,20 +723,19 @@ const Schedule = () => {
     }
   };
 
-
-
   const [completedTabs, setCompletedTabs] = useState({
     "schedule-pickup": false,
     sender: false,
     recipient: false,
-    package: shipmentType !== "Ocean",
+    package: formData.shipmentType !== "Ocean",
     payment: false,
   });
 
-  const [activeTab, setActiveTab] = useState("schedule-pickup"); // Default active tab
+  const [activeTab, setActiveTab] = useState("schedule-pickup");
   const [activeModule, setActiveModule] = useState("Schedule Shipment");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerwidth, setDrawerWidth] = useState(250);
+
   useEffect(() => {
     if (
       activeModule === "My Shipment" &&
@@ -789,9 +743,7 @@ const Schedule = () => {
       !location.pathname.endsWith("/ShipmentList")
     ) {
       navigate("/admin/ShipmentList", { replace: true });
-
-    }
-    else if (activeModule === "Schedule Shipment") {
+    } else if (activeModule === "Schedule Shipment") {
       if (activeTab === "schedule-pickup") {
         setEdit(false);
         navigate("/admin/Scheduleshipment", { replace: true });
@@ -799,9 +751,6 @@ const Schedule = () => {
     }
   }, [activeModule, activeTab, navigate]);
 
-
-
-  // Function to update the number of rows in packageData based on noOfPackages
   const updatePackageRows = (num) => {
     const newNum = Number(num);
     const currentLength = packageData.length;
@@ -826,8 +775,6 @@ const Schedule = () => {
     const { name, value } = event.target;
     const updatedPackageData = [...packageData];
 
-
-    // If packageType is " ", enforce default values and skip dimension calculations
     if (packageType === "Envelope") {
       updatedPackageData[index] = {
         ...updatedPackageData[index],
@@ -839,7 +786,6 @@ const Schedule = () => {
         insured_value: name === "insured_value" ? value : 0,
       };
     } else {
-      // Normal package logic
       updatedPackageData[index] = {
         ...updatedPackageData[index],
         [name]: value,
@@ -853,20 +799,17 @@ const Schedule = () => {
         const height = parseInt(pkg.height) || 0;
 
         const dimensionalWeight = Math.floor(
-          fromCountry === toCountry
-            ? (length * width * height) / 166 // Domestic
-            : (length * width * height) / 139 // International
+          formData.fromCountry === formData.toCountry
+            ? (length * width * height) / 166
+            : (length * width * height) / 139
         );
 
         updatedPackageData[index].chargable_weight = Math.max(weight, dimensionalWeight);
       }
-
     }
-
 
     setPackageData(updatedPackageData);
   };
-
 
   const handleAddPackage = () => {
     const newData = [
@@ -882,13 +825,13 @@ const Schedule = () => {
       },
     ];
     setPackageData(newData);
-    setNoOfPackages(Math.min(newData.length, 10)); // Sync with dropdown, cap at 10
+    setNoOfPackages(Math.min(newData.length, 10));
   };
 
   const handleRemovePackage = (index) => {
     const newData = packageData.filter((_, i) => i !== index);
     setPackageData(newData);
-    setNoOfPackages(Math.max(newData.length, 1)); // Sync with dropdown, minimum 1
+    setNoOfPackages(Math.max(newData.length, 1));
   };
 
   const handleInvoiceChange = (index, event) => {
@@ -924,203 +867,173 @@ const Schedule = () => {
     return ((invoice.quantity || 0) * (invoice.valuePerQty || 0)).toFixed(2);
   };
 
-  // Validation for Schedule Pickup tab
   const validatePickupForm = () => {
     const newErrors = {};
-    if (!shipmentType) newErrors.shipmentType = "Please select shipment type";
-    if (!fromCountry) newErrors.fromCountry = "Please select from country";
-    if (!toCountry) newErrors.toCountry = "Please select to country";
+    if (!formData.shipmentType) newErrors.shipmentType = "Please select shipment type";
+    if (!formData.fromCountry) newErrors.fromCountry = "Please select from country";
+    if (!formData.toCountry) newErrors.toCountry = "Please select to country";
     setPickupErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Validation for Sender tab
   const validateSenderForm = () => {
     const newErrors = {};
-
-
-    if (!country?.trim()) {
+    if (!formData.country?.trim()) {
       newErrors.country = "Country name is required";
     }
-    if (!contactName?.trim()) {
+    if (!formData.contactName?.trim()) {
       newErrors.contactName = "Contact name is required";
     }
 
     const addressRegex = /^[\u0400-\u04FFa-zA-Z0-9\s.,\-\/()#'&]+$/;
-
     const hasAlphanumeric = /[a-zA-Z0-9]/;
 
-    if (!addressLine1?.trim()) {
+    if (!formData.addressLine1?.trim()) {
       newErrors.addressLine1 = "Address Line 1 is required";
-    } else if (!addressRegex.test(addressLine1.trim())) {
+    } else if (!addressRegex.test(formData.addressLine1.trim())) {
       newErrors.addressLine1 = "Address Line 1 contains unsupported characters";
-    } else if (!hasAlphanumeric.test(addressLine1.trim())) {
+    } else if (!hasAlphanumeric.test(formData.addressLine1.trim())) {
       newErrors.addressLine1 = "Address Line 1 must include at least one letter or number";
-    } else if (addressLine1.trim().length > 60) {
+    } else if (formData.addressLine1.trim().length > 60) {
       newErrors.addressLine1 = "Address Line 1 must be 60 characters or fewer";
     }
-    if (addressLine2?.trim()) {
-      if (!addressRegex.test(addressLine2.trim())) {
+    if (formData.addressLine2?.trim()) {
+      if (!addressRegex.test(formData.addressLine2.trim())) {
         newErrors.addressLine2 = "Address Line 2 contains unsupported characters";
-      } else if (addressLine2.trim().length > 60) {
+      } else if (formData.addressLine2.trim().length > 60) {
         newErrors.addressLine2 = "Address Line 2 must be 60 characters or fewer";
       }
     }
-    if (addressLine3?.trim()) {
-      if (!addressRegex.test(addressLine3.trim())) {
+    if (formData.addressLine3?.trim()) {
+      if (!addressRegex.test(formData.addressLine3.trim())) {
         newErrors.addressLine3 = "Address Line 3 contains unsupported characters";
-      } else if (addressLine3.trim().length > 60) {
+      } else if (formData.addressLine3.trim().length > 60) {
         newErrors.addressLine3 = "Address Line 3 must be 60 characters or fewer";
       }
     }
-    if (iszip !== 0 && Giszip !== 1) {
-      if (!zipCode?.trim()) {
+    if (formData.iszip !== 0 && Giszip !== 1) {
+      if (!formData.zipCode?.trim()) {
         newErrors.zipCode = "Zip Code is required";
-      } else if (!/^[A-Za-z0-9\- ]+$/.test(zipCode.trim())) {
+      } else if (!/^[A-Za-z0-9\- ]+$/.test(formData.zipCode.trim())) {
         newErrors.zipCode = "Zip Code should contain only letters, numbers, hyphens, and spaces";
-      } else if (zipCode.trim().length > 15) {
+      } else if (formData.zipCode.trim().length > 15) {
         newErrors.zipCode = "Zip Code should not exceed 15 characters";
       }
     }
 
-    if (!fromCity?.trim()) {
+    if (!formData.fromCity?.trim()) {
       newErrors.fromCity = "City is required";
-    } else if (fromCity.trim().length > 35) {
+    } else if (formData.fromCity.trim().length > 35) {
       newErrors.fromCity = "City name must be 35 characters or fewer";
     }
 
-    if (iszip !== 0 && Giszip !== 1) {
-      if (!state?.trim()) {
+    if (formData.iszip !== 0 && Giszip !== 1) {
+      if (!formData.state?.trim()) {
         newErrors.state = "State is required";
-      } else if (state.trim().length > 35) {
+      } else if (formData.state.trim().length > 35) {
         newErrors.state = "State name must be 35 characters or fewer";
       }
     }
-    if (!phone1?.trim()) {
+    if (!formData.phone1?.trim()) {
       newErrors.phone1 = "Phone 1 is required";
-    } else if (!/^\+?[1-9]\d{8,14}$/.test(phone1.trim())) {
+    } else if (!/^\+?[1-9]\d{8,14}$/.test(formData.phone1.trim())) {
       newErrors.phone1 = "Please enter a valid phone number";
     }
 
-    if (!email?.trim()) {
+    if (!formData.email?.trim()) {
       newErrors.email = "Email address is required";
-    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())) {
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email.trim())) {
       newErrors.email = "Please enter a valid email address";
-    } else if (email.trim().length > 100) {
+    } else if (formData.email.trim().length > 100) {
       newErrors.email = "Email address must be 100 characters or fewer";
     }
 
-    if (needsPickup === "Yes - I Need Pickup Service" && !pickupDate) {
+    if (formData.needsPickup === "Yes - I Need Pickup Service" && !formData.pickupDate) {
       newErrors.pickupDate = "Pickup Date is required";
     }
     setSenderErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-
-
-
-  // Validation for Recipient tab
   const validateRecipientForm = () => {
     const newErrors = {};
-
     const addressRegex = /^[\u0400-\u04FFa-zA-Z0-9\s.,\-\/()#'&]+$/;
-
     const hasAlphanumeric = /[a-zA-Z0-9]/;
     const zipCodeRegex = /^[A-Za-z0-9\- ]+$/;
 
-
-    if (!recipientContactName?.trim()) {
+    if (!formData.recipientContactName?.trim()) {
       newErrors.contactName = "Contact Name is required";
     }
 
-
-    if (!recipientAddressLine1?.trim()) {
+    if (!formData.recipientAddressLine1?.trim()) {
       newErrors.addressLine1 = "Address Line 1 is required";
-    } else if (!addressRegex.test(recipientAddressLine1.trim())) {
+    } else if (!addressRegex.test(formData.recipientAddressLine1.trim())) {
       newErrors.addressLine1 = "Address Line 1 contains unsupported characters";
-    } else if (!hasAlphanumeric.test(recipientAddressLine1.trim())) {
+    } else if (!hasAlphanumeric.test(formData.recipientAddressLine1.trim())) {
       newErrors.addressLine1 = "Address Line 1 must include at least one letter or number";
-    } else if (recipientAddressLine1.trim().length > 60) {
+    } else if (formData.recipientAddressLine1.trim().length > 60) {
       newErrors.addressLine1 = "Address Line 1 must be 60 characters or fewer";
     }
 
-
-
-    if (recipientAddressLine2?.trim()) {
-      if (!addressRegex.test(recipientAddressLine2.trim())) {
+    if (formData.recipientAddressLine2?.trim()) {
+      if (!addressRegex.test(formData.recipientAddressLine2.trim())) {
         newErrors.addressLine2 = "Address Line 2 contains unsupported characters";
-      } else if (recipientAddressLine2.trim().length > 60) {
+      } else if (formData.recipientAddressLine2.trim().length > 60) {
         newErrors.addressLine2 = "Address Line 2 must be 60 characters or fewer";
       }
     }
 
-
-    if (recipientAddressLine3?.trim()) {
-      if (!addressRegex.test(recipientAddressLine3.trim())) {
+    if (formData.recipientAddressLine3?.trim()) {
+      if (!addressRegex.test(formData.recipientAddressLine3.trim())) {
         newErrors.addressLine3 = "Address Line 3 contains unsupported characters";
-      } else if (recipientAddressLine3.trim().length > 60) {
+      } else if (formData.recipientAddressLine3.trim().length > 60) {
         newErrors.addressLine3 = "Address Line 3 must be 60 characters or fewer";
       }
     }
 
-    if (resiszip !== 0 && Gresiszip !== 1) {
-      if (!recipientZipCode?.trim()) {
+    if (formData.resiszip !== 0 && Gresiszip !== 1) {
+      if (!formData.recipientZipCode?.trim()) {
         newErrors.recipientZipCode = "Zip Code is required";
-      } else if (!zipCodeRegex.test(recipientZipCode.trim())) {
+      } else if (!zipCodeRegex.test(formData.recipientZipCode.trim())) {
         newErrors.recipientZipCode = "Zip Code should contain only letters, numbers, hyphens, and spaces";
-      } else if (recipientZipCode.trim().length > 15) {
+      } else if (formData.recipientZipCode.trim().length > 15) {
         newErrors.recipientZipCode = "Zip Code must be 15 characters or fewer";
       }
     }
 
-
-    if (!recipientCity?.trim()) {
+    if (!formData.recipientCity?.trim()) {
       newErrors.recipientCity = "City is required";
-    } else if (recipientCity.trim().length > 35) {
+    } else if (formData.recipientCity.trim().length > 35) {
       newErrors.recipientCity = "City must be 35 characters or fewer";
     }
 
-    if (resiszip !== 0 && Gresiszip !== 1) {
-      if (!recipientState?.trim()) {
+    if (formData.resiszip !== 0 && Gresiszip !== 1) {
+      if (!formData.recipientState?.trim()) {
         newErrors.state = "State is required";
-      } else if (recipientState.trim().length > 35) {
+      } else if (formData.recipientState.trim().length > 35) {
         newErrors.state = "State must be 35 characters or fewer";
       }
     }
-    if (!recipientPhone1?.trim()) {
+    if (!formData.recipientPhone1?.trim()) {
       newErrors.phone1 = "Phone 1 is required";
-    } else if (!/^\+?[1-9]\d{8,14}$/.test(recipientPhone1.trim())) {
+    } else if (!/^\+?[1-9]\d{8,14}$/.test(formData.recipientPhone1.trim())) {
       newErrors.phone1 = "Please enter a valid phone number (9-15 digits, optional + prefix)";
     }
 
-    if (recipientEmail?.trim()) {
-      if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(recipientEmail.trim())) {
+    if (formData.recipientEmail?.trim()) {
+      if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.recipientEmail.trim())) {
         newErrors.email = "Please enter a valid email address";
       }
     }
-
-    // New validation: Ensure recipient address is not the same as sender address
-    // if (
-    //   recipientAddressLine1?.trim().toLowerCase() === addressLine1?.trim().toLowerCase() &&
-    //   recipientCity?.trim().toLowerCase() === fromCity?.trim().toLowerCase() &&
-    //   recipientState?.trim().toLowerCase() === state?.trim().toLowerCase() &&
-    //   recipientZipCode?.trim().toLowerCase() === zipCode?.trim().toLowerCase() &&
-    //   recipientCountry?.trim().toLowerCase() === country?.trim().toLowerCase()
-    // ) {
-    //   newErrors.addressLine1 = "Recipient address cannot be the same as the sender address";
-    // }
 
     setRecipientErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Validation for Package tab
   const validatePackageForm = () => {
-    console.log("starting to validate")
+    console.log("starting to validate");
     const newErrors = {};
 
-    // Main form validations
     if (!packageType) {
       newErrors.packageType = "Package Type is required";
     }
@@ -1133,7 +1046,6 @@ const Schedule = () => {
       newErrors.dutiesPaidBy = "Duties & Taxes Paid By is required";
     }
 
-    // Package data validation
     if (packageType !== "Envelope") {
       packageData.forEach((pkg, index) => {
         if (!pkg.noOfPackages || pkg.noOfPackages <= 0) {
@@ -1157,7 +1069,6 @@ const Schedule = () => {
       });
     }
 
-    // ✅ Validate commercialInvoiceData only if any field in the invoice is filled
     if (samecountry === false && Array.isArray(commercialInvoiceData) && packageType !== "Envelope") {
       commercialInvoiceData.forEach((invoice, index) => {
         const hasAnyField =
@@ -1183,119 +1094,107 @@ const Schedule = () => {
       });
     }
 
-
     setPackageErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission for Schedule Pickup tab
   const handlePickupSubmit = (e) => {
     e.preventDefault();
     if (validatePickupForm()) {
       console.log("Schedule Pickup Form submitted:", {
-        shipmentType,
-        fromCountry,
-        toCountry,
+        shipmentType: formData.shipmentType,
+        fromCountry: formData.fromCountry,
+        toCountry: formData.toCountry,
       });
       setCompletedTabs((prev) => ({
         ...prev,
         "schedule-pickup": true,
-        package: shipmentType !== "Ocean",
+        package: formData.shipmentType !== "Ocean",
       }));
       setActiveTab("sender");
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    else {
+    } else {
       toast.error("Please fill with Valid Information", {
         position: "top-right",
         autoClose: 3000,
-      }
-      )
+      });
     }
   };
 
-  // Handle form submission for Sender tab
   const handleSenderSubmit = (e) => {
     e.preventDefault();
     if (validateSenderForm()) {
       console.log("Sender Form submitted:", {
-        country,
-        companyName,
-        contactName,
-        addressLine1,
-        addressLine2,
-        addressLine3,
-        zipCode,
-        fromCity,
-        state,
-        phone1,
-        phone2,
-        email,
-        needsPickup,
-        pickupDate,
+        country: formData.country,
+        companyName: formData.companyName,
+        contactName: formData.contactName,
+        addressLine1: formData.addressLine1,
+        addressLine2: formData.addressLine2,
+        addressLine3: formData.addressLine3,
+        zipCode: formData.zipCode,
+        fromCity: formData.fromCity,
+        state: formData.state,
+        phone1: formData.phone1,
+        phone2: formData.phone2,
+        email: formData.email,
+        needsPickup: formData.needsPickup,
+        pickupDate: formData.pickupDate,
       });
       setCompletedTabs((prev) => ({
         ...prev,
         sender: true,
-        package: shipmentType !== "Ocean"
+        package: formData.shipmentType !== "Ocean"
       }));
       setActiveTab("recipient");
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    else {
+    } else {
       toast.error("Please fill with Valid Information", {
         position: "top-right",
         autoClose: 3000,
-      }
-      )
+      });
     }
   };
 
-  // Handle form submission for Recipient tab
   const handleRecipientSubmit = (event) => {
     event.preventDefault();
     if (validateRecipientForm()) {
       console.log("Recipient form submitted", {
-        recipientCountry,
-        recipientCompanyName,
-        recipientContactName,
-        recipientAddressLine1,
-        recipientAddressLine2,
-        recipientAddressLine3,
-        recipientZipCode,
-        recipientCity,
-        recipientState,
-        recipientPhone1,
-        recipientPhone2,
-        recipientEmail,
-        recipientLocationType,
+        recipientCountry: formData.recipientCountry,
+        recipientCompanyName: formData.recipientCompanyName,
+        recipientContactName: formData.recipientContactName,
+        recipientAddressLine1: formData.recipientAddressLine1,
+        recipientAddressLine2: formData.recipientAddressLine2,
+        recipientAddressLine3: formData.recipientAddressLine3,
+        recipientZipCode: formData.recipientZipCode,
+        recipientCity: formData.recipientCity,
+        recipientState: formData.recipientState,
+        recipientPhone1: formData.recipientPhone1,
+        recipientPhone2: formData.recipientPhone2,
+        recipientEmail: formData.recipientEmail,
+        recipientLocationType: formData.recipientLocationType,
       });
       setCompletedTabs((prev) => {
         const updatedTabs = { ...prev, recipient: true };
         console.log("Updated completedTabs:", updatedTabs);
         return updatedTabs;
       });
-      if (shipmentType === "Ocean") {
+      if (formData.shipmentType === "Ocean") {
         handleSubmit();
       } else {
         const nextTab = "package";
         setActiveTab(nextTab);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
-      const oldobj = getStateID(country, state, setfromoldcountryid, setfromoldstateid)
-      const oldobj1 = getStateID(recipientCountry, recipientState, setrecipientoldcountryid, setrecipientoldstateid);
-
-    }
-    else {
+      getStateID(formData.country, formData.state, setfromoldcountryid, setfromoldstateid);
+      getStateID(formData.recipientCountry, formData.recipientState, setrecipientoldcountryid, setrecipientoldstateid);
+    } else {
       toast.error("Please fill with Valid Information", {
         position: "top-right",
         autoClose: 3000,
-      }
-      )
+      });
     }
   };
 
-  // Handle form submission for Package tab
   const handlePackageSubmit = () => {
     if (validatePackageForm()) {
       console.log("Package Form submitted:", {
@@ -1303,18 +1202,14 @@ const Schedule = () => {
         commercialInvoiceData,
       });
       setCompletedTabs((prev) => ({ ...prev, package: true }));
-      // setActiveTab("payment");
       window.scrollTo({ top: 0, behavior: "smooth" });
       handleSubmit();
-      // navigate("/admin/ScheduleConfirmation", { replace: true });
-
     }
   };
 
-  // Handle tab change with validation
   const handleTabChange = (newTab) => {
     const tabOrder =
-      shipmentType === "Ocean"
+      formData.shipmentType === "Ocean"
         ? ["schedule-pickup", "sender", "recipient", "payment"]
         : ["schedule-pickup", "sender", "recipient", "package", "payment"];
     const currentIndex = tabOrder.indexOf(activeTab);
@@ -1354,7 +1249,6 @@ const Schedule = () => {
     }
   };
 
-  // Handle Previous button in Sender tab
   const handlePrevious = () => {
     setActiveTab("schedule-pickup");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1370,7 +1264,6 @@ const Schedule = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
@@ -1383,57 +1276,45 @@ const Schedule = () => {
     setActiveModule(module);
     if (module === "Schedule Shipment") {
       navigate("/admin/Scheduleshipment", { replace: true });
-      // window.location.reload();
       setConfirmation(false);
-
       setActiveTab("schedule-pickup");
       setCompletedTabs({
         "schedule-pickup": false,
         sender: false,
         recipient: false,
-        package: shipmentType !== "Ocean",
+        package: formData.shipmentType !== "Ocean",
         payment: false,
       });
-
-
     } else if (module === "My Shipment") {
-      setEdit(false)
+      setEdit(false);
       setActiveTab("my-shipment");
       navigate("/admin/ShipmentList", { replace: true });
-    }
-    else if (module === "Get Rates") {
+    } else if (module === "Get Rates") {
       navigate("/admin/GetRate", { replace: true });
     }
     setDrawerOpen(false);
   };
 
-
-  // Map country codes to country names for Sender and Recipient
   useEffect(() => {
-    const fromCountryObj = countries.find((c) => c.value === fromCountry);
-    const toCountryObj = countries.find((c) => c.value === toCountry);
-    setCountry(fromCountryObj ? fromCountryObj.label : "");
-
-    setcountrycode(fromCountryObj ? fromCountryObj.value.toLowerCase() : "");
-    setCountryId(fromCountryObj ? fromCountryObj.countryid : "");
-    setRecipientCountry(toCountryObj ? toCountryObj.label : "");
-    setRecipientCountryId(toCountryObj ? toCountryObj.countryid : "");
-    setrecipientcountrycode(toCountryObj ? toCountryObj.value.toLowerCase() : "");
-
+    const fromCountryObj = countries.find((c) => c.value === formData.fromCountry);
+    const toCountryObj = countries.find((c) => c.value === formData.toCountry);
+    setFormData(prev => ({
+      ...prev,
+      country: fromCountryObj ? fromCountryObj.label : "",
+      countrycode: fromCountryObj ? fromCountryObj.value.toLowerCase() : "",
+      countryId: fromCountryObj ? fromCountryObj.countryid : "",
+      recipientCountry: toCountryObj ? toCountryObj.label : "",
+      recipientCountryId: toCountryObj ? toCountryObj.countryid : "",
+      recipientcountrycode: toCountryObj ? toCountryObj.value.toLowerCase() : "",
+    }));
     setSamecountry(fromCountryObj && toCountryObj && fromCountryObj.value === toCountryObj.value);
-
-  }, [fromCountry, toCountry, countrycode, countryId, recipientCountryId, recipientcountrycode, GshipmentType,
-    Giszip,
-    Gresiszip,
-    fromDetails,
-    toDetails,
-    packageDetails, isGetrate]);
+  }, [formData.fromCountry, formData.toCountry, countries, isGetrate]);
 
   return (
     <Root>
       <Sidebar
         drawerOpen={drawerOpen}
-        Loginname={Loginname}
+        Loginname={loginName}
         toggleDrawer={toggleDrawer}
         handleMenuOpen={handleMenuOpen}
         anchorEl={anchorEl}
@@ -1443,13 +1324,11 @@ const Schedule = () => {
         handleModuleClick={handleModuleClick}
         drawerWidth={drawerwidth}
         setDrawerWidth={setDrawerWidth}
-        account_number={account_number}
+        account_number={accountNumber}
       />
 
-      {/* Main Content */}
       <MainContent>
-        {/* Header */}
-        <AppBar position="static" color="default" elevation={1} sx={{ boxShadow: "none", }}>
+        <AppBar position="static" color="default" elevation={1} sx={{ boxShadow: "none" }}>
           <AppBarBox>
             <DesktopToggleBtn>
               <IconButton
@@ -1471,17 +1350,14 @@ const Schedule = () => {
               </IconButton>
             </MobileToggleBtn>
 
-
             <Box sx={{ flexGrow: 1 }} />
-
 
             <UsernameButton
               startIcon={<AccountCircleIcon />}
               onClick={handleMenuOpen}
             >
-              {Loginname}
+              {loginName}
             </UsernameButton>
-
 
             <Menu
               anchorEl={anchorEl}
@@ -1496,14 +1372,13 @@ const Schedule = () => {
                 horizontal: "right",
               }}
             >
-              <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+              <MenuItem onClick={handleprofile}>Profile</MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
           </AppBarBox>
         </AppBar>
         {activeModule === "Schedule Shipment" && !confirmation && (
-          <ContentBox >
-
+          <ContentBox>
             <Typography variant="h5" sx={{ mb: 3, fontSize: "1.3rem" }}>
               <IconBox className="card-icon">
                 <FlightTakeoffIcon className={classes.iconBox} />
@@ -1517,82 +1392,78 @@ const Schedule = () => {
                 setActiveTab={handleTabChange}
                 isMobile={isMobile}
                 completedTabs={completedTabs}
-                shipmentType={shipmentType}
+                shipmentType={formData.shipmentType}
               />
             )}
 
-            {/* Schedule Pickup Tab */}
             {activeModule === "Schedule Shipment" && activeTab === "schedule-pickup" && (
               <PickupForm
-                shipmentType={shipmentType}
-                setShipmentType={setShipmentType}
-                fromCountry={fromCountry}
-                setFromCountry={setFromCountry}
-                toCountry={toCountry}
-                setToCountry={setToCountry}
-                setFromCity={setFromCity}
-                setRecipientCity={setRecipientCity}
+                shipmentType={formData.shipmentType}
+                setShipmentType={(value) => setFormData(prev => ({ ...prev, shipmentType: value }))}
+                fromCountry={formData.fromCountry}
+                setFromCountry={(value) => setFormData(prev => ({ ...prev, fromCountry: value }))}
+                toCountry={formData.toCountry}
+                setToCountry={(value) => setFormData(prev => ({ ...prev, toCountry: value }))}
+                setFromCity={(value) => setFormData(prev => ({ ...prev, fromCity: value }))}
+                setRecipientCity={(value) => setFormData(prev => ({ ...prev, recipientCity: value }))}
                 pickupErrors={pickupErrors}
                 countries={countries}
                 handlePickupSubmit={handlePickupSubmit}
-                iszip={iszip}
-                setisZip={setisZip}
-                resiszip={resiszip}
-                setresisZip={setresisZip}
-                setZipCode={setZipCode}
-                setRecipientZipCode={setRecipientZipCode}
-                setPhone1={setPhone1}
-                setPhone2={setPhone2}
-                setRecipientPhone1={setRecipientPhone1}
-                setRecipientPhone2={setRecipientPhone2}
+                iszip={formData.iszip}
+                setisZip={(value) => setFormData(prev => ({ ...prev, iszip: value }))}
+                resiszip={formData.resiszip}
+                setresisZip={(value) => setFormData(prev => ({ ...prev, resiszip: value }))}
+                setZipCode={(value) => setFormData(prev => ({ ...prev, zipCode: value }))}
+                setRecipientZipCode={(value) => setFormData(prev => ({ ...prev, recipientZipCode: value }))}
+                setPhone1={(value) => setFormData(prev => ({ ...prev, phone1: value }))}
+                setPhone2={(value) => setFormData(prev => ({ ...prev, phone2: value }))}
+                setRecipientPhone1={(value) => setFormData(prev => ({ ...prev, recipientPhone1: value }))}
+                setRecipientPhone2={(value) => setFormData(prev => ({ ...prev, recipientPhone2: value }))}
                 isGetrate={isGetrate}
                 setActiveModule={setActiveModule}
-
-
               />
             )}
 
-            {/* Sender Tab */}
             {activeModule === "Schedule Shipment" && activeTab === "sender" && (
               <Sender
-                country={country}
-                countrycode={countrycode}
-                countryId={countryId}
-                setCountry={setCountry}
-                companyName={companyName}
-                setCompanyName={setCompanyName}
-                contactName={contactName}
-                setContactName={setContactName}
-                addressLine1={addressLine1}
-                setAddressLine1={setAddressLine1}
-                addressLine2={addressLine2}
-                setAddressLine2={setAddressLine2}
-                addressLine3={addressLine3}
-                setAddressLine3={setAddressLine3}
-                zipCode={zipCode}
-                setZipCode={setZipCode}
-                fromCity={fromCity}
-                setFromCity={setFromCity}
-                state={state}
-                setState={setState}
-                phone1={phone1}
-                setPhone1={setPhone1}
-                phone2={phone2}
-                setPhone2={setPhone2}
-                email={email}
-                setEmail={setEmail}
-                needsPickup={needsPickup}
-                setNeedsPickup={setNeedsPickup}
-                pickupDate={pickupDate}
-                setPickupDate={setPickupDate}
+                country={formData.country}
+                countrycode={formData.countrycode}
+                countryId={formData.countryId}
+                setCountry={(value) => setFormData(prev => ({ ...prev, country: value }))}
+                companyName={formData.companyName}
+                setCompanyName={(value) => setFormData(prev => ({ ...prev, companyName: value }))}
+                contactName={formData.contactName}
+                setContactName={(value) => setFormData(prev => ({ ...prev, contactName: value }))}
+                addressLine1={formData.addressLine1}
+                setAddressLine1={(value) => setFormData(prev => ({ ...prev, addressLine1: value }))}
+                addressLine2={formData.addressLine2}
+                setAddressLine2={(value) => setFormData(prev => ({ ...prev, addressLine2: value }))}
+                addressLine3={formData.addressLine3}
+                setAddressLine3={(value) => setFormData(prev => ({ ...prev, addressLine3: value }))}
+                zipCode={formData.zipCode}
+                setZipCode={(value) => setFormData(prev => ({ ...prev, zipCode: value }))}
+                fromCity={formData.fromCity}
+                setFromCity={(value) => setFormData(prev => ({ ...prev, fromCity: value }))}
+                state={formData.state}
+                setState={(value) => setFormData(prev => ({ ...prev, state: value }))}
+                phone1={formData.phone1}
+                setPhone1={(value) => setFormData(prev => ({ ...prev, phone1: value }))}
+                phone2={formData.phone2}
+                setPhone2={(value) => setFormData(prev => ({ ...prev, phone2: value }))}
+                email={formData.email}
+                setEmail={(value) => setFormData(prev => ({ ...prev, email: value }))}
+                needsPickup={formData.needsPickup}
+                setNeedsPickup={(value) => setFormData(prev => ({ ...prev, needsPickup: value }))}
+                pickupDate={formData.pickupDate}
+                setPickupDate={(value) => setFormData(prev => ({ ...prev, pickupDate: value }))}
                 senderErrors={senderErrors}
                 setSenderErrors={setSenderErrors}
                 handleSenderSubmit={handleSenderSubmit}
                 handlePrevious={handlePrevious}
                 setoldphone1={setoldphone1}
                 setoldphone2={setoldphone2}
-                iszip={iszip}
-                setisZip={setisZip}
+                iszip={formData.iszip}
+                setisZip={(value) => setFormData(prev => ({ ...prev, iszip: value }))}
                 isGetrate={isGetrate}
                 setActiveModule={setActiveModule}
                 Giszip={Giszip}
@@ -1600,52 +1471,49 @@ const Schedule = () => {
             )}
             {activeModule === "Schedule Shipment" && activeTab === "recipient" && (
               <Recipient
-                {...{
-                  recipientCountry,
-                  recipientcountrycode,
-                  recipientCountryId,
-                  setRecipientCountry,
-                  recipientCompanyName,
-                  setRecipientCompanyName,
-                  recipientContactName,
-                  setRecipientContactName,
-                  recipientAddressLine1,
-                  setRecipientAddressLine1,
-                  recipientAddressLine2,
-                  setRecipientAddressLine2,
-                  recipientAddressLine3,
-                  setRecipientAddressLine3,
-                  recipientZipCode,
-                  setRecipientZipCode,
-                  recipientCity,
-                  setRecipientCity,
-                  recipientState,
-                  setRecipientState,
-                  recipientPhone1,
-                  setRecipientPhone1,
-                  recipientPhone2,
-                  setRecipientPhone2,
-                  recipientEmail,
-                  setRecipientEmail,
-                  recipientLocationType,
-                  setRecipientLocationType,
-                  recipientErrors,
-                  setRecipientErrors,
-                  handleRecipientSubmit,
-                  handleRecipientPrevious,
-                  setoldrecipientphone1,
-                  setoldrecipientphone2,
-                  shipmentType,
-                  resiszip,
-                  setresisZip,
-                  isGetrate,
-                  setActiveModule,
-                  Gresiszip,
-                }}
+                recipientCountry={formData.recipientCountry}
+                recipientcountrycode={formData.recipientcountrycode}
+                recipientCountryId={formData.recipientCountryId}
+                setRecipientCountry={(value) => setFormData(prev => ({ ...prev, recipientCountry: value }))}
+                recipientCompanyName={formData.recipientCompanyName}
+                setRecipientCompanyName={(value) => setFormData(prev => ({ ...prev, recipientCompanyName: value }))}
+                recipientContactName={formData.recipientContactName}
+                setRecipientContactName={(value) => setFormData(prev => ({ ...prev, recipientContactName: value }))}
+                recipientAddressLine1={formData.recipientAddressLine1}
+                setRecipientAddressLine1={(value) => setFormData(prev => ({ ...prev, recipientAddressLine1: value }))}
+                recipientAddressLine2={formData.recipientAddressLine2}
+                setRecipientAddressLine2={(value) => setFormData(prev => ({ ...prev, recipientAddressLine2: value }))}
+                recipientAddressLine3={formData.recipientAddressLine3}
+                setRecipientAddressLine3={(value) => setFormData(prev => ({ ...prev, recipientAddressLine3: value }))}
+                recipientZipCode={formData.recipientZipCode}
+                setRecipientZipCode={(value) => setFormData(prev => ({ ...prev, recipientZipCode: value }))}
+                recipientCity={formData.recipientCity}
+                setRecipientCity={(value) => setFormData(prev => ({ ...prev, recipientCity: value }))}
+                recipientState={formData.recipientState}
+                setRecipientState={(value) => setFormData(prev => ({ ...prev, recipientState: value }))}
+                recipientPhone1={formData.recipientPhone1}
+                setRecipientPhone1={(value) => setFormData(prev => ({ ...prev, recipientPhone1: value }))}
+                recipientPhone2={formData.recipientPhone2}
+                setRecipientPhone2={(value) => setFormData(prev => ({ ...prev, recipientPhone2: value }))}
+                recipientEmail={formData.recipientEmail}
+                setRecipientEmail={(value) => setFormData(prev => ({ ...prev, recipientEmail: value }))}
+                recipientLocationType={formData.recipientLocationType}
+                setRecipientLocationType={(value) => setFormData(prev => ({ ...prev, recipientLocationType: value }))}
+                recipientErrors={recipientErrors}
+                setRecipientErrors={setRecipientErrors}
+                handleRecipientSubmit={handleRecipientSubmit}
+                handleRecipientPrevious={handleRecipientPrevious}
+                setoldrecipientphone1={setoldrecipientphone1}
+                setoldrecipientphone2={setoldrecipientphone2}
+                shipmentType={formData.shipmentType}
+                resiszip={formData.resiszip}
+                setresisZip={(value) => setFormData(prev => ({ ...prev, resiszip: value }))}
+                isGetrate={isGetrate}
+                setActiveModule={setActiveModule}
+                Gresiszip={Gresiszip}
               />
             )}
-            {/* Package Tab - Only render if shipmentType is not "Ocean" */}
-            {activeModule === "Schedule Shipment" && activeTab === "package" && shipmentType !== "Ocean" && (
+            {activeModule === "Schedule Shipment" && activeTab === "package" && formData.shipmentType !== "Ocean" && (
               <Package
                 packageData={packageData}
                 setPackageData={setPackageData}
@@ -1673,38 +1541,16 @@ const Schedule = () => {
                 setActiveModule={setActiveModule}
               />
             )}
+          </ContentBox>
+        )}
 
-            {/* {activeModule === "Schedule Shipment" && activeTab === "payment" && (
-            <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
-              <Typography variant="h5">Payment Form</Typography>
-              <Typography>Form for payment details will go here.</Typography>
-            </Box>
-          )} */}
-          </ContentBox>)}
-
-        {/* Placeholder for other modules */}
-        {/* {activeModule === "My Shipment" && activeTab === "my-shipment" && (
-         navigate("ShipmentList")
-        )} */}
-
-        {/* {activeModule === "Billing" && (
-          <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
-            <Typography variant="h5">Billing</Typography>
-            <Typography>Content for Billing will go here.</Typography>
-          </Box>
-        )} */}
-        {/* {activeModule === "File a Claim" && (
-          <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
-            <Typography variant="h5">File a Claim</Typography>
-            <Typography>Content for File a Claim will go here.</Typography>
-          </Box>
-        )} */}
         <Routes>
           <Route path="ShipmentList" element={<Myshipment edit={edit} setEdit={setEdit} />} />
           <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} />} />
           <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
           {activeModule === "Get Rates" &&
             <Route path="getrate" element={<GetRate setActiveModule={setActiveModule} setActiveTab={setActiveTab} />} />}
+            <Route path="profile" element={<ProfilePage/>}/>
         </Routes>
         {activeModule !== "My Shipment" && (
           <Box className="footer-box" sx={{
@@ -1719,13 +1565,12 @@ const Schedule = () => {
                 className={`${classes.sflLink} sfl-link`}
                 onClick={() => window.open("https://sflworldwide.com/", "_blank")}
               >
-
                 SFL Worldwide
               </span>
             </Typography>
-          </Box>)}
+          </Box>
+        )}
       </MainContent>
-
     </Root>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef,useEffect } from "react";
 import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
 import { Box, TextField, Typography, MenuItem, FormControl, InputLabel, Select, Autocomplete } from "@mui/material";
@@ -63,6 +63,7 @@ const Sender = ({
   Giszip,
 }) => {
   const debounceRef = useRef(null);
+  const navigate = useNavigate();
 
   const isRepeatedDigits = (number) => /^(\d)\1+$/.test(number);
   const isFakePattern = (number) => {
@@ -135,26 +136,12 @@ const Sender = ({
       errors.phone1 = "";
     }
 
-    // Validate phone2 (only if provided)
-    // if (phone2 && !validatePhoneNumber(phone2, countrycode)) {
-    //   errors.phone2 = "Invalid phone number";
-    // } else {
-    //   errors.phone2 = ""; // Explicitly clear phone2 error
-    // }
-
     // Validate addressLine1
     if (!addressLine1) {
       errors.addressLine1 = "Address Line 1 is required";
     } else {
       errors.addressLine1 = "";
     }
-
-    // Validate zipCode
-    // if (!zipCode) {
-    //   errors.zipCode = "Zip code is required";
-    // } else {
-    //   errors.zipCode = "";
-    // }
 
     // Validate fromCity
     if (!fromCity) {
@@ -200,17 +187,14 @@ const Sender = ({
       console.log("Form validation failed");
     }
   };
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isGetrate || !zipCode || zipCode.length < 3) {
-    if (!isGetrate && iszip !== 0) {
+  const handleZipCodeBlur = async () => {
+    if (isGetrate || !zipCode || zipCode.length < 3 || iszip === 0 || Giszip === 1) {
       setFromCity("");
       setState("");
       setSenderErrors((prev) => ({ ...prev, zipCode: "" }));
+      return;
     }
-    return;
-  }
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -287,9 +271,7 @@ const Sender = ({
         }
       }
     }, 500);
-
-    return () => clearTimeout(debounceRef.current);
-  }, [zipCode, countrycode, countryId, setFromCity, setState, setSenderErrors]);
+  };
 
   useEffect(() => {
     if (phone1 && countrycode) {
@@ -323,25 +305,22 @@ const Sender = ({
       countryID: countryId,
       cityType: 'FedEx',
     });
-    // Extract city names from the response
     return response.data.user[0].map(city => city.cityname);
   };
+
   const { data: cities, isLoading, error } = useQuery({
     queryKey: ['cityList'],
     queryFn: fetchCityList,
   });
 
-
   const handleCityChange = (event, newValue) => {
     setFromCity(newValue || '');
-    // Validate city selection
     if (!newValue) {
       setSenderErrors({ fromCity: 'Please select a city' });
     } else {
       setSenderErrors({ fromCity: '' });
     }
   };
- 
 
   return (
     <Box sx={{ p: 3, bgcolor: "white", borderRadius: 2, m: 2 }}>
@@ -482,10 +461,11 @@ const Sender = ({
           <TextField
             label="Zip Code"
             value={zipCode}
-            placeholder={iszip === 0 || Giszip===1 ? "Not required" : undefined}
+            placeholder={iszip === 0 || Giszip === 1 ? "Not required" : undefined}
             onChange={(e) => setZipCode(e.target.value)}
+            onBlur={handleZipCodeBlur}
             fullWidth
-            required={iszip !== 0 || Giszip !==1}
+            required={iszip !== 0 && Giszip !== 1}
             className="custom-textfield"
             error={!!senderErrors.zipCode}
             helperText={senderErrors.zipCode}
@@ -498,15 +478,13 @@ const Sender = ({
               autoCapitalize: "none",
             }}
             InputProps={{
-              readOnly: iszip === 0 || Giszip ===1,
+              readOnly: iszip === 0 || Giszip === 1,
               startAdornment: <EmailIcon sx={{ color: "red", mr: 1 }} />,
             }}
           />
 
           <Autocomplete
-            // freeSolo
             disablePortal
-
             options={cities || []}
             loading={isLoading}
             value={fromCity}
@@ -549,7 +527,7 @@ const Sender = ({
             )}
           />
 
-          {country && iszip !== 0 && Giszip !==1 ? (
+          {country && iszip !== 0 && Giszip !== 1 ? (
             <Box sx={fieldStyle} >
               <StateDropdown
                 country={countryId}
@@ -571,7 +549,6 @@ const Sender = ({
               />
             </Box>
           )}
-
         </Box>
 
         {/* Row 4: Phone 1, Phone 2, Email */}
@@ -586,7 +563,6 @@ const Sender = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                // maxLength: 15
               }}
               onChange={(phone, countryData) => {
                 setPhone1(phone);
@@ -629,7 +605,6 @@ const Sender = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                // maxLength: 15
               }}
               onChange={(phone, countryData) => {
                 const dialCode = `+${countryData.dialCode}`;
@@ -642,7 +617,6 @@ const Sender = ({
                   hasDigits: /\d/.test(trimmedPhone)
                 });
 
-                // Clear phone2 if input is empty, only dial code, or has no digits
                 if (!phone || phone === dialCode || trimmedPhone === '' || !/\d/.test(trimmedPhone)) {
                   console.log('Clearing phone2: Input is empty or only dial code');
                   setPhone2('');
@@ -655,7 +629,6 @@ const Sender = ({
                 setPhone2(phone);
                 setoldphone2(trimmedPhone);
 
-                // Validate phone2 only if it has meaningful content
                 if (phone.length >= 3 && !validatePhoneNumber(phone, countryData.iso2)) {
                   setSenderErrors(prev => ({ ...prev, phone2: 'Invalid phone number' }));
                 } else {
@@ -663,7 +636,7 @@ const Sender = ({
                 }
               }}
               onBlur={() => {
-                const dialCode = `+${countrycode}`; // Note: This assumes countrycode is the dial code; adjust if needed
+                const dialCode = `+${countrycode}`;
                 const trimmedPhone = phone2 ? phone2.replace(dialCode, '').trim() : '';
                 if (!phone2 || phone2 === dialCode || trimmedPhone === '' || !/\d/.test(trimmedPhone)) {
                   console.log('onBlur: Clearing phone2 as it’s empty or only dial code');
@@ -798,7 +771,6 @@ const Sender = ({
               Next
             </NextButton>
           </Box>
-
         </ButtonBox>
       </form>
     </Box>

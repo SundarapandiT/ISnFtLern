@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { api, encryptURL } from '../../../utils/api';
@@ -89,7 +89,7 @@ const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowCh
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
         <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
           <Select
-            value={weightUnit || 'LB'} // Fallback to 'LB'
+            value={weightUnit || 'LB'}
             onChange={(e) => {
               console.log('Mobile view weight unit change:', e.target.value);
               handleWeightUnitChange(e.target.value);
@@ -814,41 +814,35 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
     }
   };
 
-  useEffect(() => {
-    if (Giszip === 1) {
-      if (!fromDetails.fromCity || fromDetails.fromCountry !== previousCountryRef.current) {
-        updateFromDetails({ fromZipCode: '', fromCity: '', fromState: '' });
-        setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
-        setFormErrors(prev => ({ ...prev, fromCity: '' }));
-      }
+  const handleFromZipCodeBlur = async () => {
+    if (Giszip === 1 || !fromDetails.fromZipCode || fromDetails.fromZipCode.length < 2) {
+      updateFromDetails({ fromCity: '', fromState: '' });
+      setPickupErrors(prev => ({ ...prev, fromZipCode: '' }));
+      setFormErrors(prev => ({ ...prev, fromCity: '' }));
       return;
     }
+
     if (fromDebounceRef.current) clearTimeout(fromDebounceRef.current);
-    fromDebounceRef.current = setTimeout(() => {
-      fetchCityState(fromDetails.fromZipCode, fromDetails.fromCountry, true);
+
+    fromDebounceRef.current = setTimeout(async () => {
+      await fetchCityState(fromDetails.fromZipCode, fromDetails.fromCountry, true);
     }, 500);
-    return () => clearTimeout(fromDebounceRef.current);
-  }, [fromDetails.fromZipCode, fromDetails.fromCountry, Giszip, countries]);
+  };
 
-  const previousCountryRef = useRef(fromDetails.fromCountry);
-
-  useEffect(() => {
-    previousCountryRef.current = fromDetails.fromCountry;
-  }, [fromDetails.fromCountry]);
-
-  useEffect(() => {
-    if (Gresiszip === 1) {
-      updateToDetails({ toZipCode: '', toCity: '', toState: '' });
+  const handleToZipCodeBlur = async () => {
+    if (Gresiszip === 1 || !toDetails.toZipCode || toDetails.toZipCode.length < 2) {
+      updateToDetails({ toCity: '', toState: '' });
       setPickupErrors(prev => ({ ...prev, toZipCode: '' }));
       setFormErrors(prev => ({ ...prev, toCity: '' }));
       return;
     }
+
     if (toDebounceRef.current) clearTimeout(toDebounceRef.current);
-    toDebounceRef.current = setTimeout(() => {
-      fetchCityState(toDetails.toZipCode, toDetails.toCountry, false);
+
+    toDebounceRef.current = setTimeout(async () => {
+      await fetchCityState(toDetails.toZipCode, toDetails.toCountry, false);
     }, 500);
-    return () => clearTimeout(toDebounceRef.current);
-  }, [toDetails.toZipCode, toDetails.toCountry, Gresiszip, countries]);
+  };
 
   const handlePackageRowChange = (index, field, value) => {
     if (isEnvelope) return;
@@ -1067,8 +1061,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
         },
       };
     }
-    //old endpoint : https://hubapi.sflworldwide.com/getQuote/getRates
-    //below new endpoint
+
     try {
       const response = await fetch(`${api.BackendURL}/getRates/getRatesData`, {
         method: 'POST',
@@ -1098,7 +1091,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
         setShowRates(true);
       } else {
         toast.error('No rates');
-        setRates([])
+        setRates([]);
         console.error('API error:', result);
       }
     } catch (error) {
@@ -1173,8 +1166,8 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
 
   const handleBook = (rate) => {
     console.log(`Booking ${rate.service}`);
-    sessionStorage.setItem("service", JSON.stringify(rate))
-    GsetShipmentType(rate.ServiceType)
+    sessionStorage.setItem("service", JSON.stringify(rate));
+    GsetShipmentType(rate.ServiceType);
     setIsgetrate(true);
     setActiveTab("schedule-pickup");
     setActiveModule('Schedule Shipment');
@@ -1184,7 +1177,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '16px' }}>
       <Card sx={{ boxShadow: 3, borderRadius: '8px', margin: '16px', flexGrow: 1, overflow: 'visible' }}>
-        <div className="card-title" style={{ minWidth: "60%" }} >
+        <div className="card-title" style={{ minWidth: "60%" }}>
           <h2 style={{ fontSize: '1rem', fontWeight: "500" }}>
             <IconBox className="card-icon">
               <FlightTakeoffIcon className={classes.iconBox} />
@@ -1260,6 +1253,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                 name="fromZipCode"
                 value={fromDetails.fromZipCode || ''}
                 onChange={handleInputChange}
+                onBlur={handleFromZipCodeBlur}
                 placeholder={Giszip === 1 ? 'Not required' : undefined}
                 size="small"
                 className="custom-textfield"
@@ -1352,6 +1346,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                 name="toZipCode"
                 value={toDetails.toZipCode || ''}
                 onChange={handleInputChange}
+                onBlur={handleToZipCodeBlur}
                 placeholder={Gresiszip === 1 ? 'Not required' : undefined}
                 size="small"
                 className="custom-textfield"
@@ -1535,7 +1530,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                     <TableRow key={index}>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         {rate.service || rate.Error}
-                         {rate.isError }
+                        {rate.isError}
                       </TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>{rate.deliveryDate}</TableCell>
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
@@ -1551,7 +1546,7 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
                       <TableCell sx={{ padding: '8px', fontSize: '14px' }}>
                         <Button
                           onClick={() => handleBook(rate)}
-                           disabled={rate.rate === 0}
+                          disabled={rate.rate === 0}
                           variant="contained"
                           sx={{ backgroundColor: '#4caf50', '&:hover': { backgroundColor: '#388e3c' } }}
                         >

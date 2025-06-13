@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef,useEffect } from "react";
 import axios from "axios";
 import { useQuery } from '@tanstack/react-query';
 import StateDropdown from "./Statedropdown";
@@ -23,9 +23,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CircularProgress from '@mui/material/CircularProgress';
 import { api, encryptURL } from "../../../utils/api";
-import { PhoneInputStyle, PrevButton, NextButton,EditButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
+import { PhoneInputStyle, PrevButton, NextButton, EditButton, ButtonBox } from "../../styles/scheduleshipmentStyle";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useNavigate } from "react-router-dom";
+
 const Recipient = ({
   recipientCountry,
   recipientcountrycode,
@@ -133,13 +134,6 @@ const Recipient = ({
       errors.phone1 = "Invalid phone number";
     }
 
-    // Validate phone2 (only if provided)
-    // if (recipientPhone2 && !validatePhoneNumber(recipientPhone2, recipientcountrycode)) {
-    //   errors.phone2 = "Invalid phone number";
-    // } else {
-    //   errors.phone2 = ""; // Explicitly clear phone2 error if empty or valid
-    // }
-
     setRecipientErrors(prev => ({ ...prev, ...errors }));
     return Object.keys(errors).every(key => !errors[key]);
   };
@@ -151,8 +145,14 @@ const Recipient = ({
     }
   };
 
-  useEffect(() => {
-    if (recipientZipCode.length < 4) return;
+  const handleZipCodeBlur = async () => {
+    if (isGetrate || !recipientZipCode || recipientZipCode.length < 4 || resiszip === 0 || Gresiszip === 1) {
+      setRecipientCity("");
+      setRecipientState("");
+      setRecipientErrors((prev) => ({ ...prev, recipientZipCode: "" }));
+      return;
+    }
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(async () => {
@@ -217,16 +217,7 @@ const Recipient = ({
         }
       }
     }, 500);
-
-    return () => clearTimeout(debounceRef.current);
-  }, [
-    recipientZipCode,
-    recipientcountrycode,
-    recipientCountryId,
-    setRecipientCity,
-    setRecipientState,
-    setRecipientErrors,
-  ]);
+  };
 
   const rowStyle = {
     display: "flex",
@@ -246,9 +237,9 @@ const Recipient = ({
       countryID: recipientCountryId,
       cityType: 'FedEx',
     });
-    // Extract city names from the response
     return response.data.user[0].map(city => city.cityname);
   };
+
   const { data: cities, isLoading, error } = useQuery({
     queryKey: ['cityList'],
     queryFn: fetchCityList,
@@ -256,7 +247,6 @@ const Recipient = ({
 
   const handleCityChange = (event, newValue) => {
     setRecipientCity(newValue || '');
-    // Validate city selection
     if (!newValue) {
       setRecipientErrors({ recipientCity: 'Please select a city' });
     } else {
@@ -399,7 +389,7 @@ const Recipient = ({
             label="Zip Code"
             value={recipientZipCode}
             placeholder={resiszip === 0 || Gresiszip === 1 ? "Not required" : undefined}
-             disabled={isGetrate}
+            disabled={isGetrate}
             className="custom-textfield"
             inputProps={{
               autoComplete: "off",
@@ -408,8 +398,9 @@ const Recipient = ({
               maxLength: 15
             }}
             onChange={(e) => setRecipientZipCode(e.target.value)}
+            onBlur={handleZipCodeBlur}
             fullWidth
-            required={resiszip !== 0 || Gresiszip !== 1}
+            required={resiszip !== 0 && Gresiszip !== 1}
             error={!!recipientErrors.recipientZipCode}
             helperText={recipientErrors.recipientZipCode}
             sx={fieldStyle}
@@ -425,7 +416,7 @@ const Recipient = ({
             loading={isLoading}
             value={recipientCity}
             sx={fieldStyle}
-             disabled={isGetrate}
+            disabled={isGetrate}
             onChange={handleCityChange}
             renderInput={(params) => (
               <TextField
@@ -462,8 +453,8 @@ const Recipient = ({
               />
             )}
           />
-          {recipientCountry && resiszip!==0 && Gresiszip!==1? (
-            <Box sx={fieldStyle}  disabled={isGetrate}>
+          {recipientCountry && resiszip !== 0 && Gresiszip !== 1 ? (
+            <Box sx={fieldStyle}>
               <StateDropdown
                 country={recipientCountryId}
                 state={recipientState}
@@ -490,7 +481,6 @@ const Recipient = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                // maxLength: 15
               }}
               value={recipientPhone1}
               onChange={(phone, countryData) => {
@@ -501,7 +491,7 @@ const Recipient = ({
 
                 if (!phone) {
                   setRecipientErrors(prev => ({ ...prev, phone1: "Phone number is required" }));
-                } else if (phone.length>=3 &&!validatePhoneNumber(phone, countryData.iso2)) {
+                } else if (phone.length >= 3 && !validatePhoneNumber(phone, countryData.iso2)) {
                   setRecipientErrors(prev => ({ ...prev, phone1: "Invalid phone number" }));
                 } else {
                   setRecipientErrors(prev => ({ ...prev, phone1: "" }));
@@ -536,7 +526,6 @@ const Recipient = ({
                 autoComplete: "off",
                 autoCorrect: "off",
                 autoCapitalize: "none",
-                // maxLength: 15,
               }}
               onChange={(phone, countryData) => {
                 setRecipientPhone2(phone);
@@ -546,7 +535,7 @@ const Recipient = ({
 
                 if (!phone) {
                   setRecipientErrors(prev => ({ ...prev, phone2: "" }));
-                } else if (phone.length>=3 && !validatePhoneNumber(phone, countryData.iso2)) {
+                } else if (phone.length >= 3 && !validatePhoneNumber(phone, countryData.iso2)) {
                   setRecipientErrors(prev => ({ ...prev, phone2: "Invalid phone number" }));
                 } else {
                   setRecipientErrors(prev => ({ ...prev, phone2: "" }));
@@ -625,28 +614,27 @@ const Recipient = ({
           >
             Previous
           </PrevButton>
-           <Box sx={{ display: "flex", gap: 2 }}>
-              {isGetrate && (
-                <EditButton
-                  type="button"
-                  variant="contained"
-                  onClick={() => {
-                    setActiveModule("Get Rates");
-                    navigate("/admin/getrate");
-                  }}
-                >
-                  Edit
-                </EditButton>
-              )}
-              <NextButton
-            type="submit"
-            variant="contained"
-            endIcon={<ArrowForwardIcon />}
-          >
-            {shipmentType === "Ocean" ? "Submit" : "Next"}
-          </NextButton>
-              </Box>
-          
+          <Box sx={{ display: "flex", gap: 2 }}>
+            {isGetrate && (
+              <EditButton
+                type="button"
+                variant="contained"
+                onClick={() => {
+                  setActiveModule("Get Rates");
+                  navigate("/admin/getrate");
+                }}
+              >
+                Edit
+              </EditButton>
+            )}
+            <NextButton
+              type="submit"
+              variant="contained"
+              endIcon={<ArrowForwardIcon />}
+            >
+              {shipmentType === "Ocean" ? "Submit" : "Next"}
+            </NextButton>
+          </Box>
         </ButtonBox>
       </form>
     </Box>
