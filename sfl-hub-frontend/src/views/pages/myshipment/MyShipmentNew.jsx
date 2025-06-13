@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import { api, encryptURL } from '../../../utils/api';
@@ -177,6 +177,8 @@ const Myshipmentnew = ({ setEdit }) => {
   const trackingDetails = shipment?.TRACKINGDETAILS || [];
   const invoiceData = shipment?.ACCOUNTSDETAILS || [];
   const paymentData = shipment?.ACCOUNTSDETAILS?.[0]?.PaymentReceivedData || [];
+  const attachmentData=shipment?.ATTACHMENTDETAILS?.[0];
+ 
 
   const isSameCountry =
     fromAddress.countryid && toAddress.countryid
@@ -193,29 +195,68 @@ const Myshipmentnew = ({ setEdit }) => {
 
   console.log(date)
 
-  const baseDocuments = [
-    {
-      type: "Commercial Invoice",
-      documentName: "",
-      createdOn: formattedDate,
-      attachment: "VIEW FILE",
-      status: "ACTIVE",
-    },
-    {
-      type: "Invoice",
-      documentName: "",
-      createdOn: formattedDate,
-      attachment: "VIEW FILE",
-      status: "ACTIVE",
-    },
-  ];
+  const [documents, setDocuments] = useState(() => {
+    const baseDocuments = [
+      {
+        type: "Commercial Invoice",
+        documentName: "",
+        createdOn: new Date().toLocaleDateString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+        }),
+        attachment: "VIEW FILE",
+        status: "ACTIVE",
+      },
+      {
+        type: "Invoice",
+        documentName: "",
+        createdOn: new Date().toLocaleDateString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+        }),
+        attachment: "VIEW FILE",
+        status: "ACTIVE",
+      },
+    ];
+     return isSameCountry
+      ? baseDocuments.filter((doc) => doc.type !== "Commercial Invoice")
+      : baseDocuments;
+  });
   const userdata = JSON.parse(sessionStorage.getItem("user"));
+   const [hasGeneratedLabel, setHasGeneratedLabel] = useState(false);
+   const hasAddedDocument = useRef(false);
 
-  // Filter out "Commercial Invoice" if shipment is domestic
-  const documents = isSameCountry
-    ? baseDocuments.filter((doc) => doc.type !== "Commercial Invoice")
-    : baseDocuments;
-
+   useEffect(() => {
+    if(attachmentData && !hasAddedDocument.current &&
+      !documents.some((doc) => doc.type === "Prepaid Labels")){
+       setDocuments((prevDocuments) => [
+          ...prevDocuments,
+          {
+            type: attachmentData.documenttype,
+            documentName: attachmentData.description,
+            createdOn: attachmentData.createdon
+              ? new Date(attachmentData.createdon).toLocaleDateString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric",
+                })
+              : new Date().toLocaleDateString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric",
+                }),
+            attachment: attachmentData.attachmentpath,
+            status: attachmentData.status.toUpperCase(),
+          },
+        ]);
+    setHasGeneratedLabel(true);
+    hasAddedDocument.current = true;
+    }
+    
+  },[attachmentData, documents])
+   
   if (!shipment || !shipmentInfo) {
     return (
       <Box sx={{ p: isMobile ? 1.5 : 2.5, color: "error.main", fontSize: "0.75rem" }}>
@@ -249,6 +290,7 @@ const Myshipmentnew = ({ setEdit }) => {
   };
   const [documentId, setDocumentID] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
+ 
 
 
   const handleConfirmGenerate = async () => {
@@ -273,8 +315,30 @@ const Myshipmentnew = ({ setEdit }) => {
       console.log("Label generated successfully:", fedexData);
 
       if (fedexData?.success) {
+        setHasGeneratedLabel(true);
         const attachment = fedexData.attachmentData;
         const label = fedexData.FedexLabel;
+        // Add new row to documents state
+        setDocuments((prevDocuments) => [
+          ...prevDocuments,
+          {
+            type: attachment.DocumentType,
+            documentName: attachment.Description,
+            createdOn: label.createdon
+              ? new Date(label.createdon).toLocaleDateString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric",
+                })
+              : new Date().toLocaleDateString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric",
+                }),
+            attachment: attachment.AttachmentPath,
+            status: attachment.Status.toUpperCase(),
+          },
+        ]);
 
         const secondPayload = {
           trackingnumber: label.trackingnumber,
@@ -1301,6 +1365,7 @@ const Myshipmentnew = ({ setEdit }) => {
                               <MenuItem value="Commercial Invoice">Commercial Invoice</MenuItem>
                               <MenuItem value="Invoice">Invoice</MenuItem>
                               <MenuItem value="Contract">Contract</MenuItem>
+                              <MenuItem value="Prepaid Labels">Prepaid Labels</MenuItem>
                             </Select>
                           </FormControl>
                         </TableCell>
@@ -1330,6 +1395,9 @@ const Myshipmentnew = ({ setEdit }) => {
                               } else if (doc.type === "Invoice") {
                                 url = "/auth/printinvoice";
                               }
+                              else if (doc.type === "Prepaid Labels"){
+                                url=doc.attachment;
+                              }
                               if (url) {
                                 window.open(url, "_blank");
                               }
@@ -1341,7 +1409,8 @@ const Myshipmentnew = ({ setEdit }) => {
                               fontSize: isMobile ? "0.75rem" : "0.875rem",
                             }}
                           >
-                            {doc.attachment}
+                            {/* {doc.attachment} */}
+                            VIEW FILE
                           </ResponsiveButton>
                         </TableCell>
                         <TableCell>
@@ -1401,6 +1470,7 @@ const Myshipmentnew = ({ setEdit }) => {
                           </TableCell>
                           <TableCell>
                             <ResponsiveButton
+                            disabled={hasGeneratedLabel}
                               onClick={handleGenerateClick} // Updated to open dialog
                               variant="contained"
                               color="error"
