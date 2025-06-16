@@ -96,6 +96,7 @@ const handleprofile=()=>{
     navigate("/auth/login-page");
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("PersonID");
+    sessionStorage.clear();
     handleMenuClose();
   };
 

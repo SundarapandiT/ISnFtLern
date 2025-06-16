@@ -31,6 +31,7 @@ const InactivityHandler = ({ children }) => {
         sessionStorage.removeItem("user");
         sessionStorage.removeItem("PersonID");
         sessionStorage.removeItem("shipmentData");
+        sessionStorage.clear();
         navigate("/auth/login-page", { replace: true });
       }, 15 * 60 * 1000); // 15 minutes
     };
