@@ -48,7 +48,7 @@ import ScheduleConfirmation from "../scheduleconfirmation/ScheduleConfirmation";
 import GetRate from "../getrate/GetRate";
 
 const Schedule = () => {
-  const { fromDetails, toDetails, packageDetails, Giszip, Gresiszip, GshipmentType, isGetrate,setIsgetrate } = useShipmentContext();
+  const { fromDetails, toDetails, packageDetails, Giszip, Gresiszip, GshipmentType, isGetrate,setIsgetrate,updateFromDetails,updateToDetails,setPackageDetails,GsetisZip,GsetresisZip,GsetShipmentType } = useShipmentContext();
   const navigate = useNavigate();
   const [edit, setEdit] = useState(false);
   const [confirmation, setConfirmation] = useState(false);
@@ -333,6 +333,40 @@ const handleprofile=()=>{
     setManagedBy("");
     setShippingId("");
   };
+
+  const GetrateResetData = () => {
+    updateFromDetails({
+      fromCountry: 'us',
+      fromZipCode: '',
+      fromCity: '',
+      fromState: '',
+    });
+
+    updateToDetails({
+      toCountry: 'us',
+      toZipCode: '',
+      toCity: '',
+      toState: '',
+      shipDate: new Date().toISOString().split('T')[0],
+      residential: 'No',
+      packageType: 'Package',
+    });
+
+    setPackageDetails([
+      {
+        packageNumber: '',
+        weight: '',
+        length: '',
+        width: '',
+        height: '',
+        chargeableWeight: '',
+        insuredValue: '',
+      },
+    ]);
+    GsetisZip(0),GsetresisZip(0),GsetShipmentType("AIR");
+  };
+
+
 
   const getManagedBy = async () => {
     console.log("Fetching ManagedBy...");
@@ -709,6 +743,7 @@ const handleprofile=()=>{
         });
         resetForm();
         setIsgetrate(false)
+        GetrateResetData();
       } else {
         toast.dismiss(toastId);
         throw new Error("Failed to obtain TrackingNumber");
@@ -1276,7 +1311,6 @@ const handleprofile=()=>{
   const handleModuleClick = (module) => {
     setActiveModule(module);
     if (module === "Schedule Shipment") {
-      navigate("/admin/Scheduleshipment", { replace: true });
       setConfirmation(false);
       setActiveTab("schedule-pickup");
       setCompletedTabs({
@@ -1286,6 +1320,8 @@ const handleprofile=()=>{
         package: formData.shipmentType !== "Ocean",
         payment: false,
       });
+      navigate("/admin/Scheduleshipment", { replace: true });
+      
     } else if (module === "My Shipment") {
       setEdit(false);
       setActiveTab("my-shipment");
@@ -1550,7 +1586,7 @@ const handleprofile=()=>{
           <Route path="MyShipmentNew" element={<Myshipmentnew setEdit={setEdit} />} />
           <Route path="ScheduleConfirmation" element={<ScheduleConfirmation />} />
           {activeModule === "Get Rates" &&
-            <Route path="getrate" element={<GetRate setActiveModule={setActiveModule} setActiveTab={setActiveTab} />} />}
+            <Route path="getrate" element={<GetRate setActiveModule={setActiveModule} setActiveTab={setActiveTab} setCompletedTabs={setCompletedTabs} setConfirmation={setConfirmation} />} />}
             <Route path="profile" element={<ProfilePage/>}/>
         </Routes>
         {activeModule !== "My Shipment" && (

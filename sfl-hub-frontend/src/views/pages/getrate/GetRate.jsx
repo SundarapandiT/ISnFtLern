@@ -411,7 +411,7 @@ const ResponsivePackageTable = ({ packageDetails, formErrors, handlePackageRowCh
   );
 };
 
-const GetRate = ({ setActiveModule, setActiveTab }) => {
+const GetRate = ({ setActiveModule, setActiveTab,setCompletedTabs,setConfirmation }) => {
   const navigate = useNavigate();
   const classes = useStyles();
   const {
@@ -1171,6 +1171,13 @@ const GetRate = ({ setActiveModule, setActiveTab }) => {
     setIsgetrate(true);
     setActiveTab("schedule-pickup");
     setActiveModule('Schedule Shipment');
+    setConfirmation(false);
+    setCompletedTabs({
+        "schedule-pickup": false,
+        sender: false,
+        recipient: false,
+        package: formData.shipmentType !== "Ocean",
+      });
     navigate("/admin/Scheduleshipment", { replace: true });
   };
 

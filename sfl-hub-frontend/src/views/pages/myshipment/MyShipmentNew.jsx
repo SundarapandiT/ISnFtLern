@@ -310,7 +310,7 @@ const Myshipmentnew = ({ setEdit }) => {
        setIsLoading(true)
 
       const response = await axios.post(`${api.BackendURL}/FedexLabelApi/fedexLabel`, payload);
-      const fedexData = response?.data?.data?.data;
+      const fedexData = response?.data?.data;
 
       console.log("Label generated successfully:", fedexData);
 
